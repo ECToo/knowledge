@@ -1,0 +1,4 @@
+<material name="logo">
+	<texture filename="logo.png"/>
+</material>
+
