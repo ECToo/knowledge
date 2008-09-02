@@ -1,0 +1,34 @@
+Features for first beta release:
+
+[x] Completed
+[.] In Progress
+[t] Todo
+
+[x] Easy video configuration
+[x] Cross platform compilation
+[x] Base classes for vectors and quaternions
+[x] Customizable render pipeline
+
+[.] Logger Object (Pending XHTML/CSS output).
+[.] Material manager (Pending material parsing, autoload and more material functions)
+[.] PNG and JPG Textures on Wii (Pending jpeg loading)
+[.] MD5 Models with skeletons (Pending animations and an example of it working)
+[.] 2D projections (Pending a good example working)
+[.] Network (Pending integration and test on the Wii)
+
+[t] Cameras
+[t] Render to texture
+[t] Fake dynamic lights
+[t] BSP (quake3 maps) support
+[t] Billboards (sprites)
+[t] Particle System
+[t] Skyboxes
+[t] Frustrum culling
+[t] Stencil shadows
+
+[t] Physics
+[t] Sound
+[t] Timers
+[t] XML Parsing
+[t] Configuration Editor/Loader
+
