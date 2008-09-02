@@ -20198,7 +20198,7 @@ fi
 
 done
 
-ac_config_files="$ac_config_files Makefile src/Makefile include/Makefile examples/Makefile examples/model/Makefile examples/stickers/Makefile examples/nehe5/Makefile libknowledge.pc"
+ac_config_files="$ac_config_files Makefile src/Makefile include/Makefile examples/Makefile examples/model/Makefile examples/stickers/Makefile examples/nehe5/Makefile examples/texture/Makefile libknowledge.pc"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -20807,6 +20807,7 @@ do
     "examples/model/Makefile") CONFIG_FILES="$CONFIG_FILES examples/model/Makefile" ;;
     "examples/stickers/Makefile") CONFIG_FILES="$CONFIG_FILES examples/stickers/Makefile" ;;
     "examples/nehe5/Makefile") CONFIG_FILES="$CONFIG_FILES examples/nehe5/Makefile" ;;
+    "examples/texture/Makefile") CONFIG_FILES="$CONFIG_FILES examples/texture/Makefile" ;;
     "libknowledge.pc") CONFIG_FILES="$CONFIG_FILES libknowledge.pc" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5

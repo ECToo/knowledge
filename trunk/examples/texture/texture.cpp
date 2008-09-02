@@ -47,7 +47,11 @@ int main(int argc, char** argv)
 	vec_t rquad = 0;
 
 	// Lets Create the texture
+	#ifdef __WII__
 	k::texture* cubeTexture = mTextureManager->createTexture("/knowledge/textures/crate.png");
+	#else
+	k::texture* cubeTexture = mTextureManager->createTexture("crate.png");
+	#endif
 
 	bool running = true;
 	while (running)
@@ -86,6 +90,7 @@ int main(int argc, char** argv)
 		mRenderSystem->setMatrixMode(k::MATRIXMODE_MODELVIEW);
 		mRenderSystem->identityMatrix();
 		mRenderSystem->translateScene(0.0f, 0.0f, -4.0f);
+		mRenderSystem->rotateScene(30, 1.0f, 0.0f, 0.0f);
 		mRenderSystem->rotateScene(rquad, 0.0f, 1.0f, 0.0f);
 
 		// Bind Texture
@@ -161,7 +166,11 @@ int main(int argc, char** argv)
 		mRenderSystem->frameEnd();
 
 		// Update Rotations
+		#ifndef __WII__
+		rquad += 0.08f;
+		#else
 		rquad += 0.5f;
+		#endif
 	}
 
 	// delete appRoot;

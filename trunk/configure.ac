@@ -21,4 +21,5 @@ AC_OUTPUT(Makefile src/Makefile \
 			 examples/model/Makefile \
 			 examples/stickers/Makefile \
 			 examples/nehe5/Makefile \
+			 examples/texture/Makefile \
           libknowledge.pc)

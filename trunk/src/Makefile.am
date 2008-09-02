@@ -10,6 +10,7 @@ libknowledge_la_SOURCES = drawable.cpp\
 								  materialManager.cpp\
 								  renderer.cpp\
 								  sticker.cpp\
+								  logger.cpp\
 								  root.cpp
 
 INCLUDES = -I@top_srcdir@/include $(CXXFLAGS)

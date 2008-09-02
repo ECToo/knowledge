@@ -1,1 +1,1 @@
-SUBDIRS = model stickers nehe5
+SUBDIRS = model stickers nehe5 texture
