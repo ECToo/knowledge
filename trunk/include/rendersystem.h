@@ -85,7 +85,7 @@ namespace k
 			#ifndef __WII__
 			virtual void bindTexture(GLuint tex) = 0;
 			#else
-			virtual void bindTexture(GXTexObj tex) = 0;
+			virtual void bindTexture(GXTexObj* tex) = 0;
 			#endif
 
 			virtual unsigned int getScreenWidth() = 0;

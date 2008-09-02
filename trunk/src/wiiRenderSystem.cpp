@@ -39,7 +39,7 @@ void genericMesh::initialise(VertexMode vMode)
 	mTexCoords.clear();
 }
 
-void genericMesh::end(Mtx& mModelViewMatrix)
+void genericMesh::end(Mtx& mModelViewMatrix, GXTexObj* mActiveTexture)
 {
 	unsigned int mVertexSize = mVertices.size();
 
@@ -60,6 +60,10 @@ void genericMesh::end(Mtx& mModelViewMatrix)
 
 		tevColor = GX_COLOR0A0;
 	}
+	else
+	{
+		GX_SetVtxDesc(GX_VA_CLR0, GX_NONE);
+	}
 
 	bool renderNormals = (mNormals.size() == mVertexSize);
 	if (renderNormals)
@@ -72,15 +76,38 @@ void genericMesh::end(Mtx& mModelViewMatrix)
 	if (renderTexCoords)
 	{
  		GX_SetVtxDesc(GX_VA_TEX0, GX_DIRECT);
-		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_POS_XY, GX_F32, 0);
+		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
 
 		texCoord = GX_TEXCOORD0;
+		texMap = GX_TEXMAP0;
+	}
+	else
+	{
+		GX_SetVtxDesc(GX_VA_TEX0, GX_NONE);
 	}
 
 	GX_SetNumChans(1);
-	GX_SetNumTexGens(0);
+
+	if (mActiveTexture)
+	{
+		GX_SetNumTevStages(1);
+		GX_SetNumTexGens(1);
+		GX_SetTevOp(GX_TEVSTAGE0, GX_REPLACE);
+		GX_SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY);
+	}
+	else
+	{
+		GX_SetNumTexGens(0);
+		GX_SetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+	}
+
 	GX_SetTevOrder(tevStage, texCoord, texMap, tevColor);
-	GX_SetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+
+	// Bind the texture
+	if (mActiveTexture);
+	{
+		GX_LoadTexObj(mActiveTexture, GX_TEXMAP0);
+	}
 
 	// ModelView
 	GX_LoadPosMtxImm(mModelViewMatrix, GX_PNMTX0);
@@ -214,6 +241,16 @@ void wiiRenderSystem::configure()
 	else
 	{
 		GX_SetFieldMode(mVideoMode->field_rendering, GX_DISABLE);
+	}
+
+	// Pixel Format
+	if (mVideoMode->aa)
+	{
+		GX_SetPixelFmt(GX_PF_RGB565_Z16, GX_ZC_LINEAR);
+	}
+	else
+	{
+		GX_SetPixelFmt(GX_PF_RGB8_Z24, GX_ZC_LINEAR);
 	}
  
 	// Initial Culling is 0
@@ -476,7 +513,7 @@ void wiiRenderSystem::texCoord(const vector2& coord)
 
 void wiiRenderSystem::endVertices()
 {
-	mGenericMesh.end(mModelViewMatrix);
+	mGenericMesh.end(mModelViewMatrix, mActiveTexture);
 }
 
 void wiiRenderSystem::matAmbient(const vector3& color)
@@ -494,9 +531,10 @@ void wiiRenderSystem::matSpecular(const vector3& color)
 	//TODO
 }
 
-void wiiRenderSystem::bindTexture(GXTexObj tex)
+void wiiRenderSystem::bindTexture(GXTexObj* tex)
 {
-	//TODO
+	// TODO: Multipass
+	mActiveTexture = tex;
 }
 
 unsigned int wiiRenderSystem::getScreenWidth()

@@ -34,6 +34,8 @@
 	#include <ogc/video.h>
 	#include <ogc/system.h>
 	#include <ogc/gx.h>
+	#include <ogc/cache.h>
+	#include <fat.h>
 	#include <sys/unistd.h>
 	#include <malloc.h>
 #endif

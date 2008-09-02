@@ -1,4 +1,5 @@
 #include "root.h"
+#include "logger.h"
 #include "glRenderSystem.h"
 #include "wiiRenderSystem.h"
 
@@ -17,8 +18,14 @@ root::root()
 	// Initialize the render system
 	#ifndef __WII__
 	mActiveRS = new glRenderSystem();
+	new logger("knowledge.log");
 	#else
 	mActiveRS = new wiiRenderSystem();
+
+	// Initialize SD card
+	fatInitDefault();
+	new logger("/knowledge/knowledge.log");
+	logger::getSingleton().setLogMode(LOGMODE_FILE);
 	#endif
 
 	mActiveRS->initialise();

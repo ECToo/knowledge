@@ -25,7 +25,7 @@ namespace k
 			unsigned int mWidth, mHeight;
 
 			#ifdef __WII__
-				GXTexObj mTextureId;
+				GXTexObj* mTextureId;
 			#else
 				GLuint mTextureId;
 				ILuint* mDevilTextureId;
@@ -41,7 +41,7 @@ namespace k
 			#ifndef __WII__
 			GLuint& getTextureId();
 			#else
-			GXTexObj& getTextureId();
+			GXTexObj* getTextureId();
 			#endif
 
 			void draw();

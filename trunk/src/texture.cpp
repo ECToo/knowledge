@@ -17,7 +17,7 @@ texture::texture(GXTexObj* src, unsigned int width, unsigned int height)
 	ilutRenderer(ILUT_OPENGL);
 	mTextureId = ilutGLBindTexImage();
 	#else
-	mTextureId = *src;
+	mTextureId = src;
 	#endif
 
 	mWidth = width;
@@ -27,7 +27,7 @@ texture::texture(GXTexObj* src, unsigned int width, unsigned int height)
 #ifndef __WII__
 GLuint& texture::getTextureId()
 #else
-GXTexObj& texture::getTextureId()
+GXTexObj* texture::getTextureId()
 #endif
 {
 	return mTextureId;
