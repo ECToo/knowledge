@@ -54,6 +54,18 @@ void logger::info(const std::string& message)
 				}
 			}
 			break;
+		case LOGMODE_BOTH:
+			{
+				std::cout << message << std::endl;
+
+				FILE* logFile = fopen(mLogFile.c_str(), "a");
+				if (logFile)
+				{
+					fprintf(logFile, "%s\n", message.c_str());
+					fclose(logFile);
+				}
+			}
+			break;
 	};
 }
 

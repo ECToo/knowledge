@@ -36,6 +36,7 @@ root::root()
 	#ifndef __WII__
 	mActiveRS = new glRenderSystem();
 	new logger("knowledge.log");
+	logger::getSingleton().setLogMode(LOGMODE_BOTH);
 	#else
 	mActiveRS = new wiiRenderSystem();
 

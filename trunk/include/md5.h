@@ -65,32 +65,53 @@ typedef struct
 
 typedef struct
 {
+	#ifdef __WII__
+	u16 index[3];
+	#else
 	int index[3];
+	#endif
 } triangle_t;
 
 class md5mesh
 {
 	private:
 		// Vertex Data
-		std::vector<vert_t*> mVertexes;
+		unsigned int mVIndex;
+		unsigned int mVCount;
+		vert_t* mVertices;
+		// std::vector<vert_t*> mVertices;
 
 		// Triangles
-		std::vector<triangle_t*> mTriangles;
+		unsigned int mTIndex;
+		unsigned int mTCount;
+		triangle_t* mTriangles;
+		// std::vector<triangle_t*> mTriangles;
 
 		// Weight
-		std::vector<weight_t*> mWeights;
+		unsigned int mWIndex;
+		unsigned int mWCount;
+		weight_t* mWeights;
+		// std::vector<weight_t*> mWeights;
 
 		// knowledge material
 		material* mMaterial;
 
 		// Used to glDrawelements
 		vec_t* mNormalList;
+
+		#ifdef __WII__
+		u16* mIndexList;
+		#else
 		unsigned int* mIndexList;
+		#endif
 
 	public:
 		md5mesh();
 		~md5mesh();
 
+		void prepareVertices(unsigned int size);
+		void prepareTriangles(unsigned int size);
+		void prepareWeights(unsigned int size);
 		void pushVertex(const vector2& uv, const vector2& weight);
 		void pushTriangle(const vector3& tri);
 		void pushWeight(const vector2& joint, const vector3& pos);

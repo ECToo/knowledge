@@ -16,6 +16,7 @@
 */
 
 #include "md5.h"
+#include "logger.h"
 
 namespace k {
 
@@ -24,60 +25,123 @@ md5mesh::md5mesh()
 	mNormalList = NULL;
 	mIndexList = NULL;
 
-	mVertexes.clear();
-	mWeights.clear();
-	mTriangles.clear();
+	mVIndex = 0;
+	mVCount = 0;
+	mVertices = NULL;
+
+	mWIndex = 0;
+	mWCount = 0;
+	mWeights = NULL;
+
+	mTIndex = 0;
+	mTCount = 0;
+	mTriangles = NULL;
 }
 
 md5mesh::~md5mesh()
 {
-	// TODO
+	delete [] mNormalList;
+	delete [] mIndexList;
+
+	delete [] mVertices;
+	delete [] mWeights;
+	delete [] mTriangles;
+}
+
+void md5mesh::prepareVertices(unsigned int size)
+{
+	#ifdef __WII__
+	mVertices = (vert_t*) memalign(32, size * sizeof(vert_t));
+	#else
+	mVertices = (vert_t*) malloc(size * sizeof(vert_t));
+	#endif
+
+	if (!mVertices)
+	{
+		S_LOG_INFO("Failed to prepare vertices array on md5 model.");
+	}
+	else
+	{
+		memset(mVertices, 0, sizeof(vert_t) * size);
+		mVCount = size;
+	}
+}
+
+void md5mesh::prepareTriangles(unsigned int size)
+{
+	#ifdef __WII__
+	mTriangles = (triangle_t*) memalign(32, size*sizeof(triangle_t));
+	#else
+	mTriangles = (triangle_t*) malloc(size*sizeof(triangle_t));
+	#endif
+
+	if (!mTriangles)
+	{
+		S_LOG_INFO("Failed to prepare triangle array on md5 model.");
+	}
+	else
+	{
+		memset(mTriangles, 0, sizeof(triangle_t) * size);
+		mTCount = size;
+	}
+}
+
+void md5mesh::prepareWeights(unsigned int size)
+{
+	#ifdef __WII__
+	mWeights = (weight_t*) memalign(32, size*sizeof(weight_t));
+	#else
+	mWeights = (weight_t*) malloc(size*sizeof(weight_t));
+	#endif
+
+	if (!mWeights)
+	{
+		S_LOG_INFO("Failed to prepare weights array on md5 model.");
+	}
+	else
+	{
+		memset(mWeights, 0, sizeof(weight_t) * size);
+		mWCount = size;
+	}
 }
 	
 void md5mesh::pushVertex(const vector2& uv, const vector2& weight)
 {
-	vert_t* newVertex = new vert_t;
+	vert_t* newVertex = &mVertices[mVIndex++];
 	if (newVertex)
 	{
 		newVertex->uv = uv;
 		newVertex->weight = weight;
-		
-		mVertexes.push_back(newVertex);
 	}
 }
 
 void md5mesh::pushTriangle(const vector3& triangle)
 {
-	triangle_t* newTri = new triangle_t;
+	triangle_t* newTri = &mTriangles[mTIndex++];
 	if (newTri)
 	{
 		newTri->index[0] = triangle.x;
 		newTri->index[1] = triangle.y;
 		newTri->index[2] = triangle.z;
-
-		mTriangles.push_back(newTri);
 	}
 }
 
 void md5mesh::pushWeight(const vector2& joint, const vector3& pos)
 {
-	weight_t* newWeight = new weight_t;
+	weight_t* newWeight = &mWeights[mWIndex++];
 	if (newWeight)
 	{
 		newWeight->jointIndex = joint.x;
 		newWeight->value = joint.y;
 		newWeight->pos = pos;
-
-		mWeights.push_back(newWeight);
 	}
 }
 
 void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 {
-	std::vector<vert_t*>::iterator vIt;
-	for (vIt = mVertexes.begin(); vIt != mVertexes.end(); vIt++)
+	for (unsigned int vIt = 0; vIt < mVCount; vIt++)
 	{
-		vert_t* vertex = (*vIt);
+		vert_t* vertex = &mVertices[vIt];
 		if (!vertex)
 			continue;
 
@@ -85,7 +149,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 		{
 			vector3 tempPos;
 
-			weight_t* weight = mWeights[w];
+			weight_t* weight = &mWeights[w];
 			if (!weight)
 				return;
 				
@@ -105,10 +169,9 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 	}
 
 	// Triangles
-	std::vector<triangle_t*>::iterator tIt;
-	for (tIt = mTriangles.begin(); tIt != mTriangles.end(); tIt++)
+	for (unsigned int tIt = 0; tIt < mTCount; tIt++)
 	{
-		triangle_t* tri = (*tIt);
+		triangle_t* tri = &mTriangles[tIt];
 		if (!tri)
 			continue;
 
@@ -116,9 +179,9 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 		vector3 edge1, edge2;
 		vector3 normal;
 
-		v1 = mVertexes[tri->index[0]]->basePos;
-		v2 = mVertexes[tri->index[1]]->basePos;
-		v3 = mVertexes[tri->index[2]]->basePos;
+		v1 = mVertices[tri->index[0]].basePos;
+		v2 = mVertices[tri->index[1]].basePos;
+		v3 = mVertices[tri->index[2]].basePos;
 
 		edge1 = v2 - v1;
 		edge2 = v3 - v1;
@@ -126,15 +189,15 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 		normal = edge1.crossProduct(edge2);
 		normal.normalise();
 
-		mVertexes[tri->index[0]]->baseNormal += normal;
-		mVertexes[tri->index[1]]->baseNormal += normal;
-		mVertexes[tri->index[2]]->baseNormal += normal;
+		mVertices[tri->index[0]].baseNormal += normal;
+		mVertices[tri->index[1]].baseNormal += normal;
+		mVertices[tri->index[2]].baseNormal += normal;
 	}
 
 	// Normalize Normals
-	for (vIt = mVertexes.begin(); vIt != mVertexes.end(); vIt++)
+	for (unsigned int vIt = 0; vIt < mVCount; vIt++)
 	{
-		vert_t* vertex = (*vIt);
+		vert_t* vertex = &mVertices[vIt];
 		if (!vertex)
 			continue;
 
@@ -145,9 +208,9 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 	// Rotate normals by the inverse weight
 	// joint orientation in order to get
 	// normals for each frame
-	for (vIt = mVertexes.begin(); vIt != mVertexes.end(); vIt++)
+	for (unsigned int vIt = 0; vIt < mVCount; vIt++)
 	{
-		vert_t* vertex = (*vIt);
+		vert_t* vertex = &mVertices[vIt];
 		if (!vertex)
 			continue;
 
@@ -156,7 +219,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 		{
 			vector3 tempPos;
 
-			weight_t* weight = mWeights[w];
+			weight_t* weight = &mWeights[w];
 			if (!weight)
 				return;
 
@@ -172,7 +235,61 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 		vertex->normal = normal;
 	}
 
-	// TODO: Make Vertex list
+	// Compute Final Static Positions
+	if (!mNormalList)
+	{
+		#ifdef __WII__
+		mNormalList = (vec_t*) memalign(32, sizeof(vec_t) * 3 * mVCount);
+		#else
+		mNormalList = (vec_t*) malloc(sizeof(vec_t) * 3 * mVCount);
+		#endif
+	}
+
+	// Double Check
+	if (!mNormalList)
+	{
+		S_LOG_INFO("Failed to allocate array of normals");
+		return;
+	}
+
+	// Copy the normals
+	memset(mNormalList, 0, sizeof(vec_t) * 3 * mVCount);
+	for (unsigned int i = 0; i < mVCount; i++)
+	{
+		mNormalList[i+2*i] = mVertices[i].renderNormal.x;
+		mNormalList[i+2*i+1] = mVertices[i].renderNormal.y;
+		mNormalList[i+2*i+2] = mVertices[i].renderNormal.z;
+	}
+
+	// Triangles Indexes
+	if (!mIndexList)
+	{
+		#ifdef __WII__
+		mIndexList = (u16*) memalign(32, sizeof(u16) * 3 * mTCount);
+		#else
+		mIndexList = (unsigned int*) malloc(sizeof(unsigned int) * 3 * mTCount);
+		#endif
+	}
+
+	// Double Check
+	if (!mIndexList)
+	{
+		S_LOG_INFO("Failed to allocate array of indices.");
+		return;
+	}
+
+	#ifdef __WII__
+	memset(mIndexList, 0, sizeof(u16) * 3 * mTCount);
+	#else
+	memset(mIndexList, 0, sizeof(unsigned int) * 3 * mTCount);
+	#endif
+
+	for (unsigned int i = 0; i < mTCount; i++)
+	{
+		mIndexList[i+2*i] = mTriangles[i].index[0];
+		mIndexList[i+2*i+1] = mTriangles[i].index[1];
+		mIndexList[i+2*i+2] = mTriangles[i].index[2];
+	}
 }
 
 md5model::md5model(const std::string& filename)
@@ -204,6 +321,8 @@ md5model::md5model(const std::string& filename)
 			token = file.getNextToken(); // numverts param
 
 			unsigned int numberOfVertices = atoi(token.c_str());
+			thisMesh->prepareVertices(numberOfVertices);
+
 			for (unsigned int i = 0; i < numberOfVertices; i++)
 			{
 				// vertices are like: vert 0 ( 0.539093 0.217694 ) 0 3
@@ -247,6 +366,8 @@ md5model::md5model(const std::string& filename)
 			}
 
 			unsigned int numberOfTris = atoi(file.getNextToken());
+			thisMesh->prepareTriangles(numberOfTris);
+
 			for (unsigned int i = 0; i < numberOfTris; i++)
 			{
 				// Tris are described like: tri 0 0 2 1
@@ -279,6 +400,8 @@ md5model::md5model(const std::string& filename)
 			}
 
 			unsigned int numberOfWeights = atoi(file.getNextToken());
+			thisMesh->prepareWeights(numberOfWeights);
+
 			for (unsigned int i = 0; i < numberOfWeights; i++)
 			{
 				// weights are described like that: weight 0 4 0.000000 ( 13.718612 -2.371034 0.006163 )

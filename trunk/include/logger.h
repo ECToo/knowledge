@@ -21,12 +21,15 @@
 #include "prerequisites.h"
 #include "singleton.h"
 
+#define S_LOG_INFO(X)(logger::getSingleton().info(X))
+
 namespace k
 {
 	enum logMode
 	{
 		LOGMODE_STDOUT,
-		LOGMODE_FILE
+		LOGMODE_FILE,
+		LOGMODE_BOTH
 	};
 
 	class logger : public singleton<logger>
