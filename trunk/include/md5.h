@@ -49,10 +49,10 @@ typedef struct
 
 typedef struct
 {
-	vector2 uv;
+	vec_t uv[2];
 	vector2 weight;
 
-	vector3 renderPos;
+	vec_t renderPos[3];
 	vector3 renderNormal;
 
 	// normal unasigned to a bone
@@ -65,11 +65,7 @@ typedef struct
 
 typedef struct
 {
-	#ifdef __WII__
-	u16 index[3];
-	#else
-	int index[3];
-	#endif
+	index_t index[3];
 } triangle_t;
 
 class md5mesh
@@ -79,31 +75,23 @@ class md5mesh
 		unsigned int mVIndex;
 		unsigned int mVCount;
 		vert_t* mVertices;
-		// std::vector<vert_t*> mVertices;
 
 		// Triangles
 		unsigned int mTIndex;
 		unsigned int mTCount;
 		triangle_t* mTriangles;
-		// std::vector<triangle_t*> mTriangles;
 
 		// Weight
 		unsigned int mWIndex;
 		unsigned int mWCount;
 		weight_t* mWeights;
-		// std::vector<weight_t*> mWeights;
 
 		// knowledge material
 		material* mMaterial;
 
 		// Used to glDrawelements
 		vec_t* mNormalList;
-
-		#ifdef __WII__
-		u16* mIndexList;
-		#else
-		unsigned int* mIndexList;
-		#endif
+		index_t* mIndexList;
 
 	public:
 		md5mesh();
@@ -120,6 +108,7 @@ class md5mesh
 		 * Compile Base Positions
 		 */
 		void compileBase(std::vector<bone_t*>* boneList);
+		void draw();
 };
 
 class md5model : public drawable3D

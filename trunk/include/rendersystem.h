@@ -105,6 +105,13 @@ namespace k
 			virtual void bindTexture(GXTexObj* tex) = 0;
 			#endif
 
+			virtual void setVertexArray(vec_t* vertices, unsigned int stride, unsigned int vertNum) = 0;
+			virtual void setTexCoordArray(vec_t* coords, unsigned int stride) = 0;
+			virtual void setNormalArray(vec_t* normals) = 0;
+
+			virtual void setVertexIndex(index_t* indexes) = 0;
+			virtual void drawArrays() = 0;
+
 			virtual unsigned int getScreenWidth() = 0;
 			virtual unsigned int getScreenHeight() = 0;
 	};

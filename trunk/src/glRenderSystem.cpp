@@ -302,7 +302,63 @@ void glRenderSystem::bindTexture(GLuint tex)
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex);
 }
-			
+
+void glRenderSystem::setVertexArray(vec_t* vertices, unsigned int stride, unsigned int vertNum)
+{
+	assert(vertices != NULL);
+
+	mVertexArraySize = vertNum;
+	mVertexArray = vertices;
+	mVertexStride = stride;
+}
+
+void glRenderSystem::setTexCoordArray(vec_t* coords, unsigned int stride)
+{
+	assert(coords != NULL);
+
+	mTexCoordArray = coords;
+	mTexCoordStride = stride;
+}
+
+void glRenderSystem::setNormalArray(vec_t* normals)
+{
+	assert(normals != NULL);
+	mNormalArray = normals;
+}
+
+void glRenderSystem::setVertexIndex(index_t* indexes)
+{
+	assert(indexes != NULL);
+	mIndexArray = indexes;
+}
+
+void glRenderSystem::drawArrays()
+{
+	if (mVertexArray)
+	{
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glVertexPointer(3, GL_FLOAT, mVertexStride, mVertexArray);
+	}
+
+	if (mNormalArray)
+	{
+		glEnableClientState(GL_NORMAL_ARRAY);
+		glNormalPointer(GL_FLOAT, 0, mNormalArray);
+	}
+
+	if (mTexCoordArray)
+	{
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glTexCoordPointer(2, GL_FLOAT, mTexCoordStride, mTexCoordArray);
+	}
+
+	glDrawElements(GL_TRIANGLES, mVertexArraySize, GL_UNSIGNED_INT, mIndexArray);
+
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+}
+
 unsigned int glRenderSystem::getScreenWidth()
 {
 	return mScreenSize.x;

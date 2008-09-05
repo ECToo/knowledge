@@ -20,21 +20,26 @@
 
 #include "prerequisites.h"
 
+namespace k {
+
 class parsingFile
 {
 	private:
+		unsigned long feof;
 		unsigned long index;
 		char* string;
-		char lastResult[1024];
 	
 	public:
 		parsingFile(const std::string& filename);
 		~parsingFile();
 
+		bool eof();
 		bool isReady();
 		void skipNextToken();
-		const char* getNextToken();
+		std::string getNextToken();
 };
+
+}
 
 #endif
 

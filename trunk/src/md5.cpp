@@ -17,6 +17,7 @@
 
 #include "md5.h"
 #include "logger.h"
+#include "root.h"
 
 namespace k {
 
@@ -108,33 +109,31 @@ void md5mesh::prepareWeights(unsigned int size)
 void md5mesh::pushVertex(const vector2& uv, const vector2& weight)
 {
 	vert_t* newVertex = &mVertices[mVIndex++];
-	if (newVertex)
-	{
-		newVertex->uv = uv;
-		newVertex->weight = weight;
-	}
+	assert(newVertex != NULL);
+
+	newVertex->uv[0] = uv.x;
+	newVertex->uv[1] = uv.y;
+	newVertex->weight = weight;
 }
 
 void md5mesh::pushTriangle(const vector3& triangle)
 {
 	triangle_t* newTri = &mTriangles[mTIndex++];
-	if (newTri)
-	{
-		newTri->index[0] = triangle.x;
-		newTri->index[1] = triangle.y;
-		newTri->index[2] = triangle.z;
-	}
+	assert(newTri != NULL);
+		
+	newTri->index[0] = triangle.x;
+	newTri->index[1] = triangle.y;
+	newTri->index[2] = triangle.z;
 }
 
 void md5mesh::pushWeight(const vector2& joint, const vector3& pos)
 {
 	weight_t* newWeight = &mWeights[mWIndex++];
-	if (newWeight)
-	{
-		newWeight->jointIndex = joint.x;
-		newWeight->value = joint.y;
-		newWeight->pos = pos;
-	}
+	assert(newWeight != NULL);
+
+	newWeight->jointIndex = joint.x;
+	newWeight->value = joint.y;
+	newWeight->pos = pos;
 }
 
 void md5mesh::compileBase(std::vector<bone_t*>* boneList)
@@ -142,29 +141,27 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 	for (unsigned int vIt = 0; vIt < mVCount; vIt++)
 	{
 		vert_t* vertex = &mVertices[vIt];
-		if (!vertex)
-			continue;
+		assert(vertex != NULL);
 
 		for (int w = vertex->weight.x; w < vertex->weight.x+vertex->weight.y; w++)
 		{
 			vector3 tempPos;
 
 			weight_t* weight = &mWeights[w];
-			if (!weight)
-				return;
+			assert(weight != NULL);
 				
 			bone_t* bone = (*boneList)[weight->jointIndex];
-			if (!bone)
-				return;
+			assert(bone != NULL);
 
 			tempPos = bone->orientation.rotateVector(weight->pos);
-			vertex->basePos.x += (tempPos.x + bone->pos.x)*weight->value;
-			vertex->basePos.y += (tempPos.y + bone->pos.y)*weight->value;
-			vertex->basePos.z += (tempPos.z + bone->pos.z)*weight->value;
+			vertex->basePos += (tempPos + bone->pos) * weight->value;
 		}
 
 		// Copy final position
-		vertex->renderPos = vertex->basePos;
+		vertex->renderPos[0] = vertex->basePos.x;
+		vertex->renderPos[1] = vertex->basePos.y;
+		vertex->renderPos[2] = vertex->basePos.z;
+
 		vertex->baseNormal = vector3(0, 0, 0);
 	}
 
@@ -172,8 +169,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 	for (unsigned int tIt = 0; tIt < mTCount; tIt++)
 	{
 		triangle_t* tri = &mTriangles[tIt];
-		if (!tri)
-			continue;
+		assert(tri != NULL);
 
 		vector3 v1, v2, v3;
 		vector3 edge1, edge2;
@@ -198,8 +194,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 	for (unsigned int vIt = 0; vIt < mVCount; vIt++)
 	{
 		vert_t* vertex = &mVertices[vIt];
-		if (!vertex)
-			continue;
+		assert(vertex != NULL);
 
 		vertex->baseNormal.normalise();
 		vertex->renderNormal = vertex->baseNormal;
@@ -211,8 +206,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 	for (unsigned int vIt = 0; vIt < mVCount; vIt++)
 	{
 		vert_t* vertex = &mVertices[vIt];
-		if (!vertex)
-			continue;
+		assert(vertex != NULL);
 
 		vector3 normal;
 		for (int w = 0; w < vertex->weight.x + vertex->weight.y; w++)
@@ -220,12 +214,10 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 			vector3 tempPos;
 
 			weight_t* weight = &mWeights[w];
-			if (!weight)
-				return;
+			assert(weight != NULL);
 
 			bone_t* bone = (*boneList)[weight->jointIndex];
-			if (!bone)
-				return;
+			assert(bone != NULL);
 
 			tempPos = bone->orientation.inverseVector(vertex->baseNormal);
 			normal += tempPos;
@@ -292,18 +284,35 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 	}
 }
 
+void md5mesh::draw()
+{
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	assert(rs != NULL);
+
+	// TODO: material parsing and allocation
+	// mMaterial->prepare();
+
+	rs->setVertexArray(mVertices[0].renderPos, sizeof(vert_t), mTCount * 3);
+	rs->setNormalArray(mNormalList);
+	rs->setTexCoordArray(mVertices[0].uv, sizeof(vert_t));
+
+	rs->setVertexIndex(mIndexList);
+	rs->drawArrays();
+}
+
 md5model::md5model(const std::string& filename)
 {
 	parsingFile file(filename);
 	if (!file.isReady())
 	{
+		S_LOG_INFO("Failed to load model filename (" + filename + ")");
 		return;
 	}
 
 	unsigned numberOfJointsToParse = 0;
 
-	std::string token(file.getNextToken());
-	while (!token.length())
+	std::string token = file.getNextToken();
+	while (!file.eof())
 	{
 		if (token == "mesh")
 		{
@@ -328,7 +337,10 @@ md5model::md5model(const std::string& filename)
 				// vertices are like: vert 0 ( 0.539093 0.217694 ) 0 3
 				token = file.getNextToken(); // vert
 				if (token != "vert")
+				{
+					S_LOG_INFO("Unexpected input received (" + token + ") expected vert");
 					break;
+				}
 
 				vector2 uv;
 				vector2 weight;
@@ -361,11 +373,12 @@ md5model::md5model(const std::string& filename)
 			token = file.getNextToken(); // numtris
 			if (token != "numtris")
 			{
+				S_LOG_INFO("Unexpected input received (" + token + ") expected numtris");
 				delete thisMesh;
 				return;
 			}
 
-			unsigned int numberOfTris = atoi(file.getNextToken());
+			unsigned int numberOfTris = atoi(file.getNextToken().c_str());
 			thisMesh->prepareTriangles(numberOfTris);
 
 			for (unsigned int i = 0; i < numberOfTris; i++)
@@ -373,7 +386,10 @@ md5model::md5model(const std::string& filename)
 				// Tris are described like: tri 0 0 2 1
 				token = file.getNextToken();
 				if (token != "tri")
+				{
+					S_LOG_INFO("Unexpected input received (" + token + ") expected tri");
 					break;
+				}
 
 				vector3 triangle;
 
@@ -395,11 +411,12 @@ md5model::md5model(const std::string& filename)
 			token = file.getNextToken(); // numweights
 			if (token != "numweights")
 			{
+				S_LOG_INFO("Unexpected input received (" + token + ") expected numweights");
 				delete thisMesh;
 				return;
 			}
 
-			unsigned int numberOfWeights = atoi(file.getNextToken());
+			unsigned int numberOfWeights = atoi(file.getNextToken().c_str());
 			thisMesh->prepareWeights(numberOfWeights);
 
 			for (unsigned int i = 0; i < numberOfWeights; i++)
@@ -407,7 +424,10 @@ md5model::md5model(const std::string& filename)
 				// weights are described like that: weight 0 4 0.000000 ( 13.718612 -2.371034 0.006163 )
 				token = file.getNextToken();
 				if (token != "weight")
+				{
+					S_LOG_INFO("Unexpected input received (" + token + ") expected weight");
 					break;
+				}
 
 				file.skipNextToken(); // index
 
@@ -418,7 +438,7 @@ md5model::md5model(const std::string& filename)
 				joint.x = atoi(token.c_str());
 
 				token = file.getNextToken(); // join value
-				joint.y = atoi(token.c_str());
+				joint.y = atof(token.c_str());
 
 				file.skipNextToken(); // (
 
@@ -429,6 +449,8 @@ md5model::md5model(const std::string& filename)
 				pos.y = atof(token.c_str());
 				token = file.getNextToken();
 				pos.z = atof(token.c_str());
+
+				thisMesh->pushWeight(joint, pos);
 
 				file.skipNextToken(); // )
 			}
@@ -478,26 +500,27 @@ md5model::md5model(const std::string& filename)
 				file.skipNextToken(); // )
 
 				bone_t* newBone = new bone_t;
-				if (newBone)
-				{
-					newBone->parentIndex = parentIndex;
-					newBone->index = i;
-					newBone->pos = pos;
-					newBone->orientation = quaternion(orientation);
-					newBone->orientation.computeW();
+				assert(newBone != NULL);
+					
+				newBone->parentIndex = parentIndex;
+				newBone->index = i;
+				newBone->pos = pos;
+				newBone->orientation = quaternion(orientation);
+				newBone->orientation.computeW();
 
-					newBone->basePos = newBone->pos;
-					newBone->baseOrientation = newBone->orientation;
+				newBone->basePos = newBone->pos;
+				newBone->baseOrientation = newBone->orientation;
 
-					mBones.push_back(newBone);
-				}
+				mBones.push_back(newBone);
 			}
 		} 
 		// if (token == "joints")
 
-		compileBase();
+		token = file.getNextToken();
 	} 
 	// while (!token.is_empty())
+
+	compileBase();
 }
 
 md5model::md5model(const md5model& source)
@@ -519,8 +542,7 @@ void md5model::compileBase()
 	for (it = mMeshes.begin(); it != mMeshes.end(); it++)
 	{
 		md5mesh* mesh = (*it);
-		if (!mesh)
-			continue;
+		assert(mesh != NULL);
 	
 		mesh->compileBase(&mBones);
 	}
@@ -528,6 +550,26 @@ void md5model::compileBase()
 
 void md5model::draw()
 {
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	assert(rs != NULL);
+
+	vec_t angle;
+	vector3 axis;
+	mOrientation.toAxisAngle(angle, axis);
+
+	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+	rs->identityMatrix();
+	rs->translateScene(mPosition.x, mPosition.y, mPosition.z);
+	rs->rotateScene(angle, axis.x, axis.y, axis.z);
+
+	std::list<md5mesh*>::iterator it;
+	for (it = mMeshes.begin(); it != mMeshes.end(); it++)
+	{
+		md5mesh* mesh = (*it);
+		assert(mesh != NULL);
+	
+		mesh->draw();
+	}
 }
 
 }

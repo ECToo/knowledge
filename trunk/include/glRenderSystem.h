@@ -29,6 +29,19 @@ namespace k
 			vector2 mScreenSize;
 			SDL_Surface* mScreen;
 
+			/**
+			 * For array drawing
+			 */
+			unsigned int mVertexArraySize;
+			unsigned int mVertexStride;
+			vec_t* mVertexArray;
+
+			unsigned int mTexCoordStride;
+			vec_t* mTexCoordArray;
+
+			vec_t* mNormalArray;
+			index_t* mIndexArray;
+
 		public:
 			glRenderSystem();
 			~glRenderSystem();
@@ -76,6 +89,13 @@ namespace k
 			void matSpecular(const vector3& color);
 
 			void bindTexture(GLuint tex);
+
+			void setVertexArray(vec_t* vertices, unsigned int stride, unsigned int vertNum);
+			void setTexCoordArray(vec_t* coords, unsigned int stride);
+			void setNormalArray(vec_t* normals);
+
+			void setVertexIndex(index_t* indexes);
+			void drawArrays();
 
 			unsigned int getScreenWidth();
 			unsigned int getScreenHeight();

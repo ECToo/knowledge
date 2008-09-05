@@ -121,31 +121,24 @@ namespace k
 
 			vector3 rotateVector (const vector3& newVec)
 			{
-				quaternion qInv(*this);
-				qInv.negate();
+				quaternion qInv = duplicate().negate();
+				quaternion copy = duplicate();
 
 				quaternion qPoint(newVec);
-				quaternion qTemp = qInv * qPoint;
+				quaternion qTemp = copy * qPoint;
 				quaternion qFinal = qTemp * qInv;
 
-				vector3 output
-				(
-					qFinal.x,
-					qFinal.y,
-					qFinal.z
-				);
-
-				return output;
+				return vector3(qFinal.x, qFinal.y, qFinal.z);
 			}
 
 			vector3 inverseVector (const vector3& newVec)
 			{
-				quaternion qInv(*this);
-				qInv.negate();
+				quaternion qInv = duplicate().negate();
+				quaternion copy = duplicate();
 
 				quaternion qPoint(newVec);
 				quaternion qTemp = qInv * qPoint;
-				quaternion qFinal = qTemp * *this;
+				quaternion qFinal = qTemp * copy;
 
 				return vector3(qFinal.x, qFinal.y, qFinal.z);
 			}
@@ -198,6 +191,29 @@ namespace k
 				matrix[15] = 1.0f;
 			}
 
+			void toAxisAngle(vec_t& angle, vector3& axis)
+			{
+				if (w > 1)
+					normalise();
+
+				angle = 2 * acos(w);
+				angle *= 180.0/M_PI;
+
+				vec_t s = sqrt(1 - w*w);
+				if (s < 0.001)
+				{
+					axis.x = x;
+					axis.y = y;
+					axis.z = z;
+				}
+				else
+				{
+					axis.x = x / s;
+					axis.y = y / s;
+					axis.z = z / s;
+				}
+			}
+
 			void computeW()
 			{
 				vec_t temp = 1.0f - (x*x - y*y - z*z);
@@ -226,6 +242,11 @@ namespace k
 				direction.z = 2.0f*(x * x + y * y);
 
 				return direction;
+			}
+
+			quaternion duplicate()
+			{
+				return quaternion(x, y, z, w);
 			}
 			
 			/**

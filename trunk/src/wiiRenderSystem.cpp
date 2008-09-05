@@ -282,7 +282,10 @@ void wiiRenderSystem::configure()
 	// Setup perspective
 	setMatrixMode(MATRIXMODE_PROJECTION);
 	identityMatrix();
-	setPerspective(90, (float)getScreenWidth()/getScreenHeight(), 0.1f, 5000.0f);
+
+	// TODO: CHECK if corrent aspect is set
+	// setPerspective(90, (float)getScreenWidth()/getScreenHeight(), 0.1f, 5000.0f);
+	setPerspective(90, 1.33f, 0.1f, 5000.0f);
 }
 
 void wiiRenderSystem::createWindow(const int w, const int h)
