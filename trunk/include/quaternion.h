@@ -216,7 +216,7 @@ namespace k
 
 			void computeW()
 			{
-				vec_t temp = 1.0f - (x*x - y*y - z*z);
+				vec_t temp = 1.0f - x*x - y*y - z*z;
 
 				if (temp < 0.0f)
 					w = 0.0f;

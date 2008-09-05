@@ -143,6 +143,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 		vert_t* vertex = &mVertices[vIt];
 		assert(vertex != NULL);
 
+		vertex->basePos = vector3(0, 0, 0);
 		for (int w = vertex->weight.x; w < vertex->weight.x+vertex->weight.y; w++)
 		{
 			vector3 tempPos;
@@ -182,7 +183,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 		edge1 = v2 - v1;
 		edge2 = v3 - v1;
 
-		normal = edge1.crossProduct(edge2);
+		normal = edge2.crossProduct(edge1);
 		normal.normalise();
 
 		mVertices[tri->index[0]].baseNormal += normal;
@@ -291,7 +292,7 @@ void md5mesh::draw()
 
 	// TODO: material parsing and allocation
 	// mMaterial->prepare();
-
+	
 	rs->setVertexArray(mVertices[0].renderPos, sizeof(vert_t), mTCount * 3);
 	rs->setNormalArray(mNormalList);
 	rs->setTexCoordArray(mVertices[0].uv, sizeof(vert_t));
@@ -450,9 +451,9 @@ md5model::md5model(const std::string& filename)
 				token = file.getNextToken();
 				pos.z = atof(token.c_str());
 
-				thisMesh->pushWeight(joint, pos);
-
 				file.skipNextToken(); // )
+
+				thisMesh->pushWeight(joint, pos);
 			}
 			mMeshes.push_back(thisMesh);
 		} 
