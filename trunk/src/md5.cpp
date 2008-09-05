@@ -18,6 +18,7 @@
 #include "md5.h"
 #include "logger.h"
 #include "root.h"
+#include "materialManager.h"
 
 namespace k {
 
@@ -134,6 +135,12 @@ void md5mesh::pushWeight(const vector2& joint, const vector3& pos)
 	newWeight->jointIndex = joint.x;
 	newWeight->value = joint.y;
 	newWeight->pos = pos;
+}
+		
+void md5mesh::setMaterial(material* mat)
+{
+	assert(mat != NULL);
+	mMaterial = mat;
 }
 
 void md5mesh::compileBase(std::vector<bone_t*>* boneList)
@@ -291,7 +298,7 @@ void md5mesh::draw()
 	assert(rs != NULL);
 
 	// TODO: material parsing and allocation
-	// mMaterial->prepare();
+	mMaterial->prepare();
 	
 	rs->setVertexArray(mVertices[0].renderPos, sizeof(vert_t), mTCount * 3);
 	rs->setNormalArray(mNormalList);
@@ -325,7 +332,8 @@ md5model::md5model(const std::string& filename)
 
 			// Shader Comes here with the name
 			file.skipNextToken(); // "shader"
-			file.skipNextToken(); // "shader" param
+			token = file.getNextToken(); // "shader" param
+			thisMesh->setMaterial(materialManager::getSingleton().getMaterial(token));
 
 			file.skipNextToken(); // numverts
 			token = file.getNextToken(); // numverts param

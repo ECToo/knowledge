@@ -25,6 +25,8 @@ namespace k {
 class parsingFile
 {
 	private:
+		std::string mFilename;
+
 		unsigned long feof;
 		unsigned long index;
 		char* string;
@@ -37,6 +39,8 @@ class parsingFile
 		bool isReady();
 		void skipNextToken();
 		std::string getNextToken();
+
+		const std::string& getFilename();
 };
 
 }

@@ -23,6 +23,13 @@
 
 namespace k
 {
+	enum texCoordType 
+	{
+		// TODO: More of these
+		TEXCOORD_NONE,
+		TEXCOORD_UV
+	};
+
 	class texture 
 	{
 		private:
@@ -35,6 +42,11 @@ namespace k
 			 * Amount to rotate per frame in degrees
 			 */
 			vec_t mRotate;
+
+			/**
+			 * How texture coordinates are defined for this texture
+			 */
+			texCoordType mTexCoordType;
 
 			/**
 			 * Internals of the texture file
@@ -61,6 +73,9 @@ namespace k
 			GXTexObj* getTextureId();
 			#endif
 
+			void setTexCoordType(texCoordType type);
+			void setScroll(vector2& scroll);
+			void setRotate(vec_t angle);
 			void draw();
 
 			unsigned int getWidth();

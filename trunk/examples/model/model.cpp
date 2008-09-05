@@ -32,6 +32,7 @@ int main(int argc, char** argv)
 	k::renderSystem* mRenderSystem = appRoot->getRenderSystem();
 	k::renderer* mRenderer = appRoot->getRenderer();
 	k::textureManager* mTextureManager = &k::textureManager::getSingleton();
+	k::materialManager* mMaterialManager = &k::materialManager::getSingleton();
 
 	#ifdef __WII__
 	WPAD_Init();
@@ -43,6 +44,7 @@ int main(int argc, char** argv)
 	// Doesnt matter on wii
 	mRenderSystem->createWindow(800, 600);
 	mRenderSystem->setDepthTest(true);
+	mRenderSystem->setPerspective(45, 1.33f, 0.1f, 5000.0f);
 
 	/*
 	 * REMOVE THIS HACK
@@ -62,6 +64,10 @@ int main(int argc, char** argv)
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 	glEnable(GL_LIGHT0);
 	#endif
+
+	// Parse material file
+	k::parsingFile* matFile = new k::parsingFile("goku.material");
+	mMaterialManager->parseMaterialScript(matFile);
 
 	// Create Model
 	k::vector3 modelPosition;
@@ -136,6 +142,12 @@ int main(int argc, char** argv)
 			rX += mx;
 			rY += my;
 		}
+		else
+		if (mouse & SDL_BUTTON(SDL_BUTTON_RIGHT))
+		{
+			modelPosition.x += mx;
+			modelPosition.y -= my;
+		}
 		#else
 		WPAD_ScanPads();
 
@@ -145,8 +157,8 @@ int main(int argc, char** argv)
 		}
 		#endif
 
-		k::quaternion xQuat = k::quaternion(rX, k::vector3(0, 0, 1));
 		k::quaternion yQuat = k::quaternion(rY, k::vector3(1, 0, 0));
+		k::quaternion xQuat = k::quaternion(rX, k::vector3(0, 1, 0));
 		k::quaternion modelQuat = xQuat * yQuat;
 
 		newModel->setPosition(modelPosition);

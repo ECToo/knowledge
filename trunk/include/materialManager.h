@@ -40,7 +40,9 @@ namespace k
 			material* getMaterial(const std::string& name);
 			void destroyMaterial(const std::string& name);
 
+			void parseTextureSection(material* mat, parsingFile* file);
 			void parseMaterialScript(parsingFile* file);
+			void parseMaterial(material* mat, parsingFile* file);
 	};
 }
 

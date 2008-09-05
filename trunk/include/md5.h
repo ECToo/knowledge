@@ -104,6 +104,8 @@ class md5mesh
 		void pushTriangle(const vector3& tri);
 		void pushWeight(const vector2& joint, const vector3& pos);
 
+		void setMaterial(material* mat);
+
 		/**
 		 * Compile Base Positions
 		 */

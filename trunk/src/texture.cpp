@@ -59,6 +59,21 @@ unsigned int texture::getHeight()
 {
 	return mHeight;
 }
+			
+void texture::setTexCoordType(texCoordType type)
+{
+	mTexCoordType = type;
+}
+
+void texture::setScroll(vector2& scroll)
+{
+	mScroll = scroll;
+}
+
+void texture::setRotate(vec_t angle)
+{
+	mRotate = angle;
+}
 
 void texture::draw()
 {

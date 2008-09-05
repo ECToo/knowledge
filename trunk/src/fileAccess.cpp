@@ -22,6 +22,8 @@ namespace k {
 
 parsingFile::parsingFile(const std::string& filename)
 {
+	mFilename = filename;
+
 	std::ifstream input;
 	input.open(filename.c_str(), std::ifstream::in);
 
@@ -63,6 +65,11 @@ bool parsingFile::isReady()
 		return true;
 	else
 		return false;
+}
+		
+const std::string& parsingFile::getFilename()
+{
+	return mFilename;
 }
 
 void parsingFile::skipNextToken()
