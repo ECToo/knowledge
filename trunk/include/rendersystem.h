@@ -52,6 +52,22 @@ namespace k
 
 	class renderSystem
 	{
+		protected:
+			/**
+			 * For array drawing
+			 */
+			unsigned int mVertexArraySize;
+			unsigned int mVertexStride;
+			vec_t* mVertexArray;
+
+			unsigned int mTexCoordStride;
+			vec_t* mTexCoordArray;
+
+			vec_t* mNormalArray;
+
+			unsigned int mIndexArraySize;
+			index_t* mIndexArray;
+
 		public:
 			
 			/**
@@ -105,11 +121,37 @@ namespace k
 			virtual void bindTexture(GXTexObj* tex) = 0;
 			#endif
 
-			virtual void setVertexArray(vec_t* vertices, unsigned int stride, unsigned int vertNum) = 0;
-			virtual void setTexCoordArray(vec_t* coords, unsigned int stride) = 0;
-			virtual void setNormalArray(vec_t* normals) = 0;
+			virtual void setVertexArray(vec_t* vertices, unsigned int stride, unsigned int vertNum)
+			{
+				assert(vertices != NULL);
 
-			virtual void setVertexIndex(index_t* indexes) = 0;
+				mVertexArraySize = vertNum;
+				mVertexArray = vertices;
+				mVertexStride = stride;
+			}
+
+			virtual void setTexCoordArray(vec_t* coords, unsigned int stride)
+			{
+				assert(coords != NULL);
+
+				mTexCoordArray = coords;
+				mTexCoordStride = stride;
+			}
+
+			virtual void setNormalArray(vec_t* normals)
+			{
+				assert(normals != NULL);
+				mNormalArray = normals;
+			}
+
+			virtual void setVertexIndex(index_t* indexes, unsigned int size)
+			{
+				assert(indexes != NULL);
+
+				mIndexArray = indexes;
+				mIndexArraySize = size;
+			}
+
 			virtual void drawArrays() = 0;
 
 			virtual unsigned int getScreenWidth() = 0;

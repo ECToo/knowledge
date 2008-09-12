@@ -17,6 +17,7 @@
 
 #include "renderer.h"
 #include "root.h"
+#include "logger.h"
 
 namespace k {
 
@@ -117,6 +118,10 @@ void renderer::draw()
 
 		obj->draw();
 	}
+
+	//TODO: For now, cut 2d out
+	rs->frameEnd();
+	return;
 
 	/**
 	 * Set the 2D projection here and draw the 2d objects on it

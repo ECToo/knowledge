@@ -30,6 +30,11 @@ logger& logger::getSingleton()
 logger::logger(const std::string& logFilename)
 {
 	mLogFile = logFilename;
+	
+	// Reset File
+	FILE* logFile = fopen(mLogFile.c_str(), "w");
+	if (logFile)
+		fclose(logFile);
 }
 			
 void logger::setLogMode(logMode log)

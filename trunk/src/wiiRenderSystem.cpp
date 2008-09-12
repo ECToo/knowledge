@@ -16,6 +16,7 @@
 */
 
 #include "wiiRenderSystem.h"
+#include "logger.h"
 
 namespace k {
 
@@ -555,6 +556,95 @@ void wiiRenderSystem::bindTexture(GXTexObj* tex)
 {
 	// TODO: Multipass
 	mActiveTexture = tex;
+}
+
+void wiiRenderSystem::drawArrays()
+{
+	GX_ClearVtxDesc();
+	GX_SetVtxDesc(GX_VA_POS, GX_INDEX16);
+	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+
+	if (!mVertexArray)
+	{
+		S_LOG_INFO("Missing vertex array");
+		return;
+	}
+
+	GX_SetArray(GX_VA_POS, mVertexArray, sizeof(vec_t));
+	DCFlushRange(mVertexArray, mVertexArraySize * sizeof(vec_t));
+
+	u8 tevStage = GX_TEVSTAGE0;
+	u8 texCoord = GX_TEXCOORDNULL;
+	u32 texMap = GX_TEXMAP_NULL;
+	u8 tevColor = GX_COLORNULL;
+
+	if (mNormalArray)
+	{
+ 		GX_SetVtxDesc(GX_VA_NRM, GX_INDEX16);
+		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_F32, 0);
+		GX_SetArray(GX_VA_NRM, mNormalArray, sizeof(vec_t));
+		DCFlushRange(mNormalArray, mVertexArraySize * sizeof(vec_t));
+	}
+	else
+	{
+		GX_SetVtxDesc(GX_VA_NRM, GX_NONE);
+	}
+
+	if (mTexCoordArray)
+	{
+ 		GX_SetVtxDesc(GX_VA_TEX0, GX_INDEX16);
+		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+		GX_SetArray(GX_VA_TEX0, mTexCoordArray, sizeof(vec_t));
+		DCFlushRange(mTexCoordArray, mVertexArraySize * sizeof(vec_t));
+
+		texCoord = GX_TEXCOORD0;
+		texMap = GX_TEXMAP0;
+	}
+	else
+	{
+		GX_SetVtxDesc(GX_VA_TEX0, GX_NONE);
+	}
+
+	GX_SetNumChans(1);
+
+	if (mActiveTexture)
+	{
+		GX_SetNumTevStages(1);
+		GX_SetNumTexGens(1);
+		GX_SetTevOp(GX_TEVSTAGE0, GX_REPLACE);
+		GX_SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY);
+	}
+	else
+	{
+		GX_SetNumTexGens(0);
+		GX_SetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+	}
+
+	GX_SetTevOrder(tevStage, texCoord, texMap, tevColor);
+
+	// Bind the texture
+	if (mActiveTexture);
+	{
+		GX_LoadTexObj(mActiveTexture, GX_TEXMAP0);
+	}
+
+	// ModelView
+	GX_LoadPosMtxImm(mModelViewMatrix, GX_PNMTX0);
+
+	GX_Begin(GX_TRIANGLES, GX_VTXFMT0, (int)(mIndexArraySize/3));
+	for (unsigned int i = 0; i < mIndexArraySize; i++)
+	{
+		u16 vIndex = mIndexArray[i];
+
+		GX_Position1x16(vIndex);
+
+		if (mNormalArray)
+			GX_Normal1x16(vIndex);
+
+		if (mTexCoordArray)
+			GX_TexCoord1x16(vIndex);
+	}
+	GX_End();
 }
 
 unsigned int wiiRenderSystem::getScreenWidth()

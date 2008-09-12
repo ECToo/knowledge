@@ -20,6 +20,7 @@
 #include "root.h"
 #include "renderer.h"
 #include "rendersystem.h"
+#include "logger.h"
 
 #ifdef __WII__
 #include <wiiuse/wpad.h>
@@ -31,7 +32,6 @@ int main(int argc, char** argv)
 	k::root* appRoot = new k::root();
 	k::renderSystem* mRenderSystem = appRoot->getRenderSystem();
 	k::renderer* mRenderer = appRoot->getRenderer();
-	k::textureManager* mTextureManager = &k::textureManager::getSingleton();
 	k::materialManager* mMaterialManager = &k::materialManager::getSingleton();
 
 	#ifdef __WII__
@@ -44,38 +44,27 @@ int main(int argc, char** argv)
 	// Doesnt matter on wii
 	mRenderSystem->createWindow(800, 600);
 	mRenderSystem->setDepthTest(true);
-	mRenderSystem->setPerspective(45, 1.33f, 0.1f, 5000.0f);
-
-	/*
-	 * REMOVE THIS HACK
-	 */
-	#ifndef __WII__
-	GLfloat ambient[] = { 0.5, 0.5, 0.5, 1.0 };
-	GLfloat diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat specular[] = { 0.5, 0.5, 0.5, 1.0 };
-	GLfloat lightPos [] = { 0, 0, 0 };
-
-	glShadeModel(GL_SMOOTH);
-	glEnable(GL_LIGHTING);
-
-	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
-	glEnable(GL_LIGHT0);
-	#endif
 
 	// Parse material file
+	#ifdef __WII__
+	k::parsingFile* matFile = new k::parsingFile("/knowledge/goku/goku.material");
+	#else
 	k::parsingFile* matFile = new k::parsingFile("goku.material");
+	#endif
+
 	mMaterialManager->parseMaterialScript(matFile);
 
 	// Create Model
 	k::vector3 modelPosition;
 	modelPosition.z = -100;
 
+	#ifdef __WII__
+	k::md5model* newModel = new k::md5model("/knowledge/goku/goku.md5mesh");
+	#else
 	k::md5model* newModel = new k::md5model("goku.md5mesh");
-	assert(newModel != NULL);
+	#endif
 
+	assert(newModel != NULL);
 	mRenderer->push3D(newModel);
 
 	// Angles

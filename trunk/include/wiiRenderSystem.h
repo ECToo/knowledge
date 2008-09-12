@@ -21,7 +21,7 @@
 
 #include "rendersystem.h"
 
-#define DEFAULT_FIFO_SIZE (256*1024)
+#define DEFAULT_FIFO_SIZE (1024*1024)
 
 namespace k 
 {
@@ -179,6 +179,8 @@ namespace k
 			void matSpecular(const vector3& color);
 
 			void bindTexture(GXTexObj* tex);
+
+			void drawArrays();
 
 			unsigned int getScreenWidth();
 			unsigned int getScreenHeight();

@@ -90,7 +90,11 @@ class md5mesh
 		material* mMaterial;
 
 		// Used to glDrawelements
+		vec_t* mVertexList;
+		vec_t* mUvList;
 		vec_t* mNormalList;
+
+		unsigned int mIndexListSize;
 		index_t* mIndexList;
 
 	public:

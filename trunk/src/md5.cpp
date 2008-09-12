@@ -26,6 +26,7 @@ md5mesh::md5mesh()
 {
 	mNormalList = NULL;
 	mIndexList = NULL;
+	mIndexListSize = 0;
 
 	mVIndex = 0;
 	mVCount = 0;
@@ -54,16 +55,22 @@ void md5mesh::prepareVertices(unsigned int size)
 {
 	#ifdef __WII__
 	mVertices = (vert_t*) memalign(32, size * sizeof(vert_t));
+	mVertexList = (vec_t*) memalign(32, size * sizeof(vec_t) * 3);
+	mUvList = (vec_t*) memalign(32, size * sizeof(vec_t) * 2);
 	#else
 	mVertices = (vert_t*) malloc(size * sizeof(vert_t));
+	mVertexList = (vec_t*) malloc(size * sizeof(vec_t) * 3);
+	mUvList = (vec_t*) malloc(size * sizeof(vec_t) * 2);
 	#endif
 
-	if (!mVertices)
+	if (!mVertices || !mVertexList || !mUvList)
 	{
 		S_LOG_INFO("Failed to prepare vertices array on md5 model.");
 	}
 	else
 	{
+		memset(mUvList, 0, sizeof(vec_t) * 2 * size);
+		memset(mVertexList, 0, sizeof(vec_t) * 3 * size);
 		memset(mVertices, 0, sizeof(vert_t) * size);
 		mVCount = size;
 	}
@@ -72,7 +79,7 @@ void md5mesh::prepareVertices(unsigned int size)
 void md5mesh::prepareTriangles(unsigned int size)
 {
 	#ifdef __WII__
-	mTriangles = (triangle_t*) memalign(32, size*sizeof(triangle_t));
+	mTriangles = (triangle_t*) memalign(32, size * sizeof(triangle_t));
 	#else
 	mTriangles = (triangle_t*) malloc(size*sizeof(triangle_t));
 	#endif
@@ -91,7 +98,7 @@ void md5mesh::prepareTriangles(unsigned int size)
 void md5mesh::prepareWeights(unsigned int size)
 {
 	#ifdef __WII__
-	mWeights = (weight_t*) memalign(32, size*sizeof(weight_t));
+	mWeights = (weight_t*) memalign(32, size * sizeof(weight_t));
 	#else
 	mWeights = (weight_t*) malloc(size*sizeof(weight_t));
 	#endif
@@ -169,6 +176,13 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 		vertex->renderPos[0] = vertex->basePos.x;
 		vertex->renderPos[1] = vertex->basePos.y;
 		vertex->renderPos[2] = vertex->basePos.z;
+
+		// Put on vertex list
+		mVertexList[vIt*3] = vertex->basePos.x;
+		mVertexList[vIt*3 + 1] = vertex->basePos.y;
+		mVertexList[vIt*3 + 2] = vertex->basePos.z;
+		mUvList[vIt*2] = vertex->uv[0];
+		mUvList[vIt*2 + 1] = vertex->uv[1];
 
 		vertex->baseNormal = vector3(0, 0, 0);
 	}
@@ -262,13 +276,16 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 	}
 
 	// Triangles Indexes
+	unsigned int finalSize = 3*mTCount;
 	if (!mIndexList)
 	{
 		#ifdef __WII__
-		mIndexList = (u16*) memalign(32, sizeof(u16) * 3 * mTCount);
+		mIndexList = (u16*) memalign(32, sizeof(u16) * finalSize);
 		#else
-		mIndexList = (unsigned int*) malloc(sizeof(unsigned int) * 3 * mTCount);
+		mIndexList = (unsigned int*) malloc(sizeof(unsigned int) * finalSize);
 		#endif
+
+		mIndexListSize = finalSize;
 	}
 
 	// Double Check
@@ -279,9 +296,9 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 	}
 
 	#ifdef __WII__
-	memset(mIndexList, 0, sizeof(u16) * 3 * mTCount);
+	memset(mIndexList, 0, sizeof(u16) * finalSize);
 	#else
-	memset(mIndexList, 0, sizeof(unsigned int) * 3 * mTCount);
+	memset(mIndexList, 0, sizeof(unsigned int) * finalSize);
 	#endif
 
 	for (unsigned int i = 0; i < mTCount; i++)
@@ -300,11 +317,16 @@ void md5mesh::draw()
 	// TODO: material parsing and allocation
 	mMaterial->prepare();
 	
+	/* OLD
 	rs->setVertexArray(mVertices[0].renderPos, sizeof(vert_t), mTCount * 3);
-	rs->setNormalArray(mNormalList);
 	rs->setTexCoordArray(mVertices[0].uv, sizeof(vert_t));
+	*/
 
-	rs->setVertexIndex(mIndexList);
+	rs->setVertexArray(mVertexList, 0, mTCount * 3);
+	rs->setTexCoordArray(mUvList, 0);
+	rs->setNormalArray(mNormalList);
+
+	rs->setVertexIndex(mIndexList, mIndexListSize);
 	rs->drawArrays();
 }
 

@@ -303,35 +303,6 @@ void glRenderSystem::bindTexture(GLuint tex)
 	glBindTexture(GL_TEXTURE_2D, tex);
 }
 
-void glRenderSystem::setVertexArray(vec_t* vertices, unsigned int stride, unsigned int vertNum)
-{
-	assert(vertices != NULL);
-
-	mVertexArraySize = vertNum;
-	mVertexArray = vertices;
-	mVertexStride = stride;
-}
-
-void glRenderSystem::setTexCoordArray(vec_t* coords, unsigned int stride)
-{
-	assert(coords != NULL);
-
-	mTexCoordArray = coords;
-	mTexCoordStride = stride;
-}
-
-void glRenderSystem::setNormalArray(vec_t* normals)
-{
-	assert(normals != NULL);
-	mNormalArray = normals;
-}
-
-void glRenderSystem::setVertexIndex(index_t* indexes)
-{
-	assert(indexes != NULL);
-	mIndexArray = indexes;
-}
-
 void glRenderSystem::drawArrays()
 {
 	if (mVertexArray)
