@@ -35,7 +35,8 @@ int main(int argc, char** argv)
 	k::materialManager* mMaterialManager = &k::materialManager::getSingleton();
 
 	#ifdef __WII__
-	WPAD_Init();
+	// WPAD_Init();
+	PAD_Init();
 	#endif
 
 	assert(mRenderer != NULL);
@@ -138,34 +139,36 @@ int main(int argc, char** argv)
 			modelPosition.y -= my;
 		}
 		#else
-		WPAD_ScanPads();
-		u32 bHeld = WPAD_ButtonsHeld(0);
+		// WPAD_ScanPads();
+		PAD_ScanPads();
+		// u32 bHeld = WPAD_ButtonsHeld(0);
+		u32 bHeld = PAD_ButtonsHeld(0);
 
-		if (bHeld & WPAD_BUTTON_HOME) 
+		if (bHeld & PAD_BUTTON_START) 
 		{
 			running = false;
 		}
-		if (bHeld & WPAD_BUTTON_LEFT)
+		if (bHeld & PAD_BUTTON_LEFT)
 		{
 			rX -= 1;
 		}
-		if (bHeld & WPAD_BUTTON_RIGHT)
+		if (bHeld & PAD_BUTTON_RIGHT)
 		{
 			rX += 1;
 		}
-		if (bHeld & WPAD_BUTTON_UP)
+		if (bHeld & PAD_BUTTON_UP)
 		{
 			rY += 1;
 		}
-		if (bHeld & WPAD_BUTTON_DOWN)
+		if (bHeld & PAD_BUTTON_DOWN)
 		{
 			rY -= 1;
 		}
-		if (bHeld & WPAD_BUTTON_MINUS)
+		if (bHeld & PAD_BUTTON_X)
 		{
 			modelPosition.z += 1;
 		}
-		if (bHeld & WPAD_BUTTON_PLUS)
+		if (bHeld & PAD_BUTTON_Y)
 		{
 			modelPosition.z -= 1;
 		}

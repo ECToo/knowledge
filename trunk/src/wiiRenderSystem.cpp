@@ -115,6 +115,7 @@ void genericMesh::end(Mtx& mModelViewMatrix, GXTexObj* mActiveTexture)
 	}
 	else
 	{
+		GX_SetNumTevStages(1);
 		GX_SetNumTexGens(0);
 		GX_SetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
 	}
@@ -302,6 +303,7 @@ void wiiRenderSystem::destroyWindow()
 void wiiRenderSystem::frameStart()
 {
 	GX_SetViewport(0, 0, mVideoMode->fbWidth, mVideoMode->efbHeight, 0, 1);
+	GX_InvVtxCache();
 }
 
 void wiiRenderSystem::frameEnd()
@@ -357,6 +359,9 @@ void wiiRenderSystem::pushMatrix()
 		case MATRIXMODE_MODELVIEW:
 			mModelViewStack.push(mModelViewMatrix);
 			break;
+		default:
+			S_LOG_INFO("Invalid matrix mode");
+			break;
 	}
 }
 
@@ -370,6 +375,9 @@ void wiiRenderSystem::popMatrix()
 		case MATRIXMODE_MODELVIEW:
 			mModelViewStack.pop(mModelViewMatrix);
 			break;
+		default:
+			S_LOG_INFO("Invalid matrix mode");
+			break;
 	}
 }
 
@@ -382,6 +390,9 @@ void wiiRenderSystem::identityMatrix()
 			break;
 		case MATRIXMODE_MODELVIEW:
 			guMtxIdentity(mModelViewMatrix);
+			break;
+		default:
+			S_LOG_INFO("Invalid matrix mode");
 			break;
 	}
 }
@@ -400,6 +411,9 @@ void wiiRenderSystem::translateScene(vec_t x, vec_t y, vec_t z)
 			break;
 		case MATRIXMODE_MODELVIEW:
 			guMtxConcat(mModelViewMatrix, temp, mModelViewMatrix);
+			break;
+		default:
+			S_LOG_INFO("Invalid matrix mode");
 			break;
 	}
 }
@@ -424,6 +438,9 @@ void wiiRenderSystem::rotateScene(vec_t angle, vec_t x, vec_t y, vec_t z)
 		case MATRIXMODE_MODELVIEW:
 			guMtxConcat(mModelViewMatrix, temp, mModelViewMatrix);
 			break;
+		default:
+			S_LOG_INFO("Invalid matrix mode");
+			break;
 	}
 }
 
@@ -441,6 +458,9 @@ void wiiRenderSystem::scaleScene(vec_t x, vec_t y, vec_t z)
 			break;
 		case MATRIXMODE_MODELVIEW:
 			guMtxConcat(mModelViewMatrix, temp, mModelViewMatrix);
+			break;
+		default:
+			S_LOG_INFO("Invalid matrix mode");
 			break;
 	}
 }
@@ -466,6 +486,9 @@ void wiiRenderSystem::setPerspective(vec_t fov, vec_t aspect, vec_t near, vec_t 
 		case MATRIXMODE_MODELVIEW:
 			guMtxConcat(mModelViewMatrix, perspective, mModelViewMatrix);
 			break;
+		default:
+			S_LOG_INFO("Invalid matrix mode");
+			break;
 	}
 }
 
@@ -484,6 +507,9 @@ void wiiRenderSystem::setOrthographic(vec_t left, vec_t right, vec_t bottom, vec
 			break;
 		case MATRIXMODE_MODELVIEW:
 			guMtxConcat(mModelViewMatrix, ortho, mModelViewMatrix);
+			break;
+		default:
+			S_LOG_INFO("Invalid matrix mode");
 			break;
 	}
 }
@@ -561,7 +587,7 @@ void wiiRenderSystem::bindTexture(GXTexObj* tex)
 void wiiRenderSystem::drawArrays()
 {
 	GX_ClearVtxDesc();
-	GX_SetVtxDesc(GX_VA_CLR0, GX_NONE);
+
 	GX_SetVtxDesc(GX_VA_POS, GX_INDEX16);
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
 
@@ -579,24 +605,8 @@ void wiiRenderSystem::drawArrays()
 	u32 texMap = GX_TEXMAP_NULL;
 	u8 tevColor = GX_COLORNULL;
 
-	if (mNormalArray)
-	{
-		/*
- 		GX_SetVtxDesc(GX_VA_NRM, GX_INDEX16);
-		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_F32, 0);
-
-		DCFlushRange(mNormalArray, mVertexCount * sizeof(vec_t) * 3);
-		GX_SetArray(GX_VA_NRM, mNormalArray, 3 * sizeof(vec_t));
-		*/
-	}
-	else
-	{
-		GX_SetVtxDesc(GX_VA_NRM, GX_NONE);
-	}
-
 	if (mTexCoordArray)
 	{
-		/*
  		GX_SetVtxDesc(GX_VA_TEX0, GX_INDEX16);
 		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
 
@@ -605,11 +615,19 @@ void wiiRenderSystem::drawArrays()
 
 		texCoord = GX_TEXCOORD0;
 		texMap = GX_TEXMAP0;
-		*/
 	}
 	else
 	{
 		GX_SetVtxDesc(GX_VA_TEX0, GX_NONE);
+	}
+
+	if (mNormalArray)
+	{
+ 		GX_SetVtxDesc(GX_VA_NRM, GX_INDEX16);
+		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_F32, 0);
+
+		DCFlushRange(mNormalArray, mVertexCount * sizeof(vec_t) * 3);
+		GX_SetArray(GX_VA_NRM, mNormalArray, 3 * sizeof(vec_t));
 	}
 
 	GX_SetNumChans(1);
@@ -623,6 +641,7 @@ void wiiRenderSystem::drawArrays()
 	}
 	else
 	{
+		GX_SetNumTevStages(1);
 		GX_SetNumTexGens(0);
 		GX_SetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
 	}
@@ -641,17 +660,25 @@ void wiiRenderSystem::drawArrays()
 	for (unsigned int i = 0; i < mIndexCount; i += 3)
 	{
 		GX_Begin(GX_TRIANGLES, GX_VTXFMT0, 3);
+
 		GX_Position1x16(mIndexArray[i]);
-		GX_Position1x16(mIndexArray[i+1]);
-		GX_Position1x16(mIndexArray[i+2]);
-
-		/*
-		if (mNormalArray)
-			GX_Normal1x16(vIndex);
-
 		if (mTexCoordArray)
-			GX_TexCoord1x16(uvIndex);
-		*/
+			GX_TexCoord1x16(mIndexArray[i]);
+		if (mNormalArray)
+			GX_Normal1x16(mIndexArray[i]);
+
+		GX_Position1x16(mIndexArray[i+1]);
+		if (mTexCoordArray)
+			GX_TexCoord1x16(mIndexArray[i+1]);
+		if (mNormalArray)
+			GX_Normal1x16(mIndexArray[i+1]);
+
+		GX_Position1x16(mIndexArray[i+2]);
+		if (mTexCoordArray)
+			GX_TexCoord1x16(mIndexArray[i+2]);
+		if (mNormalArray)
+			GX_Normal1x16(mIndexArray[i+2]);
+
 		GX_End();
 	}
 }

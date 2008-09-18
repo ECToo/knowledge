@@ -321,7 +321,7 @@ void md5mesh::draw()
 	rs->setVertexCount(mVCount);
 
 	rs->setTexCoordArray(mUvList);
-	rs->setNormalArray(mNormalList);
+	// rs->setNormalArray(mNormalList);
 
 	rs->setVertexIndex(mIndexList);
 	rs->setIndexCount(mIndexListSize);
