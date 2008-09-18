@@ -56,16 +56,13 @@ namespace k
 			/**
 			 * For array drawing
 			 */
-			unsigned int mVertexArraySize;
-			unsigned int mVertexStride;
+			unsigned int mVertexCount;
 			vec_t* mVertexArray;
 
-			unsigned int mTexCoordStride;
 			vec_t* mTexCoordArray;
-
 			vec_t* mNormalArray;
 
-			unsigned int mIndexArraySize;
+			unsigned int mIndexCount;
 			index_t* mIndexArray;
 
 		public:
@@ -121,21 +118,34 @@ namespace k
 			virtual void bindTexture(GXTexObj* tex) = 0;
 			#endif
 
-			virtual void setVertexArray(vec_t* vertices, unsigned int stride, unsigned int vertNum)
+			virtual void clearArrayDesc()
 			{
-				assert(vertices != NULL);
+				mVertexCount = 0;
+				mVertexArray = NULL;
 
-				mVertexArraySize = vertNum;
-				mVertexArray = vertices;
-				mVertexStride = stride;
+				mTexCoordArray = NULL;
+				mNormalArray = NULL;
+
+				mIndexCount = 0;
+				mIndexArray = NULL;
 			}
 
-			virtual void setTexCoordArray(vec_t* coords, unsigned int stride)
+			virtual void setVertexArray(vec_t* vertices)
+			{
+				assert(vertices != NULL);
+				mVertexArray = vertices;
+			}
+
+			virtual void setVertexCount(unsigned int count)
+			{
+				assert(count != 0);
+				mVertexCount = count;
+			}
+
+			virtual void setTexCoordArray(vec_t* coords)
 			{
 				assert(coords != NULL);
-
 				mTexCoordArray = coords;
-				mTexCoordStride = stride;
 			}
 
 			virtual void setNormalArray(vec_t* normals)
@@ -144,12 +154,16 @@ namespace k
 				mNormalArray = normals;
 			}
 
-			virtual void setVertexIndex(index_t* indexes, unsigned int size)
+			virtual void setVertexIndex(index_t* indexes)
 			{
 				assert(indexes != NULL);
-
 				mIndexArray = indexes;
-				mIndexArraySize = size;
+			}
+
+			virtual void setIndexCount(unsigned int count)
+			{
+				assert(count != 0);
+				mIndexCount = count;
 			}
 
 			virtual void drawArrays() = 0;

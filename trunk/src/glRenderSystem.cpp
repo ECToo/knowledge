@@ -308,7 +308,7 @@ void glRenderSystem::drawArrays()
 	if (mVertexArray)
 	{
 		glEnableClientState(GL_VERTEX_ARRAY);
-		glVertexPointer(3, GL_FLOAT, mVertexStride, mVertexArray);
+		glVertexPointer(3, GL_FLOAT, 0, mVertexArray);
 	}
 
 	if (mNormalArray)
@@ -320,10 +320,10 @@ void glRenderSystem::drawArrays()
 	if (mTexCoordArray)
 	{
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(2, GL_FLOAT, mTexCoordStride, mTexCoordArray);
+		glTexCoordPointer(2, GL_FLOAT, 0, mTexCoordArray);
 	}
 
-	glDrawElements(GL_TRIANGLES, mVertexArraySize, GL_UNSIGNED_INT, mIndexArray);
+	glDrawElements(GL_TRIANGLES, mIndexCount, GL_UNSIGNED_INT, mIndexArray);
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);

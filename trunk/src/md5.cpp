@@ -276,7 +276,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 	}
 
 	// Triangles Indexes
-	unsigned int finalSize = 3*mTCount;
+	unsigned int finalSize = 3 * mTCount;
 	if (!mIndexList)
 	{
 		#ifdef __WII__
@@ -303,9 +303,9 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 
 	for (unsigned int i = 0; i < mTCount; i++)
 	{
-		mIndexList[i+2*i] = mTriangles[i].index[0];
-		mIndexList[i+2*i+1] = mTriangles[i].index[1];
-		mIndexList[i+2*i+2] = mTriangles[i].index[2];
+		mIndexList[i*3] = mTriangles[i].index[0];
+		mIndexList[i*3 + 1] = mTriangles[i].index[1];
+		mIndexList[i*3 + 2] = mTriangles[i].index[2];
 	}
 }
 
@@ -314,19 +314,18 @@ void md5mesh::draw()
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	assert(rs != NULL);
 
-	// TODO: material parsing and allocation
 	mMaterial->prepare();
-	
-	/* OLD
-	rs->setVertexArray(mVertices[0].renderPos, sizeof(vert_t), mTCount * 3);
-	rs->setTexCoordArray(mVertices[0].uv, sizeof(vert_t));
-	*/
 
-	rs->setVertexArray(mVertexList, 0, mTCount * 3);
-	rs->setTexCoordArray(mUvList, 0);
+	rs->clearArrayDesc();
+	rs->setVertexArray(mVertexList);
+	rs->setVertexCount(mVCount);
+
+	rs->setTexCoordArray(mUvList);
 	rs->setNormalArray(mNormalList);
 
-	rs->setVertexIndex(mIndexList, mIndexListSize);
+	rs->setVertexIndex(mIndexList);
+	rs->setIndexCount(mIndexListSize);
+
 	rs->drawArrays();
 }
 

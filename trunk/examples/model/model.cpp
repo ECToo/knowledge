@@ -47,9 +47,9 @@ int main(int argc, char** argv)
 
 	// Parse material file
 	#ifdef __WII__
-	k::parsingFile* matFile = new k::parsingFile("/knowledge/goku/goku.material");
+	k::parsingFile* matFile = new k::parsingFile("/knowledge/robot/robot.material");
 	#else
-	k::parsingFile* matFile = new k::parsingFile("goku.material");
+	k::parsingFile* matFile = new k::parsingFile("robot.material");
 	#endif
 
 	mMaterialManager->parseMaterialScript(matFile);
@@ -59,16 +59,16 @@ int main(int argc, char** argv)
 	modelPosition.z = -100;
 
 	#ifdef __WII__
-	k::md5model* newModel = new k::md5model("/knowledge/goku/goku.md5mesh");
+	k::md5model* newModel = new k::md5model("/knowledge/robot/robot.md5mesh");
 	#else
-	k::md5model* newModel = new k::md5model("goku.md5mesh");
+	k::md5model* newModel = new k::md5model("robot.md5mesh");
 	#endif
 
 	assert(newModel != NULL);
 	mRenderer->push3D(newModel);
 
 	// Angles
-	vec_t rX, rY;
+	vec_t rX = 0, rY = 0;
 
 	bool running = true;
 	while (running)
@@ -139,10 +139,35 @@ int main(int argc, char** argv)
 		}
 		#else
 		WPAD_ScanPads();
+		u32 bHeld = WPAD_ButtonsHeld(0);
 
-		if (WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME) 
+		if (bHeld & WPAD_BUTTON_HOME) 
 		{
 			running = false;
+		}
+		if (bHeld & WPAD_BUTTON_LEFT)
+		{
+			rX -= 1;
+		}
+		if (bHeld & WPAD_BUTTON_RIGHT)
+		{
+			rX += 1;
+		}
+		if (bHeld & WPAD_BUTTON_UP)
+		{
+			rY += 1;
+		}
+		if (bHeld & WPAD_BUTTON_DOWN)
+		{
+			rY -= 1;
+		}
+		if (bHeld & WPAD_BUTTON_MINUS)
+		{
+			modelPosition.z += 1;
+		}
+		if (bHeld & WPAD_BUTTON_PLUS)
+		{
+			modelPosition.z -= 1;
 		}
 		#endif
 

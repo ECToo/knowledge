@@ -561,6 +561,7 @@ void wiiRenderSystem::bindTexture(GXTexObj* tex)
 void wiiRenderSystem::drawArrays()
 {
 	GX_ClearVtxDesc();
+	GX_SetVtxDesc(GX_VA_CLR0, GX_NONE);
 	GX_SetVtxDesc(GX_VA_POS, GX_INDEX16);
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
 
@@ -570,8 +571,8 @@ void wiiRenderSystem::drawArrays()
 		return;
 	}
 
-	GX_SetArray(GX_VA_POS, mVertexArray, sizeof(vec_t));
-	DCFlushRange(mVertexArray, mVertexArraySize * sizeof(vec_t));
+	DCFlushRange(mVertexArray, mVertexCount * sizeof(vec_t) * 3);
+	GX_SetArray(GX_VA_POS, mVertexArray, 3 * sizeof(vec_t));
 
 	u8 tevStage = GX_TEVSTAGE0;
 	u8 texCoord = GX_TEXCOORDNULL;
@@ -580,10 +581,13 @@ void wiiRenderSystem::drawArrays()
 
 	if (mNormalArray)
 	{
+		/*
  		GX_SetVtxDesc(GX_VA_NRM, GX_INDEX16);
 		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_F32, 0);
-		GX_SetArray(GX_VA_NRM, mNormalArray, sizeof(vec_t));
-		DCFlushRange(mNormalArray, mVertexArraySize * sizeof(vec_t));
+
+		DCFlushRange(mNormalArray, mVertexCount * sizeof(vec_t) * 3);
+		GX_SetArray(GX_VA_NRM, mNormalArray, 3 * sizeof(vec_t));
+		*/
 	}
 	else
 	{
@@ -592,13 +596,16 @@ void wiiRenderSystem::drawArrays()
 
 	if (mTexCoordArray)
 	{
+		/*
  		GX_SetVtxDesc(GX_VA_TEX0, GX_INDEX16);
 		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
-		GX_SetArray(GX_VA_TEX0, mTexCoordArray, sizeof(vec_t));
-		DCFlushRange(mTexCoordArray, mVertexArraySize * sizeof(vec_t));
+
+		DCFlushRange(mTexCoordArray, mVertexCount * sizeof(vec_t) * 2);
+		GX_SetArray(GX_VA_TEX0, mTexCoordArray, 2 * sizeof(vec_t));
 
 		texCoord = GX_TEXCOORD0;
 		texMap = GX_TEXMAP0;
+		*/
 	}
 	else
 	{
@@ -631,20 +638,22 @@ void wiiRenderSystem::drawArrays()
 	// ModelView
 	GX_LoadPosMtxImm(mModelViewMatrix, GX_PNMTX0);
 
-	GX_Begin(GX_TRIANGLES, GX_VTXFMT0, (int)(mIndexArraySize/3));
-	for (unsigned int i = 0; i < mIndexArraySize; i++)
+	for (unsigned int i = 0; i < mIndexCount; i += 3)
 	{
-		u16 vIndex = mIndexArray[i];
+		GX_Begin(GX_TRIANGLES, GX_VTXFMT0, 3);
+		GX_Position1x16(mIndexArray[i]);
+		GX_Position1x16(mIndexArray[i+1]);
+		GX_Position1x16(mIndexArray[i+2]);
 
-		GX_Position1x16(vIndex);
-
+		/*
 		if (mNormalArray)
 			GX_Normal1x16(vIndex);
 
 		if (mTexCoordArray)
-			GX_TexCoord1x16(vIndex);
+			GX_TexCoord1x16(uvIndex);
+		*/
+		GX_End();
 	}
-	GX_End();
 }
 
 unsigned int wiiRenderSystem::getScreenWidth()
