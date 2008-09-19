@@ -47,6 +47,33 @@ void matrixStack::pop(Mtx& destination)
 	}
 }
 
+matrix44Stack::matrix44Stack()
+{
+	for (int i = 0; i < 16; i++)
+	{
+		guMtxIdentity(stack[i]);
+	}
+
+	// Top of the stack
+	mPosition = 16;
+}
+
+void matrix44Stack::push(Mtx44 matrix)
+{
+	if (mPosition <= 0)
+		return;
+
+	guMtxCopy(matrix, stack[--mPosition]);
+}
+
+void matrix44Stack::pop(Mtx44 destination)
+{
+	if (mPosition < 32)
+	{
+		guMtxCopy(stack[mPosition++], destination);
+	}
+}
+
 void genericMesh::initialise(VertexMode vMode)
 {
 	mRenderingMode = vMode;
@@ -285,9 +312,7 @@ void wiiRenderSystem::configure()
 	setMatrixMode(MATRIXMODE_PROJECTION);
 	identityMatrix();
 
-	// TODO: CHECK if corrent aspect is set
-	// setPerspective(90, (float)getScreenWidth()/getScreenHeight(), 0.1f, 5000.0f);
-	setPerspective(90, 1.33f, 0.1f, 5000.0f);
+	setPerspective(90, (float)getScreenWidth()/getScreenHeight(), 0.1f, 5000.0f);
 }
 
 void wiiRenderSystem::createWindow(const int w, const int h)
@@ -304,6 +329,7 @@ void wiiRenderSystem::frameStart()
 {
 	GX_SetViewport(0, 0, mVideoMode->fbWidth, mVideoMode->efbHeight, 0, 1);
 	GX_InvVtxCache();
+	GX_InvalidateTexAll();
 }
 
 void wiiRenderSystem::frameEnd()
@@ -399,18 +425,25 @@ void wiiRenderSystem::identityMatrix()
 
 void wiiRenderSystem::translateScene(vec_t x, vec_t y, vec_t z)
 {
-	Mtx temp;
-
-	guMtxIdentity(temp);
-	guMtxTrans(temp, x, y, z);
-
 	switch (mActiveMatrix)
 	{
 		case MATRIXMODE_PROJECTION:
-			guMtxConcat(mProjectionMatrix, temp, mProjectionMatrix);
+			{
+				Mtx44 temp;
+
+				guMtxIdentity(temp);
+				guMtxTrans(temp, x, y, z);
+				guMtxConcat(mProjectionMatrix, temp, mProjectionMatrix);
+			}
 			break;
 		case MATRIXMODE_MODELVIEW:
-			guMtxConcat(mModelViewMatrix, temp, mModelViewMatrix);
+			{
+				Mtx temp;
+
+				guMtxIdentity(temp);
+				guMtxTrans(temp, x, y, z);
+				guMtxConcat(mModelViewMatrix, temp, mModelViewMatrix);
+			}
 			break;
 		default:
 			S_LOG_INFO("Invalid matrix mode");
@@ -433,7 +466,7 @@ void wiiRenderSystem::rotateScene(vec_t angle, vec_t x, vec_t y, vec_t z)
 	switch (mActiveMatrix)
 	{
 		case MATRIXMODE_PROJECTION:
-			guMtxConcat(mProjectionMatrix, temp, mProjectionMatrix);
+			// guMtxConcat(mProjectionMatrix, temp, mProjectionMatrix);
 			break;
 		case MATRIXMODE_MODELVIEW:
 			guMtxConcat(mModelViewMatrix, temp, mModelViewMatrix);
@@ -446,18 +479,25 @@ void wiiRenderSystem::rotateScene(vec_t angle, vec_t x, vec_t y, vec_t z)
 
 void wiiRenderSystem::scaleScene(vec_t x, vec_t y, vec_t z)
 {
-	Mtx temp;
-
-	guMtxIdentity(temp);
-	guMtxScale(temp, x, y, z);
-
 	switch (mActiveMatrix)
 	{
 		case MATRIXMODE_PROJECTION:
-			guMtxConcat(mProjectionMatrix, temp, mProjectionMatrix);
+			{
+				Mtx44 temp;
+
+				guMtxIdentity(temp);
+				guMtxScale(temp, x, y, z);
+				guMtxConcat(mProjectionMatrix, temp, mProjectionMatrix);
+			}
 			break;
 		case MATRIXMODE_MODELVIEW:
-			guMtxConcat(mModelViewMatrix, temp, mModelViewMatrix);
+			{
+				Mtx temp;
+
+				guMtxIdentity(temp);
+				guMtxScale(temp, x, y, z);
+				guMtxConcat(mModelViewMatrix, temp, mModelViewMatrix);
+			}
 			break;
 		default:
 			S_LOG_INFO("Invalid matrix mode");
@@ -472,19 +512,16 @@ void wiiRenderSystem::setViewPort(int x, int y, int w, int h)
 
 void wiiRenderSystem::setPerspective(vec_t fov, vec_t aspect, vec_t near, vec_t far)
 {
-	Mtx perspective;
+	Mtx44 perspective;
 
 	guMtxIdentity(perspective);
-	guPerspective(perspective, fov, (f32)aspect, near, far);
+	guPerspective(perspective, fov, aspect, near, far);
 	GX_LoadProjectionMtx(perspective, GX_PERSPECTIVE);
 
 	switch (mActiveMatrix)
 	{
 		case MATRIXMODE_PROJECTION:
 			guMtxConcat(mProjectionMatrix, perspective, mProjectionMatrix);
-			break;
-		case MATRIXMODE_MODELVIEW:
-			guMtxConcat(mModelViewMatrix, perspective, mModelViewMatrix);
 			break;
 		default:
 			S_LOG_INFO("Invalid matrix mode");
@@ -494,7 +531,7 @@ void wiiRenderSystem::setPerspective(vec_t fov, vec_t aspect, vec_t near, vec_t 
 
 void wiiRenderSystem::setOrthographic(vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far)
 {
-	Mtx ortho;
+	Mtx44 ortho;
 
 	guMtxIdentity(ortho);
 	guOrtho(ortho, left, right, bottom, top, near, far);
@@ -504,9 +541,6 @@ void wiiRenderSystem::setOrthographic(vec_t left, vec_t right, vec_t bottom, vec
 	{
 		case MATRIXMODE_PROJECTION:
 			guMtxConcat(mProjectionMatrix, ortho, mProjectionMatrix);
-			break;
-		case MATRIXMODE_MODELVIEW:
-			guMtxConcat(mModelViewMatrix, ortho, mModelViewMatrix);
 			break;
 		default:
 			S_LOG_INFO("Invalid matrix mode");

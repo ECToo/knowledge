@@ -320,7 +320,7 @@ void md5mesh::draw()
 	rs->setVertexArray(mVertexList);
 	rs->setVertexCount(mVCount);
 
-	rs->setTexCoordArray(mUvList);
+	// rs->setTexCoordArray(mUvList);
 	// rs->setNormalArray(mNormalList);
 
 	rs->setVertexIndex(mIndexList);

@@ -38,6 +38,19 @@ namespace k
 			void pop(Mtx& destination);
 	};
 
+	class matrix44Stack
+	{
+		private:
+			Mtx44 stack[16];
+			unsigned int mPosition;
+
+		public:
+			matrix44Stack();
+
+			void push(Mtx44 matrix);
+			void pop(Mtx44 destination);
+	};
+
 	class genericMesh
 	{
 		private:
@@ -100,14 +113,14 @@ namespace k
 			 * The size of the stacks are defined following openGL api
 			 */
 			matrixStack mModelViewStack;
-			matrixStack mProjectionStack;
+			matrix44Stack mProjectionStack;
 			matrixStack mTextureStack;
 			
 			/**
 			 * Default matrices
 			 */
 			Mtx mModelViewMatrix;
-			Mtx mProjectionMatrix;
+			Mtx44 mProjectionMatrix;
 
 			/**
 			 * Active matrix mode

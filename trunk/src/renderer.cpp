@@ -106,6 +106,13 @@ void renderer::draw()
 	 */
 	rs->frameStart();
 
+	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+	rs->identityMatrix();
+
+	rs->setMatrixMode(MATRIXMODE_PROJECTION);
+	rs->identityMatrix();
+	rs->setPerspective(90, (vec_t)rs->getScreenWidth()/rs->getScreenHeight(), 0.1, 5000.0f);
+
 	/**
 	 * We need to set the camera projection here and draw
 	 * the 3d objects after it.
@@ -119,7 +126,6 @@ void renderer::draw()
 		obj->draw();
 	}
 
-	//TODO: For now, cut 2d out
 	rs->frameEnd();
 	return;
 
