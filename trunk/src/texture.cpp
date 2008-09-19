@@ -39,6 +39,24 @@ texture::texture(GXTexObj* src, unsigned int width, unsigned int height)
 
 	mWidth = width;
 	mHeight = height;
+	mBlendSrc = 0;
+	mBlendDst = 0;
+}
+			
+void texture::setBlendMode(unsigned short src, unsigned short dst)
+{
+	mBlendSrc = src;
+	mBlendDst = dst;
+}
+
+unsigned short texture::getBlendSrc()
+{
+	return mBlendSrc;
+}
+
+unsigned short texture::getBlendDst()
+{
+	return mBlendDst;
 }
 
 #ifndef __WII__
@@ -79,6 +97,16 @@ void texture::draw()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	assert(rs != NULL);
+
+	if (mBlendSrc && mBlendDst)
+	{
+		rs->setBlend(true);
+		rs->setBlendMode(mBlendSrc, mBlendDst);
+	}
+	else
+	{
+		rs->setBlend(false);
+	}
 
 	rs->bindTexture(mTextureId);
 }

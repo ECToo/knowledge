@@ -126,9 +126,6 @@ void renderer::draw()
 		obj->draw();
 	}
 
-	rs->frameEnd();
-	return;
-
 	/**
 	 * Set the 2D projection here and draw the 2d objects on it
 	 */

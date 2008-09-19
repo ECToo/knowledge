@@ -193,6 +193,8 @@ namespace k
 
 			void bindTexture(GXTexObj* tex);
 
+			void setBlendMode(unsigned short src, unsigned short dst);
+			void setBlend(bool state);
 			void drawArrays();
 
 			unsigned int getScreenWidth();

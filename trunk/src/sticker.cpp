@@ -48,6 +48,19 @@ void sticker::draw()
 
 	rs->startVertices(VERTEXMODE_QUAD);
 
+	#ifdef __WII__
+	rs->texCoord(vector2(0.0f, 0.0f));
+	rs->vertex(vector3(mPosition.x, mPosition.y, 0));
+
+	rs->texCoord(vector2(1.0f, 0.0f));
+	rs->vertex(vector3(mPosition.x + mScale.x, mPosition.y, 0));
+
+	rs->texCoord(vector2(1.0f, 1.0f));
+	rs->vertex(vector3(mPosition.x + mScale.x, mPosition.y + mScale.y, 0));
+
+	rs->texCoord(vector2(0.0f, 1.0f));
+	rs->vertex(vector3(mPosition.x, mPosition.y + mScale.y, 0));
+	#else
 	rs->texCoord(vector2(0.0f, 1.0f));
 	rs->vertex(vector3(mPosition.x, mPosition.y, 0));
 
@@ -59,6 +72,7 @@ void sticker::draw()
 
 	rs->texCoord(vector2(0.0f, 0.0f));
 	rs->vertex(vector3(mPosition.x, mPosition.y + mScale.y, 0));
+	#endif
 
 	rs->endVertices();
 }

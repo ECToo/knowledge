@@ -84,6 +84,14 @@ void glRenderSystem::createWindow(const int w, const int h)
 	identityMatrix();
 }
 
+void glRenderSystem::setBlendMode(unsigned short src, unsigned short dst)
+{
+}
+
+void glRenderSystem::setBlend(bool state)
+{
+}
+
 void glRenderSystem::destroyWindow()
 {
 }

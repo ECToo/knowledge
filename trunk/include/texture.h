@@ -53,6 +53,13 @@ namespace k
 			 */
 			unsigned int mWidth, mHeight;
 
+			/**
+			 * Blendfunc
+			 * Note that if both src and dst are ZERO
+			 * blend will be disabled
+			 */
+			unsigned short mBlendSrc, mBlendDst;
+
 			#ifdef __WII__
 				GXTexObj* mTextureId;
 			#else
@@ -74,9 +81,13 @@ namespace k
 			#endif
 
 			void setTexCoordType(texCoordType type);
+			void setBlendMode(unsigned short src, unsigned short dst);
 			void setScroll(vector2& scroll);
 			void setRotate(vec_t angle);
 			void draw();
+
+			unsigned short getBlendSrc();
+			unsigned short getBlendDst();
 
 			unsigned int getWidth();
 			unsigned int getHeight();

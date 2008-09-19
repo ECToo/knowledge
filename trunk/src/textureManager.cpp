@@ -147,6 +147,10 @@ texture* textureManager::createTexturePNG(const std::string& filename)
 				}
 
 				texture* newWiiTexture = new texture(newGXTex, imgProperties.imgWidth, imgProperties.imgHeight);
+				assert(newWiiTexture != NULL);
+
+				S_LOG_INFO("Texture " + filename + " created.");
+
 				return newWiiTexture;
 			}
 			else
@@ -177,9 +181,12 @@ texture* textureManager::createTexture(const std::string& filename)
 	// Try to find the texture first
 	if (wiiTexture* nTexture = getTexture(filename))
 	{
+		S_LOG_INFO("File " + filename + " was previously allocated, retrieving it...");
 		texture* newTexture = new texture(nTexture->mData, nTexture->mWidth, nTexture->mHeight);
 		return newTexture;
 	}
+
+	S_LOG_INFO("File " + filename + " was previously not allocated, doing it...");
 
 	// Discover texture "format" (by extension)
 	if (filename.length() > 4)

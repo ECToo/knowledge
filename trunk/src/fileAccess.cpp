@@ -45,6 +45,7 @@ parsingFile::parsingFile(const std::string& filename)
 			return;
 		}
 
+		memset(string, 0, length);
 		input.read(string, length);
 		input.close();
 

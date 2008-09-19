@@ -319,6 +319,19 @@ void wiiRenderSystem::createWindow(const int w, const int h)
 {
 	// Doesnt make sense on wii ;)
 }
+			
+void wiiRenderSystem::setBlendMode(unsigned short src, unsigned short dst)
+{
+	GX_SetBlendMode(GX_BM_BLEND, src, dst, GX_LO_CLEAR);
+}
+
+void wiiRenderSystem::setBlend(bool state)
+{
+	if (!state)
+		GX_SetBlendMode(GX_BM_NONE, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_CLEAR);
+
+	GX_SetAlphaUpdate(state);
+}
 
 void wiiRenderSystem::destroyWindow()
 {
@@ -719,12 +732,14 @@ void wiiRenderSystem::drawArrays()
 
 unsigned int wiiRenderSystem::getScreenWidth()
 {
-	return mVideoMode->viWidth;
+	// return mVideoMode->viWidth;
+	return mVideoMode->fbWidth;
 }
 
 unsigned int wiiRenderSystem::getScreenHeight()
 {
-	return mVideoMode->viHeight;
+	// return mVideoMode->viHeight;
+	return mVideoMode->efbHeight;
 }
 
 }

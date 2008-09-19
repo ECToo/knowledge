@@ -118,6 +118,9 @@ namespace k
 			virtual void bindTexture(GXTexObj* tex) = 0;
 			#endif
 
+			virtual void setBlendMode(unsigned short src, unsigned short dst) = 0;
+			virtual void setBlend(bool state) = 0;
+
 			virtual void clearArrayDesc()
 			{
 				mVertexCount = 0;

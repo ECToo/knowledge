@@ -320,8 +320,8 @@ void md5mesh::draw()
 	rs->setVertexArray(mVertexList);
 	rs->setVertexCount(mVCount);
 
-	// rs->setTexCoordArray(mUvList);
-	// rs->setNormalArray(mNormalList);
+	rs->setTexCoordArray(mUvList);
+	rs->setNormalArray(mNormalList);
 
 	rs->setVertexIndex(mIndexList);
 	rs->setIndexCount(mIndexListSize);
@@ -551,6 +551,7 @@ md5model::md5model(const std::string& filename)
 	// while (!token.is_empty())
 
 	compileBase();
+	S_LOG_INFO("MD5 Model " + filename + " loaded.");
 }
 
 md5model::md5model(const md5model& source)

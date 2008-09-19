@@ -53,11 +53,13 @@ material* materialManager::createMaterial(const std::string& name)
 		newMaterial = new material();
 		if (newMaterial)
 		{
+			S_LOG_INFO("Material " + name + " created.");
 			mMaterials[name] = newMaterial;
 			return newMaterial;
 		}
 	}
 
+	S_LOG_INFO("Failed to create material " + name + ".");
 	return NULL;
 }
 
@@ -86,6 +88,67 @@ void materialManager::destroyMaterial(const std::string& name)
 	}
 }
 		
+#ifdef __WII__
+unsigned short getBlendMode(std::string& mode)
+{
+	if (mode == "zero")
+	{
+		return GX_BL_ZERO;
+	}
+	else 
+	if (mode == "one")
+	{
+		return GX_BL_ONE;
+	}
+	else 
+	if (mode == "srcclr")
+	{
+		return GX_BL_SRCCLR;
+	}
+	else 
+	if (mode == "invsrcclr")
+	{
+		return GX_BL_INVSRCCLR;
+	}
+	else 
+	if (mode == "srcalpha")
+	{
+		return GX_BL_SRCALPHA;
+	}
+	else 
+	if (mode == "invsrcalpha")
+	{
+		return GX_BL_INVSRCALPHA;
+	}
+	else 
+	if (mode == "dstalpha")
+	{
+		return GX_BL_DSTALPHA;
+	}
+	else 
+	if (mode == "invdstalpha")
+	{
+		return GX_BL_INVDSTALPHA;
+	}
+	else 
+	if (mode == "dstclr")
+	{
+		return GX_BL_DSTCLR;
+	}
+	else 
+	if (mode == "invdstclr")
+	{
+		return GX_BL_INVDSTCLR;
+	}
+
+	return GX_BL_ZERO;
+}
+#else
+unsigned short getBlendMode(std::string& mode)
+{
+	return 0;
+}
+#endif
 			
 void materialManager::parseTextureSection(material* mat, parsingFile* file)
 {
@@ -106,7 +169,7 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file)
 			activeTexture = textureManager::getSingleton().createTexture(token);
 			if (!activeTexture)
 			{
-				S_LOG_INFO("Failled to allocate material texture " + token);
+				S_LOG_INFO("Failed to allocate material texture " + token);
 			}
 			else
 			{
@@ -165,6 +228,25 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file)
 				S_LOG_INFO("Error in parsing material texture: You must define first the texture filename");
 			}
 		}
+		else
+		if (token == "blendfunc")
+		{
+			if (activeTexture)
+			{
+				unsigned short src = 0, dst = 0;
+
+				token = file->getNextToken();
+				src = getBlendMode(token);
+				token = file->getNextToken();
+				dst = getBlendMode(token);
+
+				activeTexture->setBlendMode(src, dst);
+			}
+			else
+			{
+				S_LOG_INFO("Error in parsing material texture: You must define first the texture filename");
+			}
+		}
 
 		// Script properties
 		if (token == "}")
@@ -182,9 +264,7 @@ void materialManager::parseMaterial(material* mat, parsingFile* file)
 	assert(mat != NULL);
 	assert(file != NULL);
 
-	std::string token = file->getNextToken();
-
-	file->skipNextToken(); // {
+	std::string token = file->getNextToken(); // {
 	unsigned int openBraces = 1;
 
 	while (openBraces && !file->eof())

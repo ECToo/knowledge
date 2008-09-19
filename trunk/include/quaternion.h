@@ -67,7 +67,7 @@ namespace k
 				z = newQuat.z;
 			}
 
-			quaternion(vec_t angle, const vector3& axis)
+			quaternion(const vec_t angle, const vector3& axis)
 			{
 				vec_t r, s;
 				r = (angle/180.0f) * M_PI;

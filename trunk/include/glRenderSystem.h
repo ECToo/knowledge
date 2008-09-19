@@ -77,6 +77,8 @@ namespace k
 
 			void bindTexture(GLuint tex);
 
+			void setBlendMode(unsigned short src, unsigned short dst);
+			void setBlend(bool state);
 			void drawArrays();
 
 			unsigned int getScreenWidth();

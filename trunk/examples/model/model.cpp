@@ -21,6 +21,7 @@
 #include "renderer.h"
 #include "rendersystem.h"
 #include "logger.h"
+#include "sticker.h"
 
 #ifdef __WII__
 #include <wiiuse/wpad.h>
@@ -43,12 +44,13 @@ int main(int argc, char** argv)
 
 	// Doesnt matter on wii
 	mRenderSystem->createWindow(800, 600);
+	mRenderSystem->setDepthTest(true);
 
 	// Parse material file
 	#ifdef __WII__
-	k::parsingFile* matFile = new k::parsingFile("/knowledge/robot/robot.material");
+	k::parsingFile* matFile = new k::parsingFile("/knowledge/goku/goku.material");
 	#else
-	k::parsingFile* matFile = new k::parsingFile("robot.material");
+	k::parsingFile* matFile = new k::parsingFile("goku.material");
 	#endif
 
 	mMaterialManager->parseMaterialScript(matFile);
@@ -58,16 +60,31 @@ int main(int argc, char** argv)
 	modelPosition.z = -100;
 
 	#ifdef __WII__
-	k::md5model* newModel = new k::md5model("/knowledge/robot/robot.md5mesh");
+	k::md5model* newModel = new k::md5model("/knowledge/goku/goku.md5mesh");
 	#else
-	k::md5model* newModel = new k::md5model("robot.md5mesh");
+	k::md5model* newModel = new k::md5model("goku.md5mesh");
 	#endif
 
 	assert(newModel != NULL);
 	mRenderer->push3D(newModel);
 
+	#ifdef __WII__
+	k::parsingFile* logoFile = new k::parsingFile("/knowledge/knowledge.material");
+	assert(logoFile != NULL);
+
+	mMaterialManager->parseMaterialScript(logoFile);
+
+	k::sticker* newSticker = new k::sticker("knowledgeLogo");
+	assert(newSticker != NULL);
+
+	newSticker->setScale(k::vector2(256, 256));
+	newSticker->setPosition(k::vector2(5, mRenderSystem->getScreenHeight()-256));
+	mRenderer->push2D(newSticker);
+	#endif
+
 	// Angles
-	vec_t rX = 0, rY = 0;
+	int rX = 0;
+	int rY = 0;
 
 	bool running = true;
 	while (running)
@@ -144,29 +161,35 @@ int main(int argc, char** argv)
 		{
 			running = false;
 		}
+
 		if (bHeld & WPAD_BUTTON_LEFT)
 		{
 			rX -= 1;
 		}
+		else
 		if (bHeld & WPAD_BUTTON_RIGHT)
 		{
 			rX += 1;
 		}
+
 		if (bHeld & WPAD_BUTTON_UP)
 		{
 			rY += 1;
 		}
+		else
 		if (bHeld & WPAD_BUTTON_DOWN)
 		{
 			rY -= 1;
 		}
+
 		if (bHeld & WPAD_BUTTON_MINUS)
 		{
-			modelPosition.z += 1;
+			modelPosition.z += 1.0f;
 		}
+		else
 		if (bHeld & WPAD_BUTTON_PLUS)
 		{
-			modelPosition.z -= 1;
+			modelPosition.z -= 1.0f;
 		}
 		#endif
 
