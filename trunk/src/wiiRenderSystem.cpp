@@ -274,7 +274,7 @@ void wiiRenderSystem::configure()
 
 	// Setup Default Viewport and Scissors (culling)
 	GX_SetViewport(0, 0, mVideoMode->fbWidth, mVideoMode->efbHeight, 0, 1);
-	f32 yscale = GX_GetYScaleFactor(mVideoMode->efbHeight, mVideoMode->fbWidth);
+	f32 yscale = GX_GetYScaleFactor(mVideoMode->efbHeight, mVideoMode->xfbHeight);
 	f32 xfbHeight = GX_SetDispCopyYScale(yscale);
 	GX_SetScissor(0, 0, mVideoMode->fbWidth, mVideoMode->efbHeight);
 	GX_SetDispCopyDst(mVideoMode->fbWidth, xfbHeight);
