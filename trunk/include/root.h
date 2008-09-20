@@ -25,6 +25,7 @@
 #include "materialManager.h"
 #include "renderer.h"
 #include "guiManager.h"
+#include "inputManager.h"
 
 namespace k
 {
@@ -36,6 +37,7 @@ namespace k
 			materialManager* mMaterialManager;
 			renderer* mRenderer;
 			guiManager* mGuiManager;
+			inputManager* mInputManager;
 
 		public:
 			root();
@@ -55,6 +57,9 @@ namespace k
 
 			// GUI
 			guiManager* getGuiManager();
+
+			// Input
+			inputManager* getInputManager();
 	};
 }
 

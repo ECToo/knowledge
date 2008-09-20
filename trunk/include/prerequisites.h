@@ -52,9 +52,11 @@
 	#include <ogc/system.h>
 	#include <ogc/gx.h>
 	#include <ogc/cache.h>
+	#include <ogc/pad.h>
 	#include <fat.h>
 	#include <sys/unistd.h>
 	#include <malloc.h>
+	#include <wiiuse/wpad.h>
 #endif
 
 // Platform independent definitions

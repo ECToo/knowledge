@@ -60,6 +60,9 @@ root::root()
 
 	// Create The Gui manager
 	mGuiManager = new guiManager();
+
+	// Create The Input Manager
+	mInputManager = new inputManager();
 }
 
 root::~root()
@@ -91,6 +94,12 @@ guiManager* root::getGuiManager()
 {
 	assert(mGuiManager != NULL);
 	return mGuiManager;
+}
+
+inputManager* root::getInputManager()
+{
+	assert(mInputManager != NULL);
+	return mInputManager;
 }
 
 } // namespace k
