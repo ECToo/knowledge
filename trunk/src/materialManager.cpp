@@ -161,8 +161,11 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file)
 	file->skipNextToken(); // { 
 	texture* activeTexture = NULL;
 
-	while (openBraces && !file->eof())
+	while (openBraces)
 	{
+		if (file->eof())
+			return;
+
 		if (token == "filename")
 		{
 			token = file->getNextToken();
@@ -248,14 +251,14 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file)
 			}
 		}
 
+		token = file->getNextToken();
+
 		// Script properties
 		if (token == "}")
 			openBraces--;
 		else
 		if (token == "{")
 			openBraces++;
-
-		token = file->getNextToken();
 	}
 }
 
@@ -267,8 +270,11 @@ void materialManager::parseMaterial(material* mat, parsingFile* file)
 	std::string token = file->getNextToken(); // {
 	unsigned int openBraces = 1;
 
-	while (openBraces && !file->eof())
+	while (openBraces)
 	{
+		if (file->eof())
+			return;
+
 		if (token == "ambient")
 		{
 			vec_t r, g, b;
@@ -316,14 +322,14 @@ void materialManager::parseMaterial(material* mat, parsingFile* file)
 			parseTextureSection(mat, file);
 		}
 
+		token = file->getNextToken();
+
 		// Script properties
 		if (token == "}")
 			openBraces--;
 		else
 		if (token == "{")
 			openBraces++;
-
-		token = file->getNextToken();
 	}
 }
 
@@ -370,6 +376,9 @@ void materialManager::parseMaterialScript(parsingFile* file)
 			}
 		}
 		// if (token == "material")
+		
+		// Next Token
+		token = file->getNextToken();
 	}
 	// while (!file->eof())
 }

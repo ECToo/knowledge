@@ -8,6 +8,7 @@ libknowledge_la_SOURCES = drawable.cpp\
 								  textureManager.cpp\
 								  material.cpp\
 								  materialManager.cpp\
+								  guiManager.cpp\
 								  renderer.cpp\
 								  sticker.cpp\
 								  logger.cpp\

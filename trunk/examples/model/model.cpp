@@ -21,7 +21,6 @@
 #include "renderer.h"
 #include "rendersystem.h"
 #include "logger.h"
-#include "sticker.h"
 
 #ifdef __WII__
 #include <wiiuse/wpad.h>
@@ -33,7 +32,8 @@ int main(int argc, char** argv)
 	k::root* appRoot = new k::root();
 	k::renderSystem* mRenderSystem = appRoot->getRenderSystem();
 	k::renderer* mRenderer = appRoot->getRenderer();
-	k::materialManager* mMaterialManager = &k::materialManager::getSingleton();
+	k::materialManager* mMaterialManager = appRoot->getMaterialManager();
+	k::guiManager* mGuiManager = appRoot->getGuiManager();
 
 	#ifdef __WII__
 	WPAD_Init();
@@ -45,6 +45,16 @@ int main(int argc, char** argv)
 	// Doesnt matter on wii
 	mRenderSystem->createWindow(800, 600);
 	mRenderSystem->setDepthTest(true);
+
+	// Common library
+	#ifdef __WII__
+	k::parsingFile* commonMaterialFile = new k::parsingFile("/knowledge/common.material");
+	#else
+	k::parsingFile* commonMaterialFile = new k::parsingFile("common.material");
+	#endif
+
+	assert(commonMaterialFile != NULL);
+	mMaterialManager->parseMaterialScript(commonMaterialFile);
 
 	// Parse material file
 	#ifdef __WII__
@@ -69,17 +79,13 @@ int main(int argc, char** argv)
 	mRenderer->push3D(newModel);
 
 	#ifdef __WII__
-	k::parsingFile* logoFile = new k::parsingFile("/knowledge/knowledge.material");
-	assert(logoFile != NULL);
+	assert(mGuiManager != NULL);
+	mGuiManager->setCursor("wiiCursor", k::vector2(32, 32));
 
-	mMaterialManager->parseMaterialScript(logoFile);
-
-	k::sticker* newSticker = new k::sticker("knowledgeLogo");
-	assert(newSticker != NULL);
-
-	newSticker->setScale(k::vector2(256, 256));
-	newSticker->setPosition(k::vector2(5, mRenderSystem->getScreenHeight()-256));
-	mRenderer->push2D(newSticker);
+	u32 resX, resY;
+	WPAD_SetVRes(WPAD_CHAN_0, resX, resY);
+	WPAD_SetDataFormat(WPAD_CHAN_0, WPAD_FMT_BTNS_ACC_IR);
+	WPAD_SetIdleTimeout(60);
 	#endif
 
 	// Angles
@@ -191,6 +197,9 @@ int main(int argc, char** argv)
 		{
 			modelPosition.z -= 1.0f;
 		}
+
+		WPADData* moteData = WPAD_Data(WPAD_CHAN_0);
+		mGuiManager->setCursorPos(k::vector2(moteData->ir.ax, moteData->ir.ay));
 		#endif
 
 		k::quaternion yQuat = k::quaternion(rY, k::vector3(1, 0, 0));

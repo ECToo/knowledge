@@ -22,6 +22,7 @@
 #include "singleton.h"
 
 #define S_LOG_INFO(X)(logger::getSingleton().info(X))
+#define K_LOG_INFO(X)(k::logger::getSingleton().info(X))
 
 namespace k
 {

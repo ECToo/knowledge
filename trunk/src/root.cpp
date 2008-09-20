@@ -57,6 +57,9 @@ root::root()
 
 	// Create the Material manager
 	mMaterialManager = new materialManager();
+
+	// Create The Gui manager
+	mGuiManager = new guiManager();
 }
 
 root::~root()
@@ -82,6 +85,12 @@ materialManager* root::getMaterialManager()
 {
 	assert(mMaterialManager != NULL);
 	return mMaterialManager;
+}
+			
+guiManager* root::getGuiManager()
+{
+	assert(mGuiManager != NULL);
+	return mGuiManager;
 }
 
 } // namespace k

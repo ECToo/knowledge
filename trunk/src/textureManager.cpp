@@ -181,12 +181,11 @@ texture* textureManager::createTexture(const std::string& filename)
 	// Try to find the texture first
 	if (wiiTexture* nTexture = getTexture(filename))
 	{
-		S_LOG_INFO("File " + filename + " was previously allocated, retrieving it...");
 		texture* newTexture = new texture(nTexture->mData, nTexture->mWidth, nTexture->mHeight);
 		return newTexture;
 	}
 
-	S_LOG_INFO("File " + filename + " was previously not allocated, doing it...");
+	S_LOG_INFO("Allocating " + filename + "...");
 
 	// Discover texture "format" (by extension)
 	if (filename.length() > 4)

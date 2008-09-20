@@ -24,6 +24,7 @@
 #include "textureManager.h"
 #include "materialManager.h"
 #include "renderer.h"
+#include "guiManager.h"
 
 namespace k
 {
@@ -34,6 +35,7 @@ namespace k
 			textureManager* mTextureManager;
 			materialManager* mMaterialManager;
 			renderer* mRenderer;
+			guiManager* mGuiManager;
 
 		public:
 			root();
@@ -50,6 +52,9 @@ namespace k
 
 			// Materials
 			materialManager* getMaterialManager();
+
+			// GUI
+			guiManager* getGuiManager();
 	};
 }
 
