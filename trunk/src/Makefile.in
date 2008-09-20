@@ -54,7 +54,8 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libknowledge_la_DEPENDENCIES =
 am_libknowledge_la_OBJECTS = drawable.lo md5.lo fileAccess.lo \
 	glRenderSystem.lo texture.lo textureManager.lo material.lo \
-	materialManager.lo renderer.lo sticker.lo logger.lo root.lo
+	materialManager.lo guiManager.lo inputManager.lo renderer.lo \
+	sticker.lo logger.lo root.lo
 libknowledge_la_OBJECTS = $(am_libknowledge_la_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -193,6 +194,8 @@ libknowledge_la_SOURCES = drawable.cpp\
 								  textureManager.cpp\
 								  material.cpp\
 								  materialManager.cpp\
+								  guiManager.cpp\
+								  inputManager.cpp\
 								  renderer.cpp\
 								  sticker.cpp\
 								  logger.cpp\
@@ -284,6 +287,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/drawable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fileAccess.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/glRenderSystem.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/guiManager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inputManager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/logger.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/material.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/materialManager.Plo@am__quote@

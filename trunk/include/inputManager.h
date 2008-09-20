@@ -21,6 +21,7 @@
 #include "prerequisites.h"
 #include "singleton.h"
 #include "keysyms.h"
+#include "vector2.h"
 
 namespace k
 {
@@ -37,6 +38,8 @@ namespace k
 			 */
 			bool mUseCube;
 			unsigned short mConnnectedMotes;
+
+			u32 mWiiMoteHeld[4];
 			WPADData* mWiiData[4];
 			#else
 			/**
@@ -49,6 +52,11 @@ namespace k
 			 */
 			Uint8 mSDLMouseSnapshot;
 			vector2 mLastMousePos;
+
+			/**
+			 * If quit event was triggered
+			 */
+			bool mQuitEvent;
 			#endif
 
 			/**
@@ -108,6 +116,29 @@ namespace k
 			 * @num The wiimote channel to query.
 			 */
 			vector2 getWiiMotePosition(unsigned char num);
+
+			/**
+			 * Tells if a key is down
+			 *
+			 * @id The key id, generally assigned on keysyms
+			 * @return True if down, false if up
+			 */
+			bool getKbdKeyDown(unsigned int id);
+
+			/**
+			 * Tells if a button on wiimote is down
+			 *
+			 * @id The Button id
+			 * @num Wiimote number
+			 * @return True if down, false if up
+			 */
+			bool getWiiMoteDown(unsigned char num, unsigned int id);
+
+			/**
+			 * Return if the quit event was triggered
+			 * Note that this is only valid on PC.
+			 */
+			bool getQuitEvent();
 
 			/**
 			 * Retrieve data from hardware. Must be called every frame

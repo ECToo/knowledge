@@ -32,6 +32,7 @@ glRenderSystem::~glRenderSystem()
 void glRenderSystem::initialise()
 {
 	SDL_Init(SDL_INIT_VIDEO);
+	atexit(SDL_Quit);
 }
 
 void glRenderSystem::deinitialise()

@@ -29,6 +29,10 @@ namespace k
 	{
 		protected:
 			sticker* mCursor;
+			
+			#ifndef __WII__
+			unsigned short mCursorSize;
+			#endif
 
 		public:
 			/**

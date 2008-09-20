@@ -22,10 +22,6 @@
 #include "rendersystem.h"
 #include "logger.h"
 
-#ifdef __WII__
-#include <wiiuse/wpad.h>
-#endif
-
 int main(int argc, char** argv)
 {
 	// Initialize knowledge
@@ -34,10 +30,7 @@ int main(int argc, char** argv)
 	k::renderer* mRenderer = appRoot->getRenderer();
 	k::materialManager* mMaterialManager = appRoot->getMaterialManager();
 	k::guiManager* mGuiManager = appRoot->getGuiManager();
-
-	#ifdef __WII__
-	WPAD_Init();
-	#endif
+	k::inputManager* mInputManager = appRoot->getInputManager();
 
 	assert(mRenderer != NULL);
 	assert(mRenderSystem != NULL);
@@ -78,130 +71,97 @@ int main(int argc, char** argv)
 	assert(newModel != NULL);
 	mRenderer->push3D(newModel);
 
-	#ifdef __WII__
 	assert(mGuiManager != NULL);
 	mGuiManager->setCursor("wiiCursor", k::vector2(32, 32));
 
-	u32 resX, resY;
-	WPAD_SetVRes(WPAD_CHAN_0, resX, resY);
-	WPAD_SetDataFormat(WPAD_CHAN_0, WPAD_FMT_BTNS_ACC_IR);
-	WPAD_SetIdleTimeout(60);
-	#endif
+	/**
+	 * Setup the input Manager
+	 */
+	assert(mInputManager != NULL);
+	mInputManager->initWii(false);
+	mInputManager->setupWiiMotes(1);
+	mInputManager->setWiiMoteTimetout(60);
+	mInputManager->setWiiMoteEmulation(true);
 
 	// Angles
 	int rX = 0;
 	int rY = 0;
+	int lastX = 0; 
+	int lastY = 0;
+	int dX = 0;
+	int dY = 0;
 
 	bool running = true;
 	while (running)
 	{
-		#ifndef __WII__
-		SDL_Event events;
-		while (SDL_PollEvent (&events))
-		{
-			switch (events.type)
-			{
-				case SDL_QUIT:
-					running = false;
-					break;
-				case SDL_KEYDOWN:
-					switch (events.key.keysym.sym)
-					{
-						case SDLK_ESCAPE:
-							running = false;
-							break;
-					}
-					break;
-			}
-		}
+		mInputManager->feed();
 
-		Uint8* keys = SDL_GetKeyState(NULL);
-		if (keys[SDLK_LEFT])
+		// User clicked on Close Window
+		if (mInputManager->getQuitEvent() || mInputManager->getKbdKeyDown(K_KBD_ESCAPE))
+			running = false;
+
+		if (mInputManager->getKbdKeyDown(K_KBD_LEFT))
 			modelPosition.x++;
 		else
-		if (keys[SDLK_RIGHT])
+		if (mInputManager->getKbdKeyDown(K_KBD_RIGHT))
 			modelPosition.x--;
 
-		if (keys[SDLK_UP])
+		if (mInputManager->getKbdKeyDown(K_KBD_UP))
 			modelPosition.y++;
 		else
-		if (keys[SDLK_DOWN])
+		if (mInputManager->getKbdKeyDown(K_KBD_DOWN))
 			modelPosition.y--;
 
-		if (keys[SDLK_a])
+		if (mInputManager->getKbdKeyDown(K_KBD_a) || mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_PLUS))
 			modelPosition.z += 0.3;
 		else
-		if (keys[SDLK_z])
+		if (mInputManager->getKbdKeyDown(K_KBD_z) || mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_MINUS))
 			modelPosition.z -= 0.3;
 
-		if (keys[SDLK_i])
-			rY += 0.1;
+		if (mInputManager->getKbdKeyDown(K_KBD_i) || mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_UP))
+			rY += 1;
 		else
-		if (keys[SDLK_k])
-			rY -= 0.1;
+		if (mInputManager->getKbdKeyDown(K_KBD_k) || mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_DOWN))
+			rY -= 1;
 
-		if (keys[SDLK_j])
-			rX += 0.1;
+		if (mInputManager->getKbdKeyDown(K_KBD_j) || mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_RIGHT))
+			rX += 1;
 		else
-		if (keys[SDLK_l])
-			rX -= 0.1;
+		if (mInputManager->getKbdKeyDown(K_KBD_l) || mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_LEFT))
+			rX -= 1;
 
-		int mx, my;
-		Uint8 mouse = SDL_GetRelativeMouseState(&mx, &my);
-		if (mouse & SDL_BUTTON(SDL_BUTTON_LEFT))
+		k::vector2 mousePos = mInputManager->getWiiMotePosition(0);
+		mGuiManager->setCursorPos(mousePos);
+
+		dX = mousePos.x - lastX;
+		dY = mousePos.y - lastY;
+
+		#ifndef __WII__
+		dY = -dY;
+		#endif
+
+		lastX = mousePos.x;
+		lastY = mousePos.y;
+
+		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_A))
 		{
-			rX += mx;
-			rY += my;
+			rX += dX;
+			rY += dY;
 		}
 		else
-		if (mouse & SDL_BUTTON(SDL_BUTTON_RIGHT))
+		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_B))
 		{
-			modelPosition.x += mx;
-			modelPosition.y -= my;
+			modelPosition.x += dX;
+			modelPosition.y -= dY;
 		}
-		#else
-		WPAD_ScanPads();
-		u32 bHeld = WPAD_ButtonsHeld(0);
 
-		if (bHeld & WPAD_BUTTON_HOME) 
+		// Quit Application
+		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_HOME))
 		{
 			running = false;
 		}
 
-		if (bHeld & WPAD_BUTTON_LEFT)
-		{
-			rX -= 1;
-		}
-		else
-		if (bHeld & WPAD_BUTTON_RIGHT)
-		{
-			rX += 1;
-		}
-
-		if (bHeld & WPAD_BUTTON_UP)
-		{
-			rY += 1;
-		}
-		else
-		if (bHeld & WPAD_BUTTON_DOWN)
-		{
-			rY -= 1;
-		}
-
-		if (bHeld & WPAD_BUTTON_MINUS)
-		{
-			modelPosition.z += 1.0f;
-		}
-		else
-		if (bHeld & WPAD_BUTTON_PLUS)
-		{
-			modelPosition.z -= 1.0f;
-		}
-
-		WPADData* moteData = WPAD_Data(WPAD_CHAN_0);
-		mGuiManager->setCursorPos(k::vector2(moteData->ir.ax, moteData->ir.ay));
-		#endif
-
+		// Model Rotation
 		k::quaternion yQuat = k::quaternion(rY, k::vector3(1, 0, 0));
 		k::quaternion xQuat = k::quaternion(rX, k::vector3(0, 1, 0));
 		k::quaternion modelQuat = xQuat * yQuat;
@@ -212,7 +172,7 @@ int main(int argc, char** argv)
 		mRenderer->draw();
 	}
 
-	// delete appRoot;
+	delete appRoot;
 	return 0;
 }
 

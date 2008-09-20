@@ -43,6 +43,10 @@ void sticker::draw()
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	assert(rs != NULL);
 
+	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+	rs->pushMatrix();
+	rs->identityMatrix();
+
 	// Prepare the material
 	mMaterial->prepare();
 

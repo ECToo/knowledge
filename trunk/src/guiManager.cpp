@@ -53,6 +53,10 @@ void guiManager::setCursor(std::string mat, vector2 scale)
 
 	mCursor->setScale(scale);
 
+	#ifndef __WII__
+	mCursorSize = scale.x;
+	#endif
+
 	renderer* rs = root::getSingleton().getRenderer();
 	assert(rs != NULL);
 
@@ -63,6 +67,11 @@ void guiManager::setCursorPos(vector2 pos)
 {
 	if (mCursor)
 	{
+		// I dont know why this SDL "bug" happens
+		#ifndef __WII__
+		pos.y -= mCursorSize;
+		#endif
+		
 		mCursor->setPosition(pos);
 	}
 }
