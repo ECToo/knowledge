@@ -331,6 +331,11 @@ void md5mesh::draw()
 
 md5model::md5model(const std::string& filename)
 {
+	// Clear Lists/Maps/Vectors
+	mAnimations.clear();
+	mMeshes.clear();
+	mBones.clear();
+
 	parsingFile file(filename);
 	if (!file.isReady())
 	{
@@ -559,9 +564,6 @@ md5model::md5model(const md5model& source)
 	//TODO
 }
 
-md5model::md5model()
-{}
-
 md5model::~md5model()
 {
 	//TODO
@@ -601,6 +603,239 @@ void md5model::draw()
 	
 		mesh->draw();
 	}
+}
+		
+void md5model::attachAnimation(const std::string& filename, const std::string& name)
+{
+	parsingFile file(filename);
+	if (!file.isReady())
+	{
+		S_LOG_INFO("Failed to attach model animation (" + filename + ")");
+		return;
+	}
+
+	// Great, the file is found, allocate an animation slot
+	anim_t* newAnimation = new anim_t;
+	if (!newAnimation)
+	{
+		S_LOG_INFO("Failed to allocate memory for a new animation.");
+		return;
+	}
+	memset(newAnimation, 0, sizeof(anim_t));
+
+	// Parse it
+	std::string token = file.getNextToken();
+	while (!file.eof())
+	{
+		if (token == "MD5Version")
+		{
+			token = file.getNextToken();
+			if (token != "10")
+			{
+				S_LOG_INFO("Incorrect version of md5anim file, expected 10, found " + token);
+				delete newAnimation;
+
+				return;
+			}
+		} // MD5Version
+		else
+		if (token == "commandline")
+		{
+			file.skipNextToken();
+		} // commandline
+		else
+		if (token == "numFrames")
+		{
+			token = file.getNextToken(); // number of frames
+			newAnimation->numFrames = atoi(token.c_str());
+			newAnimation->bounds = new bound_t[newAnimation->numFrames];
+			if (!newAnimation->bounds)
+			{
+				S_LOG_INFO("Failed to allocate bounding boxes array.");
+				delete newAnimation;
+
+				return;
+			}
+			memset(newAnimation->bounds, 0, sizeof(bound_t)*newAnimation->numFrames);
+
+			newAnimation->frames = new vec_t*[newAnimation->numFrames];
+			if (!newAnimation->frames)
+			{
+				S_LOG_INFO("Failed to allocate array of frames.");
+				delete newAnimation;
+
+				return;
+			}
+		}
+		else
+		if (token == "numJoints")
+		{
+			token = file.getNextToken(); // number of joints
+			newAnimation->numBones = atoi(token.c_str());
+
+			// A base position for each frame
+			newAnimation->baseFrame = new baseBone_t[newAnimation->numBones];
+			if (!newAnimation->baseFrame)
+			{
+				S_LOG_INFO("Failed to allocate base bone positions for each frame.");
+				delete newAnimation;
+
+				return;
+			}
+			memset(newAnimation->baseFrame, 0, sizeof(baseBone_t)*newAnimation->numBones);
+
+			// The Complete hierarchy for animation
+			newAnimation->hierarchy = new boneFrame_t[newAnimation->numBones];
+			if (!newAnimation->hierarchy)
+			{
+				S_LOG_INFO("Failed to allocate animation hierarchy.");
+				delete newAnimation;
+
+				return;
+			}
+			memset(newAnimation->hierarchy, 0, sizeof(boneFrame_t)*newAnimation->numBones);
+		} // numJoints
+		else
+		if (token == "frameRate")
+		{
+			token = file.getNextToken(); // frameRate param
+			newAnimation->frameRate = atoi(token.c_str());
+		} // framerate
+		else
+		if (token == "numAnimatedComponents")
+		{
+			token = file.getNextToken(); // animated components number
+			newAnimation->animatedComponents = atoi(token.c_str()); 
+			for (unsigned int i = 0; i < newAnimation->numFrames; i++)
+			{
+				newAnimation->frames[i] = new vec_t[newAnimation->animatedComponents];
+				if (!newAnimation->frames[i])
+				{
+					S_LOG_INFO("Failed to allocate frame animated components.");
+					delete newAnimation;
+					
+					return;
+				}
+				memset(newAnimation->frames[i], 0, sizeof(vec_t)*newAnimation->animatedComponents);
+			}
+		} // numAnimatedComponents
+		else
+		if (token == "hierarchy")
+		{
+			file.skipNextToken(); // {
+			for (unsigned int i = 0; i < newAnimation->numBones; i++)
+			{
+				boneFrame_t* thisBone = &newAnimation->hierarchy[i];
+				assert(thisBone != NULL);
+
+				// Set Index
+				thisBone->index = i;
+
+				// Bone name
+				file.skipNextToken();
+
+				// parent
+				token = file.getNextToken();
+				thisBone->parentIndex = atoi(token.c_str());
+
+				// mask 
+				token = file.getNextToken();
+				thisBone->mask = atoi(token.c_str());
+
+				// start index
+				token = file.getNextToken();
+				thisBone->startIndex = atoi(token.c_str());
+			}
+			file.skipNextToken(); // }
+		} // hierarchy
+		else
+		if (token == "bounds")
+		{
+			file.skipNextToken(); // {
+			for (unsigned int i = 0; i < newAnimation->numFrames; i++)
+			{
+				bound_t* thisBound = &newAnimation->bounds[i];
+				assert(thisBound != NULL);
+
+				file.skipNextToken(); // (
+				token = file.getNextToken(); // X
+				thisBound->mins.x = atof(token.c_str());
+				token = file.getNextToken(); // Y
+				thisBound->mins.y = atof(token.c_str());
+				token = file.getNextToken(); // Z
+				thisBound->mins.z = atof(token.c_str());
+				file.skipNextToken(); // )
+
+				file.skipNextToken(); // (
+				token = file.getNextToken(); // X
+				thisBound->maxs.x = atof(token.c_str());
+				token = file.getNextToken(); // Y
+				thisBound->maxs.y = atof(token.c_str());
+				token = file.getNextToken(); // Z
+				thisBound->maxs.z = atof(token.c_str());
+				file.skipNextToken(); // )
+			}
+			file.skipNextToken(); // }
+		} // bounds
+		else
+		if (token == "baseframe")
+		{
+			file.skipNextToken(); // {
+			for (unsigned int i = 0; i < newAnimation->numBones; i++)
+			{
+				// For Quaternion
+				quaternion q;
+
+				baseBone_t* thisBone = &newAnimation->baseFrame[i];
+				assert(thisBone != NULL);
+
+				file.skipNextToken(); // (
+				token = file.getNextToken(); // X
+				thisBone->pos.x = atof(token.c_str());
+				token = file.getNextToken(); // Y
+				thisBone->pos.y = atof(token.c_str());
+				token = file.getNextToken(); // Z
+				thisBone->pos.z = atof(token.c_str());
+				file.skipNextToken(); // )
+
+				file.skipNextToken(); // (
+				token = file.getNextToken(); // X
+				q.x = atof(token.c_str());
+				token = file.getNextToken(); // Y
+				q.y = atof(token.c_str());
+				token = file.getNextToken(); // Z
+				q.z = atof(token.c_str());
+				file.skipNextToken(); // )
+
+				q.computeW();
+				thisBone->orientation = q;
+			}
+			file.skipNextToken(); // }
+		} // baseframe
+		else
+		if (token == "frame")
+		{
+			vec_t* activeFrame;	
+
+			token = file.getNextToken(); // frame index
+			activeFrame = newAnimation->frames[atoi(token.c_str())];
+			assert(activeFrame != NULL);
+
+			file.skipNextToken(); // {
+			for (unsigned int i = 0; i < newAnimation->animatedComponents; i++)
+			{
+				token = file.getNextToken();
+				activeFrame[i] = atof(token.c_str());
+			}
+			file.skipNextToken(); // }
+		} // frame
+			
+		token = file.getNextToken();
+	}
+
+	// Successfully parsed file, save it on the model
+	mAnimations[name] = newAnimation;
+	S_LOG_INFO("Attached animation " + name + " to model.");
 }
 
 }

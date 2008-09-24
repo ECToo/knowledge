@@ -23,7 +23,71 @@
 #include "material.h"
 #include "fileAccess.h"
 
+// Bone flags on .md5anim
+#define BONE_POS_X (1 << 0)
+#define BONE_POS_Y (1 << 1)
+#define BONE_POS_Z (1 << 2)
+#define BONE_ORI_X (1 << 3)
+#define BONE_ORI_Y (1 << 4)
+#define BONE_ORI_Z (1 << 5)
+
 namespace k {
+
+typedef struct
+{
+	int index;
+	int parentIndex;
+	int mask;
+	unsigned int startIndex;
+} boneFrame_t;
+
+typedef struct
+{
+	vector3 pos;
+	quaternion orientation;
+} baseBone_t;
+
+typedef struct
+{
+	vector3 mins;
+	vector3 maxs;
+} bound_t;
+
+typedef struct
+{
+	unsigned int numFrames;
+	unsigned int numBones;
+	unsigned int frameRate;
+	unsigned int animatedComponents;
+
+	// md5anim hierarchy
+	boneFrame_t* hierarchy;
+
+	// bounding boxes on each frame
+	bound_t* bounds;
+
+	/**
+	 * Base (initial) frame from the model.
+	 * Each anim identifier will modify
+	 * this baseFrame.
+	 */
+	baseBone_t* baseFrame;
+
+	/**
+	 * This double sized array should contain the number
+	 * of frames from the animation and inside each member
+	 * a new array of the frame modifiers.
+	 */
+	vec_t** frames;
+
+	/**
+	 * Current frame the animation is.
+	 * In case of asking the same frame
+	 * for the anim system it prevents
+	 * the engine from recalculating it.
+	 */
+	unsigned int currentFrame;
+} anim_t;
 
 typedef struct
 {
@@ -120,6 +184,7 @@ class md5mesh
 class md5model : public drawable3D
 {
 	private:
+		std::map<std::string, anim_t*> mAnimations;
 		std::list<md5mesh*> mMeshes;
 		std::vector<bone_t*> mBones;
 
@@ -131,13 +196,14 @@ class md5model : public drawable3D
 	public:
 		md5model(const std::string& filename);
 		md5model(const md5model& source);
-
-		/**
-		 * Dont use this, will fail.
-		 */
-		md5model();
 		~md5model();
 
+		/**
+		 * Loads an md5anim file and attach it to the list of model animations.
+		 * @name The animation name (how you call it from functions).
+		 * @filename The md5anim file with FULL path.
+		 */
+		void attachAnimation(const std::string& filename, const std::string& name);
 		void draw();
 };
 

@@ -69,6 +69,13 @@ int main(int argc, char** argv)
 	#endif
 
 	assert(newModel != NULL);
+
+	#ifdef __WII__
+	newModel->attachAnimation("/knowledge/goku/idle.md5anim", "idle");
+	#else
+	newModel->attachAnimation("idle.md5anim", "idle");
+	#endif
+
 	mRenderer->push3D(newModel);
 
 	assert(mGuiManager != NULL);
