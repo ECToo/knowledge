@@ -149,6 +149,51 @@ void md5mesh::setMaterial(material* mat)
 	assert(mat != NULL);
 	mMaterial = mat;
 }
+		
+void md5mesh::compileVertices(std::vector<bone_t*>* boneList)
+{
+	for (unsigned int vIt = 0; vIt < mVCount; vIt++)
+	{
+		vert_t* vertex = &mVertices[vIt];
+		assert(vertex != NULL);
+
+		vertex->renderPos[0] = vertex->renderPos[1] = vertex->renderPos[2] = 0;
+		vertex->renderNormal = vector3(0, 0, 0);
+		for (int w = vertex->weight.x; w < vertex->weight.x+vertex->weight.y; w++)
+		{
+			vector3 tempPos;
+
+			weight_t* weight = &mWeights[w];
+			assert(weight != NULL);
+				
+			bone_t* bone = (*boneList)[weight->jointIndex];
+			assert(bone != NULL);
+
+			tempPos = bone->orientation.rotateVector(weight->pos);
+			vertex->renderPos[0] += (tempPos.x + bone->pos.x) * weight->value;
+			vertex->renderPos[1] += (tempPos.y + bone->pos.y) * weight->value;
+			vertex->renderPos[2] += (tempPos.z + bone->pos.z) * weight->value;
+
+			vertex->renderNormal += bone->orientation.rotateVector(vertex->baseNormal);
+		}
+
+		// Put on vertex list
+		mVertexList[vIt*3] = vertex->renderPos[0];
+		mVertexList[vIt*3 + 1] = vertex->renderPos[1];
+		mVertexList[vIt*3 + 2] = vertex->renderPos[2];
+		mUvList[vIt*2] = vertex->uv[0];
+		mUvList[vIt*2 + 1] = vertex->uv[1];
+	}
+
+	// Copy the normals
+	memset(mNormalList, 0, sizeof(vec_t) * 3 * mVCount);
+	for (unsigned int i = 0; i < mVCount; i++)
+	{
+		mNormalList[i+2*i] = mVertices[i].renderNormal.x;
+		mNormalList[i+2*i+1] = mVertices[i].renderNormal.y;
+		mNormalList[i+2*i+2] = mVertices[i].renderNormal.z;
+	}
+}
 
 void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 {
@@ -569,6 +614,18 @@ md5model::~md5model()
 	//TODO
 }
 
+void md5model::compileVertices()
+{
+	std::list<md5mesh*>::iterator it;
+	for (it = mMeshes.begin(); it != mMeshes.end(); it++)
+	{
+		md5mesh* mesh = (*it);
+		assert(mesh != NULL);
+	
+		mesh->compileVertices(&mBones);
+	}
+}
+
 void md5model::compileBase()
 {
 	std::list<md5mesh*>::iterator it;
@@ -836,6 +893,116 @@ void md5model::attachAnimation(const std::string& filename, const std::string& n
 	// Successfully parsed file, save it on the model
 	mAnimations[name] = newAnimation;
 	S_LOG_INFO("Attached animation " + name + " to model.");
+}
+		
+anim_t* md5model::getAnimation(const std::string& name)
+{
+	std::map<std::string, anim_t*>::iterator it = mAnimations.find(name);
+	if (it != mAnimations.end())
+	{
+		return it->second;
+	}
+	
+	return NULL;
+}
+
+void md5model::setAnimation(const std::string& name)
+{
+	anim_t* destAnimation = getAnimation(name);
+	if (!destAnimation)
+	{
+		S_LOG_INFO("Animation " + name + " not found, did you attached it?");
+		return;
+	}
+
+	destAnimation->currentFrame = 0;
+
+	for (unsigned int i = 0; i < mBones.size(); i++)
+	{
+		bone_t* thisBone = mBones[i];
+		assert(thisBone != NULL);
+
+		thisBone->currentAnim = destAnimation;
+	}
+}
+
+void md5model::setAnimationFrame(unsigned int frameNum)
+{
+	for (unsigned int i = 0; i < mBones.size(); i++)
+	{
+		bone_t* thisBone = mBones[i];
+		assert(thisBone != NULL);
+
+		if (!thisBone->currentAnim)
+			continue;
+
+		anim_t* currentAnim = thisBone->currentAnim;
+
+		unsigned int realFrameNum;
+		if (frameNum >= currentAnim->numFrames)
+			realFrameNum = frameNum % currentAnim->numFrames;
+		else
+			realFrameNum = frameNum;
+
+		if (currentAnim->currentFrame == frameNum)
+			continue;
+
+		// Copy Bone frame positions to modify 'em
+		thisBone->pos = currentAnim->baseFrame[thisBone->index].pos;
+		thisBone->orientation = currentAnim->baseFrame[thisBone->index].orientation;
+
+		// Check modifiers per frame
+		boneFrame_t* boneOnFrame = &currentAnim->hierarchy[thisBone->index];
+		if (boneOnFrame->mask)
+		{
+			int j = 0;
+			bool quatChanged = false;
+
+			if (boneOnFrame->mask & BONE_POS_X)
+				thisBone->pos.x = currentAnim->frames[realFrameNum][boneOnFrame->startIndex + j++];
+			if (boneOnFrame->mask & BONE_POS_Y)
+				thisBone->pos.y = currentAnim->frames[realFrameNum][boneOnFrame->startIndex + j++];
+			if (boneOnFrame->mask & BONE_POS_Z)
+				thisBone->pos.z = currentAnim->frames[realFrameNum][boneOnFrame->startIndex + j++];
+
+			if (boneOnFrame->mask & BONE_ORI_X)
+			{
+				thisBone->orientation.x = currentAnim->frames[realFrameNum][boneOnFrame->startIndex + j++];
+				quatChanged = true;
+			}
+			if (boneOnFrame->mask & BONE_ORI_Y)
+			{
+				thisBone->orientation.y = currentAnim->frames[realFrameNum][boneOnFrame->startIndex + j++];
+				quatChanged = true;
+			}
+			if (boneOnFrame->mask & BONE_ORI_Z)
+			{
+				thisBone->orientation.z = currentAnim->frames[realFrameNum][boneOnFrame->startIndex + j++];
+				quatChanged = true;
+			}
+
+			if (quatChanged)
+				thisBone->orientation.computeW();
+		} // masks
+
+		// This bone has a parent
+		if (boneOnFrame->parentIndex > -1)
+		{
+			bone_t* parentBone = mBones[thisBone->parentIndex];
+			assert(parentBone != NULL);
+
+			quaternion oriQuat = thisBone->orientation;
+			vector3 oriPos = thisBone->pos;
+
+			vector3 tempPos = parentBone->orientation.rotateVector(oriPos);
+			thisBone->pos = parentBone->pos + tempPos;
+
+			thisBone->orientation = parentBone->orientation * oriQuat;
+			thisBone->orientation.normalise();
+		}
+	} // for Bones
+
+	compileVertices();
 }
 
 }

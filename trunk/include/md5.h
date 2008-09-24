@@ -101,6 +101,9 @@ typedef struct
 	// Base
 	vector3 basePos;
 	quaternion baseOrientation;
+
+	// Animated Skeleton
+	anim_t* currentAnim;
 } bone_t;
 
 typedef struct
@@ -178,6 +181,12 @@ class md5mesh
 		 * Compile Base Positions
 		 */
 		void compileBase(std::vector<bone_t*>* boneList);
+
+		/**
+		 * Compile Vertices for animations
+		 */
+		void compileVertices(std::vector<bone_t*>* boneList);
+
 		void draw();
 };
 
@@ -193,6 +202,16 @@ class md5model : public drawable3D
 		 */
 		void compileBase();
 
+		/**
+		 * Used to prepare the model when animated
+		 */
+		void compileVertices();
+
+		/**
+		 * Retrieve an model animation by its name
+		 */
+		anim_t* getAnimation(const std::string& name);
+
 	public:
 		md5model(const std::string& filename);
 		md5model(const md5model& source);
@@ -204,6 +223,21 @@ class md5model : public drawable3D
 		 * @filename The md5anim file with FULL path.
 		 */
 		void attachAnimation(const std::string& filename, const std::string& name);
+
+		/**
+		 * Set the model animation.
+		 * @name The previously attached animation name.
+		 */
+		void setAnimation(const std::string& name);
+
+		/**
+		 * Set the model desired frame.
+		 * If the specified frame is greater than the number
+		 * of the frames in the animation it will result in 
+		 * frame = numberOfFrames % desiredFrame
+		 */
+		void setAnimationFrame(unsigned int frameNum);
+
 		void draw();
 };
 

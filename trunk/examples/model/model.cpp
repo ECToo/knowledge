@@ -76,6 +76,8 @@ int main(int argc, char** argv)
 	newModel->attachAnimation("idle.md5anim", "idle");
 	#endif
 
+	newModel->setAnimation("idle");
+	newModel->setAnimationFrame(10);
 	mRenderer->push3D(newModel);
 
 	assert(mGuiManager != NULL);
@@ -97,6 +99,7 @@ int main(int argc, char** argv)
 	int lastY = 0;
 	int dX = 0;
 	int dY = 0;
+	unsigned int frame = 0;
 
 	bool running = true;
 	while (running)
@@ -175,6 +178,7 @@ int main(int argc, char** argv)
 
 		newModel->setPosition(modelPosition);
 		newModel->setOrientation(modelQuat);
+		newModel->setAnimationFrame((frame++)/2);
 
 		mRenderer->draw();
 	}
