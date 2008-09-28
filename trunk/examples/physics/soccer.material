@@ -1,0 +1,14 @@
+material soccerBall
+{
+	ambient 1 1 1
+	diffuse 1 1 1
+	specular 1 1 1 
+	
+	texture
+	{
+		filename ball.png
+		texcoord uv
+	}
+}
+
+

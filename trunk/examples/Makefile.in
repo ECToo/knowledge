@@ -163,7 +163,7 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = model stickers nehe5 texture
+SUBDIRS = model stickers nehe5 texture physics
 all: all-recursive
 
 .SUFFIXES:
