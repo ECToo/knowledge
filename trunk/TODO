@@ -15,8 +15,9 @@ Features for first beta release:
 [.] PNG and JPG Textures on Wii (Pending jpeg loading)
 [.] Doom3 MD5 Models with skeletons and animations (Pending animations)
 [.] Network (Pending integration and test on the Wii)
+[.] Physics
+[.] Cameras
 
-[t] Cameras
 [t] Render to texture
 [t] Fake dynamic lights
 [t] BSP (quake3 maps) support
@@ -26,7 +27,6 @@ Features for first beta release:
 [t] Frustrum culling
 [t] Stencil shadows
 
-[t] Physics
 [t] Sound
 [t] Timers
 [t] Configuration Editor/Loader

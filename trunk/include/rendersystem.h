@@ -56,7 +56,7 @@ namespace k
 			#ifndef __WII__
 			vec_t mMatrix[16];
 			#else
-			Mtx mMatrix;
+			Mtx44 mMatrix;
 			#endif
 
 		public:

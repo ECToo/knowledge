@@ -215,7 +215,13 @@ int main(int argc, char** argv)
 
 		// Physics Loop
 		dSpaceCollide(mSpaceId, cInfo, twoBodiesCollide);
+
+		#ifdef __WII__
+		dWorldStepFast1(mWorldId, 0.05, 1);
+		#else
 		dWorldStepFast1(mWorldId, 0.004, 1);
+		#endif
+
 		dJointGroupEmpty(mJointId);
 	}
 

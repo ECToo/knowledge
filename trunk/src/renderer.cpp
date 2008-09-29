@@ -123,7 +123,7 @@ void renderer::draw()
 	 * rendersystem (for modelview), otherwise it will 
 	 * remove camera parameters.
 	 */
-	for (std::list<drawable3D*>::const_iterator it = m3DObjects.begin(); it != m3DObjects.end(); it++)
+	for (std::list<drawable3D*>::const_iterator it = m3DObjects.begin(); it != m3DObjects.end(); ++it)
 	{
 		drawable3D* obj = *it;
 		assert(obj != NULL);
@@ -151,8 +151,7 @@ void renderer::draw()
 	rs->pushMatrix();
 	rs->identityMatrix();
 
-	std::list<drawable2D*>::iterator dit;
-	for (dit = m2DObjects.begin(); dit != m2DObjects.end(); dit++)
+	for (std::list<drawable2D*>::const_iterator dit = m2DObjects.begin(); dit != m2DObjects.end(); ++dit)
 	{
 		drawable2D* obj = (*dit);
 		assert(obj != NULL);

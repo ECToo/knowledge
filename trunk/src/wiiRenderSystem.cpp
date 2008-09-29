@@ -776,9 +776,11 @@ void camera::setView()
 
 void camera::setPosition(vector3 pos)
 {
-	mMatrix[3][0] = pos.x;
-	mMatrix[3][1] = pos.y;
-	mMatrix[3][2] = pos.z;
+	// Looks like the GX library
+	// see the matrixes as row-major ones
+	mMatrix[0][3] = pos.x;
+	mMatrix[1][3] = pos.y;
+	mMatrix[2][3] = pos.z;
 }
 
 vector3 camera::getPosition()
