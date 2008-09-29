@@ -16,6 +16,7 @@
 */
 
 #include "glRenderSystem.h"
+#include "root.h"
 #ifndef __WII__
 
 namespace k {
@@ -87,10 +88,15 @@ void glRenderSystem::createWindow(const int w, const int h)
 
 void glRenderSystem::setBlendMode(unsigned short src, unsigned short dst)
 {
+	glBlendFunc(src, dst);
 }
 
 void glRenderSystem::setBlend(bool state)
 {
+	if (state)
+		glEnable(GL_BLEND);
+	else
+		glDisable(GL_BLEND);
 }
 
 void glRenderSystem::destroyWindow()
@@ -172,6 +178,12 @@ void glRenderSystem::popMatrix()
 void glRenderSystem::identityMatrix()
 {
 	glLoadIdentity();
+}
+			
+void glRenderSystem::copyMatrix(vec_t* matrix)
+{
+	assert(matrix != NULL);
+	glLoadMatrixf(matrix);
 }
 
 void glRenderSystem::translateScene(vec_t x, vec_t y, vec_t z)
@@ -347,6 +359,34 @@ unsigned int glRenderSystem::getScreenWidth()
 unsigned int glRenderSystem::getScreenHeight()
 {
 	return mScreenSize.y;
+}
+
+camera::camera()
+{
+	memset(mMatrix, 0, sizeof(vec_t) * 16);
+	mMatrix[0] = mMatrix[5] = mMatrix[10] = mMatrix[15] = 1.0;
+}
+
+void camera::setView()
+{
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	assert(rs != NULL);
+
+	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+	rs->identityMatrix();
+	rs->copyMatrix(mMatrix);
+}
+
+void camera::setPosition(vector3 pos)
+{
+	mMatrix[12] = pos.x;
+	mMatrix[13] = pos.y;
+	mMatrix[14] = pos.z;
+}
+
+vector3 camera::getPosition()
+{
+	return vector3(mMatrix[12], mMatrix[13], mMatrix[14]);
 }
 
 } // namespace k

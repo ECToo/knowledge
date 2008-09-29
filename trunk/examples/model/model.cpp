@@ -53,8 +53,7 @@ int main(int argc, char** argv)
 	#ifdef __WII__
 	k::parsingFile* matFile = new k::parsingFile("/knowledge/goku/goku.material");
 	#else
-	// k::parsingFile* matFile = new k::parsingFile("goku.material");
-	k::parsingFile* matFile = new k::parsingFile("soccer.material");
+	k::parsingFile* matFile = new k::parsingFile("goku.material");
 	#endif
 
 	mMaterialManager->parseMaterialScript(matFile);
@@ -66,13 +65,11 @@ int main(int argc, char** argv)
 	#ifdef __WII__
 	k::md5model* newModel = new k::md5model("/knowledge/goku/goku.md5mesh");
 	#else
-	// k::md5model* newModel = new k::md5model("goku.md5mesh");
-	k::md5model* newModel = new k::md5model("soccer.md5mesh");
+	k::md5model* newModel = new k::md5model("goku.md5mesh");
 	#endif
 
 	assert(newModel != NULL);
 
-	/*
 	#ifdef __WII__
 	newModel->attachAnimation("/knowledge/goku/idle.md5anim", "idle");
 	#else
@@ -81,7 +78,6 @@ int main(int argc, char** argv)
 
 	newModel->setAnimation("idle");
 	newModel->setAnimationFrame(10);
-	*/
 	mRenderer->push3D(newModel);
 
 	assert(mGuiManager != NULL);
@@ -93,7 +89,7 @@ int main(int argc, char** argv)
 	assert(mInputManager != NULL);
 	mInputManager->initWii(false);
 	mInputManager->setupWiiMotes(1);
-	mInputManager->setWiiMoteTimetout(60);
+	mInputManager->setWiiMoteTimeout(60);
 	mInputManager->setWiiMoteEmulation(true);
 
 	// Angles
@@ -182,7 +178,7 @@ int main(int argc, char** argv)
 
 		newModel->setPosition(modelPosition);
 		newModel->setOrientation(modelQuat);
-		// newModel->setAnimationFrame((frame++)/2);
+		newModel->setAnimationFrame((frame++)/2);
 
 		mRenderer->draw();
 	}

@@ -97,7 +97,7 @@ namespace k
 			 * Set the timeout of wiimotes (time it stays on idleing)
 			 * @time Timeout in seconds.
 			 */
-			void setWiiMoteTimetout(unsigned short time);
+			void setWiiMoteTimeout(unsigned short time);
 			
 			/**
 			 * This function will convert each mouse coordinates on screen

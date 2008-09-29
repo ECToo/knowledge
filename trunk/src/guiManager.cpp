@@ -61,6 +61,10 @@ void guiManager::setCursor(std::string mat, vector2 scale)
 	assert(rs != NULL);
 
 	rs->push2D(mCursor);
+
+	#ifndef __WII__
+	SDL_ShowCursor(false);
+	#endif
 }
 
 void guiManager::setCursorPos(vector2 pos)

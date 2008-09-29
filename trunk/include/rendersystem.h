@@ -50,6 +50,26 @@ namespace k
 		VERTEXMODE_QUAD
 	};
 
+	class camera
+	{
+		private:
+			#ifndef __WII__
+			vec_t mMatrix[16];
+			#else
+			Mtx mMatrix;
+			#endif
+
+		public:
+			camera();
+
+			// Apply the modelview matrix to the scene
+			void setView();
+
+			// Translations
+			void setPosition(vector3 pos);
+			vector3 getPosition();
+	};
+
 	class renderSystem
 	{
 		protected:
@@ -90,6 +110,12 @@ namespace k
 			virtual void pushMatrix() = 0;
 			virtual void popMatrix() = 0;
 			virtual void identityMatrix() = 0;
+
+			#ifndef __WII__
+			virtual void copyMatrix(vec_t* matrix) = 0;
+			#else
+			virtual void copyMatrix(Mtx44 matrix) = 0;
+			#endif
 
 			virtual void translateScene(vec_t x, vec_t y, vec_t z) = 0;
 			virtual void rotateScene(vec_t angle, vec_t x, vec_t y, vec_t z) = 0;

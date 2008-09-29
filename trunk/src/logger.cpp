@@ -42,6 +42,27 @@ void logger::setLogMode(logMode log)
 	mLoggingMode = log;
 }
 
+void logger::infoArg(const char* message, va_list args)
+{
+	switch (mLoggingMode)
+	{
+		case LOGMODE_STDOUT:
+			vprintf(message, args);
+			break;
+		case LOGMODE_BOTH:
+		case LOGMODE_FILE:
+			{
+				FILE* logFile = fopen(mLogFile.c_str(), "a");
+				if (logFile)
+				{
+					vfprintf(logFile, message, args);
+					fclose(logFile);
+				}
+			}
+			break;
+	};
+}
+
 void logger::info(const std::string& message)
 {
 	switch (mLoggingMode)

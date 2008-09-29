@@ -169,6 +169,7 @@ namespace k
 			void pushMatrix();
 			void popMatrix();
 			void identityMatrix();
+			void copyMatrix(Mtx44 matrix);
 
 			void translateScene(vec_t x, vec_t y, vec_t z);
 			void rotateScene(vec_t angle, vec_t x, vec_t y, vec_t z);

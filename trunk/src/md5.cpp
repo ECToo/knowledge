@@ -648,7 +648,6 @@ void md5model::draw()
 	mOrientation.toAxisAngle(angle, axis);
 
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
-	rs->identityMatrix();
 	rs->translateScene(mPosition.x, mPosition.y, mPosition.z);
 	rs->rotateScene(angle, axis.x, axis.y, axis.z);
 

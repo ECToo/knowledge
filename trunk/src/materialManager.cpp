@@ -146,7 +146,57 @@ unsigned short getBlendMode(std::string& mode)
 #else
 unsigned short getBlendMode(std::string& mode)
 {
-	return 0;
+	if (mode == "zero")
+	{
+		return GL_ZERO;
+	}
+	else 
+	if (mode == "one")
+	{
+		return GL_ONE;
+	}
+	else 
+	if (mode == "srcclr")
+	{
+		return GL_SRC_COLOR;
+	}
+	else 
+	if (mode == "invsrcclr")
+	{
+		return GL_ONE_MINUS_SRC_COLOR;
+	}
+	else 
+	if (mode == "srcalpha")
+	{
+		return GL_SRC_ALPHA;
+	}
+	else 
+	if (mode == "invsrcalpha")
+	{
+		return GL_ONE_MINUS_SRC_ALPHA;
+	}
+	else 
+	if (mode == "dstalpha")
+	{
+		return GL_DST_ALPHA;
+	}
+	else 
+	if (mode == "invdstalpha")
+	{
+		return GL_ONE_MINUS_DST_ALPHA;
+	}
+	else 
+	if (mode == "dstclr")
+	{
+		return GL_DST_COLOR;
+	}
+	else 
+	if (mode == "invdstclr")
+	{
+		return GL_ONE_MINUS_DST_COLOR;
+	}
+
+	return GL_ZERO;
 }
 #endif
 			

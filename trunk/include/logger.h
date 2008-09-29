@@ -23,6 +23,8 @@
 
 #define S_LOG_INFO(X)(logger::getSingleton().info(X))
 #define K_LOG_INFO(X)(k::logger::getSingleton().info(X))
+#define S_LOG_INFO_ARG(X,Y)(logger::getSingleton().infoArg(X,Y))
+#define K_LOG_INFO_ARG(X,Y)(k::logger::getSingleton().infoArg(X,Y))
 
 namespace k
 {
@@ -44,6 +46,7 @@ namespace k
 
 			void setLogMode(logMode log);
 			void info(const std::string& message);
+			void infoArg(const char* message, va_list args);
 
 			static logger& getSingleton();
 	};

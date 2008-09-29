@@ -21,6 +21,7 @@
 #include "prerequisites.h"
 #include "drawable.h"
 #include "singleton.h"
+#include "rendersystem.h"
 
 namespace k
 {
@@ -29,6 +30,7 @@ namespace k
 		private:
 			std::list<drawable3D*> m3DObjects;
 			std::list<drawable2D*> m2DObjects;
+			camera* mActiveCamera;
 
 		public:
 			renderer();
@@ -43,6 +45,8 @@ namespace k
 			void pop2D(drawable2D* object);
 
 			void draw();
+
+			void setCamera(camera* cam);
 	};
 }
 

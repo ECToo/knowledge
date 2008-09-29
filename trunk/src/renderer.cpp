@@ -33,6 +33,8 @@ renderer::renderer()
 {
 	m3DObjects.clear();
 	m2DObjects.clear();
+
+	mActiveCamera = NULL;
 }
 
 renderer::~renderer()
@@ -106,22 +108,31 @@ void renderer::draw()
 	 */
 	rs->frameStart();
 
-	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
-	rs->identityMatrix();
+	if (mActiveCamera)
+	{
+		mActiveCamera->setView();
+	}
 
 	rs->setMatrixMode(MATRIXMODE_PROJECTION);
 	rs->identityMatrix();
 	rs->setPerspective(90, (vec_t)rs->getScreenWidth()/rs->getScreenHeight(), 0.1, 5000.0f);
 
 	/**
-	 * We need to set the camera projection here and draw
-	 * the 3d objects after it.
+	 * Camera is ready, draw objects
+	 * keep in mind that you wont call identityMatrix() on the
+	 * rendersystem (for modelview), otherwise it will 
+	 * remove camera parameters.
 	 */
-	std::list<drawable3D*>::iterator it;
-	for (it = m3DObjects.begin(); it != m3DObjects.end(); it++)
+	for (std::list<drawable3D*>::const_iterator it = m3DObjects.begin(); it != m3DObjects.end(); it++)
 	{
-		drawable3D* obj = (*it);
+		drawable3D* obj = *it;
 		assert(obj != NULL);
+
+		if (!mActiveCamera)
+		{
+			rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+			rs->identityMatrix();
+		}
 
 		obj->draw();
 	}
@@ -161,6 +172,12 @@ void renderer::draw()
 	 * Call the frame end
 	 */
 	rs->frameEnd();
+}
+
+void renderer::setCamera(camera* cam)
+{
+	assert(cam != NULL);
+	mActiveCamera = cam;
 }
 
 }

@@ -69,7 +69,7 @@ unsigned char inputManager::setupWiiMotes(unsigned char num)
 
 	WPAD_ScanPads();
 	
-	u32 wDev;
+	// u32 wDev;
 	u32 wResX, wResY;
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
@@ -150,7 +150,7 @@ unsigned char inputManager::setupWiiMotes(unsigned char num)
 	#endif
 }
 
-void inputManager::setWiiMoteTimetout(unsigned short time)
+void inputManager::setWiiMoteTimeout(unsigned short time)
 {
 	#ifdef __WII__
 	WPAD_SetIdleTimeout(time);

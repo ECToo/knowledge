@@ -16,6 +16,7 @@
 */
 
 #include "wiiRenderSystem.h"
+#include "root.h"
 #include "logger.h"
 
 namespace k {
@@ -436,6 +437,22 @@ void wiiRenderSystem::identityMatrix()
 	}
 }
 
+void wiiRenderSystem::copyMatrix(Mtx44 matrix)
+{
+	switch (mActiveMatrix)
+	{
+		case MATRIXMODE_PROJECTION:
+			guMtxCopy(matrix, mProjectionMatrix);
+			break;
+		case MATRIXMODE_MODELVIEW:
+			guMtxCopy(matrix, mModelViewMatrix);
+			break;
+		default:
+			S_LOG_INFO("Invalid matrix mode");
+			break;
+	}
+}
+
 void wiiRenderSystem::translateScene(vec_t x, vec_t y, vec_t z)
 {
 	switch (mActiveMatrix)
@@ -740,6 +757,33 @@ unsigned int wiiRenderSystem::getScreenHeight()
 {
 	// return mVideoMode->viHeight;
 	return mVideoMode->efbHeight;
+}
+
+camera::camera()
+{
+	guMtxIdentity(mMatrix);
+}
+
+void camera::setView()
+{
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	assert(rs != NULL);
+
+	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+	rs->identityMatrix();
+	rs->copyMatrix(mMatrix);
+}
+
+void camera::setPosition(vector3 pos)
+{
+	mMatrix[3][0] = pos.x;
+	mMatrix[3][1] = pos.y;
+	mMatrix[3][2] = pos.z;
+}
+
+vector3 camera::getPosition()
+{
+	return vector3(mMatrix[3][0], mMatrix[3][1], mMatrix[3][2]);
 }
 
 }

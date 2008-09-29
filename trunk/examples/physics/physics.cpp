@@ -25,6 +25,31 @@
 // Temp
 #include <ode/ode.h>
 
+extern "C" void dError (int num, const char *msg, ...)
+{
+  va_list ap;
+  va_start (ap,msg);
+  K_LOG_INFO_ARG(msg, ap);
+  exit (1);
+}
+
+
+extern "C" void dDebug (int num, const char *msg, ...)
+{
+  va_list ap;
+  va_start (ap,msg);
+  K_LOG_INFO_ARG(msg, ap);
+  abort();
+}
+
+
+extern "C" void dMessage (int num, const char *msg, ...)
+{
+  va_list ap;
+  va_start (ap,msg);
+  K_LOG_INFO_ARG(msg, ap);
+}
+
 typedef struct
 {
 	dWorldID worldId;
@@ -36,9 +61,8 @@ void twoBodiesCollide(void* data, dGeomID id1, dGeomID id2)
 	contactInfo_t* cInfo = (contactInfo_t*)data;
 	assert(cInfo != NULL);
 
-	// Lets just use 255
-	dContact contacts[255];
-	unsigned int collisions = dCollide(id1, id2, 255, &contacts[0].geom, sizeof(dContact));
+	dContact contacts[10];
+	unsigned int collisions = dCollide(id1, id2, 10, &contacts[0].geom, sizeof(dContact));
 	for (unsigned int i = 0; i < collisions; i++)
 	{
 		dGeomID c1, c2;
@@ -83,35 +107,6 @@ int main(int argc, char** argv)
 	assert(mRenderer != NULL);
 	assert(mRenderSystem != NULL);
 
-	// Physics
-	dWorldID mWorldId;
-	dSpaceID mSpaceId;
-	dJointGroupID mJointId;
-	dGeomID mSphere, mPlane;
-	dBodyID mSphereBody, mPlaneBody;
-	dJointGroupID mJointGroupId;
-
-	mWorldId = dWorldCreate();
-	mSpaceId = dHashSpaceCreate(0);
-	dWorldSetGravity(mWorldId, 0, -9.78, 0);
-
-	// Joints
-	mJointId = dJointGroupCreate(0);
-	dJointGroupEmpty(mJointId);
-
-	// To be passed as argument to twoBodiesCollide
-	contactInfo_t* cInfo = new contactInfo_t;
-	assert(cInfo != NULL);
-
-	cInfo->worldId = mWorldId;
-	cInfo->jointId = mJointId;
-
-	mPlane = dCreatePlane(mSpaceId, 0, 1, -0.005, 0);
-	mSphere = dCreateSphere(mSpaceId, 2.398); // model radius
-	mSphereBody = dBodyCreate(mWorldId);
-	dGeomSetBody(mSphere, mSphereBody);
-	dBodySetPosition(mSphereBody, 0, 30, -20);
-
 	// Doesnt matter on wii
 	mRenderSystem->createWindow(800, 600);
 	mRenderSystem->setDepthTest(true);
@@ -135,10 +130,6 @@ int main(int argc, char** argv)
 
 	mMaterialManager->parseMaterialScript(matFile);
 
-	// Create Model
-	k::vector3 modelPosition;
-	modelPosition.z = -100;
-
 	#ifdef __WII__
 	k::md5model* newModel = new k::md5model("/knowledge/soccer/soccer.md5mesh");
 	#else
@@ -146,7 +137,6 @@ int main(int argc, char** argv)
 	#endif
 
 	assert(newModel != NULL);
-
 	mRenderer->push3D(newModel);
 
 	assert(mGuiManager != NULL);
@@ -158,8 +148,43 @@ int main(int argc, char** argv)
 	assert(mInputManager != NULL);
 	mInputManager->initWii(false);
 	mInputManager->setupWiiMotes(1);
-	mInputManager->setWiiMoteTimetout(60);
+	mInputManager->setWiiMoteTimeout(60);
 	mInputManager->setWiiMoteEmulation(true);
+
+	// Setup Camera
+	k::camera* newCamera = new k::camera();
+	assert(newCamera != NULL);
+	newCamera->setPosition(k::vector3(0, -20, 0));
+	mRenderer->setCamera(newCamera);
+
+	// Physics
+	dInitODE();
+	dWorldID mWorldId;
+	dSpaceID mSpaceId;
+	dJointGroupID mJointId;
+	dGeomID mSphere, mPlane;
+	dBodyID mSphereBody;
+
+	mWorldId = dWorldCreate();
+	mSpaceId = dHashSpaceCreate(0);
+	dWorldSetGravity(mWorldId, 0, -9.78, 0);
+
+	// Joints
+	mJointId = dJointGroupCreate(0);
+	dJointGroupEmpty(mJointId);
+
+	// To be passed as argument to twoBodiesCollide
+	contactInfo_t* cInfo = new contactInfo_t;
+	assert(cInfo != NULL);
+
+	cInfo->worldId = mWorldId;
+	cInfo->jointId = mJointId;
+
+	mPlane = dCreatePlane(mSpaceId, 0, 1, -0.005, 0);
+	mSphere = dCreateSphere(mSpaceId, 2.398); // model radius
+	mSphereBody = dBodyCreate(mWorldId);
+	dGeomSetBody(mSphere, mSphereBody);
+	dBodySetPosition(mSphereBody, 0, 30, -20);
 
 	// Angles
 	bool running = true;
@@ -185,7 +210,7 @@ int main(int argc, char** argv)
 
 		newModel->setPosition(k::vector3(modelPos[0], modelPos[1], modelPos[2]));
 		newModel->setOrientation(k::quaternion(modelOri[1], modelOri[2], modelOri[3], modelOri[0]));
-
+	
 		mRenderer->draw();
 
 		// Physics Loop
