@@ -9,14 +9,14 @@ Features for first beta release:
 [x] Base classes for vectors and quaternions
 [x] Customizable render pipeline
 [x] 2D projections
+[x] Doom3 MD5 Models with skeletons and animations
 
 [.] Logger Object (Pending XHTML/CSS output).
 [.] Material manager (Autoload and more material functions)
 [.] PNG and JPG Textures on Wii (Pending jpeg loading)
-[.] Doom3 MD5 Models with skeletons and animations (Pending animations)
 [.] Network (Pending integration and test on the Wii)
-[.] Physics
-[.] Cameras
+[.] Physics (Need some way to integrate ridid bodies with real objects and keep them updated automatically, fully working already)
+[.] Cameras (supports rotation, translation and lookAt, missing frustum culling and direction vectors)
 
 [t] Render to texture
 [t] Fake dynamic lights
