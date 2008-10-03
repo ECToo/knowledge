@@ -79,6 +79,54 @@ namespace k
 	 			z = axis.z * s;
 			}
 
+			// Build quaternion from a 3x3 rotation matrix
+			quaternion(vec_t matrix[])
+			{
+				assert(matrix != NULL);
+				vec_t trace = matrix[0] + matrix[4] + matrix[8] + 1.0f;
+
+				if (trace > 0.0f)
+				{
+					vec_t s = 0.5/sqrt(trace);
+
+					w = 0.25/s;
+					x = (matrix[7] - matrix[5]) * s;
+					y = (matrix[2] - matrix[6]) * s;
+					z = (matrix[3] - matrix[1]) * s;
+				}
+				else
+				{
+					if (matrix[0] > matrix[4] && matrix[0] > matrix[8])
+					{
+						vec_t s = 2.0f * sqrtf(1.0f + matrix[0] - matrix[4] - matrix[8]);
+
+						w = (matrix[5] - matrix[7]) * s;
+						x = 0.25f * s;
+						y = (matrix[1] + matrix[3]) * s;
+						z = (matrix[2] + matrix[6]) * s;
+					}
+					else
+					if (matrix[4] > matrix[8])
+					{
+						vec_t s = 2.0f * sqrtf(1.0f + matrix[4] - matrix[0] - matrix[8]);
+
+						w = (matrix[2] - matrix[6]) / s;
+						x = (matrix[1] + matrix[3]) / s;
+						y = 0.25f * s;
+						z = (matrix[5] + matrix[7]) / s;
+					}
+					else
+					{
+						vec_t s = 2.0f * sqrtf(1.0f + matrix[8] - matrix[0] - matrix[4]);
+
+						w = (matrix[1] - matrix[3]) / s;
+						x = (matrix[2] + matrix[6]) / s;
+						y = (matrix[5] + matrix[7]) / s;
+						z = 0.25f * s;
+					}
+				}
+			}
+
 			void clear()
 			{
 				w = 1;

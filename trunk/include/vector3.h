@@ -225,7 +225,7 @@ namespace k
 	 		 */
 			void normalise()
 			{
-				vec_t sq = 1.0 / sqrt(length());
+				vec_t sq = 1.0 / length();
 
 				x *= sq;
 				y *= sq;

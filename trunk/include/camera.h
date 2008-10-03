@@ -40,6 +40,7 @@ namespace k
 		public:
 			// Apply the modelview matrix to the scene
 			void setView();
+			void lookAt(vector3 dest);
 
 			// Translations
 			void setPosition(vector3 pos);
