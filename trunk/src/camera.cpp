@@ -18,6 +18,7 @@
 #include "camera.h"
 #include "root.h"
 #include "rendersystem.h"
+#include "matrix3.h"
 
 namespace k {
 
@@ -36,21 +37,8 @@ void camera::lookAt(vector3 pos)
 	vector3 dirY = dirZ.crossProduct(dirX);
 	dirY.normalise();
 
-	memset(mMatrix, 0, sizeof(vec_t) * 16);
-
-	mMatrix[0] = dirX.x;
-	mMatrix[4] = dirX.y;
-	mMatrix[8] = dirX.z;
-
-	mMatrix[1] = dirY.x;
-	mMatrix[5] = dirY.y;
-	mMatrix[9] = dirY.z;
-
-	mMatrix[2] = dirZ.x;
-	mMatrix[6] = dirZ.y;
-	mMatrix[10] = dirZ.z;
-
-	mMatrix[15] = 1.0f;
+	matrix3 mat(dirX, dirY, dirZ);
+	mOrientation = quaternion(mat);
 }
 
 void camera::setView()
@@ -58,7 +46,7 @@ void camera::setView()
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	assert(rs != NULL);
 
-	// mOrientation.toMatrix(mMatrix);
+	mOrientation.toMatrix(mMatrix);
 
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 	rs->copyMatrix(mMatrix);

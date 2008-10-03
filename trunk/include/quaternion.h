@@ -20,6 +20,7 @@
 
 #include "prerequisites.h"
 #include "vector3.h"
+#include "matrix3.h"
 
 namespace k
 {
@@ -49,6 +50,55 @@ namespace k
 				y = yy;
 				z = zz;
 				w = ww;
+			}
+
+			/**
+			 * This function has been taken from 
+			 * Ogre3D - All credit goes to ogre3d team
+			 */
+			quaternion(matrix3 mat)
+			{
+				// Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
+				// article "Quaternion Calculus and Fast Animation".
+
+				vec_t fTrace = mat.m[0][0] + mat.m[1][1] + mat.m[2][2];
+				vec_t fRoot;
+
+	        
+				if ( fTrace > 0.0 )
+				{
+					// |w| > 1/2, may as well choose w > 1/2
+					fRoot = sqrt(fTrace + 1.0);  // 2w
+
+					w = 0.5 * fRoot;
+					fRoot = 0.5/fRoot;  // 1/(4w)
+					x = (mat.m[2][1] - mat.m[1][2]) * fRoot;
+					y = (mat.m[0][2] - mat.m[2][0]) * fRoot;
+					z = (mat.m[1][0] - mat.m[0][1]) * fRoot;
+	        }
+	        else
+	        {
+	            // |w| <= 1/2
+	            static size_t s_iNext[3] = { 1, 2, 0 };
+	            size_t i = 0;
+
+	            if (mat.m[1][1] > mat.m[0][0])
+	                i = 1;
+
+	            if (mat.m[2][2] > mat.m[i][i])
+	                i = 2;
+
+	            size_t j = s_iNext[i];
+	            size_t k = s_iNext[j];
+	
+	            fRoot = sqrt(mat.m[i][i] - mat.m[j][j] - mat.m[k][k] + 1.0);
+	            vec_t* apkQuat[3] = { &x, &y, &z };
+	            *apkQuat[i] = 0.5 * fRoot;
+	            fRoot = 0.5 / fRoot;
+	            w = (mat.m[k][j] - mat.m[j][k]) * fRoot;
+	            *apkQuat[j] = (mat.m[j][i] + mat.m[i][j]) * fRoot;
+					*apkQuat[k] = (mat.m[k][i] + mat.m[i][k]) * fRoot;
+			  }
 			}
 
 			quaternion(const vector3& newVec)
