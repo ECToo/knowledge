@@ -16,7 +16,6 @@
 */
 
 #include "glRenderSystem.h"
-#include "root.h"
 #ifndef __WII__
 
 namespace k {
@@ -359,34 +358,6 @@ unsigned int glRenderSystem::getScreenWidth()
 unsigned int glRenderSystem::getScreenHeight()
 {
 	return mScreenSize.y;
-}
-
-camera::camera()
-{
-	memset(mMatrix, 0, sizeof(vec_t) * 16);
-	mMatrix[0] = mMatrix[5] = mMatrix[10] = mMatrix[15] = 1.0;
-}
-
-void camera::setView()
-{
-	renderSystem* rs = root::getSingleton().getRenderSystem();
-	assert(rs != NULL);
-
-	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
-	rs->identityMatrix();
-	rs->copyMatrix(mMatrix);
-}
-
-void camera::setPosition(vector3 pos)
-{
-	mMatrix[12] = pos.x;
-	mMatrix[13] = pos.y;
-	mMatrix[14] = pos.z;
-}
-
-vector3 camera::getPosition()
-{
-	return vector3(mMatrix[12], mMatrix[13], mMatrix[14]);
 }
 
 } // namespace k

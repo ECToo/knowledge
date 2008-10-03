@@ -21,6 +21,7 @@
 #include "prerequisites.h"
 #include "vector2.h"
 #include "vector3.h"
+#include "quaternion.h"
 
 namespace k 
 {
@@ -48,26 +49,6 @@ namespace k
 	{
 		VERTEXMODE_TRIANGLES,
 		VERTEXMODE_QUAD
-	};
-
-	class camera
-	{
-		private:
-			#ifndef __WII__
-			vec_t mMatrix[16];
-			#else
-			Mtx44 mMatrix;
-			#endif
-
-		public:
-			camera();
-
-			// Apply the modelview matrix to the scene
-			void setView();
-
-			// Translations
-			void setPosition(vector3 pos);
-			vector3 getPosition();
 	};
 
 	class renderSystem

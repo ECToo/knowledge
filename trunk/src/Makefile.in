@@ -53,9 +53,9 @@ libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libknowledge_la_DEPENDENCIES =
 am_libknowledge_la_OBJECTS = drawable.lo md5.lo fileAccess.lo \
-	glRenderSystem.lo texture.lo textureManager.lo material.lo \
-	materialManager.lo guiManager.lo inputManager.lo renderer.lo \
-	sticker.lo logger.lo root.lo
+	camera.lo glRenderSystem.lo texture.lo textureManager.lo \
+	material.lo materialManager.lo guiManager.lo inputManager.lo \
+	renderer.lo sticker.lo logger.lo root.lo
 libknowledge_la_OBJECTS = $(am_libknowledge_la_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -189,6 +189,7 @@ lib_LTLIBRARIES = libknowledge.la
 libknowledge_la_SOURCES = drawable.cpp\
 								  md5.cpp\
 								  fileAccess.cpp\
+								  camera.cpp\
 								  glRenderSystem.cpp\
 								  texture.cpp\
 								  textureManager.cpp\
@@ -284,6 +285,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/camera.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/drawable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fileAccess.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/glRenderSystem.Plo@am__quote@

@@ -3,6 +3,7 @@ lib_LTLIBRARIES = libknowledge.la
 libknowledge_la_SOURCES = drawable.cpp\
 								  md5.cpp\
 								  fileAccess.cpp\
+								  camera.cpp\
 								  glRenderSystem.cpp\
 								  texture.cpp\
 								  textureManager.cpp\

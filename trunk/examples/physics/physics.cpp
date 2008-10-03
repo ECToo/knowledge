@@ -155,6 +155,7 @@ int main(int argc, char** argv)
 	k::camera* newCamera = new k::camera();
 	assert(newCamera != NULL);
 	newCamera->setPosition(k::vector3(0, -20, 0));
+	newCamera->setOrientation(k::quaternion(-20, k::vector3(1, 0, 0)));
 	mRenderer->setCamera(newCamera);
 
 	// Physics

@@ -15,39 +15,39 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _RENDERER_H_
-#define _RENDERER_H_
+#ifndef _CAMERA_H_
+#define _CAMERA_H_
 
 #include "prerequisites.h"
-#include "drawable.h"
-#include "singleton.h"
-#include "rendersystem.h"
-#include "camera.h"
+#include "vector2.h"
+#include "vector3.h"
+#include "quaternion.h"
 
 namespace k
 {
-	class renderer : public singleton<renderer>
+	class camera
 	{
 		private:
-			std::list<drawable3D*> m3DObjects;
-			std::list<drawable2D*> m2DObjects;
-			camera* mActiveCamera;
+			#ifndef __WII__
+			vec_t mMatrix[16];
+			#else
+			Mtx44 mMatrix;
+			#endif
+
+			vector3 mPosition;
+			quaternion mOrientation;
 
 		public:
-			renderer();
-			~renderer();
+			// Apply the modelview matrix to the scene
+			void setView();
 
-			static renderer& getSingleton();
+			// Translations
+			void setPosition(vector3 pos);
+			vector3& getPosition();
 
-			void push3D(drawable3D* object);
-			void pop3D(drawable3D* object);
-
-			void push2D(drawable2D* object);
-			void pop2D(drawable2D* object);
-
-			void draw();
-
-			void setCamera(camera* cam);
+			// Orientation
+			void setOrientation(quaternion ori);
+			quaternion& getOrientation();
 	};
 }
 

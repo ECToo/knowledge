@@ -15,41 +15,54 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _RENDERER_H_
-#define _RENDERER_H_
-
-#include "prerequisites.h"
-#include "drawable.h"
-#include "singleton.h"
-#include "rendersystem.h"
 #include "camera.h"
+#include "root.h"
+#include "rendersystem.h"
 
-namespace k
+namespace k {
+
+void camera::setView()
 {
-	class renderer : public singleton<renderer>
-	{
-		private:
-			std::list<drawable3D*> m3DObjects;
-			std::list<drawable2D*> m2DObjects;
-			camera* mActiveCamera;
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	assert(rs != NULL);
 
-		public:
-			renderer();
-			~renderer();
+	mOrientation.toMatrix(mMatrix);
 
-			static renderer& getSingleton();
+	#ifndef __WII__
+	mMatrix[12] = mPosition.x;
+	mMatrix[13] = mPosition.y;
+	mMatrix[14] = mPosition.z;
+	#else
+	mMatrix[0][3] = mPosition.x;
+	mMatrix[1][3] = mPosition.y;
+	mMatrix[2][3] = mPosition.z;
+	#endif
 
-			void push3D(drawable3D* object);
-			void pop3D(drawable3D* object);
-
-			void push2D(drawable2D* object);
-			void pop2D(drawable2D* object);
-
-			void draw();
-
-			void setCamera(camera* cam);
-	};
+	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+	rs->identityMatrix();
+	rs->copyMatrix(mMatrix);
 }
 
-#endif
+void camera::setPosition(vector3 pos)
+{
+	mPosition = pos;
+}
+
+vector3& camera::getPosition()
+{
+	return mPosition;
+}
+
+// Orientation
+void camera::setOrientation(quaternion ori)
+{
+	mOrientation = ori;
+}
+
+quaternion& camera::getOrientation()
+{
+	return mOrientation;
+}
+
+}
 

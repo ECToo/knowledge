@@ -16,7 +16,6 @@
 */
 
 #include "wiiRenderSystem.h"
-#include "root.h"
 #include "logger.h"
 
 namespace k {
@@ -757,35 +756,6 @@ unsigned int wiiRenderSystem::getScreenHeight()
 {
 	// return mVideoMode->viHeight;
 	return mVideoMode->efbHeight;
-}
-
-camera::camera()
-{
-	guMtxIdentity(mMatrix);
-}
-
-void camera::setView()
-{
-	renderSystem* rs = root::getSingleton().getRenderSystem();
-	assert(rs != NULL);
-
-	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
-	rs->identityMatrix();
-	rs->copyMatrix(mMatrix);
-}
-
-void camera::setPosition(vector3 pos)
-{
-	// Looks like the GX library
-	// see the matrixes as row-major ones
-	mMatrix[0][3] = pos.x;
-	mMatrix[1][3] = pos.y;
-	mMatrix[2][3] = pos.z;
-}
-
-vector3 camera::getPosition()
-{
-	return vector3(mMatrix[3][0], mMatrix[3][1], mMatrix[3][2]);
 }
 
 }
