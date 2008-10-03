@@ -154,8 +154,7 @@ int main(int argc, char** argv)
 	// Setup Camera
 	k::camera* newCamera = new k::camera();
 	assert(newCamera != NULL);
-	// newCamera->setPosition(k::vector3(0, -20, 0));
-	newCamera->setPosition(k::vector3(80, 40, 80));
+	newCamera->setPosition(k::vector3(20, 50, 20));
 	newCamera->lookAt(k::vector3(0, 0, 0));
 	mRenderer->setCamera(newCamera);
 
