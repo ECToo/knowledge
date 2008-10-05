@@ -251,6 +251,11 @@ namespace k
 				std::cout << "Y: " << y << std::endl;
 				std::cout << "Z: " << z << std::endl;
 			}		
+
+			static const vector3 zero;
+			static const vector3 unit_x;
+			static const vector3 unit_y;
+			static const vector3 unit_z;
 	};	
 }
 

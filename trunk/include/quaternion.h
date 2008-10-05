@@ -21,6 +21,7 @@
 #include "prerequisites.h"
 #include "vector3.h"
 #include "matrix3.h"
+#include "matrix4.h"
 
 namespace k
 {
@@ -207,7 +208,45 @@ namespace k
 				}
 			}
 
-			#ifndef __WII__
+			matrix4 toMatrix()
+			{
+				matrix4 mat;
+
+				vec_t xx, yy, zz, xy, wz, xz, wy, yz, wx;
+
+				xx = x * x;
+    			yy = y * y;
+    			zz = z * z;
+    			xy = x * y;
+				wz = w * z;
+				xz = x * z;
+				wy = w * y;
+				yz = y * z;
+				wx = w * x;
+
+				mat.m[0][0] = 1.0f - 2.0f * (yy + zz);
+				mat.m[0][1] = 2.0f * (xy + wz);
+				mat.m[0][2] = 2.0f * (xz - wy);
+				mat.m[0][3] = 0.0f;
+
+				mat.m[1][0] = 2.0f * (xy - wz);
+				mat.m[1][1] = 1.0f - 2.0f * (xx + zz);
+				mat.m[1][2] = 2.0f * (yz + wx);
+				mat.m[1][3] = 0.0f;
+
+				mat.m[2][0] = 2.0f * (xz + wy);
+				mat.m[2][1] = 2.0f * (yz - wx);
+				mat.m[2][2] = 1.0f - 2.0f * (xx + yy);
+				mat.m[2][3] = 0.0f;
+
+				mat.m[3][0] = 0.0f;
+				mat.m[3][1] = 0.0f;
+				mat.m[3][2] = 0.0f;
+				mat.m[3][3] = 1.0f;
+
+				return mat;
+			}
+
 			void toMatrix(vec_t matrix[])
 			{
 				assert(matrix != NULL);
@@ -241,41 +280,6 @@ namespace k
 				matrix[14] = 0.0f;
 				matrix[15] = 1.0f;
 			}
-			#else
-			void toMatrix(Mtx44 matrix)
-			{
-				assert(matrix != NULL);
-
-				vec_t xx, yy, zz, xy, wz, xz, wy, yz, wx;
-
-				xx = x * x;
-    			yy = y * y;
-    			zz = z * z;
-    			xy = x * y;
-				wz = w * z;
-				xz = x * z;
-				wy = w * y;
-				yz = y * z;
-				wx = w * x;
-
-				matrix[0][0] = 1.0f - 2.0f * (yy + zz);
-				matrix[1][0] = 2.0f * (xy + wz);
-				matrix[2][0] = 2.0f * (xz - wy);
-				matrix[3][0] = 0.0f;
-				matrix[0][1] = 2.0f * (xy - wz);
-				matrix[1][1] = 1.0f - 2.0f * (xx + zz);
-				matrix[2][1] = 2.0f * (yz + wx);
-				matrix[3][1] = 0.0f;
-				matrix[0][2] = 2.0f * (xz + wy);
-				matrix[1][2] = 2.0f * (yz - wx);
-				matrix[2][2] = 1.0f - 2.0f * (xx + yy);
-				matrix[3][2] = 0.0f;
-				matrix[0][3] = 0.0f;
-				matrix[1][3] = 0.0f;
-				matrix[2][3] = 0.0f;
-				matrix[3][3] = 1.0f;
-			}
-			#endif
 
 			void toAxisAngle(vec_t& angle, vector3& axis)
 			{

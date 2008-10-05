@@ -15,49 +15,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _CAMERA_H_
-#define _CAMERA_H_
-
-#include "prerequisites.h"
-#include "vector2.h"
 #include "vector3.h"
-#include "quaternion.h"
 
 namespace k
 {
-	class camera
-	{
-		private:
-			#ifndef __WII__
-			vec_t mMatrix[16];
-			#else
-			Mtx44 mMatrix;
-			#endif
-
-			vector3 mPosition;
-			quaternion mOrientation;
-
-		public:
-			// Copy the camera matrix to the current
-			// modelview matrix. Needs to be called
-			// before drawing each object.
-			void copyView();
-
-			// Apply the modelview matrix to the scene
-			void setView();
-
-			// Look at the vector dest
-			void lookAt(vector3 dest);
-
-			// Translations
-			void setPosition(vector3 pos);
-			vector3& getPosition();
-
-			// Orientation
-			void setOrientation(quaternion ori);
-			quaternion& getOrientation();
-	};
+	const vector3 vector3::zero(0, 0, 0);
+	const vector3 vector3::unit_x(1, 0, 0);
+	const vector3 vector3::unit_y(0, 1, 0);
+	const vector3 vector3::unit_z(0, 0, 1);
 }
-
-#endif
 
