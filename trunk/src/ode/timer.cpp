@@ -30,8 +30,8 @@ TODO
 
 */
 
-#include <ode/common.h>
-#include <ode/timer.h>
+#include <ode_k/common.h>
+#include <ode_k/timer.h>
 #include "config.h"
 #include "util.h"
 
@@ -196,7 +196,7 @@ static inline void getClockCount (unsigned long cc[2])
 #else // macintosh
 
 #include <CoreServices/CoreServices.h>
-#include <ode/Timer.h>
+#include <ode_k/Timer.h>
 
 static inline void getClockCount (unsigned long cc[2])
 {

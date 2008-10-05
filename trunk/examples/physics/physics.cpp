@@ -23,7 +23,7 @@
 #include "logger.h"
 
 // Temp - Need physics Wrapper
-#include "ode/ode.h"
+#include "ode_k/ode.h"
 
 typedef struct
 {

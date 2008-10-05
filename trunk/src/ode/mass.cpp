@@ -20,11 +20,11 @@
  *                                                                       *
  *************************************************************************/
 
-#include <ode/odeconfig.h>
+#include <ode_k/odeconfig.h>
 #include "config.h"
-#include <ode/mass.h>
-#include <ode/odemath.h>
-#include <ode/matrix.h>
+#include <ode_k/mass.h>
+#include <ode_k/odemath.h>
+#include <ode_k/matrix.h>
 
 // Local dependencies
 #include "collision_kernel.h"

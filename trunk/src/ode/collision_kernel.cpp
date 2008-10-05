@@ -27,11 +27,11 @@ for geometry objects
 
 */
 
-#include <ode/common.h>
-#include <ode/matrix.h>
-#include <ode/rotation.h>
-#include <ode/objects.h>
-#include <ode/odemath.h>
+#include <ode_k/common.h>
+#include <ode_k/matrix.h>
+#include <ode_k/rotation.h>
+#include <ode_k/objects.h>
+#include <ode_k/odemath.h>
 #include "config.h"
 #include "collision_kernel.h"
 #include "collision_util.h"

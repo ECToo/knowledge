@@ -20,8 +20,8 @@
  *                                                                       *
  *************************************************************************/
 
-#include <ode/common.h>
-#include <ode/matrix.h>
+#include <ode_k/common.h>
+#include <ode_k/matrix.h>
 #include "util.h"
 #include "config.h"
 

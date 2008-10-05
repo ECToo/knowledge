@@ -22,14 +22,14 @@
 
 #include "objects.h"
 #include "joints/joint.h"
-#include <ode/odeconfig.h>
+#include <ode_k/odeconfig.h>
 #include "config.h"
-#include <ode/odemath.h>
-#include <ode/rotation.h>
-#include <ode/timer.h>
-#include <ode/error.h>
-#include <ode/matrix.h>
-#include <ode/misc.h>
+#include <ode_k/odemath.h>
+#include <ode_k/rotation.h>
+#include <ode_k/timer.h>
+#include <ode_k/error.h>
+#include <ode_k/matrix.h>
+#include <ode_k/misc.h>
 #include "lcp.h"
 #include "util.h"
 

@@ -22,10 +22,10 @@
 
 // QuadTreeSpace by Erwin de Vries.
 
-#include <ode/common.h>
-#include <ode/matrix.h>
-#include <ode/collision_space.h>
-#include <ode/collision.h>
+#include <ode_k/common.h>
+#include <ode_k/matrix.h>
+#include <ode_k/collision_space.h>
+#include <ode_k/collision.h>
 #include "collision_kernel.h"
 
 #include "collision_space_internal.h"

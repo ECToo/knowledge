@@ -22,10 +22,10 @@
 
 // TriMesh code by Erwin de Vries.
 
-#include <ode/collision.h>
-#include <ode/matrix.h>
-#include <ode/rotation.h>
-#include <ode/odemath.h>
+#include <ode_k/collision.h>
+#include <ode_k/matrix.h>
+#include <ode_k/rotation.h>
+#include <ode_k/odemath.h>
 #include "config.h"
 
 #if dTRIMESH_ENABLED

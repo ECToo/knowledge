@@ -108,13 +108,13 @@ submatrix of A. there are two ways we could arrange the rows/columns in AC.
 
 */
 
-#include <ode/common.h>
+#include <ode_k/common.h>
 #include "config.h"
 #include "lcp.h"
-#include <ode/matrix.h>
-#include <ode/misc.h>
+#include <ode_k/matrix.h>
+#include <ode_k/misc.h>
 #include "mat.h"		// for testing
-#include <ode/timer.h>		// for testing
+#include <ode_k/timer.h>		// for testing
 #include "util.h"
 
 //***************************************************************************

@@ -20,12 +20,12 @@
  *                                                                       *
  *************************************************************************/
 
-#include <ode/odeconfig.h>
+#include <ode_k/odeconfig.h>
 #include "config.h"
-#include <ode/misc.h>
-#include <ode/matrix.h>
-#include <ode/error.h>
-#include <ode/memory.h>
+#include <ode_k/misc.h>
+#include <ode_k/matrix.h>
+#include <ode_k/error.h>
+#include <ode_k/memory.h>
 #include "mat.h"
 
 

@@ -20,29 +20,34 @@
  *                                                                       *
  *************************************************************************/
 
+#ifdef __WII__
 #ifndef _ODE_ODE_H_
 #define _ODE_ODE_H_
 
 /* include *everything* here */
 
-#include <ode/odeconfig.h>
-#include <ode/compatibility.h>
-#include <ode/common.h>
-#include <ode/odeinit.h>
-#include <ode/contact.h>
-#include <ode/error.h>
-#include <ode/memory.h>
-#include <ode/odemath.h>
-#include <ode/matrix.h>
-#include <ode/timer.h>
-#include <ode/rotation.h>
-#include <ode/mass.h>
-#include <ode/misc.h>
-#include <ode/objects.h>
-#include <ode/odecpp.h>
-#include <ode/collision_space.h>
-#include <ode/collision.h>
-#include <ode/odecpp_collision.h>
-#include <ode/export-dif.h>
+#include <ode_k/odeconfig.h>
+#include <ode_k/compatibility.h>
+#include <ode_k/common.h>
+#include <ode_k/odeinit.h>
+#include <ode_k/contact.h>
+#include <ode_k/error.h>
+#include <ode_k/memory.h>
+#include <ode_k/odemath.h>
+#include <ode_k/matrix.h>
+#include <ode_k/timer.h>
+#include <ode_k/rotation.h>
+#include <ode_k/mass.h>
+#include <ode_k/misc.h>
+#include <ode_k/objects.h>
+#include <ode_k/odecpp.h>
+#include <ode_k/collision_space.h>
+#include <ode_k/collision.h>
+#include <ode_k/odecpp_collision.h>
+#include <ode_k/export-dif.h>
 
 #endif
+#else
+#include <ode_k/ode.h>
+#endif
+

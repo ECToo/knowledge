@@ -28,15 +28,15 @@
 // numerics.
 
 #include "objects.h"
-#include <ode/ode.h>
+#include <ode_k/ode.h>
 #include "joints/joints.h"
-#include <ode/odemath.h>
-#include <ode/matrix.h>
+#include <ode_k/odemath.h>
+#include <ode_k/matrix.h>
 #include "step.h"
 #include "quickstep.h"
 #include "util.h"
-#include <ode/memory.h>
-#include <ode/error.h>
+#include <ode_k/memory.h>
+#include <ode_k/error.h>
 
 // misc defines
 #define ALLOCA dALLOCA16

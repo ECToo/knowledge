@@ -20,9 +20,9 @@
  *                                                                       *
  *************************************************************************/
 
-#include <ode/odeconfig.h>
+#include <ode_k/odeconfig.h>
 #include "config.h"
-#include <ode/error.h>
+#include <ode_k/error.h>
 
 #ifdef __WII__
 #include "../../include/logger.h"

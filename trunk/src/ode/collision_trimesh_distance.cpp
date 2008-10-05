@@ -2,9 +2,9 @@
 // That code is available under a Free Source License Agreement
 // that can be found at http://www.magic-software.com/License/free.pdf
  
-#include <ode/common.h>
-#include <ode/odemath.h>
-#include <ode/collision.h>
+#include <ode_k/common.h>
+#include <ode_k/odemath.h>
+#include <ode_k/collision.h>
 #include "collision_trimesh_internal.h"
 
 //------------------------------------------------------------------------------
