@@ -107,18 +107,12 @@ void inputManager::setWiiMoteEmulation(bool state)
 vector2 inputManager::getWiiMotePosition(unsigned char num)
 {
 	#ifdef __WII__
-	switch (num)
+	if (num > 3)
 	{
-		case 3:
-			return vector2(mWiiData[3]->ir.ax, mWiiData[3]->ir.ay);
-		case 2:
-			return vector2(mWiiData[2]->ir.ax, mWiiData[2]->ir.ay);
-		case 1:
-			return vector2(mWiiData[1]->ir.ax, mWiiData[1]->ir.ay);
-		default:
-		case 0:
-			return vector2(mWiiData[0]->ir.ax, mWiiData[0]->ir.ay);
+		S_LOG_INFO("Failed to retrieve controller data. Wiimote index is too big");
+		return vector2(0, 0);
 	}
+	return vector2(mWiiData[num]->ir.ax, mWiiData[num]->ir.ay);
 	#else
 	if (mEmulationEnabled)
 	{
