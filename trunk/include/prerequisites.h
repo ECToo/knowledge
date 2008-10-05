@@ -29,6 +29,7 @@
 #include <vector>
 #include <map>
 #include <stack>
+#include <sys/time.h>
 
 // Platform dependent includes
 #ifndef __WII__

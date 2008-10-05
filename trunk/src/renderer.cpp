@@ -42,6 +42,21 @@ renderer::~renderer()
 	//TODO
 }
 
+void renderer::setFpsCounter(bool status)
+{
+	mCalculateFps = status;
+}
+
+unsigned int renderer::getFps()
+{
+	return mFpsCount;
+}
+
+unsigned int renderer::getLastFps()
+{
+	return mLastFps;
+}
+
 void renderer::push3D(drawable3D* object)
 {
 	assert(object != NULL);
@@ -93,13 +108,6 @@ void renderer::pop2D(drawable2D* object)
 
 void renderer::draw()
 {
-	// Save cpu cycles
-	#ifndef WIN32
-		usleep(1);
-	#else
-		Sleep(1);
-	#endif
-		
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	assert(rs != NULL);
 
@@ -107,11 +115,6 @@ void renderer::draw()
 	 * Call the frame start
 	 */
 	rs->frameStart();
-
-	if (mActiveCamera)
-	{
-		mActiveCamera->copyView();
-	}
 
 	rs->setMatrixMode(MATRIXMODE_PROJECTION);
 	rs->identityMatrix();
@@ -175,6 +178,17 @@ void renderer::draw()
 	 * Call the frame end
 	 */
 	rs->frameEnd();
+
+	if (mCalculateFps)
+	{
+		mFpsCount++;
+		if (mFpsTimer.getMilliSeconds() > 1000)
+		{
+			mFpsTimer.reset();
+			mLastFps = mFpsCount;
+			mFpsCount = 0;
+		}
+	}
 }
 
 void renderer::setCamera(camera* cam)

@@ -22,33 +22,8 @@
 #include "rendersystem.h"
 #include "logger.h"
 
-// Temp
-#include <ode/ode.h>
-
-extern "C" void dError (int num, const char *msg, ...)
-{
-  va_list ap;
-  va_start (ap,msg);
-  K_LOG_INFO_ARG(msg, ap);
-  exit (1);
-}
-
-
-extern "C" void dDebug (int num, const char *msg, ...)
-{
-  va_list ap;
-  va_start (ap,msg);
-  K_LOG_INFO_ARG(msg, ap);
-  abort();
-}
-
-
-extern "C" void dMessage (int num, const char *msg, ...)
-{
-  va_list ap;
-  va_start (ap,msg);
-  K_LOG_INFO_ARG(msg, ap);
-}
+// Temp - Need physics Wrapper
+#include "ode/ode.h"
 
 typedef struct
 {
@@ -187,6 +162,10 @@ int main(int argc, char** argv)
 	dGeomSetBody(mSphere, mSphereBody);
 	dBodySetPosition(mSphereBody, 0, 30, -20);
 
+	// Mark FPS
+	mRenderer->setFpsCounter(true);
+	unsigned int FPS = mRenderer->getLastFps();
+
 	// Angles
 	bool running = true;
 	while (running)
@@ -218,12 +197,18 @@ int main(int argc, char** argv)
 		dSpaceCollide(mSpaceId, cInfo, twoBodiesCollide);
 
 		#ifdef __WII__
-		dWorldStepFast1(mWorldId, 0.05, 1);
+		dWorldQuickStep(mWorldId, 0.05);
 		#else
-		dWorldStepFast1(mWorldId, 0.004, 1);
+		dWorldQuickStep(mWorldId, 0.005);
 		#endif
 
 		dJointGroupEmpty(mJointId);
+	
+		if (mRenderer->getLastFps() != FPS)
+		{
+			FPS = mRenderer->getLastFps();
+			std::cout << "FPS: " << FPS << std::endl;
+		}
 	}
 
 	delete appRoot;

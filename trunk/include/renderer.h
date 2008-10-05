@@ -23,6 +23,7 @@
 #include "singleton.h"
 #include "rendersystem.h"
 #include "camera.h"
+#include "timer.h"
 
 namespace k
 {
@@ -32,6 +33,14 @@ namespace k
 			std::list<drawable3D*> m3DObjects;
 			std::list<drawable2D*> m2DObjects;
 			camera* mActiveCamera;
+
+			/**
+			 * Keep a timer to calculate FPS
+			 */
+			timer mFpsTimer;
+			bool mCalculateFps;
+			unsigned int mFpsCount;
+			unsigned int mLastFps;
 
 		public:
 			renderer();
@@ -48,6 +57,11 @@ namespace k
 			void draw();
 
 			void setCamera(camera* cam);
+
+			// Fps Counter
+			void setFpsCounter(bool status);
+			unsigned int getFps();
+			unsigned int getLastFps();
 	};
 }
 

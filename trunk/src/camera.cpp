@@ -62,7 +62,12 @@ void camera::copyView()
 	assert(rs != NULL);
 
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+
+	#ifdef __WII__
+	rs->copyMatrix(mFinal.m);
+	#else
 	rs->copyMatrix(mFinal.m[0]);
+	#endif
 }
 
 void camera::setPosition(vector3 pos)
