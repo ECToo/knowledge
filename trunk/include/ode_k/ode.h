@@ -48,6 +48,6 @@
 
 #endif
 #else
-#include <ode_k/ode.h>
+#include <ode/ode.h>
 #endif
 
