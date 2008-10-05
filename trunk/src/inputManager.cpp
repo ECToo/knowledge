@@ -77,69 +77,11 @@ unsigned char inputManager::setupWiiMotes(unsigned char num)
 	wResX = rs->getScreenWidth();
 	wResY = rs->getScreenHeight();
 
-	/*
-	if (WPAD_Probe(WPAD_CHAN_0, &wDev) != WPAD_ERR_NONE)
+	for (unsigned int i = 0; i < num; i++)
 	{
-		mConnnectedMotes = 0;
-		S_LOG_INFO("Warning! No connected wiimotes detected!");
-
-		return mConnnectedMotes;
+		WPAD_SetVRes(i, wResX, wResY);
+		WPAD_SetDataFormat(i, WPAD_FMT_BTNS_ACC_IR);
 	}
-	*/
-
-	WPAD_SetVRes(WPAD_CHAN_0, wResX, wResY);
-	WPAD_SetDataFormat(WPAD_CHAN_0, WPAD_FMT_BTNS_ACC_IR);
-
-	if (num > 1)
-	{
-		/*
-		if (WPAD_Probe(WPAD_CHAN_1, &wDev) != WPAD_ERR_NONE)
-		{
-			mConnnectedMotes = 1;
-			S_LOG_INFO("Warning! Only one wiimote detected!");
-
-			return mConnnectedMotes;
-		}
-		*/
-
-		WPAD_SetVRes(WPAD_CHAN_1, wResX, wResY);
-		WPAD_SetDataFormat(WPAD_CHAN_1, WPAD_FMT_BTNS_ACC_IR);
-
-		if (num > 2)
-		{
-			/*
-			if (WPAD_Probe(WPAD_CHAN_2, &wDev) != WPAD_ERR_NONE)
-			{
-				mConnnectedMotes = 2;
-				S_LOG_INFO("Warning! Only two wiimotes detected!");
-
-				return mConnnectedMotes;
-			}
-			*/
-
-			WPAD_SetVRes(WPAD_CHAN_2, wResX, wResY);
-			WPAD_SetDataFormat(WPAD_CHAN_2, WPAD_FMT_BTNS_ACC_IR);
-
-			if (num > 3)
-			{
-				/*
-				if (WPAD_Probe(WPAD_CHAN_3, &wDev) != WPAD_ERR_NONE)
-				{
-					mConnnectedMotes = 2;
-					S_LOG_INFO("Warning! Only two wiimotes detected!");
-
-					return mConnnectedMotes;
-				}
-				*/
-
-				WPAD_SetVRes(WPAD_CHAN_3, wResX, wResY);
-				WPAD_SetDataFormat(WPAD_CHAN_3, WPAD_FMT_BTNS_ACC_IR);
-			}
-			// num > 3
-		}
-		// num > 2
-	}
-	// num > 1
 
 	// No Errors reported =]
 	mConnnectedMotes = num;
