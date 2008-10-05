@@ -110,7 +110,7 @@ void renderer::draw()
 
 	if (mActiveCamera)
 	{
-		mActiveCamera->setView();
+		mActiveCamera->copyView();
 	}
 
 	rs->setMatrixMode(MATRIXMODE_PROJECTION);
@@ -132,6 +132,10 @@ void renderer::draw()
 		{
 			rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 			rs->identityMatrix();
+		}
+		else
+		{
+			mActiveCamera->copyView();
 		}
 
 		obj->draw();

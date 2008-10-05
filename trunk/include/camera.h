@@ -28,11 +28,9 @@ namespace k
 	class camera
 	{
 		private:
-			#ifndef __WII__
-			vec_t mMatrix[16];
-			#else
-			Mtx44 mMatrix;
-			#endif
+			// Matrix to keep camera
+			// orientation + translation
+			matrix4 mFinal;
 
 			vector3 mPosition;
 			quaternion mOrientation;

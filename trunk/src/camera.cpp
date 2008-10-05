@@ -30,7 +30,8 @@ void camera::lookAt(vector3 pos)
 
 	// Direction of "right" can be determined by 
 	// the up vector cross the forward direction
-	vector3 dirX = vector3(0, 1, 0).crossProduct(dirZ);
+	vector3 up = vector3::unit_y;
+	vector3 dirX = up.crossProduct(dirZ);
 	dirX.normalise();
 
 	// Same goes to the up direction
@@ -39,23 +40,35 @@ void camera::lookAt(vector3 pos)
 
 	matrix3 mat(dirX, dirY, dirZ);
 	mOrientation = quaternion(mat);
+
+	setView();
 }
 
 void camera::setView()
 {
+	matrix4 mRotation = mOrientation.toMatrix();
+	matrix4 mTranslation;
+	mTranslation.m[3][0] = -mPosition.x;
+	mTranslation.m[3][1] = -mPosition.y;
+	mTranslation.m[3][2] = -mPosition.z;
+
+	mFinal = mTranslation * mRotation;
+	copyView();
+}
+
+void camera::copyView()
+{
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	assert(rs != NULL);
 
-	mOrientation.toMatrix(mMatrix);
-
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
-	rs->copyMatrix(mMatrix);
-	rs->translateScene(-mPosition.x, -mPosition.y, -mPosition.z);
+	rs->copyMatrix(mFinal.m[0]);
 }
 
 void camera::setPosition(vector3 pos)
 {
 	mPosition = pos;
+	setView();
 }
 
 vector3& camera::getPosition()
@@ -67,6 +80,7 @@ vector3& camera::getPosition()
 void camera::setOrientation(quaternion ori)
 {
 	mOrientation = ori;
+	setView();
 }
 
 quaternion& camera::getOrientation()

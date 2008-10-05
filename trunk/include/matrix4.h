@@ -38,29 +38,6 @@ namespace k
 				m[3][3] = 1.0f;
 			}
 
-			// Initialise our matrix. Keep in mind
-			// that we are using right hand coordinate
-			// system and therefore our matrix is column
-			// major.
-			matrix4(vector3 x, vector3 y, vector3 z, vector3 w)
-			{
-				m[0][0] = x.x;	
-				m[0][1] = x.y;	
-				m[0][2] = x.z;	
-
-				m[1][0] = y.x;	
-				m[1][1] = y.y;	
-				m[1][2] = y.z;	
-
-				m[2][0] = z.x;	
-				m[2][1] = z.y;	
-				m[2][2] = z.z;	
-
-				m[3][0] = w.x;	
-				m[3][1] = w.y;	
-				m[3][2] = w.z;	
-			}
-
 			// Get the transpose of this matrix
 			matrix4 transpose()
 			{
@@ -98,23 +75,33 @@ namespace k
 				return *this;
 			}
 
-			matrix4 operator* (matrix4 mat)
+			// This Also came from Ogre3D
+			matrix4 operator* (matrix4 m2)
 			{
-				matrix4 result;
-				for (unsigned int row = 0; row < 4; row++)
-				{
-					for (unsigned int col = 0; col < 4; col++)
-					{
-						result.m[row][col] = m[row][0]*mat.m[0][col] +
-							m[row][1]*mat.m[1][col] +
-							m[row][2]*mat.m[2][col];
-					}
-				}
+				matrix4 r;
+				r.m[0][0] = m[0][0] * m2.m[0][0] + m[0][1] * m2.m[1][0] + m[0][2] * m2.m[2][0] + m[0][3] * m2.m[3][0];
+            r.m[0][1] = m[0][0] * m2.m[0][1] + m[0][1] * m2.m[1][1] + m[0][2] * m2.m[2][1] + m[0][3] * m2.m[3][1];
+            r.m[0][2] = m[0][0] * m2.m[0][2] + m[0][1] * m2.m[1][2] + m[0][2] * m2.m[2][2] + m[0][3] * m2.m[3][2];
+            r.m[0][3] = m[0][0] * m2.m[0][3] + m[0][1] * m2.m[1][3] + m[0][2] * m2.m[2][3] + m[0][3] * m2.m[3][3];
 
-				return result;
+            r.m[1][0] = m[1][0] * m2.m[0][0] + m[1][1] * m2.m[1][0] + m[1][2] * m2.m[2][0] + m[1][3] * m2.m[3][0];
+            r.m[1][1] = m[1][0] * m2.m[0][1] + m[1][1] * m2.m[1][1] + m[1][2] * m2.m[2][1] + m[1][3] * m2.m[3][1];
+            r.m[1][2] = m[1][0] * m2.m[0][2] + m[1][1] * m2.m[1][2] + m[1][2] * m2.m[2][2] + m[1][3] * m2.m[3][2];
+            r.m[1][3] = m[1][0] * m2.m[0][3] + m[1][1] * m2.m[1][3] + m[1][2] * m2.m[2][3] + m[1][3] * m2.m[3][3];
+
+            r.m[2][0] = m[2][0] * m2.m[0][0] + m[2][1] * m2.m[1][0] + m[2][2] * m2.m[2][0] + m[2][3] * m2.m[3][0];
+            r.m[2][1] = m[2][0] * m2.m[0][1] + m[2][1] * m2.m[1][1] + m[2][2] * m2.m[2][1] + m[2][3] * m2.m[3][1];
+            r.m[2][2] = m[2][0] * m2.m[0][2] + m[2][1] * m2.m[1][2] + m[2][2] * m2.m[2][2] + m[2][3] * m2.m[3][2];
+            r.m[2][3] = m[2][0] * m2.m[0][3] + m[2][1] * m2.m[1][3] + m[2][2] * m2.m[2][3] + m[2][3] * m2.m[3][3];
+
+            r.m[3][0] = m[3][0] * m2.m[0][0] + m[3][1] * m2.m[1][0] + m[3][2] * m2.m[2][0] + m[3][3] * m2.m[3][0];
+            r.m[3][1] = m[3][0] * m2.m[0][1] + m[3][1] * m2.m[1][1] + m[3][2] * m2.m[2][1] + m[3][3] * m2.m[3][1];
+            r.m[3][2] = m[3][0] * m2.m[0][2] + m[3][1] * m2.m[1][2] + m[3][2] * m2.m[2][2] + m[3][3] * m2.m[3][2];
+            r.m[3][3] = m[3][0] * m2.m[0][3] + m[3][1] * m2.m[1][3] + m[3][2] * m2.m[2][3] + m[3][3] * m2.m[3][3];
+            
+				return r;
 			}
 
-			// This Also came from Ogre3D
 			vec_t	MINOR(const matrix4& m, const size_t r0, const size_t r1, const size_t r2, 
 								const size_t c0, const size_t c1, const size_t c2)
 			{
