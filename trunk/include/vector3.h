@@ -96,6 +96,15 @@ namespace k
 				return *this;
 			}
 
+			vector3& operator *= (const vec_t newVec)
+			{
+				x *= newVec;
+				y *= newVec;
+				z *= newVec;
+
+				return *this;
+			}
+
 			/**
 			 * Multiply this vector by a rotation matrix
 			 * @return Another vector with the multiplication stored

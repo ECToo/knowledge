@@ -115,7 +115,7 @@ int main(int argc, char** argv)
 	mRenderer->push3D(newModel);
 
 	assert(mGuiManager != NULL);
-	mGuiManager->setCursor("wiiCursor", k::vector2(32, 32));
+	mGuiManager->setCursor("wiiCursor", k::vector2(48, 48));
 
 	/**
 	 * Setup the input Manager
@@ -129,9 +129,17 @@ int main(int argc, char** argv)
 	// Setup Camera
 	k::camera* newCamera = new k::camera();
 	assert(newCamera != NULL);
-	newCamera->setPosition(k::vector3(20, 50, 20));
+	// newCamera->setPosition(k::vector3(20, 50, 20));
+	newCamera->setPosition(k::vector3(25, 50, 20));
 	newCamera->lookAt(k::vector3(0, 0, 0));
 	mRenderer->setCamera(newCamera);
+
+	// Test Moving away from camera
+	k::md5model* newModel2 = new k::md5model("soccer.md5mesh");
+	mRenderer->push3D(newModel2);
+
+	k::vector3 modelPos2 = newCamera->getPosition();
+	newModel2->setPosition(newCamera->getPosition());
 
 	// Physics
 	dInitODE();
@@ -162,9 +170,7 @@ int main(int argc, char** argv)
 	dGeomSetBody(mSphere, mSphereBody);
 	dBodySetPosition(mSphereBody, 0, 30, -20);
 
-	// Mark FPS
-	mRenderer->setFpsCounter(true);
-	unsigned int FPS = mRenderer->getLastFps();
+	newCamera->getDirection().cout(); 
 
 	// Angles
 	bool running = true;
@@ -190,6 +196,9 @@ int main(int argc, char** argv)
 
 		newModel->setPosition(k::vector3(modelPos[0], modelPos[1], modelPos[2]));
 		newModel->setOrientation(k::quaternion(modelOri[1], modelOri[2], modelOri[3], modelOri[0]));
+
+		modelPos2 -= newCamera->getDirection()*0.1; 
+		newModel2->setPosition(modelPos2);
 	
 		mRenderer->draw();
 
@@ -203,12 +212,6 @@ int main(int argc, char** argv)
 		#endif
 
 		dJointGroupEmpty(mJointId);
-	
-		if (mRenderer->getLastFps() != FPS)
-		{
-			FPS = mRenderer->getLastFps();
-			std::cout << "FPS: " << FPS << std::endl;
-		}
 	}
 
 	delete appRoot;

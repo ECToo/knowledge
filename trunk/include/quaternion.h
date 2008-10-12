@@ -121,10 +121,13 @@ namespace k
 			quaternion(const vec_t angle, const vector3& axis)
 			{
 				vec_t r, s;
-				r = (angle/180.0f) * M_PI;
-    			s = sin(r * 0.5f);
 
-    			w = cos(r * 0.5f);
+				r = (angle/180.0f) * M_PI;
+				r *= 0.5f;
+
+    			s = sin(r);
+
+    			w = cos(r);
     			x = axis.x * s;
     			y = axis.y * s;
 	 			z = axis.z * s;
@@ -325,13 +328,10 @@ namespace k
 
 			vector3 getDirection()
 			{
-				vector3 direction;
-
-				direction.x = 2.0f*(x * z - w * y);
-				direction.y = 2.0f*(y * z + w * x);
-				direction.z = 2.0f*(x * x + y * y);
-
-				return direction;
+				// Lets Consider here the
+				// direction of the default camera
+				// is -Z (0, 0, -1)
+				return rotateVector(vector3(0, 0, -1));
 			}
 
 			quaternion duplicate()

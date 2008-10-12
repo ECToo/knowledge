@@ -46,6 +46,9 @@ namespace k
 
 			// Look at the vector dest
 			void lookAt(vector3 dest);
+			vector3 getDirection();
+			vector3 getUp();
+			vector3 getRight();
 
 			// Translations
 			void setPosition(vector3 pos);

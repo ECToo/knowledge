@@ -92,6 +92,21 @@ quaternion& camera::getOrientation()
 {
 	return mOrientation;
 }
+			
+vector3 camera::getDirection()
+{
+	return mOrientation.getDirection();
+}
+			
+vector3 camera::getUp()
+{
+	return mOrientation.rotateVector(vector3::unit_y);
+}
+
+vector3 camera::getRight()
+{
+	return mOrientation.rotateVector(vector3::unit_x);
+}
 
 }
 
