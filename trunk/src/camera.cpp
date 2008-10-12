@@ -48,12 +48,13 @@ void camera::setView()
 {
 	matrix4 mRotation = mOrientation.toMatrix();
 	matrix4 mTranslation;
-	mTranslation.m[3][0] = -mPosition.x;
-	mTranslation.m[3][1] = -mPosition.y;
-	mTranslation.m[3][2] = -mPosition.z;
+
+	// Multiply by 2 because of the lookAt translation + object inverse translation
+	mTranslation.m[3][0] = -mPosition.x * 2;
+	mTranslation.m[3][1] = -mPosition.y * 2;
+	mTranslation.m[3][2] = -mPosition.z * 2;
 
 	mFinal = mTranslation * mRotation;
-	copyView();
 }
 
 void camera::copyView()
@@ -95,17 +96,17 @@ quaternion& camera::getOrientation()
 			
 vector3 camera::getDirection()
 {
-	return mOrientation.getDirection();
+	return vector3(-mFinal.m[0][2], -mFinal.m[1][2], -mFinal.m[2][2]);
 }
 			
 vector3 camera::getUp()
 {
-	return mOrientation.rotateVector(vector3::unit_y);
+	return vector3(mFinal.m[0][1], mFinal.m[1][1], mFinal.m[2][1]);
 }
 
 vector3 camera::getRight()
 {
-	return mOrientation.rotateVector(vector3::unit_x);
+	return vector3(mFinal.m[0][0], mFinal.m[1][0], mFinal.m[2][0]);
 }
 
 }

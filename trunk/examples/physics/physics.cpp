@@ -25,6 +25,31 @@
 // Temp - Need physics Wrapper
 #include "ode_k/ode.h"
 
+class kPlane : public k::drawable3D
+{
+	public:
+		k::material* mMaterial;
+
+		void draw()
+		{
+			k::renderSystem* rs = k::root::getSingleton().getRenderSystem();
+			assert(rs != NULL);
+
+			mMaterial->prepare();
+
+			rs->startVertices(k::VERTEXMODE_QUAD);
+			rs->texCoord(k::vector2(0, -1));
+			rs->vertex(k::vector3(-20, 0, -20));
+			rs->texCoord(k::vector2(0, 1));
+			rs->vertex(k::vector3(-20, 0, 20));
+			rs->texCoord(k::vector2(1, 1));
+			rs->vertex(k::vector3(20, 0, 20));
+			rs->texCoord(k::vector2(1, -1));
+			rs->vertex(k::vector3(20, 0, -20));
+			rs->endVertices();
+		}
+};
+
 typedef struct
 {
 	dWorldID worldId;
@@ -36,8 +61,8 @@ void twoBodiesCollide(void* data, dGeomID id1, dGeomID id2)
 	contactInfo_t* cInfo = (contactInfo_t*)data;
 	assert(cInfo != NULL);
 
-	dContact contacts[10];
-	unsigned int collisions = dCollide(id1, id2, 10, &contacts[0].geom, sizeof(dContact));
+	dContact contacts[128];
+	unsigned int collisions = dCollide(id1, id2, 128, &contacts[0].geom, sizeof(dContact));
 	for (unsigned int i = 0; i < collisions; i++)
 	{
 		dGeomID c1, c2;
@@ -56,17 +81,6 @@ void twoBodiesCollide(void* data, dGeomID id1, dGeomID id2)
 		dJointID c = dJointCreateContact(cInfo->worldId, cInfo->jointId, &contacts[i]);
 		dJointAttach(c, dGeomGetBody(contacts[i].geom.g1), dGeomGetBody(contacts[i].geom.g2));
 	}
-}
-
-void createSphere(dWorldID& mWorldId, dSpaceID& mSpaceId, float radius, k::vector3 pos)
-{
-	dGeomID mSphere = 0;
-	dBodyID mSphereBody = 0;
-
-	mSphere = dCreateSphere(mSpaceId, radius);
-	mSphereBody = dBodyCreate(mWorldId);
-	dGeomSetBody(mSphere, mSphereBody);
-	dBodySetPosition(mSphereBody, pos.x, pos.y, pos.z);
 }
 
 int main(int argc, char** argv)
@@ -117,6 +131,14 @@ int main(int argc, char** argv)
 	assert(mGuiManager != NULL);
 	mGuiManager->setCursor("wiiCursor", k::vector2(48, 48));
 
+	// Make The plane
+	kPlane* newPlane = new kPlane();
+	assert(newPlane != NULL);
+	newPlane->mMaterial = k::materialManager::getSingleton().createMaterial("odePlane");
+	assert(newPlane->mMaterial != NULL);
+	mRenderer->push3D(newPlane);
+	
+
 	/**
 	 * Setup the input Manager
 	 */
@@ -129,20 +151,12 @@ int main(int argc, char** argv)
 	// Setup Camera
 	k::camera* newCamera = new k::camera();
 	assert(newCamera != NULL);
-	// newCamera->setPosition(k::vector3(20, 50, 20));
-	newCamera->setPosition(k::vector3(25, 50, 20));
+	newCamera->setPosition(k::vector3(14, 18, -14));
 	newCamera->lookAt(k::vector3(0, 0, 0));
 	mRenderer->setCamera(newCamera);
 
-	// Test Moving away from camera
-	k::md5model* newModel2 = new k::md5model("soccer.md5mesh");
-	mRenderer->push3D(newModel2);
-
-	k::vector3 modelPos2 = newCamera->getPosition();
-	newModel2->setPosition(newCamera->getPosition());
-
 	// Physics
-	dInitODE();
+	dInitODE2(0);
 	dWorldID mWorldId;
 	dSpaceID mSpaceId;
 	dJointGroupID mJointId;
@@ -164,13 +178,40 @@ int main(int argc, char** argv)
 	cInfo->worldId = mWorldId;
 	cInfo->jointId = mJointId;
 
-	mPlane = dCreatePlane(mSpaceId, 0, 1, -0.005, 0);
+	// Plane Stuff
+	const vec_t vertices[4][3] = { 
+		{20, 0, 20}, 
+		{-20, 0, 20}, 
+		{-20, 0, -20}, 
+		{20, 0, -20}
+	};
+
+	const vec_t normals[4][3] = {
+		{0, 1, 0},
+		{0, 1, 0},
+		{0, 1, 0},
+		{0, 1, 0}
+	};
+
+	const int indices[6] = { 
+		0, 2, 1, 
+		2, 0, 3 
+	};
+
+	dTriMeshDataID trimeshData;
+	trimeshData = dGeomTriMeshDataCreate();
+	dGeomTriMeshDataBuildSingle1(trimeshData, 
+			vertices, 3 * sizeof(vec_t), 4, 
+			indices, 6, 3 * sizeof(int),
+			normals);
+
+	mPlane = dCreateTriMesh(mSpaceId, trimeshData, NULL, NULL, NULL);
+
+	// Sphere
 	mSphere = dCreateSphere(mSpaceId, 2.398); // model radius
 	mSphereBody = dBodyCreate(mWorldId);
 	dGeomSetBody(mSphere, mSphereBody);
-	dBodySetPosition(mSphereBody, 0, 30, -20);
-
-	newCamera->getDirection().cout(); 
+	dBodySetPosition(mSphereBody, 0, 30, 0);
 
 	// Angles
 	bool running = true;
@@ -197,8 +238,8 @@ int main(int argc, char** argv)
 		newModel->setPosition(k::vector3(modelPos[0], modelPos[1], modelPos[2]));
 		newModel->setOrientation(k::quaternion(modelOri[1], modelOri[2], modelOri[3], modelOri[0]));
 
-		modelPos2 -= newCamera->getDirection()*0.1; 
-		newModel2->setPosition(modelPos2);
+		const dReal* planePos = dGeomGetPosition(mPlane);
+		newPlane->setPosition(k::vector3(planePos[0], planePos[1], planePos[2]));
 	
 		mRenderer->draw();
 

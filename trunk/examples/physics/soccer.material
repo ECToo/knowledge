@@ -11,4 +11,13 @@ material soccerBall
 	}
 }
 
+material odePlane
+{
+	texture
+	{
+		filename ode_plane.png
+		texcoord uv
+		blendfunc blend
+	}
+}
 
