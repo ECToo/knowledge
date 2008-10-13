@@ -1,7 +1,6 @@
 lib_LTLIBRARIES = libknowledge.la 
 
-libknowledge_la_SOURCES = physicsManager.cpp\
-								  drawable.cpp\
+libknowledge_la_SOURCES = drawable.cpp\
 								  vector3.cpp\
 								  md5.cpp\
 								  fileAccess.cpp\
@@ -13,6 +12,7 @@ libknowledge_la_SOURCES = physicsManager.cpp\
 								  materialManager.cpp\
 								  guiManager.cpp\
 								  inputManager.cpp\
+								  physicsManager.cpp\
 								  renderer.cpp\
 								  sticker.cpp\
 								  logger.cpp\

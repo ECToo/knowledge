@@ -52,10 +52,11 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgincludedir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libknowledge_la_DEPENDENCIES =
-am_libknowledge_la_OBJECTS = physicsManager.lo drawable.lo vector3.lo \
-	md5.lo fileAccess.lo camera.lo glRenderSystem.lo texture.lo \
+am_libknowledge_la_OBJECTS = drawable.lo vector3.lo md5.lo \
+	fileAccess.lo camera.lo glRenderSystem.lo texture.lo \
 	textureManager.lo material.lo materialManager.lo guiManager.lo \
-	inputManager.lo renderer.lo sticker.lo logger.lo root.lo
+	inputManager.lo physicsManager.lo renderer.lo sticker.lo \
+	logger.lo root.lo
 libknowledge_la_OBJECTS = $(am_libknowledge_la_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -187,8 +188,7 @@ target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 lib_LTLIBRARIES = libknowledge.la 
-libknowledge_la_SOURCES = physicsManager.cpp\
-								  drawable.cpp\
+libknowledge_la_SOURCES = drawable.cpp\
 								  vector3.cpp\
 								  md5.cpp\
 								  fileAccess.cpp\
@@ -200,6 +200,7 @@ libknowledge_la_SOURCES = physicsManager.cpp\
 								  materialManager.cpp\
 								  guiManager.cpp\
 								  inputManager.cpp\
+								  physicsManager.cpp\
 								  renderer.cpp\
 								  sticker.cpp\
 								  logger.cpp\

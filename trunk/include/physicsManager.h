@@ -18,13 +18,13 @@
 #ifndef _PHYSICS_MANAGER_H_
 #define _PHYSICS_MANAGER_H_
 
-#include "ode_k/ode.h"
 #include "prerequisites.h"
 #include "vector2.h"
 #include "vector3.h"
 #include "drawable.h"
 #include "quaternion.h"
 #include "singleton.h"
+#include "ode_k/ode.h"
 
 #define ATTACH_POSITION (1 << 0)
 #define ATTACH_ORIENTATION (1 << 1)
