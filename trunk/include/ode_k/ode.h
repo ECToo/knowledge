@@ -48,6 +48,7 @@
 
 #endif
 #else
+#include <ode/objects.h>
 #include <ode/ode.h>
 #endif
 

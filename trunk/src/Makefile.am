@@ -1,6 +1,7 @@
 lib_LTLIBRARIES = libknowledge.la 
 
-libknowledge_la_SOURCES = drawable.cpp\
+libknowledge_la_SOURCES = physicsManager.cpp\
+								  drawable.cpp\
 								  vector3.cpp\
 								  md5.cpp\
 								  fileAccess.cpp\
@@ -20,9 +21,10 @@ libknowledge_la_SOURCES = drawable.cpp\
 INCLUDES = -I@top_srcdir@/include $(CXXFLAGS)
 
 libknowledge_la_CFLAGS = -I$(INCLUDES) -g
-libknowledge_la_LIBADD = -lm -lGL -lGLU -lGLEW -lILU -lILUT
+libknowledge_la_LIBADD = -lode -lm -lGL -lGLU -lGLEW -lILU -lILUT
 
 pkginclude_HEADERS = @top_srcdir@/include/prerequisites.h \
+							@top_srcdir@/include/physicsManager.h \
 							@top_srcdir@/include/singleton.h \
 							@top_srcdir@/include/camera.h \
 							@top_srcdir@/include/singleton.h \

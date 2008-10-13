@@ -31,7 +31,7 @@ ODE interface to OU library functions.
 
 */
 
-
+#ifdef __WII__
 #ifndef _ODE_ODEOU_H_
 #define _ODE_ODEOU_H_
 
@@ -76,3 +76,4 @@ public:
 
 
 #endif // _ODE_ODEOU_H_
+#endif

@@ -16,7 +16,7 @@ Features for first beta release:
 [.] PNG and JPG Textures on Wii (Pending jpeg loading)
 [.] Network (Pending integration and test on the Wii)
 [.] Physics (Need some way to integrate ridid bodies with real objects and keep them updated automatically, fully working already)
-[.] Cameras (supports rotation, translation and lookAt, missing frustum culling and direction vectors)
+[.] Cameras (supports rotation, translation, directions and lookAt, missing frustum culling)
 
 [t] Render to texture
 [t] Fake dynamic lights

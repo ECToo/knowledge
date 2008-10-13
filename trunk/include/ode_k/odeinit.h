@@ -21,7 +21,7 @@
 *************************************************************************/
 
 /* Library initialization/finalization functions. */
-
+#ifdef __WII__
 #ifndef _ODE_ODEINIT_H_
 #define _ODE_ODEINIT_H_
 
@@ -225,3 +225,4 @@ ODE_API void dCloseODE(void);
 
 
 #endif // _ODE_ODEINIT_H_
+#endif

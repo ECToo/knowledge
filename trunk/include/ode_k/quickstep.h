@@ -19,7 +19,7 @@
  * LICENSE.TXT and LICENSE-BSD.TXT for more details.                     *
  *                                                                       *
  *************************************************************************/
-
+#ifdef __WII__
 #ifndef _ODE_QUICK_STEP_H_
 #define _ODE_QUICK_STEP_H_
 
@@ -30,4 +30,5 @@ void dxQuickStepper (dxWorld *world, dxBody * const *body, int nb,
 		     dxJoint * const *_joint, int nj, dReal stepsize);
 
 
+#endif
 #endif

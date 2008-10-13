@@ -19,7 +19,7 @@
  * LICENSE.TXT and LICENSE-BSD.TXT for more details.                     *
  *                                                                       *
  *************************************************************************/
-
+#ifdef __WII__
 #ifndef _ODE_ODEMATH_H_
 #define _ODE_ODEMATH_H_
 
@@ -354,4 +354,5 @@ ODE_API void dPlaneSpace (const dVector3 n, dVector3 p, dVector3 q);
 }
 #endif
 
+#endif
 #endif

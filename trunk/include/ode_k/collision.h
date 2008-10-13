@@ -20,6 +20,7 @@
  *                                                                       *
  *************************************************************************/
 
+#ifdef __WII__
 #ifndef _ODE_COLLISION_H_
 #define _ODE_COLLISION_H_
 
@@ -1403,4 +1404,5 @@ ODE_API void dSetColliderOverride (int i, int j, dColliderFn *fn);
 }
 #endif
 
+#endif
 #endif

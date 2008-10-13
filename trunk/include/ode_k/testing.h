@@ -21,7 +21,7 @@
  *************************************************************************/
 
 /* stuff used for testing */
-
+#ifdef __WII__
 #ifndef _ODE_TESTING_H_
 #define _ODE_TESTING_H_
 
@@ -61,5 +61,5 @@ public:
   // print out info about all the matrices in the sequence
 };
 
-
+#endif
 #endif

@@ -24,7 +24,7 @@
 // Modified for FreeSOLID Compatibility by Rodrigo Hernandez
 // Trimesh caches separation by Oleh Derevenko
 
-
+#ifdef __WII__
 #ifndef _ODE_COLLISION_TRIMESH_INTERNAL_H_
 #define _ODE_COLLISION_TRIMESH_INTERNAL_H_
 
@@ -654,3 +654,4 @@ bool IntersectCapsuleTri( const dVector3 segOrigin, const dVector3 segEnd,
 
 
 #endif	//_ODE_COLLISION_TRIMESH_INTERNAL_H_
+#endif

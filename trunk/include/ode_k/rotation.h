@@ -19,7 +19,7 @@
  * LICENSE.TXT and LICENSE-BSD.TXT for more details.                     *
  *                                                                       *
  *************************************************************************/
-
+#ifdef __WII__
 #ifndef _ODE_ROTATION_H_
 #define _ODE_ROTATION_H_
 
@@ -67,4 +67,5 @@ ODE_API void dDQfromW (dReal dq[4], const dVector3 w, const dQuaternion q);
 }
 #endif
 
+#endif
 #endif

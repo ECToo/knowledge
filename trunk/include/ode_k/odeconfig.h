@@ -1,3 +1,4 @@
+#ifdef __WII__
 #ifndef ODECONFIG_H
 #define ODECONFIG_H
 
@@ -88,4 +89,5 @@
 #endif
 
 
+#endif
 #endif

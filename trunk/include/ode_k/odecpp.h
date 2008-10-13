@@ -22,7 +22,7 @@
 
 /* C++ interface for non-collision stuff */
 
-
+#ifdef __WII__
 #ifndef _ODE_ODECPP_H_
 #define _ODE_ODECPP_H_
 #ifdef __cplusplus
@@ -1065,6 +1065,7 @@ public:
 
 //}
 
+#endif
 #endif
 #endif
 

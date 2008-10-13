@@ -35,7 +35,7 @@
  *     a bitwise copy. You should probably also define the copy constructor.
  */
 
-
+#ifdef __WII__
 #ifndef _ODE_ARRAY_H_
 #define _ODE_ARRAY_H_
 
@@ -133,4 +133,5 @@ public:
 };
 
 
+#endif
 #endif

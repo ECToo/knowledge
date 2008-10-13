@@ -20,10 +20,11 @@
  *                                                                       *
  *************************************************************************/
 
+#ifdef __WII__
 #ifndef _ODE_COMMON_H_
 #define _ODE_COMMON_H_
-#include <ode/odeconfig.h>
-#include <ode/error.h>
+#include <ode_k/odeconfig.h>
+#include <ode_k/error.h>
 #include <math.h>
 
 #ifdef __cplusplus
@@ -393,4 +394,5 @@ ODE_API int dCheckConfiguration( const char* token );
 }
 #endif
 
+#endif
 #endif

@@ -19,7 +19,7 @@
  * LICENSE.TXT and LICENSE-BSD.TXT for more details.                     *
  *                                                                       *
  *************************************************************************/
-
+#ifdef __WII__
 #ifndef _ODE_TIMER_H_
 #define _ODE_TIMER_H_
 
@@ -73,4 +73,5 @@ ODE_API double dTimerResolution(void);
 }
 #endif
 
+#endif
 #endif

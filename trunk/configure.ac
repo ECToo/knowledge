@@ -15,6 +15,11 @@ if test -n "$SDL_CONFIG"; then
 		  AC_MSG_ERROR([ *** SDL library found but cannot find headers (http://www.libsdl.org/)]))
 		  AC_CHECK_HEADERS([SDL_image.h], ,
 		  AC_MSG_ERROR([ *** SDL library found but cannot find SDL_image (http://www.libsdl.org/)]))
+AC_PATH_PROG(ODE_CONFIG, ode-config)
+if test -n "$ODE_CONFIG"; then
+    LIBS="$LIBS `$ODE_CONFIG --libs`"
+	 CPPFLAGS="$CPPFLAGS `$ODE_CONFIG --cflags`"
+fi
 AC_OUTPUT(Makefile src/Makefile \
 			 include/Makefile \
 			 examples/Makefile \

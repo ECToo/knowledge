@@ -26,6 +26,7 @@ internal data structures and functions for collision detection.
 
 */
 
+#ifdef __WII__
 #ifndef _ODE_COLLISION_KERNEL_H_
 #define _ODE_COLLISION_KERNEL_H_
 
@@ -230,5 +231,5 @@ void dFinitColliders();
 void dClearPosrCache(void);
 void dFinitUserClasses();
 
-
+#endif
 #endif

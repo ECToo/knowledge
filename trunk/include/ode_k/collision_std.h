@@ -26,6 +26,7 @@ the standard ODE geometry primitives.
 
 */
 
+#ifdef __WII__
 #ifndef _ODE_COLLISION_STD_H_
 #define _ODE_COLLISION_STD_H_
 
@@ -234,5 +235,5 @@ struct dxConvex : public dxGeom
 #endif
 };
 
-
+#endif
 #endif

@@ -46,7 +46,7 @@ to be implemented. the first `nub' variables are assumed to have findex < 0.
 
 */
 
-
+#ifdef __WII__
 #ifndef _ODE_LCP_H_
 #define _ODE_LCP_H_
 
@@ -56,3 +56,5 @@ void dSolveLCP (int n, dReal *A, dReal *x, dReal *b, dReal *w,
 
 
 #endif
+#endif
+

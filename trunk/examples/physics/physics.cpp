@@ -21,9 +21,7 @@
 #include "renderer.h"
 #include "rendersystem.h"
 #include "logger.h"
-
-// Temp - Need physics Wrapper
-#include "ode_k/ode.h"
+#include "physicsManager.h"
 
 class kPlane : public k::drawable3D
 {
@@ -211,7 +209,7 @@ int main(int argc, char** argv)
 	mSphere = dCreateSphere(mSpaceId, 2.398); // model radius
 	mSphereBody = dBodyCreate(mWorldId);
 	dGeomSetBody(mSphere, mSphereBody);
-	dBodySetPosition(mSphereBody, 0, 30, 0);
+	dGeomSetPosition(mSphere, 0, 30, 0);
 
 	// Angles
 	bool running = true;

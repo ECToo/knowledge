@@ -22,6 +22,7 @@
 
 /* optimized and unoptimized vector and matrix functions */
 
+#ifdef __WII__
 #ifndef _ODE_MATRIX_H_
 #define _ODE_MATRIX_H_
 
@@ -191,4 +192,5 @@ ODE_API void dRemoveRowCol (dReal *A, int n, int nskip, int r);
 }
 #endif
 
+#endif
 #endif

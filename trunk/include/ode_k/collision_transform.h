@@ -26,6 +26,7 @@ geom transform
 
 */
 
+#ifdef __WII__
 #ifndef _ODE_COLLISION_TRANSFORM_H_
 #define _ODE_COLLISION_TRANSFORM_H_
 
@@ -38,3 +39,5 @@ int dCollideTransform (dxGeom *o1, dxGeom *o2, int flags,
 
 
 #endif
+#endif
+

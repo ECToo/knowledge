@@ -66,7 +66,7 @@ CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
 CPP = gcc -E
-CPPFLAGS =  -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
+CPPFLAGS =  -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -I/usr/local/include -DdSINGLE
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
@@ -91,7 +91,7 @@ INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 LDFLAGS = 
 LIBOBJS = 
-LIBS = -lSDL  -L/usr/lib -lSDL
+LIBS = -lSDL  -L/usr/lib -lSDL -L/usr/local/lib -lode
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LN_S = ln -s
 LTLIBOBJS = 
@@ -99,6 +99,7 @@ MAKEINFO = ${SHELL} /home/nightz/Projects/devkitPPC/knowledge/missing --run make
 MKDIR_P = /bin/mkdir -p
 NMEDIT = 
 OBJEXT = o
+ODE_CONFIG = /usr/local/bin/ode-config
 PACKAGE = libknowledge
 PACKAGE_BUGREPORT = 
 PACKAGE_NAME = 

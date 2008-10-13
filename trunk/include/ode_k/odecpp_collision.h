@@ -22,7 +22,7 @@
 
 /* C++ interface for new collision API */
 
-
+#ifdef __WII__
 #ifndef _ODE_ODECPP_COLLISION_H_
 #define _ODE_ODECPP_COLLISION_H_
 #ifdef __cplusplus
@@ -366,5 +366,6 @@ public:
 
 //}
 
+#endif
 #endif
 #endif

@@ -31,7 +31,7 @@ ODE Thread Local Storage access stub interface.
 
 */
 
-
+#ifdef __WII__
 #ifndef _ODE_ODETLS_H_
 #define _ODE_ODETLS_H_
 
@@ -122,3 +122,4 @@ private:
 
 
 #endif // _ODE_ODETLS_H_
+#endif

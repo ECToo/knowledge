@@ -22,6 +22,7 @@
 
 /* this comes from the `reuse' library. copy any changes back to the source */
 
+#ifdef __WII__
 #ifndef _ODE_ERROR_H_
 #define _ODE_ERROR_H_
 
@@ -60,4 +61,5 @@ ODE_API void dMessage (int num, const char *msg, ...);
 }
 #endif
 
+#endif
 #endif

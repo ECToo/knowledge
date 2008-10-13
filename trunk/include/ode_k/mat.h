@@ -22,7 +22,7 @@
 
 // matrix class. this is mostly for convenience in the testing code, it is
 // not optimized at all. correctness is much more importance here.
-
+#ifdef __WII__
 #ifndef _ODE_MAT_H_
 #define _ODE_MAT_H_
 
@@ -67,5 +67,5 @@ public:
   dReal maxDifference (const dMatrix &);
 };
 
-
+#endif
 #endif

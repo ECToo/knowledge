@@ -20,13 +20,16 @@
  *                                                                       *
  *************************************************************************/
 
+#ifdef __WII__
 #ifndef _ODE_EXPORT_DIF_
 #define _ODE_EXPORT_DIF_
 
-#include <ode/common.h>
+#include <ode_k/common.h>
 
 
 ODE_API void dWorldExportDIF (dWorldID w, FILE *file, const char *world_name);
 
 
 #endif
+#endif
+

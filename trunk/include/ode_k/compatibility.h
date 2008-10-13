@@ -20,6 +20,7 @@
  *                                                                       *
  *************************************************************************/
 
+#ifdef __WII__
 #ifndef _ODE_COMPATIBILITY_H_
 #define _ODE_COMPATIBILITY_H_
 
@@ -38,3 +39,5 @@
 
 
 #endif
+#endif
+

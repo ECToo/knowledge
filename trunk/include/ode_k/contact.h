@@ -20,6 +20,7 @@
  *                                                                       *
  *************************************************************************/
 
+#ifdef __WII__
 #ifndef _ODE_CONTACT_H_
 #define _ODE_CONTACT_H_
 
@@ -101,4 +102,5 @@ typedef struct dContact {
 }
 #endif
 
+#endif
 #endif

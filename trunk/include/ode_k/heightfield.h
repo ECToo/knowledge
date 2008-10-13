@@ -3,6 +3,7 @@
 // Based on Terrain & Cone contrib by:
 //  Benoit CHAPEROT 2003-2004 http://www.jstarlab.com
 
+#ifdef __WII__
 #ifndef _DHEIGHTFIELD_H_
 #define _DHEIGHTFIELD_H_
 //------------------------------------------------------------------------------
@@ -221,3 +222,5 @@ struct dxHeightfield : public dxGeom
 
 //------------------------------------------------------------------------------
 #endif //_DHEIGHTFIELD_H_
+#endif
+

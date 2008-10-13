@@ -19,7 +19,7 @@
  * LICENSE.TXT and LICENSE-BSD.TXT for more details.                     *
  *                                                                       *
  *************************************************************************/
-
+#ifdef __WII__
 #ifndef _ODE_UTIL_H_
 #define _ODE_UTIL_H_
 
@@ -67,4 +67,5 @@ typedef void (*dstepper_fn_t) (dxWorld *world, dxBody * const *body, int nb,
 void dxProcessIslands (dxWorld *world, dReal stepsize, dstepper_fn_t stepper);
 
 
+#endif
 #endif

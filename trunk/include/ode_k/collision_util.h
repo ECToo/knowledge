@@ -26,6 +26,7 @@ some useful collision utility stuff.
 
 */
 
+#ifdef __WII__
 #ifndef _ODE_COLLISION_UTIL_H_
 #define _ODE_COLLISION_UTIL_H_
 
@@ -344,5 +345,5 @@ inline void dQuatInv(const dQuaternion& source, dQuaternion& dest)
 	}
 }
 
-
+#endif
 #endif

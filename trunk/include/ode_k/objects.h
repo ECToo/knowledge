@@ -21,7 +21,7 @@
  * LICENSE.TXT and LICENSE-BSD.TXT for more details.                     *
  *                                                                       *
  *************************************************************************/
-
+#ifdef __WII__
 #ifndef _ODE_OBJECTS_H_
 #define _ODE_OBJECTS_H_
 
@@ -2602,4 +2602,5 @@ ODE_API int dAreConnectedExcluding (dBodyID body1, dBodyID body2, int joint_type
 }
 #endif
 
+#endif
 #endif

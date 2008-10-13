@@ -21,7 +21,7 @@
  *************************************************************************/
 
 /* miscellaneous math functions. these are mostly useful for testing */
-
+#ifdef __WII__
 #ifndef _ODE_MISC_H_
 #define _ODE_MISC_H_
 
@@ -82,4 +82,5 @@ ODE_API dReal dMaxDifferenceLowerTriangle (const dReal *A, const dReal *B, int n
 }
 #endif
 
+#endif
 #endif

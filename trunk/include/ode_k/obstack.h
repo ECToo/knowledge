@@ -19,7 +19,7 @@
  * LICENSE.TXT and LICENSE-BSD.TXT for more details.                     *
  *                                                                       *
  *************************************************************************/
-
+#ifdef __WII__
 #ifndef _ODE_OBSTACK_H_
 #define _ODE_OBSTACK_H_
 
@@ -65,4 +65,5 @@ struct dObStack : public dBase {
 };
 
 
+#endif
 #endif

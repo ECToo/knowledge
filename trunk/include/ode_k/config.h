@@ -1,7 +1,7 @@
 /* ode/src/config.h.  Generated from config.h.in by configure.  */
 /* ode/src/config.h.in.  Generated from configure.in by autoheader.  */
 
-
+#ifdef __WII__
 #ifndef ODE_CONFIG_H
 #define ODE_CONFIG_H
 
@@ -323,4 +323,5 @@ enum {
 
 
 #endif /* #define ODE_CONFIG_H */
+#endif
 

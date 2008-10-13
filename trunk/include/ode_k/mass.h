@@ -20,6 +20,7 @@
  *                                                                       *
  *************************************************************************/
 
+#ifdef __WII__
 #ifndef _ODE_MASS_H_
 #define _ODE_MASS_H_
 
@@ -122,4 +123,5 @@ struct dMass {
 }
 #endif
 
+#endif
 #endif

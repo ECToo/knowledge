@@ -20,6 +20,7 @@
 *                                                                       *
 *************************************************************************/
 
+#ifdef __WII__
 #ifndef _ODE_COLLISION_TRIMESH_COLLIDERS_H_
 #define _ODE_COLLISION_TRIMESH_COLLIDERS_H_
 
@@ -44,3 +45,4 @@ PURE_INLINE int dCollideRayTrimesh( dxGeom *ray, dxGeom *trimesh, int flags,
 
 
 #endif // _ODE_COLLISION_TRIMESH_COLLIDERS_H_
+#endif

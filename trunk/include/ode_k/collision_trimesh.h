@@ -31,6 +31,7 @@
  * performance because some data has to be copied.
  */
 
+#ifdef __WII__
 #ifndef _ODE_COLLISION_TRIMESH_H_
 #define _ODE_COLLISION_TRIMESH_H_
 
@@ -202,4 +203,6 @@ ODE_API void dGeomTriMeshDataUpdate(dTriMeshDataID g);
 #endif
 
 #endif	/* _ODE_COLLISION_TRIMESH_H_ */
+#endif
+
 
