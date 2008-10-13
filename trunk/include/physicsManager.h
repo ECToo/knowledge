@@ -18,8 +18,7 @@
 #ifndef _PHYSICS_MANAGER_H_
 #define _PHYSICS_MANAGER_H_
 
-// #include "ode_k/ode.h"
-#include <ode/ode.h>
+#include "ode_k/ode.h"
 #include "prerequisites.h"
 #include "vector2.h"
 #include "vector3.h"
