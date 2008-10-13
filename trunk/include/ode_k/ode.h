@@ -45,10 +45,8 @@
 #include <ode_k/collision.h>
 #include <ode_k/odecpp_collision.h>
 #include <ode_k/export-dif.h>
-
 #endif
 #else
-#include <ode/objects.h>
 #include <ode/ode.h>
 #endif
 
