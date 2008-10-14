@@ -37,47 +37,60 @@ class kPlane : public k::drawable3D
 
 			rs->startVertices(k::VERTEXMODE_QUAD);
 			rs->texCoord(k::vector2(0, -1));
-			rs->vertex(k::vector3(-20, 0, -20));
+			rs->vertex(k::vector3(-40, 0, -40));
 			rs->texCoord(k::vector2(0, 1));
-			rs->vertex(k::vector3(-20, 0, 20));
+			rs->vertex(k::vector3(-40, 0, 40));
 			rs->texCoord(k::vector2(1, 1));
-			rs->vertex(k::vector3(20, 0, 20));
+			rs->vertex(k::vector3(40, 0, 40));
 			rs->texCoord(k::vector2(1, -1));
-			rs->vertex(k::vector3(20, 0, -20));
+			rs->vertex(k::vector3(40, 0, -40));
 			rs->endVertices();
 		}
 };
 
-typedef struct
+void addRandomBox()
 {
-	dWorldID worldId;
-	dJointGroupID jointId;
-} contactInfo_t;
+	#ifdef __WII__
+	k::md5model* newBoxModel = new k::md5model("/knowledge/soccer/box.md5mesh");
+	#else
+	k::md5model* newBoxModel = new k::md5model("box.md5mesh");
+	#endif
 
-void twoBodiesCollide(void* data, dGeomID id1, dGeomID id2)
-{
-	contactInfo_t* cInfo = (contactInfo_t*)data;
-	assert(cInfo != NULL);
-
-	dContact contacts[128];
-	unsigned int collisions = dCollide(id1, id2, 128, &contacts[0].geom, sizeof(dContact));
-	for (unsigned int i = 0; i < collisions; i++)
+	if (newBoxModel)
 	{
-		dGeomID c1, c2;
-		c1 = contacts[i].geom.g1;
-		c2 = contacts[i].geom.g2;
+		k::renderer* mRenderer = k::root::getSingleton().getRenderer();
+		k::physicsManager* mPhysicsManager = &k::physicsManager::getSingleton();
 
-		if (c1 == c2)
-			continue;
+		mRenderer->push3D(newBoxModel);
 
-		contacts[i].surface.mode = dContactBounce;
-		contacts[i].surface.mu = dInfinity;
-		contacts[i].surface.bounce = 0.8;
-		contacts[i].surface.bounce_vel = 0.15;
-		contacts[i].surface.slip1 = 0.0;
+		// Box
+		k::physicBox* boxPhysic = mPhysicsManager->createBox(k::vector3(8, 8, 8));
+		assert(boxPhysic != NULL);
+		boxPhysic->setPosition(k::vector3(rand()%38, 20, rand()%38));
+		boxPhysic->attachDrawable(newBoxModel);
+	}
+}
 
-		dJointID c = dJointCreateContact(cInfo->worldId, cInfo->jointId, &contacts[i]);
-		dJointAttach(c, dGeomGetBody(contacts[i].geom.g1), dGeomGetBody(contacts[i].geom.g2));
+void addRandomSphere()
+{
+	#ifdef __WII__
+	k::md5model* newModel = new k::md5model("/knowledge/soccer/soccer.md5mesh");
+	#else
+	k::md5model* newModel = new k::md5model("soccer.md5mesh");
+	#endif
+
+	if (newModel)
+	{
+		k::renderer* mRenderer = k::root::getSingleton().getRenderer();
+		k::physicsManager* mPhysicsManager = &k::physicsManager::getSingleton();
+
+		mRenderer->push3D(newModel);
+
+		// Sphere
+		k::physicSphere* ballPhysic = mPhysicsManager->createSphere(2.398);
+		assert(ballPhysic != NULL);
+		ballPhysic->setPosition(k::vector3(rand()%38, 16, rand()%38));
+		ballPhysic->attachDrawable(newModel);
 	}
 }
 
@@ -90,6 +103,12 @@ int main(int argc, char** argv)
 	k::materialManager* mMaterialManager = appRoot->getMaterialManager();
 	k::guiManager* mGuiManager = appRoot->getGuiManager();
 	k::inputManager* mInputManager = appRoot->getInputManager();
+
+	#ifndef __WII__
+	k::physicsManager* mPhysicsManager = new k::physicsManager(0.005);
+	#else
+	k::physicsManager* mPhysicsManager = new k::physicsManager(0.05);
+	#endif
 
 	assert(mRenderer != NULL);
 	assert(mRenderSystem != NULL);
@@ -117,15 +136,6 @@ int main(int argc, char** argv)
 
 	mMaterialManager->parseMaterialScript(matFile);
 
-	#ifdef __WII__
-	k::md5model* newModel = new k::md5model("/knowledge/soccer/soccer.md5mesh");
-	#else
-	k::md5model* newModel = new k::md5model("soccer.md5mesh");
-	#endif
-
-	assert(newModel != NULL);
-	mRenderer->push3D(newModel);
-
 	assert(mGuiManager != NULL);
 	mGuiManager->setCursor("wiiCursor", k::vector2(48, 48));
 
@@ -136,7 +146,6 @@ int main(int argc, char** argv)
 	assert(newPlane->mMaterial != NULL);
 	mRenderer->push3D(newPlane);
 	
-
 	/**
 	 * Setup the input Manager
 	 */
@@ -154,34 +163,14 @@ int main(int argc, char** argv)
 	mRenderer->setCamera(newCamera);
 
 	// Physics
-	dInitODE2(0);
-	dWorldID mWorldId;
-	dSpaceID mSpaceId;
-	dJointGroupID mJointId;
-	dGeomID mSphere, mPlane;
-	dBodyID mSphereBody;
-
-	mWorldId = dWorldCreate();
-	mSpaceId = dHashSpaceCreate(0);
-	dWorldSetGravity(mWorldId, 0, -9.78, 0);
-
-	// Joints
-	mJointId = dJointGroupCreate(0);
-	dJointGroupEmpty(mJointId);
-
-	// To be passed as argument to twoBodiesCollide
-	contactInfo_t* cInfo = new contactInfo_t;
-	assert(cInfo != NULL);
-
-	cInfo->worldId = mWorldId;
-	cInfo->jointId = mJointId;
+	mPhysicsManager->setGravity(k::vector3(0, -9.78, 0));
 
 	// Plane Stuff
 	const vec_t vertices[4][3] = { 
-		{20, 0, 20}, 
-		{-20, 0, 20}, 
-		{-20, 0, -20}, 
-		{20, 0, -20}
+		{40, 0, 40}, 
+		{-40, 0, 40}, 
+		{-40, 0, -40}, 
+		{40, 0, -40}
 	};
 
 	const vec_t normals[4][3] = {
@@ -196,23 +185,16 @@ int main(int argc, char** argv)
 		2, 0, 3 
 	};
 
-	dTriMeshDataID trimeshData;
-	trimeshData = dGeomTriMeshDataCreate();
-	dGeomTriMeshDataBuildSingle1(trimeshData, 
-			vertices, 3 * sizeof(vec_t), 4, 
-			indices, 6, 3 * sizeof(int),
-			normals);
-
-	mPlane = dCreateTriMesh(mSpaceId, trimeshData, NULL, NULL, NULL);
-
-	// Sphere
-	mSphere = dCreateSphere(mSpaceId, 2.398); // model radius
-	mSphereBody = dBodyCreate(mWorldId);
-	dGeomSetBody(mSphere, mSphereBody);
-	dGeomSetPosition(mSphere, 0, 30, 0);
+	// Plane
+	k::physicTriMesh* planePhysic = mPhysicsManager->createTriMesh(vertices, 4, indices, 6, normals);
+	assert(planePhysic != NULL);
+	planePhysic->attachDrawable(newPlane);
 
 	// Angles
 	bool running = true;
+	bool leftHold = false;
+	bool rightHold = false;
+
 	while (running)
 	{
 		mInputManager->feed();
@@ -227,30 +209,36 @@ int main(int argc, char** argv)
 			running = false;
 		}
 
+		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_A))
+		{
+			leftHold = true;
+		}
+		else
+		if (leftHold)
+		{
+			addRandomBox();
+			leftHold = false;
+		}
+
+		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_B))
+		{
+			rightHold = true;
+		}
+		else
+		if (rightHold)
+		{
+			addRandomSphere();
+			rightHold = false;
+		}
+
 		k::vector2 mousePos = mInputManager->getWiiMotePosition(0);
 		mGuiManager->setCursorPos(mousePos);
 
-		const dReal* modelPos = dBodyGetPosition(mSphereBody);
-		const dReal* modelOri = dBodyGetQuaternion(mSphereBody);
-
-		newModel->setPosition(k::vector3(modelPos[0], modelPos[1], modelPos[2]));
-		newModel->setOrientation(k::quaternion(modelOri[1], modelOri[2], modelOri[3], modelOri[0]));
-
-		const dReal* planePos = dGeomGetPosition(mPlane);
-		newPlane->setPosition(k::vector3(planePos[0], planePos[1], planePos[2]));
-	
 		mRenderer->draw();
 
 		// Physics Loop
-		dSpaceCollide(mSpaceId, cInfo, twoBodiesCollide);
-
-		#ifdef __WII__
-		dWorldQuickStep(mWorldId, 0.05);
-		#else
-		dWorldQuickStep(mWorldId, 0.005);
-		#endif
-
-		dJointGroupEmpty(mJointId);
+		mPhysicsManager->collideActiveSpace();
+		mPhysicsManager->cycle();
 	}
 
 	delete appRoot;

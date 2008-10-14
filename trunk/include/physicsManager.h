@@ -28,9 +28,13 @@
 
 #define ATTACH_POSITION (1 << 0)
 #define ATTACH_ORIENTATION (1 << 1)
+#define ATTACH_ALL (ATTACH_POSITION | ATTACH_ORIENTATION)
 
 namespace k
 {
+	typedef void(*mCallFunc_t)(void*, dGeomID,dGeomID);
+	void defaultCollision(void*, dGeomID, dGeomID);
+
 	/**
 	 * A physic representation of some object - base class.
 	 */
@@ -57,12 +61,12 @@ namespace k
 			dGeomID mGeom;
 
 		public:
-			void attachDrawable(drawable3D* att)
+			void attachDrawable(drawable3D* att, char attachParams = ATTACH_ALL)
 			{
 				assert(att != NULL);
 
 				mAttached = att;
-				mAttachedParams = 0;
+				mAttachedParams = attachParams;
 			}
 
 			void detachDrawable()
@@ -81,18 +85,18 @@ namespace k
 				return mGeom;
 			}
 
-			vector3 getPosition()
+			virtual vector3 getPosition()
 			{
 				const dReal* pos = dGeomGetPosition(mGeom);
 				return vector3(pos[0], pos[1], pos[2]);
 			}
 
-			void setPosition(vector3 pos)
+			virtual void setPosition(vector3 pos)
 			{
 				dGeomSetPosition(mGeom, pos.x, pos.y, pos.z);
 			}
 
-			quaternion getOrientation()
+			virtual quaternion getOrientation()
 			{
 				dQuaternion rot;
 				dGeomGetQuaternion(mGeom, rot);
@@ -100,7 +104,7 @@ namespace k
 				return quaternion(rot[1], rot[2], rot[3], rot[0]);
 			}
 
-			void setOrientation(quaternion ori)
+			virtual void setOrientation(quaternion ori)
 			{
 				dQuaternion rot;
 				rot[0] = ori.w;
@@ -133,6 +137,38 @@ namespace k
 			physicSphere(dWorldID wId, dSpaceID sId, vec_t radius);
 			~physicSphere();
 	};
+
+	class physicBox : public physicObject
+	{
+		private:
+			dBodyID mBody;
+
+		public:
+			physicBox(dWorldID wId, dSpaceID sId, vector3 length);
+			~physicBox();
+	};
+
+	class physicTriMesh : public physicObject
+	{
+		public:
+			physicTriMesh(dSpaceID sId, const void* vertices, unsigned int numVertices,
+					const void* indices, unsigned int numIndices, const void* normals = NULL);
+
+			physicTriMesh(dSpaceID sId, drawable3D* mesh);
+			~physicTriMesh();
+	};
+
+	typedef enum
+	{
+		STEPTYPE_NORMAL,
+		STEPTYPE_QUICK
+	} stepType_t;
+
+	typedef enum
+	{
+		SPACETYPE_SIMPLE,
+		SPACETYPE_HASH
+	} spaceType_t;
 
 	class physicsManager : public singleton<physicsManager>
 	{
@@ -167,12 +203,37 @@ namespace k
 			 */
 			dSpaceID mActiveSpace;
 
+			/**
+			 * Internal, Active joint group
+			 */
+			dJointGroupID mActiveJointGroup;
+
+			/**
+			 * Fixed Step size
+			 */
+			vec_t mStepSize;
+			stepType_t mStepType;
+
+			/**
+			 * The general collision function is just a
+			 * function that handle collision bouncing.
+			 * The params for the collision, like mu, bounce,
+			 * bounce_vel and slip can all be specified in a 
+			 * call to the setCollisionParameters function.
+			 */
+			dSurfaceParameters mSurfaceParams;
+
+			/**
+			 * All allocated geometries
+			 */
+			std::list<physicObject*> mPhysicObjects;
+
 		public:
 			/**
 			 * Creates a base world and space each named "default"
 			 * The space is a simple space.
 			 */
-			physicsManager();
+			physicsManager(vec_t stepsize, stepType_t steptype = STEPTYPE_QUICK);
 			~physicsManager();
 
 			static physicsManager& getSingleton();
@@ -184,6 +245,10 @@ namespace k
 			 * @name The name of the new world.
 			 */
 			void setWorld(const std::string& name);
+
+			/**
+			 * Set the active world gravity
+			 */
 			void setGravity(vector3 grav);
 
 			/**
@@ -192,13 +257,83 @@ namespace k
 			 *
 			 * @name The name of the new space.
 			 */
-			void setSpace(const std::string& name);
+			void setSpace(const std::string& name, spaceType_t type = SPACETYPE_SIMPLE);
 
 			/**
-			 * Creates a new joint group.
+			 * Creates a new joint group and set it as 
+			 * the default joint group.
 			 * @name The name of the new joint group.
 			 */
-			void createJointGroup(const std::string& name);
+			void setJointGroup(const std::string& name);
+
+			/**
+			 * Call collisions on active space.
+			 * @func The function to call when the collision happens.
+			 */
+			void collideActiveSpace(mCallFunc_t func = defaultCollision);
+
+			/**
+			 * Call collisions on all defined spaces.
+			 * This function is really not suggested, since if the
+			 * user is specifying lots of spaces it should control
+			 * then individually, anyway, it exists for testing
+			 * purposes.
+			 *
+			 * @func The function to call when the collision happens.
+			 */
+			void collideAllSpaces(mCallFunc_t func = defaultCollision);
+
+			/**
+			 * Step the integrator.
+			 */
+			void cycle();
+
+			/**
+			 * Get SurfaceParameters for collision
+			 */
+			dSurfaceParameters getParams();
+
+			/**
+			 * Find the active world id
+			 */
+			dWorldID getActiveWorld();
+			
+			/**
+			 * Find the active space id
+			 */
+			dSpaceID getActiveSpace();
+
+			/** 
+			 * Find the active joint group
+			 */
+			dJointGroupID getActiveJointGroup();
+
+			/**
+			 * Find a world already created. 
+			 * @return NULL if not found, otherwise returns the world id
+			 */
+			dWorldID _findWorld(const std::string& name);
+
+			/**
+			 * Find a space already created. 
+			 * @return NULL if not found, otherwise returns the space id
+			 */
+			dSpaceID _findSpace(const std::string& name);
+
+			/**
+			 * Find a jointgroup already created. 
+			 * @return NULL if not found, otherwise returns the jointgroup id
+			 */
+			dJointGroupID _findJointGroup(const std::string& name);
+
+			//
+			// GEOMETRIES
+			//
+			physicSphere* createSphere(vec_t radius);
+			physicBox* createBox(vector3 length);
+			physicTriMesh* createTriMesh(drawable3D* mesh);
+			physicTriMesh* createTriMesh(const void* vertices, unsigned int numVertices, 
+					const void* indices, unsigned int numIndices, const void* normals);
 	};
 }
 

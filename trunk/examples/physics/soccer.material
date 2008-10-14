@@ -11,6 +11,20 @@ material soccerBall
 	}
 }
 
+material box
+{
+	ambient 1 1 1
+	diffuse 1 1 1
+	specular 1 1 1 
+	
+	texture
+	{
+		filename box.png
+		texcoord uv
+	}
+}
+
+
 material odePlane
 {
 	texture
@@ -20,4 +34,5 @@ material odePlane
 		blendfunc blend
 	}
 }
+
 
