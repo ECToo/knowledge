@@ -66,7 +66,7 @@ void addRandomBox()
 		// Box
 		k::physicBox* boxPhysic = mPhysicsManager->createBox(k::vector3(8, 8, 8));
 		assert(boxPhysic != NULL);
-		boxPhysic->setPosition(k::vector3(rand()%38, 20, rand()%38));
+		boxPhysic->setPosition(k::vector3(rand()%38 - 20, 20, rand()%38 - 20));
 		boxPhysic->attachDrawable(newBoxModel);
 	}
 }
@@ -89,7 +89,7 @@ void addRandomSphere()
 		// Sphere
 		k::physicSphere* ballPhysic = mPhysicsManager->createSphere(2.398);
 		assert(ballPhysic != NULL);
-		ballPhysic->setPosition(k::vector3(rand()%38, 16, rand()%38));
+		ballPhysic->setPosition(k::vector3(rand()%38 - 20, 16, rand()%38 - 20));
 		ballPhysic->attachDrawable(newModel);
 	}
 }
