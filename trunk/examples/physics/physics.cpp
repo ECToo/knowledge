@@ -139,6 +139,11 @@ int main(int argc, char** argv)
 	assert(mGuiManager != NULL);
 	mGuiManager->setCursor("wiiCursor", k::vector2(48, 48));
 
+	k::sticker* odeLogo = new k::sticker("odeLogo");
+	odeLogo->setScale(k::vector2(128, 128));
+	odeLogo->setPosition(k::vector2(10, 10));
+	mRenderer->push2D(odeLogo);
+
 	// Make The plane
 	kPlane* newPlane = new kPlane();
 	assert(newPlane != NULL);

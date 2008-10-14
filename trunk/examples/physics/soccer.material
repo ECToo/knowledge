@@ -24,6 +24,15 @@ material box
 	}
 }
 
+material odeLogo
+{
+	texture
+	{
+		filename ode_logo.png
+		texcoord uv
+		blendfunc srcalpha invsrcalpha
+	}
+}
 
 material odePlane
 {
@@ -31,7 +40,7 @@ material odePlane
 	{
 		filename ode_plane.png
 		texcoord uv
-		blendfunc blend
+		blendfunc srcalpha invsrcalpha
 	}
 }
 
