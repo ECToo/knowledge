@@ -47,7 +47,7 @@ physicsManager::physicsManager(vec_t stepsize, stepType_t steptype)
 	memset(&mSurfaceParams, 0, sizeof(dSurfaceParameters));
 	mSurfaceParams.mode = dContactBounce;
 	mSurfaceParams.mu = dInfinity;
-	mSurfaceParams.bounce = 0.2;
+	mSurfaceParams.bounce = 0.3;
 	mSurfaceParams.bounce_vel = 0.15;
 	mSurfaceParams.slip1 = 0.0;
 

@@ -436,7 +436,7 @@ void wiiRenderSystem::identityMatrix()
 	}
 }
 
-void wiiRenderSystem::copyMatrix(Mtx44 matrix)
+void wiiRenderSystem::copyMatrix(f32 matrix[][4])
 {
 	switch (mActiveMatrix)
 	{

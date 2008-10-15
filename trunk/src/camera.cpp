@@ -47,14 +47,40 @@ void camera::lookAt(vector3 pos)
 void camera::setView()
 {
 	matrix4 mRotation = mOrientation.toMatrix();
-	matrix4 mTranslation;
+
+	#ifndef __WII__
 
 	// Multiply by 2 because of the lookAt translation + object inverse translation
+	matrix4 mTranslation;
 	mTranslation.m[3][0] = -mPosition.x * 2;
 	mTranslation.m[3][1] = -mPosition.y * 2;
 	mTranslation.m[3][2] = -mPosition.z * 2;
-
 	mFinal = mTranslation * mRotation;
+
+	#else
+
+	vector3 look(mRotation.m[0][2], mRotation.m[1][2], mRotation.m[2][2]);
+	vector3 up(mRotation.m[0][1], mRotation.m[1][1], mRotation.m[2][1]);
+	vector3 right(mRotation.m[0][0], mRotation.m[1][0], mRotation.m[2][0]);
+
+	mRotation.m[0][0] = right.x;
+	mRotation.m[0][1] = right.y;
+	mRotation.m[0][2] = right.z;
+
+	mRotation.m[1][0] = up.x;
+	mRotation.m[1][1] = up.y;
+	mRotation.m[1][2] = up.z;
+
+	mRotation.m[2][0] = look.x;
+	mRotation.m[2][1] = look.y;
+	mRotation.m[2][2] = look.z;
+
+	mRotation.m[0][3] = - 2 * (right.dotProduct(mPosition));
+	mRotation.m[1][3] = - 2 * (up.dotProduct(mPosition));
+	mRotation.m[2][3] = - 2 * (look.dotProduct(mPosition));
+
+	mFinal = mRotation;
+	#endif
 }
 
 void camera::copyView()
