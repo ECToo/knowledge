@@ -24,7 +24,10 @@
 #include "drawable.h"
 #include "quaternion.h"
 #include "singleton.h"
-#include "ode_k/ode.h"
+
+#ifndef __WII__
+#include <ode/ode.h>
+#endif
 
 #define ATTACH_POSITION (1 << 0)
 #define ATTACH_ORIENTATION (1 << 1)
