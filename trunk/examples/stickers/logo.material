@@ -1,0 +1,16 @@
+material logo
+{
+	ambient 1 1 1
+	diffuse 1 1 1
+	specular 1 1 1 
+	
+	texture
+	{
+		filename logo.png
+		texcoords uv
+		scroll 0 0 
+		rotate 0
+	}
+}
+
+

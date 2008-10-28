@@ -1,0 +1,18 @@
+// Crate, multitextured
+material crate
+{
+	texture
+	{
+		filename crate.png
+		texcoord uv
+	}
+	
+	texture
+	{
+		filename crate_skull.png
+		texcoord uv
+		program decal
+		blendfunc srcalpha invsrcalpha
+	}
+}
+
