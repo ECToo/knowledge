@@ -238,6 +238,11 @@ class md5model : public drawable3D
 		 */
 		void setAnimationFrame(unsigned int frameNum);
 
+		/**
+		 * Get one md5mesh from an index.
+		 */
+		md5mesh* getMesh(unsigned int index);
+
 		void draw();
 };
 

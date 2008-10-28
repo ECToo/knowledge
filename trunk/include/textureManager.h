@@ -46,8 +46,8 @@ namespace k
 			#ifndef __WII__
 			ILuint* getTexture(const std::string& filename);
 			#else	
-			texture* createTexturePNG(const std::string& filename);
-			texture* createTextureJPG(const std::string& filename);
+			texture* createTexturePNG(const std::string& filename, unsigned short index);
+			texture* createTextureJPG(const std::string& filename, unsigned short index);
 
 			wiiTexture* getTexture(const std::string& filename);
 			#endif
@@ -58,7 +58,7 @@ namespace k
 
 			static textureManager& getSingleton();
 
-			texture* createTexture(const std::string& filename);
+			texture* createTexture(const std::string& filename, unsigned short index);
 	};
 }
 

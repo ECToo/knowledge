@@ -69,7 +69,8 @@ namespace k
 			 * support multi textures neither
 			 * multi pass for rendering yet.
 			 */
-			void end(Mtx& mModelViewMatrix, GXTexObj* mActiveTexture);
+			void end(Mtx& mModelViewMatrix, std::map<int, GXTexObj*>* mActiveTextures,
+					material* mat);
 
 			void pushVertex(const vector3& vec);
 			void pushNormal(const vector3& vec);
@@ -143,7 +144,7 @@ namespace k
 			/**
 			 * Active texture unit, if any
 			 */
-			GXTexObj* mActiveTexture;
+			std::map<int, GXTexObj*> mActiveTextures;
 
 		public:
 			wiiRenderSystem();
@@ -192,7 +193,7 @@ namespace k
 			void matDiffuse(const vector3& color);
 			void matSpecular(const vector3& color);
 
-			void bindTexture(GXTexObj* tex);
+			void bindTexture(GXTexObj* tex, int chan);
 
 			void setBlendMode(unsigned short src, unsigned short dst);
 			void setBlend(bool state);

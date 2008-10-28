@@ -65,6 +65,9 @@ namespace k
 			{
 				assert(att != NULL);
 
+				att->setPosition(getPosition());
+				att->setOrientation(getOrientation());
+
 				mAttached = att;
 				mAttachedParams = attachParams;
 			}

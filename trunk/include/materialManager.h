@@ -22,6 +22,7 @@
 #include "fileAccess.h"
 #include "singleton.h"
 #include "material.h"
+#include "tev.h"
 
 namespace k
 {
@@ -29,6 +30,10 @@ namespace k
 	{
 		private:
 			std::map<std::string, material*> mMaterials;
+
+			#ifdef __WII__
+			tevManager* mTev;
+			#endif
 
 		public:
 			materialManager();
@@ -40,7 +45,7 @@ namespace k
 			material* getMaterial(const std::string& name);
 			void destroyMaterial(const std::string& name);
 
-			void parseTextureSection(material* mat, parsingFile* file);
+			void parseTextureSection(material* mat, parsingFile* file, unsigned short index);
 			void parseMaterialScript(parsingFile* file);
 			void parseMaterial(material* mat, parsingFile* file);
 	};

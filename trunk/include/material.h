@@ -21,6 +21,7 @@
 #include "prerequisites.h"
 #include "vector3.h"
 #include "texture.h"
+#include "tev.h"
 
 namespace k
 {
@@ -31,15 +32,25 @@ namespace k
 			vector3 mDiffuse;
 			vector3 mSpecular;
 
+			unsigned int mTextureUnits;
+
 			std::list<texture*> mTextures;
 
 		public:
+			material()
+			{
+				mTextureUnits = 0;
+			}
+
 			void setAmbient(const vector3& color);
 			void setDiffuse(const vector3& color);
 			void setSpecular(const vector3& color);
 
+			void setTextureUnits(unsigned int tex);
 			void pushTexture(texture* tex);
 			void prepare();
+
+			unsigned int getTextureUnits();
 	};
 }
 

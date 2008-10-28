@@ -35,7 +35,37 @@ namespace k
 			vector3 mPosition;
 			quaternion mOrientation;
 
+			/**
+			 * Camera field of view.
+			 * This is the angle of aperture the camera can see from
+			 * its position into the view direction. The default value
+			 * for this is 90.
+			 */
+			unsigned int mFov;
+
+			/**
+			 * The aspect ratio for the view perspective.
+			 * The default value for this is 1.33 (4:3)
+			 */
+			vec_t mAspectRatio;
+
+			/**
+			 * The Distance of the near plane of camera.
+			 * The default distance is 0.1
+			 */
+			vec_t mNearPlane;
+
+			/**
+			 * The distance of the far plane of camera.
+			 * This is the value of the most far position
+			 * of an object the camera can see from its position.
+			 * The default is 1000.
+			 */
+			vec_t mFarPlane;
+
 		public:
+			camera();
+
 			// Copy the camera matrix to the current
 			// modelview matrix. Needs to be called
 			// before drawing each object.
@@ -43,6 +73,40 @@ namespace k
 
 			// Apply the modelview matrix to the scene
 			void setView();
+
+			/**
+			 * Set camera Field of View
+			 * @see mFov
+			 */
+			void setFov(unsigned int fov);
+
+			/**
+			 * Set the camera aspect ratio
+			 * @see mAspectRatio
+			 */
+			void setAspectRatio(vec_t ar);
+
+			/**
+			 * Set camera planes.
+			 * @see mNearPlane
+			 * @see mFarPlane
+			 */
+			void setPlanes(vec_t near, vec_t far);
+
+			/**
+			 * Set camera perspective projection parameters.
+			 * @see mFov
+			 * @see mAspectRatio
+			 * @see mNearPlane
+			 * @see mFarPlane
+			 */
+			void setPerspective(unsigned int fov, vec_t ar, vec_t near, vec_t far);
+
+			/**
+			 * Called from the renderer to apply the camera
+			 * perspective settings to the scene.
+			 */
+			void setPerspective();
 
 			// Look at the vector dest
 			void lookAt(vector3 dest);

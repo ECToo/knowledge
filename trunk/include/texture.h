@@ -20,14 +20,18 @@
 
 #include "prerequisites.h"
 #include "vector2.h"
+#include "tev.h"
 
 namespace k
 {
 	enum texCoordType 
 	{
-		// TODO: More of these
 		TEXCOORD_NONE,
-		TEXCOORD_UV
+		TEXCOORD_UV,
+		TEXCOORD_POS,
+		TEXCOORD_NORMAL,
+		TEXCOORD_BINORMAL,
+		TEXCOORD_TANGENT
 	};
 
 	class texture 
@@ -41,12 +45,18 @@ namespace k
 			/**
 			 * Amount to rotate per frame in degrees
 			 */
+			vec_t	mAngle;
 			vec_t mRotate;
 
 			/**
 			 * How texture coordinates are defined for this texture
 			 */
 			texCoordType mTexCoordType;
+
+			/**
+			 * The texture index in multi texturing
+			 */
+			unsigned short mIndex;
 
 			/**
 			 * Internals of the texture file
@@ -60,18 +70,26 @@ namespace k
 			 */
 			unsigned short mBlendSrc, mBlendDst;
 
+			/**
+			 * Tev unit or GLSL program for use on this texture stage. If this field is blank
+			 * the default REPLACE stage is going to be used.
+			 */
+			std::string mProgram;
+
 			#ifdef __WII__
+				Mtx mTransRotate;
 				GXTexObj* mTextureId;
 			#else
+				vector2 mScrolled;
 				GLuint mTextureId;
 				ILuint* mDevilTextureId;
 			#endif
 
 		public:
 			#ifndef __WII__
-			texture(ILuint* src, unsigned int width, unsigned int height);
+			texture(ILuint* src, unsigned int width, unsigned int height, unsigned short index);
 			#else
-			texture(GXTexObj* src, unsigned int width, unsigned int height);
+			texture(GXTexObj* src, unsigned int width, unsigned int height, unsigned short index);
 			#endif
 
 			#ifndef __WII__
@@ -80,9 +98,10 @@ namespace k
 			GXTexObj* getTextureId();
 			#endif
 
+			void setProgram(const std::string& name);
 			void setTexCoordType(texCoordType type);
 			void setBlendMode(unsigned short src, unsigned short dst);
-			void setScroll(vector2& scroll);
+			void setScroll(vector2 scroll);
 			void setRotate(vec_t angle);
 			void draw();
 

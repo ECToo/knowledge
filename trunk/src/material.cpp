@@ -17,6 +17,7 @@
 
 #include "material.h"
 #include "root.h"
+#include "logger.h"
 
 namespace k {
 
@@ -26,9 +27,27 @@ void material::prepare()
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	assert(rs != NULL);
 
+	rs->bindMaterial(this);
 	rs->matAmbient(mAmbient);
 	rs->matDiffuse(mDiffuse);
 	rs->matSpecular(mSpecular);
+
+	// Color/Light Only
+	#ifdef __WII__
+	if (!mTextureUnits)
+	{
+		GX_SetNumTevStages(1);
+		GX_SetNumChans(0);
+		GX_SetNumTexGens(0);
+		GX_SetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+	}
+	else
+	{
+		GX_SetNumChans(1);
+		GX_SetNumTevStages(mTextureUnits);
+		GX_SetNumTexGens(mTextureUnits);
+	}
+	#endif
 
 	// Cycle through textures
 	std::list<texture*>::iterator it;
@@ -39,6 +58,16 @@ void material::prepare()
 		
 		tex->draw();
 	}
+}
+			
+unsigned int material::getTextureUnits()
+{
+	return mTextureUnits;
+}
+			
+void material::setTextureUnits(unsigned int tex)
+{
+	mTextureUnits = tex;
 }
 			
 void material::setAmbient(const vector3& color)

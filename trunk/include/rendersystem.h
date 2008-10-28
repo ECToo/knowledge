@@ -22,6 +22,8 @@
 #include "vector2.h"
 #include "vector3.h"
 #include "quaternion.h"
+#include "material.h"
+#include "logger.h"
 
 namespace k 
 {
@@ -65,6 +67,8 @@ namespace k
 
 			unsigned int mIndexCount;
 			index_t* mIndexArray;
+
+			material* mActiveMaterial;
 
 		public:
 			
@@ -119,10 +123,16 @@ namespace k
 			virtual void matDiffuse(const vector3& diffuse) = 0;
 			virtual void matSpecular(const vector3& specular) = 0;
 
+			void bindMaterial(material* mat)
+			{
+				assert(mat != NULL);
+				mActiveMaterial = mat;
+			}
+
 			#ifndef __WII__
-			virtual void bindTexture(GLuint tex) = 0;
+			virtual void bindTexture(GLuint tex, int chan) = 0;
 			#else
-			virtual void bindTexture(GXTexObj* tex) = 0;
+			virtual void bindTexture(GXTexObj* tex, int chan) = 0;
 			#endif
 
 			virtual void setBlendMode(unsigned short src, unsigned short dst) = 0;

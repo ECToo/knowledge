@@ -76,7 +76,7 @@ namespace k
 			void matDiffuse(const vector3& color);
 			void matSpecular(const vector3& color);
 
-			void bindTexture(GLuint tex);
+			void bindTexture(GLuint tex, int chan);
 
 			void setBlendMode(unsigned short src, unsigned short dst);
 			void setBlend(bool state);
