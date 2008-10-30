@@ -74,7 +74,7 @@ namespace k
 				vector2 tempVec(x - newVec.x , y - newVec.y);
 				return tempVec;				
 			}
-			
+
 			vector2 operator * (const vec_t scalar)
 			{
 				vector2 tempVec(x * scalar, y * scalar);
@@ -104,6 +104,11 @@ namespace k
 			bool operator == (const vector2 &newVec)
 			{
 				return ((x == newVec.x) && (y == newVec.y));
+			}
+
+			bool operator != (const vector2 &newVec)
+			{
+				return !((x == newVec.x) && (y == newVec.y));
 			}
 			
 			/**

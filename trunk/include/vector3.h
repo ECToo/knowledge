@@ -178,6 +178,15 @@ namespace k
 						);
 			}
 
+			bool operator != (const vector3& newVec)
+			{
+				return !(
+						x == newVec.x && 
+						y == newVec.y &&
+						z == newVec.z
+						);
+			}
+
 			void negate()
 			{
 				x = -x;

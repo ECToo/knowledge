@@ -33,6 +33,7 @@ renderer::renderer()
 {
 	m3DObjects.clear();
 	m2DObjects.clear();
+	mSprites.clear();
 
 	mActiveCamera = NULL;
 }
@@ -55,6 +56,45 @@ unsigned int renderer::getFps()
 unsigned int renderer::getLastFps()
 {
 	return mLastFps;
+}
+
+sprite* renderer::createSprite(vec_t radi, material* mat)
+{
+	assert(mat != NULL);
+
+	sprite* newSpr = new sprite(mat, radi);
+	if (newSpr)
+	{
+		mSprites.push_back(newSpr);
+		return newSpr;
+	}
+	else
+	{
+		S_LOG_INFO("Failed to allocate sprite.");
+	}
+}
+
+void renderer::fullRemoveSprite(sprite* spr)
+{
+	removeSprite(spr);
+	delete spr;
+}
+
+void renderer::removeSprite(sprite* spr)
+{
+	assert(spr != NULL);
+	std::list<sprite*>::iterator it;
+	for (it = mSprites.begin(); it != mSprites.end(); )
+	{
+		if (spr == (*it))
+		{
+			mSprites.erase(it);
+			return;
+		}
+		else ++it;
+	}
+
+	S_LOG_INFO("Failed to remove sprite.");
 }
 
 void renderer::push3D(drawable3D* object)
@@ -120,6 +160,16 @@ void renderer::draw()
 	if (mActiveCamera)
 	{
 		mActiveCamera->setPerspective();
+
+		if (mActiveCamera->getPosition() != mLastCameraPos)
+		{
+			// Invalidate all Sprite positions
+			std::list<sprite*>::const_iterator it;
+			for (it = mSprites.begin(); it != mSprites.end(); it++)
+			{
+				(*it)->invalidate();
+			}
+		}
 	}
 	else
 	{
@@ -150,6 +200,25 @@ void renderer::draw()
 		}
 
 		obj->draw();
+	}
+
+	std::list<sprite*>::const_iterator it;
+	for (it = mSprites.begin(); it != mSprites.end(); it++)
+	{
+		sprite* spr = (*it);
+		assert(spr != NULL);
+
+		if (!mActiveCamera)
+		{
+			rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+			rs->identityMatrix();
+		}
+		else
+		{
+			mActiveCamera->copyView();
+		}
+
+		spr->draw();
 	}
 
 	/**
@@ -201,6 +270,13 @@ void renderer::setCamera(camera* cam)
 {
 	assert(cam != NULL);
 	mActiveCamera = cam;
+
+	mLastCameraPos = cam->getPosition();
+}
+
+camera* renderer::getCamera()
+{
+	return mActiveCamera;
 }
 
 }

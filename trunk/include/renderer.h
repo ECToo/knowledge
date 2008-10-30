@@ -23,6 +23,7 @@
 #include "singleton.h"
 #include "rendersystem.h"
 #include "camera.h"
+#include "sprite.h"
 #include "timer.h"
 
 namespace k
@@ -32,7 +33,16 @@ namespace k
 		private:
 			std::list<drawable3D*> m3DObjects;
 			std::list<drawable2D*> m2DObjects;
+			std::list<sprite*> mSprites;
+
 			camera* mActiveCamera;
+
+			/**
+			 * If this vecto changes, notify
+			 * all sprites that their orientations
+			 * are invalid.
+			 */
+			vector3 mLastCameraPos;
 
 			/**
 			 * Keep a timer to calculate FPS
@@ -56,6 +66,26 @@ namespace k
 
 			void draw();
 
+			/**
+			 * Create a sprite within this renderer
+			 */
+			sprite* createSprite(vec_t radi, material* mat);
+
+			/**
+			 * Remove the sprite from the renderer.
+			 * Keep in mind that this wont clear
+			 * the sprite pointer. If you want to do
+			 * this use the fullRemoveSprite function.
+			 */
+			void removeSprite(sprite* spr);
+
+			/**
+			 * Remove the sprite from the renderer cleaning
+			 * its pointer (freeing the memory)
+			 */
+			void fullRemoveSprite(sprite* spr);
+
+			camera* getCamera();
 			void setCamera(camera* cam);
 
 			// Fps Counter
