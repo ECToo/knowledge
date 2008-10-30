@@ -462,6 +462,22 @@ void wiiRenderSystem::copyMatrix(f32 matrix[][4])
 	}
 }
 
+void wiiRenderSystem::multMatrix(f32 matrix[][4])
+{
+	switch (mActiveMatrix)
+	{
+		case MATRIXMODE_PROJECTION:
+			guMtxConcat(mProjectionMatrix, matrix, mProjectionMatrix);
+			break;
+		case MATRIXMODE_MODELVIEW:
+			guMtxConcat(mModelViewMatrix, matrix, mModelViewMatrix);
+			break;
+		default:
+			S_LOG_INFO("Invalid matrix mode");
+			break;
+	}
+}
+
 void wiiRenderSystem::translateScene(vec_t x, vec_t y, vec_t z)
 {
 	if (!x && !y && !z)

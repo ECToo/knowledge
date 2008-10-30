@@ -1,0 +1,10 @@
+material poison
+{
+	texture
+	{
+		filename poison.png
+		texcoord uv
+		blendfunc srcalpha invsrcalpha
+	}
+}
+

@@ -180,6 +180,12 @@ void glRenderSystem::identityMatrix()
 	glLoadIdentity();
 }
 			
+void glRenderSystem::multMatrix(vec_t* matrix)
+{
+	assert(matrix != NULL);
+	glMultMatrixf(matrix);
+}
+
 void glRenderSystem::copyMatrix(vec_t* matrix)
 {
 	assert(matrix != NULL);
