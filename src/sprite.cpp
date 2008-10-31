@@ -40,6 +40,9 @@ sprite::~sprite()
 
 void sprite::calculateTransPos()
 {
+	if (GLEW_ARB_point_sprite)
+		return;
+
 	// Render must be valid
 	renderer* mRenderer = root::getSingleton().getRenderer();
 	assert(mRenderer != NULL);
@@ -117,6 +120,14 @@ void sprite::setMaterial(material* mat)
 
 void sprite::setRadius(vec_t rad)
 {
+	if (GLEW_ARB_point_sprite)
+	{
+		float maxSize = 0.0f;
+		glGetFloatv(GL_POINT_SIZE_MAX_ARB, &maxSize);
+		if (rad > maxSize)
+			S_LOG_INFO("Radius is greater than supported sprite point size.");
+	}
+
 	mRadius = rad;
 }
 
@@ -125,16 +136,46 @@ void sprite::invalidate()
 	mInvalidTransPos = true;
 }
 
+static GLfloat distanceAtt[] = {1, 0, 0.5f};
 void sprite::draw()
 {
 	if (mRadius == 0)
 		return;
 
-	if (mInvalidTransPos)
-		calculateTransPos();
-
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	assert(rs != NULL);
+
+	if (GLEW_ARB_point_sprite)
+	{
+		rs->setDepthMask(false);
+		glEnable(GL_POINT_SPRITE);
+
+		assert(mMaterial != NULL);
+		mMaterial->prepare();
+
+		float maxSize = 0.0f;
+		glGetFloatv(GL_POINT_SIZE_MAX_ARB, &maxSize);
+
+		glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
+		glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, distanceAtt);
+		glPointParameterf(GL_POINT_FADE_THRESHOLD_SIZE, 60.0f);
+		glPointParameterf(GL_POINT_SIZE_MIN, 1.0f);
+		glPointParameterf(GL_POINT_SIZE_MAX, maxSize);
+		glPointSize(mRadius*rs->getScreenHeight());
+
+		glBegin(GL_POINTS);
+			glVertex3f(mPosition.x, mPosition.y, mPosition.z);
+		glEnd();
+
+		mMaterial->finish();
+		glDisable(GL_POINT_SPRITE);
+		rs->setDepthMask(true);
+
+		return;
+	}
+
+	if (mInvalidTransPos)
+		calculateTransPos();
 
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 

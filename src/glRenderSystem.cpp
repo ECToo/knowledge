@@ -83,6 +83,13 @@ void glRenderSystem::createWindow(const int w, const int h)
 
 	setMatrixMode(MATRIXMODE_MODELVIEW);
 	identityMatrix();
+
+	// Glew initialization
+	GLenum err = glewInit();
+	if (err != GLEW_OK)
+	{
+		S_LOG_INFO("Failed to initialize GLEW.");
+	}
 }
 
 void glRenderSystem::setBlendMode(unsigned short src, unsigned short dst)

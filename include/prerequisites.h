@@ -34,6 +34,7 @@
 // Platform dependent includes
 #ifndef __WII__
 	// OpenGL
+	#include <GL/glew.h>
 	#include <GL/gl.h>
 	#include <GL/glu.h>
 
