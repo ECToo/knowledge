@@ -97,6 +97,11 @@ void glRenderSystem::setBlend(bool state)
 	else
 		glDisable(GL_BLEND);
 }
+			
+void glRenderSystem::setDepthMask(bool mask)
+{
+	glDepthMask(mask);
+}
 
 void glRenderSystem::destroyWindow()
 {
@@ -292,13 +297,18 @@ void glRenderSystem::texCoord(const vector2& coord)
 	}
 	else
 	{
-		glTexCoord2f(coord.x, coord.y);
+		glMultiTexCoord2fARB(GL_TEXTURE0_ARB, coord.x, coord.y);
 	}
 }
 
 void glRenderSystem::endVertices()
 {
 	glEnd();
+
+	if (glIsEnabled(GL_TEXTURE_GEN_S))
+		glDisable(GL_TEXTURE_GEN_S);
+	if (glIsEnabled(GL_TEXTURE_GEN_T))
+		glDisable(GL_TEXTURE_GEN_T);
 }
 
 void glRenderSystem::matAmbient(const vector3& color)
@@ -341,6 +351,7 @@ void glRenderSystem::bindTexture(GLuint tex, int chan)
 {
 	glClientActiveTextureARB(GL_TEXTURE0_ARB + chan);
 	glActiveTextureARB(GL_TEXTURE0_ARB + chan);
+
 	glBindTexture(GL_TEXTURE_2D, tex);
 	glEnable(GL_TEXTURE_2D);
 }
@@ -398,16 +409,16 @@ void glRenderSystem::drawArrays()
 		{
 			glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
 			glActiveTextureARB(GL_TEXTURE0_ARB + i);
+
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 	}
 	else
 	{
 		glClientActiveTextureARB(GL_TEXTURE0_ARB);
 		glActiveTextureARB(GL_TEXTURE0_ARB);
+
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 }
 

@@ -1,1 +1,1 @@
-SUBDIRS = model stickers nehe5 texture physics lightmap particles
+SUBDIRS = model stickers texture physics lightmap particles

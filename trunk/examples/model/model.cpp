@@ -99,7 +99,7 @@ int main(int argc, char** argv)
 	int lastY = 0;
 	int dX = 0;
 	int dY = 0;
-	unsigned int frame = 0;
+	vec_t frame = 0;
 
 	bool running = true;
 	while (running)
@@ -178,7 +178,13 @@ int main(int argc, char** argv)
 
 		newModel->setPosition(modelPosition);
 		newModel->setOrientation(modelQuat);
+
+		#ifdef __WII__
 		newModel->setAnimationFrame((frame++)/2);
+		#else
+		newModel->setAnimationFrame((frame)/2);
+		frame += 0.1;
+		#endif
 		
 		mRenderer->draw();
 	}

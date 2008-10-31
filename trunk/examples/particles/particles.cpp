@@ -78,7 +78,9 @@ int main(int argc, char** argv)
 
 	// Sprite
 	k::vector3 sprPos;
-	k::sprite* newSpr = mRenderer->createSprite(10, mMaterialManager->getMaterial("poison"));
+	k::sprite* newSpr = mRenderer->createSprite(2, mMaterialManager->getMaterial("poison"));
+	assert(newSpr != NULL);
+	k::sprite* newSpr2 = mRenderer->createSprite(2, mMaterialManager->getMaterial("poison"));
 	assert(newSpr != NULL);
 
 	bool running = true;
@@ -111,10 +113,13 @@ int main(int argc, char** argv)
 		}
 
 		sprAngle += 0.01;
-		sprPos.x = cos(sprAngle)*10;
-		sprPos.y = 0;
-		sprPos.z = sin(sprAngle)*10 - 20;
+		sprPos.x = cos(sprAngle)*30;
+		sprPos.y = cos(sprAngle)*30;
+		sprPos.z = sin(sprAngle)*30 - 20;
 		newSpr->setPosition(sprPos);
+
+		sprPos.y = -cos(-sprAngle)*30;
+		newSpr2->setPosition(sprPos);
 
 		k::vector2 mousePos = mInputManager->getWiiMotePosition(0);
 		mGuiManager->setCursorPos(mousePos);

@@ -372,6 +372,8 @@ void md5mesh::draw()
 	rs->setIndexCount(mIndexListSize);
 
 	rs->drawArrays();
+
+	mMaterial->finish();
 }
 
 md5model::md5model(const std::string& filename)

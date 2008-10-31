@@ -339,6 +339,11 @@ void wiiRenderSystem::setBlend(bool state)
 	GX_SetAlphaUpdate(state);
 }
 
+void wiiRenderSystem::setDepthMask(bool state)
+{
+	// TODO
+}
+
 void wiiRenderSystem::destroyWindow()
 {
 	// Doesnt make sense on wii ;)

@@ -48,7 +48,16 @@ namespace k
 
 			void setTextureUnits(unsigned int tex);
 			void pushTexture(texture* tex);
+
+			/**
+			 * Prepare material, before drawing.
+			 */
 			void prepare();
+
+			/**
+			 * Reset material set properties, after drawing.
+			 */
+			void finish();
 
 			unsigned int getTextureUnits();
 	};

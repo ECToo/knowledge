@@ -25,7 +25,6 @@ AC_OUTPUT(Makefile src/Makefile \
 			 examples/Makefile \
 			 examples/model/Makefile \
 			 examples/stickers/Makefile \
-			 examples/nehe5/Makefile \
 			 examples/texture/Makefile \
 			 examples/physics/Makefile \
 			 examples/lightmap/Makefile \

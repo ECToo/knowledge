@@ -105,12 +105,12 @@ void texture::setRotate(vec_t angle)
 	mRotate = angle;
 }
 
+#ifdef __WII__
 void texture::draw()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	assert(rs != NULL);
 
-	#ifdef __WII__
 	if (mScroll.x || mScroll.y || mRotate)
 	{
 		assert(mIndex < 8);
@@ -138,21 +138,8 @@ void texture::draw()
 	{
 		GX_SetTexCoordGen(GX_TEXCOORD0 + mIndex, GX_TG_MTX2x4, GX_TG_TEX0 + mIndex, GX_IDENTITY);
 	}
-	#else
-	glClientActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
-	glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
-
-	glMatrixMode(GL_TEXTURE);
-	glLoadIdentity();
-	glRotatef(mAngle, 0, 0, 1);
-	glTranslatef(mScrolled.x, mScrolled.y, 0);
-	mScrolled.x += mScroll.x;
-	mScrolled.y += mScroll.y;
-	mAngle += mRotate;
-	#endif
 
 	// TEV
-	#ifdef __WII__
 	tev* thisTev = tevManager::getSingleton().getTev(mProgram);
 	if (!mProgram.length() || !thisTev)
 	{
@@ -162,15 +149,32 @@ void texture::draw()
 	{
 		thisTev->setup(mIndex);
 	}
-	#else
-	// MODULATE, REPLACE, DECAL or BLEND on fixed pipeline
+
+	if (mBlendSrc || mBlendDst)
+	{
+		rs->setBlend(true);
+		rs->setBlendMode(mBlendSrc, mBlendDst);
+		rs->setDepthMask(false);
+	}
+	else
+	{
+		rs->setBlend(false);
+		rs->setDepthMask(true);
+	}
+
+	rs->bindTexture(mTextureId, mIndex);
+}
+#else
+void texture::draw()
+{
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	assert(rs != NULL);
+
+	glClientActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
+	glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
+
 	if (mProgram.length())
 	{
-		// Have to bind the texture unit before
-		// setting the environment
-		glClientActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
-		glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
-
 		if (mProgram == "replace")
 			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 		else
@@ -192,14 +196,8 @@ void texture::draw()
 	}
 	else
 	{
-		// Have to bind the texture unit before
-		// setting the environment
-		glClientActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
-		glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
-
 		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	}
-	#endif
 
 	if (mBlendSrc && mBlendDst)
 	{
@@ -212,7 +210,79 @@ void texture::draw()
 	}
 
 	rs->bindTexture(mTextureId, mIndex);
+
+	switch (mTexCoordType)
+	{
+		case TEXCOORD_UV:
+			// Dont touch texture matrix
+			if (!mRotate || !mScroll.x || !mScroll.y)
+				break;
+
+			glMatrixMode(GL_TEXTURE);
+			glLoadIdentity();
+
+			if (mRotate)
+			{
+				glRotatef(mAngle, 0, 0, 1);
+				mAngle += mRotate;
+			}
+
+			if (mScroll.x || mScroll.y)
+			{
+				glTranslatef(mScrolled.x, mScrolled.y, 0);
+				mScrolled.x += mScroll.x;
+				mScrolled.y += mScroll.y;
+			}
+			break;
+		case TEXCOORD_SPHERE:
+			glEnable(GL_TEXTURE_GEN_S);
+			glEnable(GL_TEXTURE_GEN_T);
+			glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+			glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+			break;
+	}
 }
+#endif
+
+#ifdef __WII__
+void texture::finish()
+{
+}
+#else
+void texture::finish()
+{
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	assert(rs != NULL);
+
+	glClientActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
+	glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
+		
+	// Bind Texture 0
+	rs->bindTexture(0, mIndex);
+
+	// Reset params
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+	// Reset Blending
+	rs->setBlend(false);
+
+	switch (mTexCoordType)
+	{
+		case TEXCOORD_UV:
+			if (!mRotate || !mScroll.x || !mScroll.y)
+				break;
+
+			glMatrixMode(GL_TEXTURE);
+			glLoadIdentity();
+			break;
+
+		case TEXCOORD_SPHERE:
+			glDisable(GL_TEXTURE_GEN_S);
+			glDisable(GL_TEXTURE_GEN_T);
+			break;
+	}
+}
+#endif
 
 }
 

@@ -46,6 +46,7 @@ namespace k
 			void setClearColor(const vector3& color);
 			void setClearDepth(const vec_t amount);
 			void setDepthTest(bool test);
+			void setDepthMask(bool test);
 
 			void setShadeModel(ShadeModel model);
 
