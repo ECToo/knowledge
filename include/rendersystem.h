@@ -88,6 +88,7 @@ namespace k
 			virtual void setClearColor(const vector3& color) = 0;
 			virtual void setClearDepth(const vec_t amount) = 0;
 			virtual void setDepthTest(bool test) = 0;
+			virtual void setDepthMask(bool mask) = 0;
 
 			virtual void setShadeModel(ShadeModel model) = 0;
 

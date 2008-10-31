@@ -28,6 +28,9 @@ namespace k
 	{
 		TEXCOORD_NONE,
 		TEXCOORD_UV,
+		TEXCOORD_EYE_LINEAR,
+		TEXCOORD_SPHERE,
+		TEXCOORD_CUBEMAP,
 		TEXCOORD_POS,
 		TEXCOORD_NORMAL,
 		TEXCOORD_BINORMAL,
@@ -103,7 +106,16 @@ namespace k
 			void setBlendMode(unsigned short src, unsigned short dst);
 			void setScroll(vector2 scroll);
 			void setRotate(vec_t angle);
+
+			/**
+			 * Draw texture setting needed params.
+			 */
 			void draw();
+
+			/**
+			 * Unset texture set params.
+			 */
+			void finish();
 
 			unsigned short getBlendSrc();
 			unsigned short getBlendDst();

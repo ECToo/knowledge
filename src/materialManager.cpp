@@ -295,6 +295,15 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 				if (token == "pos")
 					type = TEXCOORD_POS;
 				else
+				if (token == "sphere")
+					type = TEXCOORD_SPHERE;
+				else
+				if (token == "cubemap")
+					type = TEXCOORD_CUBEMAP;
+				else
+				if (token == "eyeLinear")
+					type = TEXCOORD_EYE_LINEAR;
+				else
 				if (token == "normal")
 					type = TEXCOORD_NORMAL;
 				else

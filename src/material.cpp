@@ -59,6 +59,19 @@ void material::prepare()
 		tex->draw();
 	}
 }
+
+void material::finish()
+{
+	// Cycle through textures
+	std::list<texture*>::iterator it;
+	for (it = mTextures.begin(); it != mTextures.end(); it++)
+	{
+		texture* tex = (*it);
+		assert(tex != NULL);
+		
+		tex->finish();
+	}
+}
 			
 unsigned int material::getTextureUnits()
 {

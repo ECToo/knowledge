@@ -1,2 +1,0 @@
-#!/bin/bash
-make -f Makefile.wii clean && make -f Makefile.wii && make -f Makefile.wii run

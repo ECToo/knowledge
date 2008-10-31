@@ -18,6 +18,7 @@
 #include "sprite.h"
 #include "logger.h"
 #include "root.h"
+#include "camera.h"
 
 namespace k {
 
@@ -43,9 +44,13 @@ void sprite::calculateTransPos()
 	renderer* mRenderer = root::getSingleton().getRenderer();
 	assert(mRenderer != NULL);
 
-	vector3 sprZ = mPosition - mRenderer->getCamera()->getPosition();
+	camera* mCam = mRenderer->getCamera();
+	assert(mCam != NULL);
+
+	vector3 sprZ = mPosition - mCam->getPosition();
 	sprZ.normalise();
 
+	/*
 	// Direction of "right" can be determined by 
 	// the up vector cross the forward direction
 	vector3 up = vector3::unit_y;
@@ -55,6 +60,9 @@ void sprite::calculateTransPos()
 	// Same goes to the up direction
 	vector3 sprY = sprZ.crossProduct(sprX);
 	sprY.normalise();
+	*/
+	vector3 sprX = mCam->getRight();
+	vector3 sprY = mCam->getUp();
 
 	matrix4 rot;
 	rot.m[0][0] = sprX.x;
@@ -136,6 +144,9 @@ void sprite::draw()
 	rs->multMatrix(mTransPos.m[0]);
 	#endif
 
+	// We dont need depth masking on this case
+	rs->setDepthMask(false);
+
 	assert(mMaterial != NULL);
 	mMaterial->prepare();
 
@@ -152,6 +163,10 @@ void sprite::draw()
 		rs->texCoord(vector2(0, 1));
 		rs->vertex(vector3(-1*mRadius, 1*mRadius, 0));
 	rs->endVertices();
+
+	//
+	rs->setDepthMask(true);
+	mMaterial->finish();
 }
 
 }

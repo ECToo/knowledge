@@ -82,6 +82,9 @@ void sticker::draw()
 	rs->vertex(vector3(mPosition.x, realY + mScale.y, mZ));
 
 	rs->endVertices();
+
+	// Finish
+	mMaterial->finish();
 }
 
 }
