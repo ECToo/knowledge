@@ -72,7 +72,7 @@ int main(int argc, char** argv)
 	// Setup Camera
 	k::camera* newCamera = new k::camera();
 	assert(newCamera != NULL);
-	newCamera->setPosition(k::vector3(0, 0, 20));
+	newCamera->setPosition(k::vector3(0, 0, 10));
 	newCamera->lookAt(k::vector3(0, 0, -1));
 	mRenderer->setCamera(newCamera);
 
@@ -113,12 +113,12 @@ int main(int argc, char** argv)
 		}
 
 		sprAngle += 0.01;
-		sprPos.x = cos(sprAngle)*30;
-		sprPos.y = cos(sprAngle)*30;
-		sprPos.z = sin(sprAngle)*30 - 20;
+		sprPos.x = cos(sprAngle)*20;
+		sprPos.y = cos(sprAngle)*20;
+		sprPos.z = sin(sprAngle)*20 - 20;
 		newSpr->setPosition(sprPos);
 
-		sprPos.y = -cos(-sprAngle)*30;
+		sprPos.y = -cos(-sprAngle)*20;
 		newSpr2->setPosition(sprPos);
 
 		k::vector2 mousePos = mInputManager->getWiiMotePosition(0);
