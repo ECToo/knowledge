@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 	newSticker->setScale(k::vector2(512, 512));
 
 	// Create the texture
-	k::texture* newTexture = mTextureManager->createTexture("logo.png", 0);
+	k::textureStage* newTexture = mTextureManager->createTexture("logo.png", 0);
 	newSticker->getMaterial()->pushTexture(newTexture);
 
 	// Push the sticker to the graphics renderer

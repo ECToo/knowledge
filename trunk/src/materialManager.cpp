@@ -88,7 +88,7 @@ void materialManager::destroyMaterial(const std::string& name)
 	{
 		material* mat = it->second;
 
-		mMaterials.erase(it);
+		mMaterials.erase(it++);
 		delete mat;
 	}
 }
@@ -214,7 +214,7 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 	unsigned int openBraces = 1;
 
 	file->skipNextToken(); // { 
-	texture* activeTexture = NULL;
+	textureStage* activeTexture = NULL;
 
 	while (openBraces)
 	{
@@ -423,6 +423,16 @@ void materialManager::parseMaterial(material* mat, parsingFile* file)
 	}
 
 	mat->setTextureUnits(textureIndex);
+}
+
+void materialManager::parseMaterialScript(const std::string& filename)
+{
+	parsingFile* newFile = new parsingFile(filename);
+
+	assert(newFile != NULL);
+	parseMaterialScript(newFile);
+
+	delete newFile;
 }
 
 void materialManager::parseMaterialScript(parsingFile* file)

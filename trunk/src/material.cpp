@@ -50,10 +50,10 @@ void material::prepare()
 	#endif
 
 	// Cycle through textures
-	std::list<texture*>::iterator it;
+	std::list<textureStage*>::iterator it;
 	for (it = mTextures.begin(); it != mTextures.end(); it++)
 	{
-		texture* tex = (*it);
+		textureStage* tex = (*it);
 		assert(tex != NULL);
 		
 		tex->draw();
@@ -63,10 +63,10 @@ void material::prepare()
 void material::finish()
 {
 	// Cycle through textures
-	std::list<texture*>::iterator it;
+	std::list<textureStage*>::iterator it;
 	for (it = mTextures.begin(); it != mTextures.end(); it++)
 	{
-		texture* tex = (*it);
+		textureStage* tex = (*it);
 		assert(tex != NULL);
 		
 		tex->finish();
@@ -98,7 +98,7 @@ void material::setSpecular(const vector3& color)
 	mSpecular = color;
 }
 			
-void material::pushTexture(texture* tex)
+void material::pushTexture(textureStage* tex)
 {
 	assert(tex != NULL);
 	mTextures.push_back(tex);

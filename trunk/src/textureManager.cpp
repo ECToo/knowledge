@@ -17,10 +17,7 @@
 
 #include "textureManager.h"
 #include "logger.h"
-
-#ifdef __WII__
-	#include "pngu.h"
-#endif
+#include "textureLib.h"
 
 namespace k {
 
@@ -48,158 +45,89 @@ textureManager::textureManager()
 
 textureManager::~textureManager()
 {
-	// TODO: Free all textures =]
+	std::map<std::string, texture*>::iterator it;
+	for (it = mTextures.begin(); it != mTextures.end(); )
+	{
+		texture* tex = it->second;
+		mTextures.erase(it++);
+
+		delete tex;
+	}
 }
 
-#ifndef __WII__
-GLuint* textureManager::getTexture(const std::string& filename)
-#else	
-wiiTexture* textureManager::getTexture(const std::string& filename)
-#endif
+texture* textureManager::getTexture(const std::string& filename)
 {
-	#ifndef __WII__
-	std::map<std::string, GLuint*>::iterator it = mTextures.find(filename);
-	#else
-	std::map<std::string, wiiTexture*>::iterator it = mTextures.find(filename);
-	#endif
-
+	std::map<std::string, texture*>::iterator it = mTextures.find(filename);
 	if (it != mTextures.end())
 	{
 		return it->second;
 	}
-	
-	return NULL;
-}
-
-#ifndef __WII__
-texture* textureManager::createTexture(const std::string& filename, unsigned short index)
-{
-	unsigned int width, height;
-
-	if (ILuint* existingImage = getTexture(filename))
-	{
-		ilBindImage(*existingImage);
-
-		width = ilGetInteger(IL_IMAGE_WIDTH);
-		height = ilGetInteger(IL_IMAGE_HEIGHT);
-
-		return (new texture(existingImage, width, height, index));
-	}
-	else
-	{
-		ILuint* newImage = new ILuint;
-
-		ilGenImages(1, newImage);
-		ilBindImage(newImage[0]);
-		ilLoadImage((char*)filename.c_str());
-
-		if (ilGetError() == IL_NO_ERROR)
-		{
-			width = ilGetInteger(IL_IMAGE_WIDTH);
-			height = ilGetInteger(IL_IMAGE_HEIGHT);
-
-			texture* newTexture = new texture(newImage, width, height, index);
-			if (newTexture)
-			{
-				mTextures[filename] = newImage;
-			}
-
-			return newTexture;
-		}
-		else
-		{
-			return NULL;
-		}
-	}
-}
-#else
-texture* textureManager::createTexturePNG(const std::string& filename, unsigned short index)
-{
-	IMGCTX textureCtx = PNGU_SelectImageFromDevice(filename.c_str());
-	if (textureCtx)
-	{
-		PNGUPROP imgProperties;
-		PNGU_GetImageProperties(textureCtx, &imgProperties);
-
-		char* textureData = (char*) memalign(32, imgProperties.imgWidth * imgProperties.imgHeight * 4);
-		if (textureData)
-		{
-			GXTexObj* newGXTex = (GXTexObj*) memalign(32, sizeof(GXTexObj));	
-			if (newGXTex)
-			{	
-				PNGU_DecodeTo4x4RGBA8(textureCtx, imgProperties.imgWidth, imgProperties.imgHeight, textureData, 0xff);
-				PNGU_ReleaseImageContext(textureCtx);
-
-				DCFlushRange(textureData, imgProperties.imgWidth * imgProperties.imgHeight * 4);
-
-				GX_InitTexObj(newGXTex, textureData, imgProperties.imgWidth,
-						imgProperties.imgHeight, GX_TF_RGBA8, GX_REPEAT, GX_REPEAT, GX_FALSE);
-
-				wiiTexture* newListedTexture = new wiiTexture;
-				if (newListedTexture)
-				{
-					newListedTexture->mWidth = imgProperties.imgWidth;
-					newListedTexture->mHeight = imgProperties.imgHeight;
-					newListedTexture->mData = newGXTex;
-
-					mTextures[filename] = newListedTexture;
-				}
-
-				texture* newWiiTexture = new texture(newGXTex, imgProperties.imgWidth, imgProperties.imgHeight, index);
-				assert(newWiiTexture != NULL);
-
-				S_LOG_INFO("Texture " + filename + " created.");
-
-				return newWiiTexture;
-			}
-			else
-			{
-				delete [] textureData;
-				return NULL;
-			}
-		}
-		else
-		{
-			return NULL;
-		}
-	}
-	else
+	else	
 	{
 		return NULL;
 	}
 }
 
-texture* textureManager::createTextureJPG(const std::string& filename, unsigned short index)
+			
+void textureManager::allocateTextureData(const std::string& filename)
 {
-	// TODO
-	return NULL;
+	texture* newTexture = getTexture(filename);
+	if (newTexture)
+	{
+		S_LOG_INFO("Texture data for " + filename + " is already allocated.");
+	}
+	else
+	{
+		newTexture = createRawTexture(filename);
+		if (newTexture)
+		{
+			S_LOG_INFO("Texture data for " + filename + " allocated.");
+			mTextures[filename] = newTexture;
+		}
+	}
 }
 
-texture* textureManager::createTexture(const std::string& filename, unsigned short index)
+void textureManager::deallocateTextureData(const std::string& filename)
 {
-	// Try to find the texture first
-	if (wiiTexture* nTexture = getTexture(filename))
+	std::map<std::string, texture*>::iterator it = mTextures.find(filename);
+	if (it != mTextures.end())
 	{
-		texture* newTexture = new texture(nTexture->mData, nTexture->mWidth, nTexture->mHeight, index);
-		return newTexture;
+		texture* tex = it->second;
+		mTextures.erase(it++);
+
+		delete tex;
 	}
-
-	S_LOG_INFO("Allocating " + filename + "...");
-
-	// Discover texture "format" (by extension)
-	if (filename.length() > 4)
-	{
-		const std::string extension = filename.substr(filename.length()-3, 3);
-		if (extension == "PNG" || extension == "png")
-			return createTexturePNG(filename, index);
-		else
-		if (extension == "JPG" || extension == "jpg")
-			return createTextureJPG(filename, index);
-	}
-
-	return NULL;
 }
-#endif
+
+textureStage* textureManager::createTexture(const std::string& filename, unsigned short index)
+{
+	texture* rawTex = getTexture(filename);
+	if (!rawTex)
+	{
+		rawTex = createRawTexture(filename);
+		if (!rawTex)
+		{
+			S_LOG_INFO("Failed to allocate texture " + filename);
+			return NULL;
+		}
+	}
+
+	// Ok our texture is valid, create the real thing now
+	#ifdef __WII__
+	wiiTexture* newStage = new wiiTexture(rawTex->mWidth, rawTex->mHeight, index);
+	#else
+	glTexture* newStage = new glTexture(rawTex->mWidth, rawTex->mHeight, index);
+	#endif
+
+	if (!newStage)
+	{
+		S_LOG_INFO("Failed to allocate texture stage.");
+		return NULL;
+	}
+
+	newStage->setId(rawTex->mId);
+	return newStage;
+}
 
 }
 

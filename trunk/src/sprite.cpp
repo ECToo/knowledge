@@ -40,8 +40,10 @@ sprite::~sprite()
 
 void sprite::calculateTransPos()
 {
+	#ifndef __WII__
 	if (GLEW_ARB_point_sprite)
 		return;
+	#endif
 
 	// Render must be valid
 	renderer* mRenderer = root::getSingleton().getRenderer();
@@ -53,39 +55,32 @@ void sprite::calculateTransPos()
 	vector3 sprZ = mPosition - mCam->getPosition();
 	sprZ.normalise();
 
-	/*
-	// Direction of "right" can be determined by 
-	// the up vector cross the forward direction
-	vector3 up = vector3::unit_y;
-	vector3 sprX = up.crossProduct(sprZ);
-	sprX.normalise();
-
-	// Same goes to the up direction
-	vector3 sprY = sprZ.crossProduct(sprX);
-	sprY.normalise();
-	*/
 	vector3 sprX = mCam->getRight();
+	sprX.negate();
+
 	vector3 sprY = mCam->getUp();
 
-	matrix4 rot;
-	rot.m[0][0] = sprX.x;
-	rot.m[0][1] = sprX.y;
-	rot.m[0][2] = sprX.z;
+	mTransPos.m[0][0] = sprX.x;
+	mTransPos.m[0][1] = sprX.y;
+	mTransPos.m[0][2] = sprX.z;
 	
-	rot.m[1][0] = sprY.x;
-	rot.m[1][1] = sprY.y;
-	rot.m[1][2] = sprY.z;
+	mTransPos.m[1][0] = sprY.x;
+	mTransPos.m[1][1] = sprY.y;
+	mTransPos.m[1][2] = sprY.z;
 	
-	rot.m[2][0] = sprZ.x;
-	rot.m[2][1] = sprZ.y;
-	rot.m[2][2] = sprZ.z;
+	mTransPos.m[2][0] = sprZ.x;
+	mTransPos.m[2][1] = sprZ.y;
+	mTransPos.m[2][2] = sprZ.z;
 
-	matrix4 trans;
-	trans.m[3][0] = mPosition.x;
-	trans.m[3][1] = mPosition.y;
-	trans.m[3][2] = mPosition.z;
-
-	mTransPos = rot * trans;
+	#ifdef __WII__
+	mTransPos.m[0][3] = mPosition.x;
+	mTransPos.m[1][3] = mPosition.y;
+	mTransPos.m[2][3] = mPosition.z;
+	#else
+	mTransPos.m[3][0] = mPosition.x;
+	mTransPos.m[3][1] = mPosition.y;
+	mTransPos.m[3][2] = mPosition.z;
+	#endif
 
 	// TransPos is now valid =]
 	mInvalidTransPos = false;
@@ -120,6 +115,7 @@ void sprite::setMaterial(material* mat)
 
 void sprite::setRadius(vec_t rad)
 {
+	#ifndef __WII__
 	if (GLEW_ARB_point_sprite)
 	{
 		float maxSize = 0.0f;
@@ -127,6 +123,7 @@ void sprite::setRadius(vec_t rad)
 		if (rad > maxSize)
 			S_LOG_INFO("Radius is greater than supported sprite point size.");
 	}
+	#endif
 
 	mRadius = rad;
 }
@@ -136,7 +133,10 @@ void sprite::invalidate()
 	mInvalidTransPos = true;
 }
 
+#ifndef __WII__
 static GLfloat distanceAtt[] = {1, 0, 0.5f};
+#endif
+
 void sprite::draw()
 {
 	if (mRadius == 0)
@@ -145,6 +145,7 @@ void sprite::draw()
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	assert(rs != NULL);
 
+	#ifndef __WII__
 	if (GLEW_ARB_point_sprite)
 	{
 		rs->setDepthMask(false);
@@ -173,6 +174,7 @@ void sprite::draw()
 
 		return;
 	}
+	#endif
 
 	if (mInvalidTransPos)
 		calculateTransPos();
@@ -180,7 +182,7 @@ void sprite::draw()
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 
 	#ifdef __WII__
-	rs->multMatrix(mFinal.m);
+	rs->multMatrix(mTransPos.m);
 	#else
 	rs->multMatrix(mTransPos.m[0]);
 	#endif

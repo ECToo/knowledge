@@ -142,7 +142,7 @@ void tevManager::destroyTev(const std::string& name)
 			if (it->first == name)
 			{
 				thisTev = it->second;
-				mTevs.erase(it);
+				mTevs.erase(it++);
 				delete thisTev;
 
 				return;

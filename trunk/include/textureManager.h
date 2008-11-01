@@ -24,33 +24,10 @@
 
 namespace k
 {
-	#ifdef __WII__
-	struct wiiTexture
-	{
-		unsigned int mWidth;
-		unsigned int mHeight;
-
-		GXTexObj* mData;
-	};
-	#endif
-
 	class textureManager : public singleton<textureManager>
 	{
 		private:
-			#ifndef __WII__
-			std::map<std::string, ILuint*> mTextures;
-			#else	
-			std::map<std::string, wiiTexture*> mTextures;
-			#endif
-
-			#ifndef __WII__
-			ILuint* getTexture(const std::string& filename);
-			#else	
-			texture* createTexturePNG(const std::string& filename, unsigned short index);
-			texture* createTextureJPG(const std::string& filename, unsigned short index);
-
-			wiiTexture* getTexture(const std::string& filename);
-			#endif
+			std::map<std::string, texture*> mTextures;
 
 		public:
 			textureManager();
@@ -58,7 +35,11 @@ namespace k
 
 			static textureManager& getSingleton();
 
-			texture* createTexture(const std::string& filename, unsigned short index);
+			void allocateTextureData(const std::string& filename);
+			void deallocateTextureData(const std::string& filename);
+
+			texture* getTexture(const std::string& filename);
+			textureStage* createTexture(const std::string& filename, unsigned short index);
 	};
 }
 
