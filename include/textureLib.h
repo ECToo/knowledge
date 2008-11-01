@@ -15,52 +15,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _MATERIAL_H
-#define _MATERIAL_H
+#ifndef _TEXTURE_LIB_H
+#define _TEXTURE_LIB_H
 
 #include "prerequisites.h"
-#include "vector3.h"
 #include "texture.h"
-#include "tev.h"
 
 namespace k
 {
-	class material
-	{
-		private:
-			vector3 mAmbient;
-			vector3 mDiffuse;
-			vector3 mSpecular;
-
-			unsigned int mTextureUnits;
-
-			std::list<textureStage*> mTextures;
-
-		public:
-			material()
-			{
-				mTextureUnits = 0;
-			}
-
-			void setAmbient(const vector3& color);
-			void setDiffuse(const vector3& color);
-			void setSpecular(const vector3& color);
-
-			void setTextureUnits(unsigned int tex);
-			void pushTexture(textureStage* tex);
-
-			/**
-			 * Prepare material, before drawing.
-			 */
-			void prepare();
-
-			/**
-			 * Reset material set properties, after drawing.
-			 */
-			void finish();
-
-			unsigned int getTextureUnits();
-	};
+	/**
+	 * This function will create a new texture based
+	 * on the file type. On openGL this will be done by
+	 * DevIL and on Wii it will be done by a set of custom
+	 * functions.
+	 */
+	texture* createRawTexture(const std::string& filename);
 }
 
 #endif

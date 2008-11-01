@@ -20,7 +20,6 @@
 
 #include "prerequisites.h"
 #include "vector2.h"
-#include "tev.h"
 
 namespace k
 {
@@ -37,9 +36,20 @@ namespace k
 		TEXCOORD_TANGENT
 	};
 
-	class texture 
+	class texture
 	{
-		private:
+		public:
+			~texture();
+
+			unsigned int mWidth;
+			unsigned int mHeight;
+
+			void* mId;
+	};
+
+	class textureStage
+	{
+		protected:
 			/**
 			 * Amount to scroll per frame on x and y
 			 */
@@ -79,27 +89,9 @@ namespace k
 			 */
 			std::string mProgram;
 
-			#ifdef __WII__
-				Mtx mTransRotate;
-				GXTexObj* mTextureId;
-			#else
-				vector2 mScrolled;
-				GLuint mTextureId;
-				ILuint* mDevilTextureId;
-			#endif
-
 		public:
-			#ifndef __WII__
-			texture(ILuint* src, unsigned int width, unsigned int height, unsigned short index);
-			#else
-			texture(GXTexObj* src, unsigned int width, unsigned int height, unsigned short index);
-			#endif
-
-			#ifndef __WII__
-			GLuint& getTextureId();
-			#else
-			GXTexObj* getTextureId();
-			#endif
+			textureStage(unsigned int width, unsigned int height,
+					unsigned short index);
 
 			void setProgram(const std::string& name);
 			void setTexCoordType(texCoordType type);
@@ -107,22 +99,58 @@ namespace k
 			void setScroll(vector2 scroll);
 			void setRotate(vec_t angle);
 
+			unsigned int getWidth();
+			unsigned int getHeight();
+
+			/**
+			 * Set the texture id. On opengl this is a
+			 * pointer to ILuint and on wii GXTexObj
+			 */
+			virtual void setId(void* id) = 0;
+
 			/**
 			 * Draw texture setting needed params.
 			 */
-			void draw();
+			virtual void draw() = 0;
 
 			/**
 			 * Unset texture set params.
 			 */
-			void finish();
-
-			unsigned short getBlendSrc();
-			unsigned short getBlendDst();
-
-			unsigned int getWidth();
-			unsigned int getHeight();
+			virtual void finish() = 0;
 	};
+
+	#ifdef __WII__
+	class wiiTexture : public textureStage
+	{
+		private:
+			Mtx mTransRotate;
+			GXTexObj mTextureId;
+
+		public:
+			wiiTexture(unsigned int width, unsigned int height,
+					unsigned short index);
+
+			void setId(void* id);
+			void draw();
+			void finish();
+	};
+	#else
+	class glTexture : public textureStage
+	{
+		private:
+			vector2 mScrolled;
+			GLuint mTextureId;
+			ILuint* mDevilTextureId;
+
+		public:
+			glTexture(unsigned int width, unsigned int height,
+					unsigned short index);
+
+			void setId(void* id);
+			void draw();
+			void finish();
+	};
+	#endif
 }
 
 #endif

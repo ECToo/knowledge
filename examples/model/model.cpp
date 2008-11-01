@@ -20,6 +20,7 @@
 #include "root.h"
 #include "renderer.h"
 #include "rendersystem.h"
+#include "resourceManager.h"
 #include "logger.h"
 
 int main(int argc, char** argv)
@@ -39,24 +40,9 @@ int main(int argc, char** argv)
 	mRenderSystem->createWindow(800, 600);
 	mRenderSystem->setDepthTest(true);
 
-	// Common library
-	#ifdef __WII__
-	k::parsingFile* commonMaterialFile = new k::parsingFile("/knowledge/common.material");
-	#else
-	k::parsingFile* commonMaterialFile = new k::parsingFile("common.material");
-	#endif
-
-	assert(commonMaterialFile != NULL);
-	mMaterialManager->parseMaterialScript(commonMaterialFile);
-
-	// Parse material file
-	#ifdef __WII__
-	k::parsingFile* matFile = new k::parsingFile("/knowledge/goku/goku.material");
-	#else
-	k::parsingFile* matFile = new k::parsingFile("goku.material");
-	#endif
-
-	mMaterialManager->parseMaterialScript(matFile);
+	// Initialize resources
+	new k::resourceManager("../resources.cfg");
+	k::resourceManager::getSingleton().loadGroup("model");
 
 	// Create Model
 	k::vector3 modelPosition;
