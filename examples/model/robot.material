@@ -6,7 +6,7 @@ material robotSkin
 	
 	texture
 	{
-		filename blue.png
+		filename model/blue.png
 		texcoord uv
 	}
 }

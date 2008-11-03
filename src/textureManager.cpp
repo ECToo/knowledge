@@ -18,6 +18,7 @@
 #include "textureManager.h"
 #include "logger.h"
 #include "textureLib.h"
+#include "resourceManager.h"
 
 namespace k {
 
@@ -71,25 +72,43 @@ texture* textureManager::getTexture(const std::string& filename)
 			
 void textureManager::allocateTextureData(const std::string& filename)
 {
-	texture* newTexture = getTexture(filename);
+	std::string fullPath = filename;
+
+	// Get Path from resource manager (if any)
+	resourceManager* rsc = &resourceManager::getSingleton();
+	if (rsc)
+	{
+		fullPath = rsc->getRoot() + filename;
+	}
+
+	texture* newTexture = getTexture(fullPath);
 	if (newTexture)
 	{
-		S_LOG_INFO("Texture data for " + filename + " is already allocated.");
+		S_LOG_INFO("Texture data for " + fullPath + " is already allocated.");
 	}
 	else
 	{
-		newTexture = createRawTexture(filename);
+		newTexture = createRawTexture(fullPath);
 		if (newTexture)
 		{
-			S_LOG_INFO("Texture data for " + filename + " allocated.");
-			mTextures[filename] = newTexture;
+			S_LOG_INFO("Texture data for " + fullPath + " allocated.");
+			mTextures[fullPath] = newTexture;
 		}
 	}
 }
 
 void textureManager::deallocateTextureData(const std::string& filename)
 {
-	std::map<std::string, texture*>::iterator it = mTextures.find(filename);
+	std::string fullPath = filename;
+
+	// Get Path from resource manager (if any)
+	resourceManager* rsc = &resourceManager::getSingleton();
+	if (rsc)
+	{
+		fullPath = rsc->getRoot() + filename;
+	}
+
+	std::map<std::string, texture*>::iterator it = mTextures.find(fullPath);
 	if (it != mTextures.end())
 	{
 		texture* tex = it->second;
@@ -101,13 +120,22 @@ void textureManager::deallocateTextureData(const std::string& filename)
 
 textureStage* textureManager::createTexture(const std::string& filename, unsigned short index)
 {
-	texture* rawTex = getTexture(filename);
+	std::string fullPath = filename;
+
+	// Get Path from resource manager (if any)
+	resourceManager* rsc = &resourceManager::getSingleton();
+	if (rsc)
+	{
+		fullPath = rsc->getRoot() + filename;
+	}
+
+	texture* rawTex = getTexture(fullPath);
 	if (!rawTex)
 	{
-		rawTex = createRawTexture(filename);
+		rawTex = createRawTexture(fullPath);
 		if (!rawTex)
 		{
-			S_LOG_INFO("Failed to allocate texture " + filename);
+			S_LOG_INFO("Failed to allocate texture " + fullPath);
 			return NULL;
 		}
 	}

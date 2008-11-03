@@ -42,6 +42,7 @@ int main(int argc, char** argv)
 
 	// Initialize resources
 	new k::resourceManager("../resources.cfg");
+	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("model");
 
 	// Create Model
