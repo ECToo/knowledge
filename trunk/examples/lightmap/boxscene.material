@@ -2,7 +2,7 @@ material boxShader
 {
 	texture
 	{
-		filename wood.png
+		filename ./lightmap/wood.png
 		texcoord uv
 	}
 }
@@ -11,7 +11,7 @@ material planeShader
 {
 	texture
 	{
-		filename plane.png
+		filename ./lightmap/plane.png
 		texcoord uv
 	}
 }
@@ -20,13 +20,13 @@ material boxLitShader
 {
 	texture
 	{
-		filename wood.png
+		filename ./lightmap/wood.png
 		texcoord uv
 	}
 	
 	texture
 	{
-		filename box_lightmap.png
+		filename ./lightmap/box_lightmap.png
 		texcoord uv
 		program modulate
 	}
@@ -36,13 +36,13 @@ material planeLitShader
 {
 	texture
 	{
-		filename plane.png
+		filename ./lightmap/plane.png
 		texcoord uv
 	}
 	
 	texture
 	{
-		filename plane_lightmap.png
+		filename ./lightmap/plane_lightmap.png
 		texcoord uv
 		program modulate
 	}

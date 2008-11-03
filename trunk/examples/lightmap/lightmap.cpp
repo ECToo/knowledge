@@ -21,6 +21,7 @@
 #include "renderer.h"
 #include "rendersystem.h"
 #include "logger.h"
+#include "resourceManager.h"
 
 int main(int argc, char** argv)
 {
@@ -40,23 +41,9 @@ int main(int argc, char** argv)
 	mRenderSystem->setDepthTest(true);
 
 	// Common library
-	#ifdef __WII__
-	k::parsingFile* commonMaterialFile = new k::parsingFile("/knowledge/common.material");
-	#else
-	k::parsingFile* commonMaterialFile = new k::parsingFile("common.material");
-	#endif
-
-	assert(commonMaterialFile != NULL);
-	mMaterialManager->parseMaterialScript(commonMaterialFile);
-
-	#ifdef __WII__
-	k::parsingFile* boxsceneMaterialFile = new k::parsingFile("/knowledge/boxscene/boxscene.material");
-	#else
-	k::parsingFile* boxsceneMaterialFile = new k::parsingFile("boxscene.material");
-	#endif
-
-	assert(boxsceneMaterialFile != NULL);
-	mMaterialManager->parseMaterialScript(boxsceneMaterialFile);
+	new k::resourceManager("../resources.cfg");
+	k::resourceManager::getSingleton().loadGroup("common");
+	k::resourceManager::getSingleton().loadGroup("lightmap");
 
 	#ifdef __WII__
 	k::md5model* boxscene = new k::md5model("/knowledge/boxscene/boxscene.md5mesh");

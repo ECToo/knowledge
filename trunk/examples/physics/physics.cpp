@@ -22,6 +22,7 @@
 #include "rendersystem.h"
 #include "logger.h"
 #include "physicsManager.h"
+#include "resourceManager.h"
 
 // Plane Stuff
 const vec_t vertices[4][3] = { 
@@ -142,24 +143,9 @@ int main(int argc, char** argv)
 	mRenderSystem->setDepthTest(true);
 
 	// Common library
-	#ifdef __WII__
-	k::parsingFile* commonMaterialFile = new k::parsingFile("/knowledge/common.material");
-	#else
-	k::parsingFile* commonMaterialFile = new k::parsingFile("common.material");
-	#endif
-
-	assert(commonMaterialFile != NULL);
-	mMaterialManager->parseMaterialScript(commonMaterialFile);
-
-	// Parse material file
-	#ifdef __WII__
-	k::parsingFile* matFile = new k::parsingFile("/knowledge/soccer/soccer.material");
-	#else
-	k::parsingFile* matFile = new k::parsingFile("soccer.material");
-	#endif
-
-	assert(matFile != NULL);
-	mMaterialManager->parseMaterialScript(matFile);
+	new k::resourceManager("../resources.cfg");
+	k::resourceManager::getSingleton().loadGroup("common");
+	k::resourceManager::getSingleton().loadGroup("physics");
 
 	assert(mGuiManager != NULL);
 	mGuiManager->setCursor("wiiCursor", k::vector2(48, 48));
