@@ -6,7 +6,7 @@ material soccerBall
 	
 	texture
 	{
-		filename ball.png
+		filename ./physics/ball.png
 		texcoord uv
 	}
 }
@@ -19,7 +19,7 @@ material box
 	
 	texture
 	{
-		filename box.png
+		filename ./physics/box.png
 		texcoord uv
 	}
 }
@@ -28,7 +28,7 @@ material odeLogo
 {
 	texture
 	{
-		filename ode_logo.png
+		filename ./physics/ode_logo.png
 		texcoord uv
 		blendfunc srcalpha invsrcalpha
 	}
@@ -38,7 +38,7 @@ material odePlane
 {
 	texture
 	{
-		filename ode_plane.png
+		filename ./physics/ode_plane.png
 		texcoord uv
 		blendfunc srcalpha invsrcalpha
 	}

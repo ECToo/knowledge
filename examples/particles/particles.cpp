@@ -19,6 +19,7 @@
 #include "renderer.h"
 #include "rendersystem.h"
 #include "logger.h"
+#include "resourceManager.h"
 
 int main(int argc, char** argv)
 {
@@ -38,23 +39,9 @@ int main(int argc, char** argv)
 	mRenderSystem->setDepthTest(true);
 
 	// Common library
-	#ifdef __WII__
-	k::parsingFile* commonMaterialFile = new k::parsingFile("/knowledge/common.material");
-	#else
-	k::parsingFile* commonMaterialFile = new k::parsingFile("common.material");
-	#endif
-
-	assert(commonMaterialFile != NULL);
-	mMaterialManager->parseMaterialScript(commonMaterialFile);
-
-	#ifdef __WII__
-	k::parsingFile* particlesFile = new k::parsingFile("/knowledge/particles/particles.material");
-	#else
-	k::parsingFile* particlesFile = new k::parsingFile("particles.material");
-	#endif
-
-	assert(particlesFile != NULL);
-	mMaterialManager->parseMaterialScript(particlesFile);
+	new k::resourceManager("../resources.cfg");
+	k::resourceManager::getSingleton().loadGroup("common");
+	k::resourceManager::getSingleton().loadGroup("particles");
 
 	// Parse material file
 	assert(mGuiManager != NULL);

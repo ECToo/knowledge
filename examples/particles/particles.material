@@ -2,7 +2,7 @@ material poison
 {
 	texture
 	{
-		filename poison.png
+		filename ./particles/poison.png
 		texcoord uv
 		blendfunc srcalpha invsrcalpha
 	}
