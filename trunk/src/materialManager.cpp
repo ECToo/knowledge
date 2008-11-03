@@ -425,17 +425,17 @@ void materialManager::parseMaterial(material* mat, parsingFile* file)
 	mat->setTextureUnits(textureIndex);
 }
 
-void materialManager::parseMaterialScript(const std::string& filename)
+void materialManager::parseMaterialScript(const std::string& filename, materialList* map)
 {
 	parsingFile* newFile = new parsingFile(filename);
 
 	assert(newFile != NULL);
-	parseMaterialScript(newFile);
+	parseMaterialScript(newFile, map);
 
 	delete newFile;
 }
 
-void materialManager::parseMaterialScript(parsingFile* file)
+void materialManager::parseMaterialScript(parsingFile* file, materialList* map)
 {
 	if (!file->isReady())
 	{
@@ -474,6 +474,9 @@ void materialManager::parseMaterialScript(parsingFile* file)
 			else
 			{
 				material* currentMaterial = createMaterial(token);
+				if (currentMaterial && map)
+					map->push_back(token);
+
 				parseMaterial(currentMaterial, file);
 			}
 		}

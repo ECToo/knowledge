@@ -176,6 +176,7 @@ class md5mesh
 		void pushWeight(const vector2& joint, const vector3& pos);
 
 		void setMaterial(material* mat);
+		void setMaterial(const std::string& matName);
 
 		/**
 		 * Compile Base Positions

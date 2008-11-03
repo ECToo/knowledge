@@ -35,6 +35,11 @@ void resourceGroup::setRecursivity(bool recursive)
 {
 	mRecursive = recursive;
 }
+			
+void resourceGroup::setLoadOptions(char opt)
+{
+	mLoadOptions = opt;
+}
 
 const std::string& resourceGroup::getRoot()
 {
@@ -44,6 +49,21 @@ const std::string& resourceGroup::getRoot()
 bool resourceGroup::getRecursivity()
 {
 	return mRecursive;
+}
+			
+resourceGroup::~resourceGroup()
+{
+	// Unload loaded materials
+	if (mLoadOptions & (1 << LOAD_MATERIALS))
+	{
+		std::list<std::string>::iterator it;
+		for (it = mMaterials.begin(); it != mMaterials.end(); )
+		{
+			materialManager::getSingleton().destroyMaterial(*it);
+			it = mMaterials.erase(it);
+		}
+	}
+
 }
 
 template<> resourceManager* singleton<resourceManager>::singleton_instance = 0;
@@ -70,18 +90,18 @@ std::string getExtension(const std::string& file)
 	}
 }
 
-void resourceManager::filterResource(const std::string& path)
+void resourceGroup::filterResource(const std::string& path)
 {
 	std::string extension = getExtension(path);
 	if (!extension.length())
 		return;
 
-	if (extension == ".material")
-		materialManager::getSingleton().parseMaterialScript(path);
+	if ((mLoadOptions & (1 << LOAD_MATERIALS)) && extension == ".material")
+		materialManager::getSingleton().parseMaterialScript(path, &mMaterials);
 }
 
 #ifndef __WII__
-void resourceManager::scanDir(std::string path, bool recursive)
+void resourceGroup::scanDir(std::string path, bool recursive)
 {
 	DIR *dp;
 	struct dirent *dirp;
@@ -174,6 +194,7 @@ void resourceManager::parseGroup(parsingFile* file, resourceGroup* group)
 
 	std::string mRoot;
 	bool recursive = false;
+	char loadOptions = 0xff;
 
 	while (openBraces)
 	{
@@ -192,6 +213,34 @@ void resourceManager::parseGroup(parsingFile* file, resourceGroup* group)
 			if (token == "true")
 				recursive = true;
 		}
+		else
+		if (token == "loadMaterials")
+		{
+			token = file->getNextToken();
+			if (token == "false")
+				loadOptions &= ~(1 << LOAD_MATERIALS);
+		}
+		else
+		if (token == "loadModels")
+		{
+			token = file->getNextToken();
+			if (token == "false")
+				loadOptions &= ~(1 << LOAD_MODELS);
+		}
+		else
+		if (token == "loadTextures")
+		{
+			token = file->getNextToken();
+			if (token == "false")
+				loadOptions &= ~(1 << LOAD_TEXTURES);
+		}
+		else
+		if (token == "loadScripts")
+		{
+			token = file->getNextToken();
+			if (token == "false")
+				loadOptions &= ~(1 << LOAD_SCRIPTS);
+		}
 
 		token = file->getNextToken();
 
@@ -205,6 +254,7 @@ void resourceManager::parseGroup(parsingFile* file, resourceGroup* group)
 
 	group->setRecursivity(recursive);
 	group->setRoot(mRoot);
+	group->setLoadOptions(loadOptions);
 }
 
 resourceManager::resourceManager(const std::string& resourceCfg)
@@ -257,7 +307,7 @@ resourceManager::resourceManager(const std::string& resourceCfg)
 
 				parseGroup(script, newGroup);
 				mGroups[mLastGroupName] = newGroup;
-				S_LOG_INFO("Resource group " + mLastGroupName + " allocated.");
+				S_LOG_INFO("Resource group " + mLastGroupName + " loaded.");
 			}
 		}
 
@@ -288,11 +338,29 @@ void resourceManager::loadGroup(const std::string& name)
 		return;
 	}
 
-	scanDir(mBasePath + group->getRoot(), group->getRecursivity());
+	group->scanDir(mBasePath + group->getRoot(), group->getRecursivity());
 }
 
 void resourceManager::unloadGroup(const std::string& name)
 {
+	std::map<std::string, resourceGroup*>::iterator it = mGroups.find(name);
+	if (it != mGroups.end())
+	{
+		resourceGroup* rsc = it->second;
+		mGroups.erase(it++);
+		delete rsc;
+
+		S_LOG_INFO("Resource group " + name + " unloaded.");
+	}
+	else
+	{
+		S_LOG_INFO("Resource group " + name + " doesnt exist.");
+	}
+}
+			
+const std::string& resourceManager::getRoot()
+{
+	return mBasePath;
 }
 
 }

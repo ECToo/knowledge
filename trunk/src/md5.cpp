@@ -149,6 +149,17 @@ void md5mesh::setMaterial(material* mat)
 	assert(mat != NULL);
 	mMaterial = mat;
 }
+
+void md5mesh::setMaterial(const std::string& matName)
+{
+	materialManager* matMgr = &materialManager::getSingleton();
+	assert(matMgr != NULL);
+
+	material* mat = matMgr->getMaterial(matName);
+	assert(mat != NULL);
+
+	mMaterial = mat;
+}
 		
 void md5mesh::compileVertices(std::vector<bone_t*>* boneList)
 {

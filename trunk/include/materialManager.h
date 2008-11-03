@@ -26,10 +26,12 @@
 
 namespace k
 {
+	typedef std::list<std::string> materialList;
+	typedef std::map<std::string, material*> materialMap;
 	class materialManager : public singleton<materialManager>
 	{
 		private:
-			std::map<std::string, material*> mMaterials;
+			materialMap mMaterials;
 
 			#ifdef __WII__
 			tevManager* mTev;
@@ -46,8 +48,10 @@ namespace k
 			void destroyMaterial(const std::string& name);
 
 			void parseTextureSection(material* mat, parsingFile* file, unsigned short index);
-			void parseMaterialScript(const std::string& filename);
-			void parseMaterialScript(parsingFile* file);
+
+			void parseMaterialScript(const std::string& filename, materialList* map = NULL);
+			void parseMaterialScript(parsingFile* file, materialList* map = NULL);
+
 			void parseMaterial(material* mat, parsingFile* file);
 	};
 }
