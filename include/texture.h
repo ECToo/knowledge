@@ -124,7 +124,7 @@ namespace k
 	{
 		private:
 			Mtx mTransRotate;
-			GXTexObj mTextureId;
+			GXTexObj* mTextureId;
 
 		public:
 			wiiTexture(unsigned int width, unsigned int height,

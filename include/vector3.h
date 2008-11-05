@@ -54,6 +54,18 @@ namespace k
 				z = zz;
 			}
 
+			vector3 reflect(const vector3& normal)
+			{
+				vector3 out;
+				vec_t dot = -2 * dotProduct(normal);
+
+				out.x = x + dot * normal.x;
+				out.y = y + dot * normal.y;
+				out.z = z + dot * normal.z;
+						
+				return out;
+			}
+
 			vector3 operator + (const vector3& newVec)
 			{
 				vector3 tempVec(newVec.x + x, newVec.y + y, newVec.z + z);

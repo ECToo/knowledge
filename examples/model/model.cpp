@@ -29,7 +29,6 @@ int main(int argc, char** argv)
 	k::root* appRoot = new k::root();
 	k::renderSystem* mRenderSystem = appRoot->getRenderSystem();
 	k::renderer* mRenderer = appRoot->getRenderer();
-	k::materialManager* mMaterialManager = appRoot->getMaterialManager();
 	k::guiManager* mGuiManager = appRoot->getGuiManager();
 	k::inputManager* mInputManager = appRoot->getInputManager();
 
@@ -41,7 +40,12 @@ int main(int argc, char** argv)
 	mRenderSystem->setDepthTest(true);
 
 	// Initialize resources
+	#ifdef __WII__
+	new k::resourceManager("/knowledge/resources.cfg");
+	#else
 	new k::resourceManager("../resources.cfg");
+	#endif
+
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("model");
 
@@ -50,7 +54,7 @@ int main(int argc, char** argv)
 	modelPosition.z = -100;
 
 	#ifdef __WII__
-	k::md5model* newModel = new k::md5model("/knowledge/goku/goku.md5mesh");
+	k::md5model* newModel = new k::md5model("/knowledge/model/goku.md5mesh");
 	#else
 	k::md5model* newModel = new k::md5model("goku.md5mesh");
 	#endif
@@ -58,7 +62,7 @@ int main(int argc, char** argv)
 	assert(newModel != NULL);
 
 	#ifdef __WII__
-	newModel->attachAnimation("/knowledge/goku/idle.md5anim", "idle");
+	newModel->attachAnimation("/knowledge/model/idle.md5anim", "idle");
 	#else
 	newModel->attachAnimation("idle.md5anim", "idle");
 	#endif

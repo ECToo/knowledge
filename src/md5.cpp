@@ -394,6 +394,9 @@ md5model::md5model(const std::string& filename)
 	mMeshes.clear();
 	mBones.clear();
 
+	// Auto feed is on by default
+	mAutoFeedAnims = true;
+
 	parsingFile file(filename);
 	if (!file.isReady())
 	{
@@ -938,6 +941,87 @@ void md5model::setAnimation(const std::string& name)
 	}
 }
 
+void md5model::setAnimationFrameTime(vec_t frameTime)
+{
+	for (unsigned int i = 0; i < mBones.size(); i++)
+	{
+		bone_t* thisBone = mBones[i];
+		assert(thisBone != NULL);
+
+		if (!thisBone->currentAnim)
+			continue;
+
+		anim_t* currentAnim = thisBone->currentAnim;
+
+		unsigned int frameNum = frameTime * currentAnim->frameRate;
+		unsigned int realFrameNum;
+
+		if (frameNum >= currentAnim->numFrames)
+			realFrameNum = frameNum % currentAnim->numFrames;
+		else
+			realFrameNum = frameNum;
+
+		if (currentAnim->currentFrame == frameNum)
+			continue;
+
+		// Copy Bone frame positions to modify 'em
+		thisBone->pos = currentAnim->baseFrame[thisBone->index].pos;
+		thisBone->orientation = currentAnim->baseFrame[thisBone->index].orientation;
+
+		// Check modifiers per frame
+		boneFrame_t* boneOnFrame = &currentAnim->hierarchy[thisBone->index];
+		if (boneOnFrame->mask)
+		{
+			int j = 0;
+			bool quatChanged = false;
+
+			if (boneOnFrame->mask & BONE_POS_X)
+				thisBone->pos.x = currentAnim->frames[realFrameNum][boneOnFrame->startIndex + j++];
+			if (boneOnFrame->mask & BONE_POS_Y)
+				thisBone->pos.y = currentAnim->frames[realFrameNum][boneOnFrame->startIndex + j++];
+			if (boneOnFrame->mask & BONE_POS_Z)
+				thisBone->pos.z = currentAnim->frames[realFrameNum][boneOnFrame->startIndex + j++];
+
+			if (boneOnFrame->mask & BONE_ORI_X)
+			{
+				thisBone->orientation.x = currentAnim->frames[realFrameNum][boneOnFrame->startIndex + j++];
+				quatChanged = true;
+			}
+			if (boneOnFrame->mask & BONE_ORI_Y)
+			{
+				thisBone->orientation.y = currentAnim->frames[realFrameNum][boneOnFrame->startIndex + j++];
+				quatChanged = true;
+			}
+			if (boneOnFrame->mask & BONE_ORI_Z)
+			{
+				thisBone->orientation.z = currentAnim->frames[realFrameNum][boneOnFrame->startIndex + j++];
+				quatChanged = true;
+			}
+
+			if (quatChanged)
+				thisBone->orientation.computeW();
+		} // masks
+
+		// This bone has a parent
+		if (boneOnFrame->parentIndex > -1)
+		{
+			bone_t* parentBone = mBones[thisBone->parentIndex];
+			assert(parentBone != NULL);
+
+			quaternion oriQuat = thisBone->orientation;
+			vector3 oriPos = thisBone->pos;
+
+			vector3 tempPos = parentBone->orientation.rotateVector(oriPos);
+			thisBone->pos = parentBone->pos + tempPos;
+
+			thisBone->orientation = parentBone->orientation * oriQuat;
+			thisBone->orientation.normalise();
+		}
+	} // for Bones
+
+	compileVertices();
+}
+
 void md5model::setAnimationFrame(unsigned int frameNum)
 {
 	for (unsigned int i = 0; i < mBones.size(); i++)
@@ -1030,6 +1114,11 @@ md5mesh* md5model::getMesh(unsigned int index)
 	}
 
 	return NULL;
+}
+		
+void md5model::setAutoFeed(bool feed)
+{
+	mAutoFeedAnims = feed;
 }
 
 }

@@ -9,11 +9,5 @@ material gokuSkin
 		filename model/goku.png
 		texcoord uv
 	}
-	texture
-	{
-		filename model/spheremap.png
-		texcoord sphere
-		program add
-	}
 }
 

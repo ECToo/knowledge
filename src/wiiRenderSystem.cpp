@@ -707,11 +707,18 @@ void wiiRenderSystem::drawArrays()
  		GX_SetVtxDesc(GX_VA_TEX0, GX_INDEX16);
 		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
 
-		for (unsigned int i = 1; i < mActiveMaterial->getTextureUnits(); i++)
-			GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0 + i, GX_TEX_ST, GX_F32, 0);
-
 		DCFlushRange(mTexCoordArray, mVertexCount * sizeof(vec_t) * 2);
 		GX_SetArray(GX_VA_TEX0, mTexCoordArray, 2 * sizeof(vec_t));
+
+		if (mActiveMaterial)
+		for (unsigned int i = 1; i < mActiveMaterial->getTextureUnits(); i++)
+		{
+ 			GX_SetVtxDesc(GX_VA_TEX0 + i, GX_INDEX16);
+			GX_SetVtxDesc(GX_VA_TEX0MTXIDX + i, GX_TEXMTX0);
+
+			GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0 + i, GX_TEX_ST, GX_F32, 0);
+			GX_SetArray(GX_VA_TEX0 + i, mTexCoordArray, 2 * sizeof(vec_t));
+		}
 
 		texCoord = GX_TEXCOORD0;
 		texMap = GX_TEXMAP0;
@@ -733,16 +740,8 @@ void wiiRenderSystem::drawArrays()
 	GX_SetTevOrder(GX_TEVSTAGE0, texCoord, texMap, tevColor);
 	if (mActiveMaterial)
 	{
-		for(unsigned int i = 1; i < mActiveMaterial->getTextureUnits(); i++)
-		{
-			tevStage = GX_TEVSTAGE0 + i;
-			texCoord = GX_TEXCOORD0 + i;
-			texMap = GX_TEXMAP0 + i;
-
-			GX_SetVtxDesc(GX_VA_TEX0MTXIDX + i, GX_TEXMTX0);
- 			GX_SetVtxDesc(GX_VA_TEX0 + i, GX_DIRECT);
-			GX_SetTevOrder(tevStage, texCoord, texMap, tevColor);
-		}
+		for (unsigned int i = 1; i < mActiveMaterial->getTextureUnits(); i++)
+			GX_SetTevOrder(GX_TEVSTAGE0 + i, GX_TEXCOORD0 + i, GX_TEXMAP0 + i, tevColor);
 	}
 
 	// Bind the textures
@@ -762,22 +761,39 @@ void wiiRenderSystem::drawArrays()
 
 		GX_Position1x16(mIndexArray[i]);
 		if (mTexCoordArray)
+		{
 			GX_TexCoord1x16(mIndexArray[i]);
+
+			if (mActiveMaterial)
+			for (unsigned int ki = 1; ki < mActiveMaterial->getTextureUnits(); ki++)
+				GX_TexCoord1x16(mIndexArray[i]);
+		}
+
 		if (mNormalArray)
 			GX_Normal1x16(mIndexArray[i]);
 
 		GX_Position1x16(mIndexArray[i+1]);
 		if (mTexCoordArray)
+		{
 			GX_TexCoord1x16(mIndexArray[i+1]);
+
+			if (mActiveMaterial)
+			for (unsigned int ki = 1; ki < mActiveMaterial->getTextureUnits(); ki++)
+				GX_TexCoord1x16(mIndexArray[i+1]);
+		}
+
 		if (mNormalArray)
 			GX_Normal1x16(mIndexArray[i+1]);
 
 		GX_Position1x16(mIndexArray[i+2]);
 		if (mTexCoordArray)
+		{
 			GX_TexCoord1x16(mIndexArray[i+2]);
 
-		for (unsigned int ki = 1; ki < mActiveMaterial->getTextureUnits(); ki++)
-			GX_TexCoord1x16(mIndexArray[i+2]);
+			if (mActiveMaterial)
+			for (unsigned int ki = 1; ki < mActiveMaterial->getTextureUnits(); ki++)
+				GX_TexCoord1x16(mIndexArray[i+2]);
+		}
 
 		if (mNormalArray)
 			GX_Normal1x16(mIndexArray[i+2]);
