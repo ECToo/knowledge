@@ -52,6 +52,17 @@ namespace k
 				y = yy;
 			}
 
+			vector2 reflect(const vector2& normal)
+			{
+				vector2 out;
+				vec_t dot = -2 * dotProduct(normal);
+
+				out.x = x + dot * normal.x;
+				out.y = y + dot * normal.y;
+						
+				return out;
+			}
+
 			vector2 operator+ (const vector2 &newVec)
 			{
 				vector2 tempVec(newVec.x + x, newVec.y + y);

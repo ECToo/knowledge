@@ -52,6 +52,11 @@ namespace k
 			unsigned int mFpsCount;
 			unsigned int mLastFps;
 
+			/**
+			 * Time since frame start
+			 */
+			timer mFrameTime;
+
 		public:
 			renderer();
 			~renderer();

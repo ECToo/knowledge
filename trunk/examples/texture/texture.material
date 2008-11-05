@@ -3,13 +3,13 @@ material crate
 {
 	texture
 	{
-		filename crate.png
+		filename /texture/crate.png
 		texcoord uv
 	}
 	
 	texture
 	{
-		filename crate_skull.png
+		filename /texture/crate_skull.png
 		texcoord uv
 		program decal
 		blendfunc srcalpha invsrcalpha

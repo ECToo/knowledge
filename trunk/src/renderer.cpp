@@ -157,6 +157,9 @@ void renderer::draw()
 	rs->frameStart();
 	rs->setDepthTest(true);
 
+	// Time since frame start.
+	mFrameTime.reset();
+
 	if (mActiveCamera)
 	{
 		mActiveCamera->setPerspective();
@@ -253,7 +256,7 @@ void renderer::draw()
 	 * Call the frame end
 	 */
 	rs->frameEnd();
-
+			
 	if (mCalculateFps)
 	{
 		mFpsCount++;

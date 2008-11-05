@@ -22,6 +22,7 @@
 #include "drawable.h"
 #include "material.h"
 #include "fileAccess.h"
+#include "timer.h"
 
 // Bone flags on .md5anim
 #define BONE_POS_X (1 << 0)
@@ -213,6 +214,12 @@ class md5model : public drawable3D
 		 */
 		anim_t* getAnimation(const std::string& name);
 
+		/**
+		 * Auto set the animation frames based on frame
+		 * time. The default is true.
+		 */
+		bool mAutoFeedAnims;
+
 	public:
 		md5model(const std::string& filename);
 		md5model(const md5model& source);
@@ -232,12 +239,26 @@ class md5model : public drawable3D
 		void setAnimation(const std::string& name);
 
 		/**
+		 * Define if the model animations
+		 * are set automatically or not.
+		 * The default setting is true.
+		 */
+		void setAutoFeed(bool feed);
+
+		/**
 		 * Set the model desired frame.
 		 * If the specified frame is greater than the number
 		 * of the frames in the animation it will result in 
 		 * frame = numberOfFrames % desiredFrame
 		 */
 		void setAnimationFrame(unsigned int frameNum);
+
+		/**
+		 * Set the animation frame based
+		 * on time elapsed since the frame
+		 * start.
+		 */
+		void setAnimationFrameTime(vec_t frameTime);
 
 		/**
 		 * Get one md5mesh from an index.

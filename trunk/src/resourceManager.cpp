@@ -74,7 +74,7 @@ resourceManager& resourceManager::getSingleton()
 	return (*singleton_instance);  
 }
 			
-std::string getExtension(const std::string& file)
+static inline std::string getExtension(const std::string& file)
 {
 	char* dot = strstr(file.c_str(), ".");
 
@@ -141,10 +141,54 @@ void resourceGroup::scanDir(std::string path, bool recursive)
 
 	closedir(dp);
 }
+#else
+void resourceGroup::scanDir(std::string path, bool recursive)
+{
+	// Hold Wii directories
+	DIR_ITER *dp = NULL;
+
+	// For each dirnext filename
+	char filename[FILENAME_MAX + 1];
+
+	if ((dp  = diropen(path.c_str())) == NULL) 
+	{
+		S_LOG_INFO("Failed to access directory " + path + ".");
+		return;
+	}
+    
+	while (dirnext(dp, filename, NULL) == 0) 
+	{
+		if (!strcmp(filename, ".") || !strcmp(filename, ".."))
+			continue;
+
+		std::string fullPath = path + filename;
+		if (diropen(fullPath.c_str()) == NULL)
+		{
+			// Do something with file names.
+			filterResource(fullPath);
+		}
+		else
+		if (recursive)
+		{
+			// This is a directory
+			// save the original filename
+			std::string original = path;
+
+			path += filename;
+			path += "/";
+
+			scanDir(path, false);
+
+			path = original;
+		}
+	}
+
+	dirclose(dp);
+}
 #endif
 
 // Helper
-std::string getDirectory(const std::string& path)
+static inline std::string getDirectory(const std::string& path)
 {
 	const char* rightBar = strstr(path.c_str(), "/");
 	const char* leftBar = strstr(path.c_str(), "\\");

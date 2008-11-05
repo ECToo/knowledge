@@ -57,6 +57,7 @@
 	#include <ogc/pad.h>
 	#include <fat.h>
 	#include <sys/unistd.h>
+	#include <sys/dir.h>
 	#include <malloc.h>
 	#include <wiiuse/wpad.h>
 #endif

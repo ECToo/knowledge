@@ -19,6 +19,7 @@
 #include "root.h"
 #include "renderer.h"
 #include "rendersystem.h"
+#include "resourceManager.h"
 #include "logger.h"
 
 #ifdef __WII__
@@ -44,21 +45,24 @@ int main(int argc, char** argv)
 	mRenderSystem->createWindow(800, 600);
 	mRenderSystem->setDepthTest(true);
 
+	#ifdef __WII__
+	new k::resourceManager("/knowledge/resources.cfg");
+	#else
+	new k::resourceManager("../resources.cfg");
+	#endif
+
+	k::resourceManager::getSingleton().loadGroup("common");
+	k::resourceManager::getSingleton().loadGroup("texture");
+
 	// Rotations
 	vec_t rquad = 0;
 
 	#ifdef __WII__
-	k::parsingFile* matFile = new k::parsingFile("/knowledge/textures/texture.material");
 	k::parsingFile* tevFile = new k::parsingFile("/knowledge/tev.script");
 
 	assert(tevFile != NULL);
 	k::tevManager::getSingleton().parseTevScript(tevFile);
-	#else
-	k::parsingFile* matFile = new k::parsingFile("texture.material");
 	#endif
-
-	assert(matFile != NULL);
-	mMaterialManager->parseMaterialScript(matFile);
 
 	// Get material
 	k::material* crateMaterial = mMaterialManager->getMaterial("crate");

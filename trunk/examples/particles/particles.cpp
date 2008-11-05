@@ -39,7 +39,12 @@ int main(int argc, char** argv)
 	mRenderSystem->setDepthTest(true);
 
 	// Common library
+	#ifdef __WII__
+	new k::resourceManager("/knowledge/resources.cfg");
+	#else
 	new k::resourceManager("../resources.cfg");
+	#endif
+
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("particles");
 
@@ -99,7 +104,11 @@ int main(int argc, char** argv)
 			leftHold = false;
 		}
 
+		#ifdef __WII__
+		sprAngle += 0.1;
+		#else
 		sprAngle += 0.01;
+		#endif
 		sprPos.x = cos(sprAngle)*20;
 		sprPos.y = cos(sprAngle)*20;
 		sprPos.z = sin(sprAngle)*20 - 20;
