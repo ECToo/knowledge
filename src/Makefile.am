@@ -19,6 +19,7 @@ libknowledge_la_SOURCES = drawable.cpp\
 								  glTextureLib.cpp\
 								  sticker.cpp\
 								  sprite.cpp\
+								  particle.cpp\
 								  logger.cpp\
 								  root.cpp
 

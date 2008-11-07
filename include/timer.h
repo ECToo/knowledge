@@ -42,7 +42,7 @@ namespace k
 				gettimeofday(&start, NULL);
 			}
 
-			vec_t getMilliSeconds()
+			int getMilliSeconds()
 			{
 				struct timeval end;
 				gettimeofday(&end, NULL);

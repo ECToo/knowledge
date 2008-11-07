@@ -20,6 +20,10 @@
 
 #include "prerequisites.h"
 #include "vector3.h"
+#include "timer.h"
+#include "material.h"
+#include "sprite.h"
+#include "camera.h"
 
 namespace k 
 {
@@ -37,29 +41,175 @@ namespace k
 		AFFECTOR_WAVE
 	};
 
-	class particleEmitter
+	/**
+	 * Particle class.
+	 */
+	class particle
 	{
 		private:
+			vector3 mPosition;
+
 			/**
-			 * Particle radius
+			 * This is applied to the corpse
+			 * position each second. Of course
+			 * that if it is called in a smaller
+			 * interval, it is applied in smaller
+			 * parts.
 			 */
-			vec_t	mParticleRadius;
+			vector3 mVelocity;
+			vector3 mAcceleration;
+
+			/**
+			 * Last time we called the draw
+			 * function
+			 */
+			unsigned int mLastDrawTime;
+			
+			/**
+			 * The time (based on timer class)
+			 * this particle was spawned.
+			 */
+			unsigned int mSpawnTime;
+
+			/**
+			 * Each particle has an independent radius.
+			 */
+			vec_t mRadius;
+
+			bool mVisible;
+
+		public:
+			particle();
+
+			const vector3& getVelocity();
+			const vector3& getAcceleration();
+			bool isVisible();
+
+			unsigned int getSpawnTime();
+
+			void setVelocity(vector3& vel);
+			void setAcceleration(vector3& accel);
+			void setPosition(vector3& pos);
+
+			void setRadius(vec_t radi);
+			void setVisibility(bool vis);
+			void resetLife(unsigned int time);
+			void draw(sprite* spr, unsigned int time);
+	};
+
+	class particleEmitter
+	{
+		protected:
+			/**
+			 * Particle initial radius.
+			 */
+			vec_t	mRadius;
 
 			/**
 			 * Lifetime (in msec) of each particle on the system.
 			 */
-			vec_t mParticleLifetime;
+			unsigned int mLifetime;
 
 			/**
 			 * Max number of particles on this system.
 			 */
-			vec_t mMaxNumberOfParticles;
+			unsigned int mMaxNumberOfParticles;
 
 			/**
-			 * This is the time (in msec) between each particle
+			 * This is the time (in msec) between each set of particles
 			 * spawn.
 			 */
-			vec_t mSpawnTime;
+			unsigned int mSpawnTime;
+
+			/**
+			 * This is the amount of particles to spawn.
+			 */
+			unsigned int mSpawnQuantity;
+
+			/**
+			 * Number of free particles in the system.
+			 */
+			unsigned int mFreeParticles;
+
+			/**
+			 * Timer to keep track of emitter
+			 * events.
+			 */
+			timer mTimer;
+			timer mSpawnTimer;
+
+			/**
+			 * The actual particles
+			 */
+			std::vector<particle>* mParticles;
+
+			/**
+			 * The material used by the particles.
+			 */
+			std::string mMaterial;
+
+			/**
+			 * This sprite is shared among the particles
+			 * since they are all the same material, this is 
+			 * pretty possible.
+			 */
+			sprite* mSprite;
+
+			/**
+			 * Point pos.
+			 */
+			vector3 mPosition;
+
+			particle* findFreeParticle();
+
+			void killParticle(particle* p);
+			void spawnParticle(particle* p);
+
+		public:
+			particleEmitter(unsigned int numParticles, material* mat);
+			particleEmitter(unsigned int numParticles, const std::string& mat);
+
+			virtual ~particleEmitter();
+
+			void setRadius(vec_t radi);
+			void setSpawnQuantity(unsigned int amount);
+			void setSpawnTime(unsigned int time);
+			void setLifeTime(unsigned int time);
+			void setMaterial(const std::string& mat);
+			void setPosition(vector3& pos);
+
+			virtual void feed() = 0;
+			virtual void draw(camera* c) = 0;
+	};
+	
+	class pointEmitter : public particleEmitter
+	{
+		private:
+			/**
+			 * Initial velocities.
+			 */
+			vector3 mVelocity;
+
+			/**
+			 * System acceleration.
+			 */
+			vector3 mAcceleration;
+
+		public:
+			pointEmitter(unsigned int numParticles, material* mat);
+			pointEmitter(unsigned int numParticles, const std::string& mat);
+
+			void spawnParticle(particle* p);
+
+			void feed();
+			void draw(camera* c);
+
+			void setVelocity(vector3& vel);
+			void setAcceleration(vector3& accel);
+	};
+
+	class particleAffector
+	{
 	};
 
 	class particleSystem
@@ -83,6 +233,27 @@ namespace k
 			/**
 			 * Emissors
 			 */
+			std::map<std::string, particleEmitter*> mEmissors;
+
+			/**
+			 * Affectors
+			 */
+			std::map<std::string, particleAffector*> mAffectors;
+
+		public:
+			particleSystem();
+			~particleSystem();
+
+			void setPosition(const vector3& pos);
+
+			void setMaterial(const std::string& mat);
+			void setMaterial(material* mat);
+
+			void setMass(vec_t mass);
+
+			void pushEmitter(const std::string& name, particleEmitter* em);
+
+			void cycle(camera* c);
 	};
 }
 
