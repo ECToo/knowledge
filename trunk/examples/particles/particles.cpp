@@ -38,6 +38,7 @@ int main(int argc, char** argv)
 	// Doesnt matter on wii
 	mRenderSystem->createWindow(800, 600);
 	mRenderSystem->setDepthTest(true);
+	mRenderSystem->setClearColor(k::vector3(0.125, 0.349, 0.505));
 
 	// Common library
 	#ifdef __WII__
@@ -70,7 +71,7 @@ int main(int argc, char** argv)
 	mRenderer->setCamera(newCamera);
 
 	// Particles
-	k::pointEmitter* pE = new k::pointEmitter(2000, "poison");
+	k::pointEmitter* pE = new k::pointEmitter(2000, "bubble");
 	assert(pE != NULL);
 
 	k::particleSystem* pS = new k::particleSystem();
@@ -78,15 +79,31 @@ int main(int argc, char** argv)
 
 	k::vector3 pVel = k::vector3(0, 20, 0);
 	pE->setVelocity(pVel);
-	pE->setRadius(4);
-	pE->setSpawnQuantity(10);
+	pE->setRadius(1.5);
+	pE->setSpawnQuantity(2);
 	pE->setSpawnTime(100);
 	pE->setLifeTime(2000);
 
-	k::vector3 pSPos = k::vector3(0, 0, -50);
+	k::vector3 pSPos = k::vector3(0, -40, -10);
 	pS->setPosition(pSPos);
 	pS->pushEmitter("test", pE);
 	mRenderer->pushParticle(pS);
+
+	// Particle system 2 - smaller ones
+	k::pointEmitter* pE2 = new k::pointEmitter(1000, "bubble");
+	assert(pE != NULL);
+
+	k::particleSystem* pS2 = new k::particleSystem();
+	assert(pS != NULL);
+
+	pE2->setRadius(1.0);
+	pE2->setSpawnQuantity(2);
+	pE2->setSpawnTime(100);
+	pE2->setLifeTime(2000);
+
+	pS2->setPosition(pSPos);
+	pS2->pushEmitter("test2", pE2);
+	mRenderer->pushParticle(pS2);
 
 	bool running = true;
 	bool leftHold = false;
