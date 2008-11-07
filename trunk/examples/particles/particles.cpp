@@ -28,7 +28,6 @@ int main(int argc, char** argv)
 	k::root* appRoot = new k::root();
 	k::renderSystem* mRenderSystem = appRoot->getRenderSystem();
 	k::renderer* mRenderer = appRoot->getRenderer();
-	k::materialManager* mMaterialManager = appRoot->getMaterialManager();
 	k::guiManager* mGuiManager = appRoot->getGuiManager();
 	k::inputManager* mInputManager = appRoot->getInputManager();
 
@@ -107,10 +106,15 @@ int main(int argc, char** argv)
 
 	bool running = true;
 	bool leftHold = false;
-	vec_t sprAngle = 0;
 
 	while (running)
 	{
+		#ifdef WIN32
+		Sleep(1000);
+		#else
+		usleep(1000);
+		#endif
+
 		mInputManager->feed();
 
 		// User clicked on Close Window
