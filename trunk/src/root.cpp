@@ -20,6 +20,10 @@
 #include "glRenderSystem.h"
 #include "wiiRenderSystem.h"
 
+#ifdef __WII__
+#include <debug.h>
+#endif
+
 namespace k {
 
 template<> root* singleton<root>::singleton_instance = 0;
@@ -38,6 +42,10 @@ root::root()
 	new logger("knowledge.log");
 	logger::getSingleton().setLogMode(LOGMODE_BOTH);
 	#else
+	// GECKO Debugging
+	DEBUG_Init(GDBSTUB_DEVICE_USB, 1);
+	//
+	
 	mActiveRS = new wiiRenderSystem();
 
 	// Initialize SD card

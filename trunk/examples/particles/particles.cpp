@@ -20,6 +20,7 @@
 #include "rendersystem.h"
 #include "logger.h"
 #include "resourceManager.h"
+#include "particle.h"
 
 int main(int argc, char** argv)
 {
@@ -68,12 +69,24 @@ int main(int argc, char** argv)
 	newCamera->lookAt(k::vector3(0, 0, -1));
 	mRenderer->setCamera(newCamera);
 
-	// Sprite
-	k::vector3 sprPos;
-	k::sprite* newSpr = mRenderer->createSprite(2, mMaterialManager->getMaterial("poison"));
-	assert(newSpr != NULL);
-	k::sprite* newSpr2 = mRenderer->createSprite(2, mMaterialManager->getMaterial("poison"));
-	assert(newSpr != NULL);
+	// Particles
+	k::pointEmitter* pE = new k::pointEmitter(2000, "poison");
+	assert(pE != NULL);
+
+	k::particleSystem* pS = new k::particleSystem();
+	assert(pS != NULL);
+
+	k::vector3 pVel = k::vector3(0, 20, 0);
+	pE->setVelocity(pVel);
+	pE->setRadius(4);
+	pE->setSpawnQuantity(10);
+	pE->setSpawnTime(100);
+	pE->setLifeTime(2000);
+
+	k::vector3 pSPos = k::vector3(0, 0, -50);
+	pS->setPosition(pSPos);
+	pS->pushEmitter("test", pE);
+	mRenderer->pushParticle(pS);
 
 	bool running = true;
 	bool leftHold = false;
@@ -103,19 +116,6 @@ int main(int argc, char** argv)
 			// Do Something
 			leftHold = false;
 		}
-
-		#ifdef __WII__
-		sprAngle += 0.1;
-		#else
-		sprAngle += 0.01;
-		#endif
-		sprPos.x = cos(sprAngle)*20;
-		sprPos.y = cos(sprAngle)*20;
-		sprPos.z = sin(sprAngle)*20 - 20;
-		newSpr->setPosition(sprPos);
-
-		sprPos.y = -cos(-sprAngle)*20;
-		newSpr2->setPosition(sprPos);
 
 		k::vector2 mousePos = mInputManager->getWiiMotePosition(0);
 		mGuiManager->setCursorPos(mousePos);
