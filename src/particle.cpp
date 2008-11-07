@@ -222,7 +222,7 @@ void pointEmitter::spawnParticle(particle* p)
 
 	p->setPosition(mPosition);
 
-	vector3 randVel = vector3(rand()%20 * rand()%10 * -1, 20, 0);
+	vector3 randVel = vector3(rand()%25 * pow(-1, rand()), rand() % 20 * 2, 0);
 	p->setVelocity(randVel);
 	p->setAcceleration(mAcceleration);
 }
