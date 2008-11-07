@@ -3,11 +3,15 @@ AM_INIT_AUTOMAKE(libknowledge, 0.1)
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_LIBTOOL
+AC_CONFIG_MACRO_DIR([m4])
 AM_SANITY_CHECK
+CFLAGS=""
+CXXFLAGS="-Wall -O3 -g"
 AC_PATH_PROG(SDL_CONFIG, sdl-config)
 if test -n "$SDL_CONFIG"; then
     LIBS="$LIBS `$SDL_CONFIG --libs`"
-	     CPPFLAGS="$CPPFLAGS `$SDL_CONFIG --cflags`"
+	     CXXFLAGS="$CXXFLAGS `$SDL_CONFIG --cflags`"
+		  CPPFLAGS="$CXXFLAGS"
 		  fi
 		  AC_CHECK_LIB([SDL], [SDL_Init], ,
 		  AC_MSG_ERROR([ *** Unable to find SDL library (http://www.libsdl.org/)]))
@@ -18,7 +22,7 @@ if test -n "$SDL_CONFIG"; then
 AC_PATH_PROG(ODE_CONFIG, ode-config)
 if test -n "$ODE_CONFIG"; then
     LIBS="$LIBS `$ODE_CONFIG --libs`"
-	 CPPFLAGS="$CPPFLAGS `$ODE_CONFIG --cflags`"
+	 CXXFLAGS="$CXXFLAGS `$ODE_CONFIG --cflags`"
 fi
 AC_OUTPUT(Makefile src/Makefile \
 			 include/Makefile \
