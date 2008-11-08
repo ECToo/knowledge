@@ -68,9 +68,10 @@ void particle::setVisibility(bool vis)
 	mVisible = vis;
 }
 
-void particle::resetLife(unsigned int time)
+void particle::resetLife(long time)
 {
 	mSpawnTime = time;
+	mLastDrawTime = time;
 }
 			
 void particle::setRadius(vec_t radi)
@@ -78,13 +79,12 @@ void particle::setRadius(vec_t radi)
 	mRadius = radi;
 }
 
-void particle::draw(sprite* spr, unsigned int time)
+void particle::draw(sprite* spr, long time)
 {
 	if (!mVisible)
 		return;
 
 	assert(spr != NULL);
-	assert(time != 0);
 
 	// Update sprite position
 	vec_t timeScaleDiff = (time - mLastDrawTime)/1000.0f;
@@ -169,12 +169,12 @@ void particleEmitter::setSpawnQuantity(unsigned int amount)
 	mSpawnQuantity = amount;
 }
 
-void particleEmitter::setSpawnTime(unsigned int time)
+void particleEmitter::setSpawnTime(long time)
 {
 	mSpawnTime = time;
 }
 
-void particleEmitter::setLifeTime(unsigned int time)
+void particleEmitter::setLifeTime(long time)
 {
 	mLifetime = time;
 }
@@ -222,14 +222,15 @@ void pointEmitter::spawnParticle(particle* p)
 
 	p->setPosition(mPosition);
 
-	vector3 randVel = vector3(rand()%25 * pow(-1, rand()), rand() % 20 * 2, 0);
-	p->setVelocity(randVel);
+	// vector3 randVel = vector3(rand()%25 * pow(-1, rand()), rand() % 20 * 2, 0);
+	// p->setVelocity(randVel);
+	p->setVelocity(mVelocity);
 	p->setAcceleration(mAcceleration);
 }
 					
 void pointEmitter::feed()
 {
-	unsigned int timeElapsed = mTimer.getMilliSeconds();
+	long timeElapsed = mTimer.getMilliSeconds();
 
 	for (std::vector<particle>::iterator it = mParticles->begin();
 			it != mParticles->end(); it++)

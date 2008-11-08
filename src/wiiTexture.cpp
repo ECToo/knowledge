@@ -47,19 +47,26 @@ void wiiTexture::draw()
 
 		vec_t sinAngle = sin(mAngle);
 		vec_t cosAngle = cos(mAngle);
-		mAngle += mRotate;
+		mAngle += mRotate * M_PI / 180.0f;
+
+		mScrolled.x += mScroll.x;
+		mScrolled.y += mScroll.y;
 
 		mTransRotate[0][0] = cosAngle;
-		mTransRotate[1][0] = -sinAngle;
-
-		mTransRotate[0][1] = sinAngle;
-		mTransRotate[1][1] = cosAngle;
-
+		mTransRotate[0][1] = -sinAngle;
 		mTransRotate[0][2] = 0;
+
+		mTransRotate[1][0] = sinAngle;
+		mTransRotate[1][1] = cosAngle;
 		mTransRotate[1][2] = 0;
 
-		mTransRotate[0][3] += mScroll.x;
-		mTransRotate[1][3] += mScroll.y;
+		mTransRotate[2][0] = 0;
+		mTransRotate[2][1] = 0;
+		mTransRotate[2][2] = 1;
+				
+		mTransRotate[0][3] = 0.5 - 0.5 * cosAngle + 0.5 * sinAngle + mScrolled.x;
+		mTransRotate[1][3] = 0.5 - 0.5 * sinAngle - 0.5 * cosAngle + mScrolled.y;
+		mTransRotate[2][3] = 0;
 
 		GX_LoadTexMtxImm(mTransRotate, GX_TEXMTX0 + mIndex, GX_TG_MTX2x4);
 		GX_SetTexCoordGen(GX_TEXCOORD0 + mIndex, GX_TG_MTX2x4, GX_TG_TEX0 + mIndex, GX_TEXMTX0 + mIndex);

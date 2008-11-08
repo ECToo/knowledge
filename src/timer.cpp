@@ -15,38 +15,32 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _TIMER_H_
-#define _TIMER_H_
+#include "timer.h"
 
-#include "prerequisites.h"
-#include "logger.h"
+namespace k {
 
-namespace k
+void timer::reset()
 {
-	class timer
-	{
-		private:
-			/**
-			 * Keep reference of the start
-			 * of the counting.
-			 */
-	
-			#ifdef __WII__
-				s64 start;
-			#else
-				struct timeval start;
-			#endif
-
-		public:
-			timer()
-			{
-				reset();
-			}
-
-			void reset();
-			long getMilliSeconds();
-	};
+	#ifdef __WII__
+	start = gettime();
+	#else
+	gettimeofday(&start, NULL);
+	#endif
 }
 
-#endif
+long timer::getMilliSeconds()
+{
+	#ifdef __WII__
+		s64 end = gettime();
+
+		return ticks_to_millisecs(diff_ticks(start, end));
+	#else
+		struct timeval end;
+		gettimeofday(&end, NULL);
+
+		return (end.tv_sec-start.tv_sec)*1000+(end.tv_usec-start.tv_usec)/1000;
+	#endif
+}
+
+}
 

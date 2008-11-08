@@ -21,6 +21,7 @@ libknowledge_la_SOURCES = drawable.cpp\
 								  sprite.cpp\
 								  particle.cpp\
 								  logger.cpp\
+								  timer.cpp\
 								  root.cpp
 
 INCLUDES = -I@top_srcdir@/include $(CXXFLAGS)

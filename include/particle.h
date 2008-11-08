@@ -63,13 +63,13 @@ namespace k
 			 * Last time we called the draw
 			 * function
 			 */
-			unsigned int mLastDrawTime;
+			long mLastDrawTime;
 			
 			/**
 			 * The time (based on timer class)
 			 * this particle was spawned.
 			 */
-			unsigned int mSpawnTime;
+			long mSpawnTime;
 
 			/**
 			 * Each particle has an independent radius.
@@ -93,8 +93,8 @@ namespace k
 
 			void setRadius(vec_t radi);
 			void setVisibility(bool vis);
-			void resetLife(unsigned int time);
-			void draw(sprite* spr, unsigned int time);
+			void resetLife(long time);
+			void draw(sprite* spr, long time);
 	};
 
 	class particleEmitter
@@ -173,8 +173,8 @@ namespace k
 
 			void setRadius(vec_t radi);
 			void setSpawnQuantity(unsigned int amount);
-			void setSpawnTime(unsigned int time);
-			void setLifeTime(unsigned int time);
+			void setSpawnTime(long time);
+			void setLifeTime(long time);
 			void setMaterial(const std::string& mat);
 			void setPosition(vector3& pos);
 
