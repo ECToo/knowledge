@@ -52,11 +52,31 @@ void sprite::calculateTransPos()
 	camera* mCam = mRenderer->getCamera();
 	assert(mCam != NULL);
 
-	vector3 sprZ = mPosition - mCam->getPosition();
+	vector3 sprZ = mCam->getPosition() - mPosition;
 	sprZ.normalise();
 
 	vector3 sprX = mCam->getRight();
 	vector3 sprY = mCam->getUp();
+
+	#ifdef __WII__
+
+	mTransPos.m[0][0] = sprX.x;
+	mTransPos.m[1][0] = sprX.y;
+	mTransPos.m[2][0] = sprX.z;
+	
+	mTransPos.m[0][1] = sprY.x;
+	mTransPos.m[1][1] = sprY.y;
+	mTransPos.m[2][1] = sprY.z;
+	
+	mTransPos.m[0][2] = sprZ.x;
+	mTransPos.m[1][2] = sprZ.y;
+	mTransPos.m[2][2] = sprZ.z;
+
+	mTransPos.m[0][3] = mPosition.x;
+	mTransPos.m[1][3] = mPosition.y;
+	mTransPos.m[2][3] = mPosition.z;
+
+	#else
 
 	mTransPos.m[0][0] = sprX.x;
 	mTransPos.m[0][1] = sprX.y;
@@ -70,14 +90,10 @@ void sprite::calculateTransPos()
 	mTransPos.m[2][1] = sprZ.y;
 	mTransPos.m[2][2] = sprZ.z;
 
-	#ifdef __WII__
-	mTransPos.m[0][3] = mPosition.x;
-	mTransPos.m[1][3] = mPosition.y;
-	mTransPos.m[2][3] = mPosition.z;
-	#else
 	mTransPos.m[3][0] = mPosition.x;
 	mTransPos.m[3][1] = mPosition.y;
 	mTransPos.m[3][2] = mPosition.z;
+
 	#endif
 
 	// TransPos is now valid =]

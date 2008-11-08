@@ -128,7 +128,7 @@ void genericMesh::end(Mtx& mModelViewMatrix, std::map<int, GXTexObj*>* mActiveTe
 		{
 			for (unsigned int i = 1; i < mat->getTextureUnits(); i++)
 			{
-				GX_SetVtxDesc(GX_VA_TEX0MTXIDX + i, GX_TEXMTX0);
+				GX_SetVtxDesc(GX_VA_TEX0MTXIDX + i, GX_TEXMTX0 + i);
  				GX_SetVtxDesc(GX_VA_TEX0 + i, GX_DIRECT);
 				GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0 + i, GX_TEX_ST, GX_F32, 0);
 			}
@@ -274,6 +274,8 @@ void wiiRenderSystem::configure()
 	GX_Init(mFifo, DEFAULT_FIFO_SIZE);
 
 	// Set Default Clear Color to black
+	mClearDepth = 0x00ffffff;
+
 	setClearColor(vector3(0, 0, 0));
 	setClearDepth(0x00ffffff);
 	GX_SetCopyClear(mClearColor, mClearDepth);
@@ -381,11 +383,13 @@ void wiiRenderSystem::setClearColor(const vector3& color)
 	mClearColor.g = color.y*255;
 	mClearColor.b = color.z*255;
 	mClearColor.a = 255;
+	GX_SetCopyClear(mClearColor, mClearDepth);
 }
 
 void wiiRenderSystem::setClearDepth(const vec_t amount)
 {
 	mClearDepth = amount;
+	GX_SetCopyClear(mClearColor, mClearDepth);
 }
 
 void wiiRenderSystem::setDepthTest(bool test)
@@ -714,7 +718,7 @@ void wiiRenderSystem::drawArrays()
 		for (unsigned int i = 1; i < mActiveMaterial->getTextureUnits(); i++)
 		{
  			GX_SetVtxDesc(GX_VA_TEX0 + i, GX_INDEX16);
-			GX_SetVtxDesc(GX_VA_TEX0MTXIDX + i, GX_TEXMTX0);
+			GX_SetVtxDesc(GX_VA_TEX0MTXIDX + i, GX_TEXMTX0 + i);
 
 			GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0 + i, GX_TEX_ST, GX_F32, 0);
 			GX_SetArray(GX_VA_TEX0 + i, mTexCoordArray, 2 * sizeof(vec_t));

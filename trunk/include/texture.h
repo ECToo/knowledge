@@ -54,6 +54,7 @@ namespace k
 			 * Amount to scroll per frame on x and y
 			 */
 			vector2 mScroll;
+			vector2 mScrolled;
 
 			/**
 			 * Amount to rotate per frame in degrees
@@ -138,7 +139,6 @@ namespace k
 	class glTexture : public textureStage
 	{
 		private:
-			vector2 mScrolled;
 			GLuint mTextureId;
 			ILuint* mDevilTextureId;
 

@@ -58,6 +58,7 @@
 	#include <fat.h>
 	#include <sys/unistd.h>
 	#include <sys/dir.h>
+	#include <ogc/lwp_watchdog.h>
 	#include <malloc.h>
 	#include <wiiuse/wpad.h>
 #endif
