@@ -54,13 +54,17 @@ int main(int argc, char** argv)
 	modelPosition.z = -100;
 
 	#ifdef __WII__
-	k::md5model* newModel = new k::md5model("/knowledge/model/goku.md5mesh");
+	// k::md5model* newModel = new k::md5model("/knowledge/model/goku.md5mesh");
+	k::md5model* newModel = new k::md5model("/knowledge/model/torus.md5mesh");
 	#else
-	k::md5model* newModel = new k::md5model("goku.md5mesh");
+	// k::md5model* newModel = new k::md5model("goku.md5mesh");
+	k::md5model* newModel = new k::md5model("torus.md5mesh");
 	#endif
 
 	assert(newModel != NULL);
+	newModel->getMesh(0)->setMaterial("donutMetal");
 
+	/*
 	#ifdef __WII__
 	newModel->attachAnimation("/knowledge/model/idle.md5anim", "idle");
 	#else
@@ -69,6 +73,7 @@ int main(int argc, char** argv)
 
 	newModel->setAnimation("idle");
 	newModel->setAnimationFrame(10);
+	*/
 	mRenderer->push3D(newModel);
 
 	assert(mGuiManager != NULL);
@@ -114,10 +119,22 @@ int main(int argc, char** argv)
 			modelPosition.y--;
 
 		if (mInputManager->getKbdKeyDown(K_KBD_a) || mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_PLUS))
-			modelPosition.z += 0.3;
+		{
+			#ifdef __WII__
+			modelPosition.z += 0.5;
+			#else
+			modelPosition.z += 0.1;
+			#endif
+		}
 		else
 		if (mInputManager->getKbdKeyDown(K_KBD_z) || mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_MINUS))
-			modelPosition.z -= 0.3;
+		{
+			#ifdef __WII__
+			modelPosition.z -= 0.5;
+			#else
+			modelPosition.z -= 0.1;
+			#endif
+		}
 
 		if (mInputManager->getKbdKeyDown(K_KBD_i) || mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_UP))
 			rY += 1;
@@ -170,12 +187,14 @@ int main(int argc, char** argv)
 		newModel->setPosition(modelPosition);
 		newModel->setOrientation(modelQuat);
 
+		/*
 		#ifdef __WII__
 		newModel->setAnimationFrame((frame++)/2);
 		#else
 		newModel->setAnimationFrame((frame)/2);
 		frame += 0.1;
 		#endif
+		*/
 		
 		mRenderer->draw();
 	}

@@ -21,6 +21,19 @@
 
 namespace k {
 
+material::material()
+{
+	mTextureUnits = 0;
+
+	#ifdef __WII__
+	mCull = CULLMODE_BACK;
+	#else
+	mCull = CULLMODE_FRONT;
+	#endif
+
+	mDepthTest = true;
+}
+
 void material::prepare()
 {
 	// Material Properties
@@ -31,6 +44,8 @@ void material::prepare()
 	rs->matAmbient(mAmbient);
 	rs->matDiffuse(mDiffuse);
 	rs->matSpecular(mSpecular);
+	rs->setCulling(mCull);
+	rs->setDepthTest(mDepthTest);
 
 	// Color/Light Only
 	#ifdef __WII__
@@ -78,6 +93,11 @@ unsigned int material::getTextureUnits()
 	return mTextureUnits;
 }
 			
+void material::setDepthTest(bool test)
+{
+	mDepthTest = test;
+}
+
 void material::setTextureUnits(unsigned int tex)
 {
 	mTextureUnits = tex;
@@ -98,6 +118,30 @@ void material::setSpecular(const vector3& color)
 	mSpecular = color;
 }
 			
+void material::setCullMode(CullMode cull)
+{
+	mCull = cull;
+}
+			
+unsigned int material::getNumberOfTextureStages()
+{
+	return mTextures.size();
+}
+
+textureStage* material::getTextureStage(unsigned short index)
+{
+	unsigned short i = 0;
+	std::list<textureStage*>::iterator it;
+
+	for (it = mTextures.begin(); it != mTextures.end(); it++)
+	{
+		if (i++ == index)
+			return (*it);
+	}
+
+	return NULL;
+}
+
 void material::pushTexture(textureStage* tex)
 {
 	assert(tex != NULL);

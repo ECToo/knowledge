@@ -103,6 +103,8 @@ namespace k
 			unsigned int getWidth();
 			unsigned int getHeight();
 
+			texCoordType getTexCoordType();
+
 			/**
 			 * Set the texture id. On opengl this is a
 			 * pointer to ILuint and on wii GXTexObj
@@ -126,6 +128,8 @@ namespace k
 		private:
 			Mtx mTransRotate;
 			GXTexObj* mTextureId;
+
+			void setTexCoordGen();
 
 		public:
 			wiiTexture(unsigned int width, unsigned int height,

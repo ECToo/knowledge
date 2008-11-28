@@ -119,6 +119,26 @@ namespace k
 					m[0][3] * MINOR(*this, 1, 2, 3, 0, 1, 2);
 			}
 
+			#ifdef __WII__
+			void getWiiMatrix(Mtx wiiMat)
+			{
+				wiiMat[0][0] = m[0][0];
+				wiiMat[0][1] = m[1][0];
+				wiiMat[0][2] = m[2][0];
+				wiiMat[0][3] = m[3][0];
+
+				wiiMat[1][0] = m[0][1];
+				wiiMat[1][1] = m[1][1];
+				wiiMat[1][2] = m[2][1];
+				wiiMat[1][3] = m[3][1];
+
+				wiiMat[2][0] = m[0][2];
+				wiiMat[2][1] = m[1][2];
+				wiiMat[2][2] = m[2][2];
+				wiiMat[2][3] = m[3][2];
+			}
+			#endif
+
 			void cout()
 			{
 				std::cout << m[0][0] << "\t" << m[1][0] << "\t" << m[2][0] << "\t" << m[3][0] << std::endl;

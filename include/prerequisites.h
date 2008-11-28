@@ -53,6 +53,7 @@
 	#include <ogc/video.h>
 	#include <ogc/system.h>
 	#include <ogc/gx.h>
+	#include <ogc/gu.h>
 	#include <ogc/cache.h>
 	#include <ogc/pad.h>
 	#include <fat.h>

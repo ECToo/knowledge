@@ -199,11 +199,13 @@ namespace k
 						);
 			}
 
-			void negate()
+			vector3 negate()
 			{
 				x = -x;
 				y = -y;
 				z = -z;
+
+				return *this;
 			}
 			
 			const vec_t length()

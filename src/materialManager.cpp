@@ -407,6 +407,33 @@ void materialManager::parseMaterial(material* mat, parsingFile* file)
 			mat->setSpecular(vector3(r, g, b));
 		}
 		else
+		if (token == "cull")
+		{
+			token = file->getNextToken();
+			if (token == "none" || token == "disabled")
+			{
+				mat->setCullMode(CULLMODE_NONE);
+			}
+			else
+			if (token == "front")
+				mat->setCullMode(CULLMODE_FRONT);
+			else
+			if (token == "back")
+				mat->setCullMode(CULLMODE_BACK);
+			else
+			if (token == "both")
+				mat->setCullMode(CULLMODE_BOTH);
+		}
+		else
+		if (token == "depth_enabled")
+		{
+			token = file->getNextToken();
+			if (token == "true" || token == "yes")
+				mat->setDepthTest(true);
+			else
+				mat->setDepthTest(false);
+		}
+		else
 		if (token == "texture")
 		{
 			parseTextureSection(mat, file, textureIndex++);

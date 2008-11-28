@@ -173,6 +173,7 @@ namespace k
 			void identityMatrix();
 			void copyMatrix(f32 matrix[][4]);
 			void multMatrix(f32 matrix[][4]);
+			void getModelView(Mtx matrix);
 
 			void translateScene(vec_t x, vec_t y, vec_t z);
 			void rotateScene(vec_t angle, vec_t x, vec_t y, vec_t z);

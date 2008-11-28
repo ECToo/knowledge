@@ -25,6 +25,16 @@
 
 namespace k
 {
+	enum frustumPlanes
+	{
+		PLANE_NEAR,
+		PLANE_FAR,
+		PLANE_TOP,
+		PLANE_BOTTOM,
+		PLANE_LEFT,
+		PLANE_RIGHT
+	};
+
 	class camera
 	{
 		private:
@@ -62,6 +72,17 @@ namespace k
 			 * The default is 1000.
 			 */
 			vec_t mFarPlane;
+
+			/**
+			 * A point inside each frustum plane.
+			 */
+			vector3 mFrustumPlanes[6];
+
+			/**
+			 * The D argument for each frustum 
+			 * plane.
+			 */
+			vec_t mFrustumDs[6];
 
 		public:
 			camera();
@@ -107,6 +128,13 @@ namespace k
 			 * perspective settings to the scene.
 			 */
 			void setPerspective();
+
+			/**
+			 * Check if a point is inside the view
+			 * frustum
+			 */
+			bool isPointInsideFrustum(const vector3& point);
+			bool isSphereInsideFrustum(const vector3& center, vec_t radius);
 
 			// Look at the vector dest
 			void lookAt(vector3 dest);
