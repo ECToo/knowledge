@@ -56,6 +56,7 @@ namespace k
 			void identityMatrix();
 			void copyMatrix(vec_t* matrix);
 			void multMatrix(vec_t* matrix);
+			vec_t* getModelView();
 
 			void translateScene(vec_t x, vec_t y, vec_t z);
 			void rotateScene(vec_t angle, vec_t x, vec_t y, vec_t z);

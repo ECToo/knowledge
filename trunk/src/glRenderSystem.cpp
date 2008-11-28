@@ -163,7 +163,7 @@ void glRenderSystem::setShadeModel(ShadeModel model)
 
 void glRenderSystem::setMatrixMode(MatrixMode mode)
 {
-	int matrixMode;
+	unsigned short matrixMode = GL_MODELVIEW;
 	switch (mode)
 	{
 		case MATRIXMODE_MODELVIEW:
@@ -191,7 +191,15 @@ void glRenderSystem::identityMatrix()
 {
 	glLoadIdentity();
 }
-			
+						
+vec_t* glRenderSystem::getModelView()
+{
+	vec_t matrix[16];
+	glGetFloatv(GL_MODELVIEW_MATRIX, matrix);
+
+	return matrix;
+}
+
 void glRenderSystem::multMatrix(vec_t* matrix)
 {
 	assert(matrix != NULL);
@@ -236,7 +244,7 @@ void glRenderSystem::setOrthographic(vec_t left, vec_t right, vec_t bottom, vec_
 
 void glRenderSystem::setCulling(CullMode culling)
 {
-	int cullMode;
+	unsigned short cullMode = GL_BACK;
 	switch(culling)
 	{
 		case CULLMODE_NONE:
@@ -264,11 +272,13 @@ void glRenderSystem::startVertices(VertexMode mode)
 {
 	switch (mode)
 	{
+		case VERTEXMODE_LINE:
+			glBegin(GL_LINES);
+			break;
 		default:
 		case VERTEXMODE_TRIANGLES: 
 			glBegin(GL_TRIANGLES);
 			break;
-
 		case VERTEXMODE_QUAD:
 			glBegin(GL_QUADS);
 			break;

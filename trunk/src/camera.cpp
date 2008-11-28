@@ -72,6 +72,28 @@ void camera::setPerspective()
 	rs->identityMatrix();
 	rs->setPerspective(mFov, mAspectRatio, mNearPlane, mFarPlane);
 }
+			
+bool camera::isSphereInsideFrustum(const vector3& center, vec_t radius)
+{
+	for (unsigned short i = 0; i < 6; i++)
+	{
+		if ((mFrustumPlanes[i].dotProduct(center) + mFrustumDs[i]) < -radius)
+			return false;
+	}
+
+	return true;
+}
+
+bool camera::isPointInsideFrustum(const vector3& point)
+{
+	for (unsigned short i = 0; i < 6; i++)
+	{
+		if ((mFrustumPlanes[i].dotProduct(point) + mFrustumDs[i]) < 0)
+			return false;
+	}
+
+	return true;
+}
 
 void camera::lookAt(vector3 pos)
 {
@@ -132,6 +154,42 @@ void camera::setView()
 
 	mFinal = mRotation;
 	#endif
+
+	// View Frustum
+	vec_t hFar = 2 * tan(mFov / 2) * mFarPlane;
+	vec_t wFar = hFar * mAspectRatio;
+
+	// Far Plane
+	vector3 farCenter = mPosition + getDirection() * mFarPlane;
+
+	vector3 farTopBase = (getUp() * hFar/2);
+	vector3 farRightBase = (getRight() * wFar/2);
+
+	vector3 farTopLeft = farCenter + farTopBase - farRightBase;
+	vector3 farTopRight = farCenter + farTopBase + farRightBase;
+	vector3 farBottomRight = farCenter - farTopBase + farRightBase;
+
+	// Near Plane
+	vector3 nearCenter = mPosition + getDirection() * mNearPlane;
+
+	// Ok lets define the frustum planes
+	mFrustumPlanes[PLANE_NEAR] = getDirection();
+	mFrustumDs[PLANE_NEAR] = -getDirection().dotProduct(nearCenter);
+
+	mFrustumPlanes[PLANE_FAR] = getDirection().negate();
+	mFrustumDs[PLANE_FAR] = getDirection().dotProduct(nearCenter);
+
+	mFrustumPlanes[PLANE_RIGHT] = getRight().negate();
+	mFrustumDs[PLANE_RIGHT] = getRight().dotProduct(farTopRight);
+
+	mFrustumPlanes[PLANE_LEFT] = getRight();
+	mFrustumDs[PLANE_LEFT] = -getRight().dotProduct(farTopLeft);
+
+	mFrustumPlanes[PLANE_TOP] = getUp().negate();
+	mFrustumDs[PLANE_TOP] = getUp().dotProduct(farTopRight);
+
+	mFrustumPlanes[PLANE_BOTTOM] = getUp();
+	mFrustumDs[PLANE_BOTTOM] = -getUp().dotProduct(farBottomRight);
 }
 
 void camera::copyView()

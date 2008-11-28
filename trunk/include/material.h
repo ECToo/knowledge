@@ -25,6 +25,14 @@
 
 namespace k
 {
+	enum CullMode
+	{
+		CULLMODE_NONE,
+		CULLMODE_BACK,
+		CULLMODE_FRONT,
+		CULLMODE_BOTH
+	};
+
 	class material
 	{
 		private:
@@ -32,22 +40,27 @@ namespace k
 			vector3 mDiffuse;
 			vector3 mSpecular;
 
+			CullMode mCull;
+			bool mDepthTest;
+
 			unsigned int mTextureUnits;
 
 			std::list<textureStage*> mTextures;
 
 		public:
-			material()
-			{
-				mTextureUnits = 0;
-			}
+			material();
 
 			void setAmbient(const vector3& color);
 			void setDiffuse(const vector3& color);
 			void setSpecular(const vector3& color);
+			void setCullMode(CullMode cull);
+			void setDepthTest(bool test);
 
 			void setTextureUnits(unsigned int tex);
 			void pushTexture(textureStage* tex);
+
+			unsigned int getNumberOfTextureStages();
+			textureStage* getTextureStage(unsigned short index);
 
 			/**
 			 * Prepare material, before drawing.

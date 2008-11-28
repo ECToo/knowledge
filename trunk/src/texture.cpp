@@ -69,6 +69,11 @@ void textureStage::setRotate(vec_t angle)
 {
 	mRotate = angle;
 }
+			
+texCoordType textureStage::getTexCoordType()
+{
+	return mTexCoordType;
+}
 
 }
 

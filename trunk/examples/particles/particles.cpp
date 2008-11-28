@@ -79,10 +79,8 @@ int main(int argc, char** argv)
 	k::vector3 pVel = k::vector3(0, 20, 0);
 	pE->setVelocity(pVel);
 	pE->setRadius(1.5);
-	pE->setSpawnQuantity(1);
-	// pE->setSpawnQuantity(2);
-	pE->setSpawnTime(1000);
-	// pE->setSpawnTime(100);
+	pE->setSpawnQuantity(2);
+	pE->setSpawnTime(100);
 	pE->setLifeTime(2000);
 
 	k::vector3 pSPos = k::vector3(0, -40, -10);

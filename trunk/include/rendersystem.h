@@ -39,16 +39,9 @@ namespace k
 		MATRIXMODE_MODELVIEW
 	};
 
-	enum CullMode
-	{
-		CULLMODE_NONE,
-		CULLMODE_BACK,
-		CULLMODE_FRONT,
-		CULLMODE_BOTH
-	};
-
 	enum VertexMode
 	{
+		VERTEXMODE_LINE,
 		VERTEXMODE_TRIANGLES,
 		VERTEXMODE_QUAD
 	};
@@ -100,9 +93,11 @@ namespace k
 			#ifndef __WII__
 			virtual void copyMatrix(vec_t* matrix) = 0;
 			virtual void multMatrix(vec_t* matrix) = 0;
+			virtual vec_t* getModelView() = 0;
 			#else
 			virtual void copyMatrix(Mtx44 matrix) = 0;
 			virtual void multMatrix(Mtx44 matrix) = 0;
+			virtual void getModelView(Mtx matrix) = 0;
 			#endif
 
 			virtual void translateScene(vec_t x, vec_t y, vec_t z) = 0;

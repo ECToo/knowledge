@@ -125,13 +125,14 @@ void genericMesh::end(Mtx& mModelViewMatrix, std::map<int, GXTexObj*>* mActiveTe
 		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
 
 		if (mat)
+		for (unsigned int i = 1; i < mat->getTextureUnits(); i++)
 		{
-			for (unsigned int i = 1; i < mat->getTextureUnits(); i++)
-			{
-				GX_SetVtxDesc(GX_VA_TEX0MTXIDX + i, GX_TEXMTX0 + i);
- 				GX_SetVtxDesc(GX_VA_TEX0 + i, GX_DIRECT);
-				GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0 + i, GX_TEX_ST, GX_F32, 0);
-			}
+			textureStage* stage = mat->getTextureStage(i);
+			assert(stage != NULL);
+
+			GX_SetVtxDesc(GX_VA_TEX0MTXIDX + i, GX_TEXMTX0 + i);
+ 			GX_SetVtxDesc(GX_VA_TEX0 + i, GX_DIRECT);
+			GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0 + i, GX_TEX_ST, GX_F32, 0);
 		}
 
 		texCoord = GX_TEXCOORD0;
@@ -162,6 +163,9 @@ void genericMesh::end(Mtx& mModelViewMatrix, std::map<int, GXTexObj*>* mActiveTe
 	// Start the Vertex Descriptor on Flipper
 	switch (mRenderingMode)
 	{
+		case VERTEXMODE_LINE:
+			GX_Begin(GX_LINES, GX_VTXFMT0, mVertices.size());
+			break;
 		default:
 		case VERTEXMODE_TRIANGLES:
 			GX_Begin(GX_TRIANGLES, GX_VTXFMT0, mVertices.size());
@@ -471,6 +475,11 @@ void wiiRenderSystem::copyMatrix(f32 matrix[][4])
 	}
 }
 
+void wiiRenderSystem::getModelView(Mtx matrix)
+{
+	guMtxCopy(mModelViewMatrix, matrix);
+}
+
 void wiiRenderSystem::multMatrix(f32 matrix[][4])
 {
 	switch (mActiveMatrix)
@@ -717,11 +726,13 @@ void wiiRenderSystem::drawArrays()
 		if (mActiveMaterial)
 		for (unsigned int i = 1; i < mActiveMaterial->getTextureUnits(); i++)
 		{
+			textureStage* stage = mActiveMaterial->getTextureStage(i);
+			assert(stage != NULL);
+
  			GX_SetVtxDesc(GX_VA_TEX0 + i, GX_INDEX16);
 			GX_SetVtxDesc(GX_VA_TEX0MTXIDX + i, GX_TEXMTX0 + i);
-
-			GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0 + i, GX_TEX_ST, GX_F32, 0);
 			GX_SetArray(GX_VA_TEX0 + i, mTexCoordArray, 2 * sizeof(vec_t));
+			GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0 + i, GX_TEX_ST, GX_F32, 0);
 		}
 
 		texCoord = GX_TEXCOORD0;
