@@ -39,9 +39,6 @@ namespace k
 			sticker(const std::string& matName);
 			~sticker();
 
-			void setZ(vec_t z);
-			vec_t getZ();
-
 			material* getMaterial();
 			void draw();
 	};

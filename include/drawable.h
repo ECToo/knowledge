@@ -29,6 +29,7 @@ namespace k
 	{
 		protected:
 			vector2 mPosition;
+			vec_t mZ;
 
 			/**
 			 * Width x Height
@@ -44,10 +45,12 @@ namespace k
 			void setPosition(const vector2& pos);
 			void setRotation(const vec_t rot);
 			void setScale(const vector2& size);
+			void setZ(vec_t z);
 
 			const vector2& getPosition();
 			const vec_t getRotation();
 			const vector2& getDimension();
+			const vec_t getZ();
 
 			virtual ~drawable2D();
 			virtual void draw() = 0;

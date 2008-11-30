@@ -63,13 +63,13 @@ namespace k
 			 * Last time we called the draw
 			 * function
 			 */
-			long mLastDrawTime;
+			unsigned long mLastDrawTime;
 			
 			/**
 			 * The time (based on timer class)
 			 * this particle was spawned.
 			 */
-			long mSpawnTime;
+			unsigned long mSpawnTime;
 
 			/**
 			 * Each particle has an independent radius.

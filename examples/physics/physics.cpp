@@ -157,7 +157,8 @@ int main(int argc, char** argv)
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("physics");
 
-	mRenderer->setSkyBox("nightzSky");
+	mRenderer->setSkyPlane("skyPlane");
+	// mRenderer->setSkyBox("nightzSky");
 
 	assert(mGuiManager != NULL);
 	mGuiManager->setCursor("wiiCursor", k::vector2(48, 48));

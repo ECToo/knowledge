@@ -27,22 +27,10 @@ sticker::sticker(const std::string& matName)
 	mMaterial = mm->createMaterial(matName);
 
 	assert(mMaterial != NULL);
-
-	mZ = 0;
 }
 
 sticker::~sticker()
 {
-}
-
-void sticker::setZ(vec_t z)
-{
-	mZ = z;
-}
-
-vec_t sticker::getZ()
-{
-	return mZ;
 }
 
 material* sticker::getMaterial()
@@ -67,6 +55,7 @@ void sticker::draw()
 	// Prepare the material
 	mMaterial->prepare();
 
+	rs->setDepthMask(false);
 	rs->startVertices(VERTEXMODE_QUAD);
 
 	rs->texCoord(vector2(0.0f, 0.0f));
@@ -82,6 +71,7 @@ void sticker::draw()
 	rs->vertex(vector3(mPosition.x, realY + mScale.y, mZ));
 
 	rs->endVertices();
+	rs->setDepthMask(true);
 
 	// Finish
 	mMaterial->finish();
