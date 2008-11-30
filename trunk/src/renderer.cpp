@@ -248,7 +248,8 @@ void renderer::_drawSkyPlane()
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 	rs->identityMatrix();
 
-	rs->bindTexture(*stage->getId(), 0);
+	rs->bindTexture(stage->getId(), 0);
+
  	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 0.5f, -0.5f, -0.5f));
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-0.5f, -0.5f, -0.5f));
@@ -311,7 +312,7 @@ void renderer::_drawSkybox()
 	}
 
 	// Render the front quad
-	rs->bindTexture(mId[CUBE_FRONT], 0);
+	rs->bindTexture(&mId[CUBE_FRONT], 0);
  	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 0.5f, -0.5f, -0.5f));
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-0.5f, -0.5f, -0.5f));
@@ -320,7 +321,7 @@ void renderer::_drawSkybox()
 	rs->endVertices();
 
 	// Render the left quad
-	rs->bindTexture(mId[CUBE_LEFT], 0);
+	rs->bindTexture(&mId[CUBE_LEFT], 0);
 	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 0.5f, -0.5f,  0.5f));
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3( 0.5f, -0.5f, -0.5f));
@@ -329,7 +330,7 @@ void renderer::_drawSkybox()
 	rs->endVertices();
 
 	// Render the back quad
-	rs->bindTexture(mId[CUBE_BACK], 0);
+	rs->bindTexture(&mId[CUBE_BACK], 0);
 	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(0, 1)); rs->vertex(vector3(-0.5f, -0.5f,  0.5f));
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3( 0.5f, -0.5f,  0.5f));
@@ -338,7 +339,7 @@ void renderer::_drawSkybox()
 	rs->endVertices();
 
 	// Render the right quad
-	rs->bindTexture(mId[CUBE_RIGHT], 0);
+	rs->bindTexture(&mId[CUBE_RIGHT], 0);
 	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(0, 1)); rs->vertex(vector3(-0.5f, -0.5f, -0.5f));
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-0.5f, -0.5f,  0.5f));
@@ -347,7 +348,7 @@ void renderer::_drawSkybox()
 	rs->endVertices();
 
 	// Render the top quad
-	rs->bindTexture(mId[CUBE_UP], 0);
+	rs->bindTexture(&mId[CUBE_UP], 0);
 	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-0.5f,  0.5f, -0.5f));
 		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-0.5f,  0.5f,  0.5f));
@@ -356,7 +357,7 @@ void renderer::_drawSkybox()
 	rs->endVertices();
 
 	// Render the bottom quad
-	rs->bindTexture(mId[CUBE_DOWN], 0);
+	rs->bindTexture(&mId[CUBE_DOWN], 0);
 	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-0.5f, -0.5f, -0.5f));
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-0.5f, -0.5f,  0.5f));

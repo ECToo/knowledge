@@ -354,6 +354,11 @@ void wiiRenderSystem::destroyWindow()
 {
 	// Doesnt make sense on wii ;)
 }
+			
+void setWindowTitle(const std::string& title)
+{
+	// Doesnt make sense on wii ;)
+}
 
 void wiiRenderSystem::frameStart()
 {
@@ -379,6 +384,11 @@ void wiiRenderSystem::frameEnd()
 	// Clean Textures
 	mActiveTextures.clear();
 	mActiveMaterial = NULL;
+}
+			
+void wiiRenderSystem::setWireFrame(bool wire)
+{
+	// TODO
 }
 
 void wiiRenderSystem::setClearColor(const vector3& color)
