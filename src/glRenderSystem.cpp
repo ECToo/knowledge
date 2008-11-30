@@ -377,12 +377,12 @@ void glRenderSystem::matSpecular(const vector3& color)
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, v);
 }
 			
-void glRenderSystem::bindTexture(GLuint tex, int chan)
+void glRenderSystem::bindTexture(GLuint* tex, int chan)
 {
 	glClientActiveTextureARB(GL_TEXTURE0_ARB + chan);
 	glActiveTextureARB(GL_TEXTURE0_ARB + chan);
 
-	glBindTexture(GL_TEXTURE_2D, tex);
+	glBindTexture(GL_TEXTURE_2D, *tex);
 	glEnable(GL_TEXTURE_2D);
 }
 

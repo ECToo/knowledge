@@ -130,7 +130,7 @@ namespace k
 			}
 
 			#ifndef __WII__
-			virtual void bindTexture(GLuint tex, int chan) = 0;
+			virtual void bindTexture(GLuint* tex, int chan) = 0;
 			#else
 			virtual void bindTexture(GXTexObj* tex, int chan) = 0;
 			#endif

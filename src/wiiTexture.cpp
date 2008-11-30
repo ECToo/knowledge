@@ -30,13 +30,13 @@ wiiTexture::wiiTexture(unsigned int width, unsigned int height, unsigned short i
 	guMtxIdentity(mTransRotate);
 }
 
-void wiiTexture::setId(void* id)
+void wiiTexture::setId(GXTexObj* id)
 {
 	assert(id != NULL);
-	mTextureId = (GXTexObj*)id;
+	mTextureId = id;
 }
 
-void* wiiTexture::getId()
+GXTexObj* wiiTexture::getId()
 {
 	return mTextureId;
 }

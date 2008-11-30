@@ -156,10 +156,11 @@ namespace k
 
 			void createWindow(const int w, const int h);
 			void destroyWindow();
-			void setWindowTitle(const std::string& title) = 0;
+			void setWindowTitle(const std::string& title);
 
 			void frameStart();
 			void frameEnd();
+			void setWireFrame(bool wire);
 
 			void setClearColor(const vector3& color);
 			void setClearDepth(const vec_t amount);
