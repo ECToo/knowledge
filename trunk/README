@@ -1,0 +1,18 @@
+Well, this isnt ready yet, but since mk2 pointed out, here are some 
+stuff you need to know.
+
+1- This isnt complete, so you take your own risks for using it.
+2- You are going to need libpng, zlib, libfat, libogc and for the physics demo, libode for WII
+3- The code is subject to API breakage.
+4- Most of the stuff just work, if it doesnt tell me in romulo [at] castorgroup [dot] net
+or abra185 |at| yahoo |dot| com
+5- Thanks for testing, i hope we all do a great job =]
+
+To compile for wii just do make -f Makefile.wii
+with the proper DEVKITPPC and DEVKITPRO environment variables 
+set. The pc version is known to work on GNU/Linux. I havent tested
+it on windows yet, so your best choice is deal with it, c'mon, GNU/Linux is free.
+
+Sincerely,
+Romulo Fernandes.
+
