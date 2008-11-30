@@ -33,6 +33,7 @@ int main(int argc, char** argv)
 	assert(mRenderSystem != NULL);
 
 	mRenderSystem->createWindow(512, 512);
+	mRenderSystem->setWindowTitle("knowledge, the power of mind");
 
 	// Common library
 	new k::resourceManager("../resources.cfg");

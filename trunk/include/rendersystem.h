@@ -74,6 +74,7 @@ namespace k
 
 			virtual void createWindow(const int w, const int h) = 0;
 			virtual void destroyWindow() = 0;
+			virtual void setWindowTitle(const std::string& title) = 0;
 
 			virtual void frameStart() = 0;
 			virtual void frameEnd() = 0;

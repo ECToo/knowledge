@@ -121,6 +121,11 @@ void glRenderSystem::setDepthMask(bool mask)
 void glRenderSystem::destroyWindow()
 {
 }
+			
+void glRenderSystem::setWindowTitle(const std::string& title)
+{
+	SDL_WM_SetCaption(title.c_str(), "");
+}
 
 void glRenderSystem::frameStart()
 {

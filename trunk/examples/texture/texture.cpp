@@ -43,6 +43,7 @@ int main(int argc, char** argv)
 
 	// Doesnt matter on wii
 	mRenderSystem->createWindow(800, 600);
+	mRenderSystem->setWindowTitle("knowledge, the power of mind");
 	mRenderSystem->setDepthTest(true);
 
 	#ifdef __WII__
