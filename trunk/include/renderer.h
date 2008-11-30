@@ -65,6 +65,12 @@ namespace k
 			material* mSkybox;
 			void _drawSkybox();
 
+			/**
+			 * SkyPlane
+			 */
+			material* mSkyPlane;
+			void _drawSkyPlane();
+
 		public:
 			renderer();
 			~renderer();
@@ -76,12 +82,15 @@ namespace k
 
 			void push2D(drawable2D* object);
 			void pop2D(drawable2D* object);
+			void sort2D();
 
 			void pushParticle(particleSystem* p);
 			void popParticle(particleSystem* p);
 
 			void setSkyBox(const std::string& matName);
 			void setSkyBox(material* mat);
+			void setSkyPlane(const std::string& matName);
+			void setSkyPlane(material* mat);
 
 			void draw();
 

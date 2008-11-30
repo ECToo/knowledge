@@ -38,6 +38,7 @@ renderer::renderer()
 
 	mActiveCamera = NULL;
 	mSkybox = NULL;
+	mSkyPlane = NULL;
 }
 
 renderer::~renderer()
@@ -157,18 +158,57 @@ void renderer::setSkyBox(const std::string& matName)
 	assert(mat != NULL);
 
 	mSkybox = mat;
+	mSkyPlane = NULL;
 }
 
 void renderer::setSkyBox(material* mat)
 {
 	assert(mat != NULL);
 	mSkybox = mat;
+	mSkyPlane = NULL;
+}
+
+void renderer::setSkyPlane(const std::string& matName)
+{
+	materialManager* matMgr = &materialManager::getSingleton();
+	assert(matMgr != NULL);
+
+	material* mat = matMgr->getMaterial(matName);
+	assert(mat != NULL);
+
+	mSkyPlane = mat;
+	mSkybox = NULL;
+}
+
+void renderer::setSkyPlane(material* mat)
+{
+	assert(mat != NULL);
+	mSkyPlane = mat;
+	mSkybox = NULL;
+}
+
+static inline bool compare2D(drawable2D* first, drawable2D* second)
+{
+	assert(first != NULL);
+	assert(second != NULL);
+
+	if (first->getZ() < second->getZ())
+		return true;
+	else
+		return false;
+}
+
+void renderer::sort2D()
+{
+	m2DObjects.sort(compare2D);
 }
 
 void renderer::push2D(drawable2D* object)
 {
 	assert(object != NULL);
 	m2DObjects.push_back(object);
+
+	sort2D();
 }
 
 void renderer::pop2D(drawable2D* object)
@@ -187,6 +227,47 @@ void renderer::pop2D(drawable2D* object)
 			++it;
 		}
 	}
+}
+
+void renderer::_drawSkyPlane()
+{
+	if (!mSkyPlane)
+		return;
+
+	// Rendersystem
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	assert(rs != NULL);
+
+	// Disable depth test
+	rs->setDepthTest(false);
+	rs->setCulling(CULLMODE_NONE);
+
+	textureStage* stage = mSkyPlane->getTextureStage(0);
+	assert(stage != NULL);
+
+	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+	rs->identityMatrix();
+
+	rs->bindTexture(*stage->getId(), 0);
+ 	rs->startVertices(VERTEXMODE_QUAD);
+		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 0.5f, -0.5f, -0.5f));
+		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-0.5f, -0.5f, -0.5f));
+		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-0.5f,  0.5f, -0.5f));
+		rs->texCoord(vector2(0, 0)); rs->vertex(vector3( 0.5f,  0.5f, -0.5f));
+
+		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 0.5f, -0.5f,  0.5f));
+		rs->texCoord(vector2(1, 1)); rs->vertex(vector3( 0.5f, -0.5f, -0.5f));
+		rs->texCoord(vector2(1, 0)); rs->vertex(vector3( 0.5f,  0.5f, -0.5f));
+		rs->texCoord(vector2(0, 0)); rs->vertex(vector3( 0.5f,  0.5f,  0.5f));
+
+		rs->texCoord(vector2(0, 1)); rs->vertex(vector3(-0.5f, -0.5f, -0.5f));
+		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-0.5f, -0.5f,  0.5f));
+		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-0.5f,  0.5f,  0.5f));
+		rs->texCoord(vector2(0, 0)); rs->vertex(vector3(-0.5f,  0.5f, -0.5f));
+	rs->endVertices();
+
+	// Take it back to default
+	rs->setDepthTest(true);
 }
 
 void renderer::_drawSkybox()
@@ -301,8 +382,9 @@ void renderer::draw()
 	// Time since frame start.
 	mFrameTime.reset();
 
-	// Draw Skybox
+	// Draw Skybox, Plane
 	_drawSkybox();
+	_drawSkyPlane();
 
 	if (mActiveCamera)
 	{
@@ -378,7 +460,9 @@ void renderer::draw()
 	/**
 	 * Set the 2D projection here and draw the 2d objects on it
 	 */
-	rs->setDepthTest(false);
+
+	// Doesnt matter now since we disabled depth mask
+	// rs->setDepthTest(false);
 
 	rs->setMatrixMode(MATRIXMODE_PROJECTION);
 	rs->pushMatrix();

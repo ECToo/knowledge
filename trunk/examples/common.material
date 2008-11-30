@@ -22,10 +22,18 @@ material wiiCursor
 
 material nightzSky
 {
-	cull none
 	texture
 	{
 		cubename nightz_sky/nightz.png
+		texcoord uv
+	}
+}
+
+material skyPlane
+{
+	texture
+	{
+		filename skyPlane.png
 		texcoord uv
 	}
 }
