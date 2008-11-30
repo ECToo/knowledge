@@ -38,6 +38,7 @@ int main(int argc, char** argv)
 
 	// Doesnt matter on wii
 	mRenderSystem->createWindow(800, 600);
+	mRenderSystem->setWindowTitle("knowledge, the power of mind");
 	mRenderSystem->setDepthTest(true);
 
 	// Common library
@@ -49,6 +50,8 @@ int main(int argc, char** argv)
 
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("lightmap");
+
+	mRenderer->setSkyPlane("skyPlane");
 
 	#ifdef __WII__
 	k::parsingFile* tevFile = new k::parsingFile("/knowledge/tev.script");

@@ -37,6 +37,7 @@ int main(int argc, char** argv)
 
 	// Doesnt matter on wii
 	mRenderSystem->createWindow(800, 600);
+	mRenderSystem->setWindowTitle("knowledge, the power of mind");
 	mRenderSystem->setDepthTest(true);
 
 	// Initialize resources
@@ -50,7 +51,7 @@ int main(int argc, char** argv)
 	k::resourceManager::getSingleton().loadGroup("model");
 
 	// Set Skybox
-	mRenderer->setSkyBox("nightzSky");
+	mRenderer->setSkyPlane("skyPlane");
 
 	// Create Model
 	k::vector3 modelPosition;
@@ -81,7 +82,7 @@ int main(int argc, char** argv)
 	mRenderer->push3D(newModel);
 
 	assert(mGuiManager != NULL);
-	mGuiManager->setCursor("wiiCursor", k::vector2(32, 32));
+	mGuiManager->setCursor("wiiCursor3", k::vector2(32, 32));
 
 	/**
 	 * Setup the input Manager
@@ -156,11 +157,7 @@ int main(int argc, char** argv)
 		mGuiManager->setCursorPos(mousePos);
 
 		dX = mousePos.x - lastX;
-		dY = mousePos.y - lastY;
-
-		#ifndef __WII__
-		dY = -dY;
-		#endif
+		dY = lastY - mousePos.y;
 
 		lastX = mousePos.x;
 		lastY = mousePos.y;

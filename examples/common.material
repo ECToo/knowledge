@@ -20,6 +20,28 @@ material wiiCursor
 	}
 }
 
+// Common Cursor
+material wiiCursor2
+{
+	texture
+	{
+		filename cursor2.png
+		texcoord uv
+		blendfunc srcalpha invsrcalpha
+	}
+}
+
+// Common Cursor
+material wiiCursor3
+{
+	texture
+	{
+		filename cursor3.png
+		texcoord uv
+		blendfunc srcalpha invsrcalpha
+	}
+}
+
 material nightzSky
 {
 	texture
