@@ -59,6 +59,12 @@ namespace k
 			 */
 			timer mFrameTime;
 
+			/**
+			 * Skybox
+			 */
+			material* mSkybox;
+			void _drawSkybox();
+
 		public:
 			renderer();
 			~renderer();
@@ -73,6 +79,9 @@ namespace k
 
 			void pushParticle(particleSystem* p);
 			void popParticle(particleSystem* p);
+
+			void setSkyBox(const std::string& matName);
+			void setSkyBox(material* mat);
 
 			void draw();
 

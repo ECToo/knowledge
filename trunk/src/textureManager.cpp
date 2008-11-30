@@ -118,6 +118,48 @@ void textureManager::deallocateTextureData(const std::string& filename)
 	}
 }
 
+textureStage* textureManager::createCubicTexture(const std::string& filename, unsigned short index)
+{
+	// 
+	std::string fullPath = filename;
+
+	// Get Path from resource manager (if any)
+	resourceManager* rsc = &resourceManager::getSingleton();
+	if (rsc)
+	{
+		fullPath = rsc->getRoot() + filename;
+	}
+
+	texture* rawTex = getTexture(fullPath);
+	if (!rawTex)
+	{
+		rawTex = createRawCubemap(fullPath);
+		if (!rawTex)
+		{
+			S_LOG_INFO("Failed to allocate cubemap texture " + fullPath);
+			return NULL;
+		}
+	}
+
+	// Ok our texture is valid, create the real thing now
+	#ifdef __WII__
+	wiiTexture* newStage = new wiiTexture(rawTex->mWidth, rawTex->mHeight, index);
+	#else
+	glTexture* newStage = new glTexture(rawTex->mWidth, rawTex->mHeight, index);
+	#endif
+
+	if (!newStage)
+	{
+		S_LOG_INFO("Failed to allocate texture stage.");
+		return NULL;
+	}
+
+	newStage->setImagesCount(rawTex->mImagesCount);
+	newStage->setId(rawTex->mId);
+
+	return newStage;
+}
+
 textureStage* textureManager::createTexture(const std::string& filename, unsigned short index)
 {
 	std::string fullPath = filename;
@@ -153,7 +195,9 @@ textureStage* textureManager::createTexture(const std::string& filename, unsigne
 		return NULL;
 	}
 
+	newStage->setImagesCount(rawTex->mImagesCount);
 	newStage->setId(rawTex->mId);
+
 	return newStage;
 }
 

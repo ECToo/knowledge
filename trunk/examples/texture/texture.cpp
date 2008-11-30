@@ -83,6 +83,8 @@ int main(int argc, char** argv)
 				case SDL_KEYDOWN:
 					switch (events.key.keysym.sym)
 					{
+						default:
+							break;
 						case SDLK_ESCAPE:
 							running = false;
 							break;

@@ -235,6 +235,20 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 			}
 		}
 		else
+		if (token == "cubename")
+		{
+			token = file->getNextToken();
+			activeTexture = textureManager::getSingleton().createCubicTexture(token, index);
+			if (!activeTexture)
+			{
+				S_LOG_INFO("Failed to allocate material cubic texture " + token);
+			}
+			else
+			{
+				mat->pushTexture(activeTexture);
+			}
+		}
+		else
 		if (token == "program")
 		{
 			token = file->getNextToken();

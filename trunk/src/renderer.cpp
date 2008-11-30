@@ -37,6 +37,7 @@ renderer::renderer()
 	mParticles.clear();
 
 	mActiveCamera = NULL;
+	mSkybox = NULL;
 }
 
 renderer::~renderer()
@@ -69,10 +70,9 @@ sprite* renderer::createSprite(vec_t radi, material* mat)
 		mSprites.push_back(newSpr);
 		return newSpr;
 	}
-	else
-	{
-		S_LOG_INFO("Failed to allocate sprite.");
-	}
+		
+	S_LOG_INFO("Failed to allocate sprite.");
+	return NULL;
 }
 
 void renderer::fullRemoveSprite(sprite* spr)
@@ -147,6 +147,23 @@ void renderer::pop3D(drawable3D* object)
 		}
 	}
 }
+			
+void renderer::setSkyBox(const std::string& matName)
+{
+	materialManager* matMgr = &materialManager::getSingleton();
+	assert(matMgr != NULL);
+
+	material* mat = matMgr->getMaterial(matName);
+	assert(mat != NULL);
+
+	mSkybox = mat;
+}
+
+void renderer::setSkyBox(material* mat)
+{
+	assert(mat != NULL);
+	mSkybox = mat;
+}
 
 void renderer::push2D(drawable2D* object)
 {
@@ -172,6 +189,104 @@ void renderer::pop2D(drawable2D* object)
 	}
 }
 
+void renderer::_drawSkybox()
+{
+	if (!mSkybox)
+		return;
+
+	// Rendersystem
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	assert(rs != NULL);
+
+	// Disable depth test
+	rs->setDepthTest(false);
+	rs->setCulling(CULLMODE_NONE);
+
+	textureStage* texStage = mSkybox->getTextureStage(0);
+	assert(texStage != NULL);
+	assert(texStage->getImagesCount() == 6);
+
+	#ifdef __WII__
+	GXTexObj* mId = texStage->getId();
+	#else
+	GLuint* mId = texStage->getId();
+	#endif
+
+	// Draw
+	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+	if (mActiveCamera)
+	{
+		matrix4 cameraRot = mActiveCamera->getOrientation().toMatrix();
+
+		#ifdef __WII__
+		rs->copyMatrix(cameraRot.m);
+		#else
+		rs->copyMatrix(cameraRot.m[0]);
+		#endif
+	}
+	else
+	{
+		rs->identityMatrix();
+	}
+
+	// Render the front quad
+	rs->bindTexture(mId[CUBE_FRONT], 0);
+ 	rs->startVertices(VERTEXMODE_QUAD);
+		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 0.5f, -0.5f, -0.5f));
+		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-0.5f, -0.5f, -0.5f));
+		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-0.5f,  0.5f, -0.5f));
+		rs->texCoord(vector2(0, 0)); rs->vertex(vector3( 0.5f,  0.5f, -0.5f));
+	rs->endVertices();
+
+	// Render the left quad
+	rs->bindTexture(mId[CUBE_LEFT], 0);
+	rs->startVertices(VERTEXMODE_QUAD);
+		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 0.5f, -0.5f,  0.5f));
+		rs->texCoord(vector2(1, 1)); rs->vertex(vector3( 0.5f, -0.5f, -0.5f));
+		rs->texCoord(vector2(1, 0)); rs->vertex(vector3( 0.5f,  0.5f, -0.5f));
+		rs->texCoord(vector2(0, 0)); rs->vertex(vector3( 0.5f,  0.5f,  0.5f));
+	rs->endVertices();
+
+	// Render the back quad
+	rs->bindTexture(mId[CUBE_BACK], 0);
+	rs->startVertices(VERTEXMODE_QUAD);
+		rs->texCoord(vector2(0, 1)); rs->vertex(vector3(-0.5f, -0.5f,  0.5f));
+		rs->texCoord(vector2(1, 1)); rs->vertex(vector3( 0.5f, -0.5f,  0.5f));
+		rs->texCoord(vector2(1, 0)); rs->vertex(vector3( 0.5f,  0.5f,  0.5f));
+		rs->texCoord(vector2(0, 0)); rs->vertex(vector3(-0.5f,  0.5f,  0.5f));
+	rs->endVertices();
+
+	// Render the right quad
+	rs->bindTexture(mId[CUBE_RIGHT], 0);
+	rs->startVertices(VERTEXMODE_QUAD);
+		rs->texCoord(vector2(0, 1)); rs->vertex(vector3(-0.5f, -0.5f, -0.5f));
+		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-0.5f, -0.5f,  0.5f));
+		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-0.5f,  0.5f,  0.5f));
+		rs->texCoord(vector2(0, 0)); rs->vertex(vector3(-0.5f,  0.5f, -0.5f));
+	rs->endVertices();
+
+	// Render the top quad
+	rs->bindTexture(mId[CUBE_UP], 0);
+	rs->startVertices(VERTEXMODE_QUAD);
+		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-0.5f,  0.5f, -0.5f));
+		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-0.5f,  0.5f,  0.5f));
+		rs->texCoord(vector2(0, 0)); rs->vertex(vector3( 0.5f,  0.5f,  0.5f));
+		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 0.5f,  0.5f, -0.5f));
+	rs->endVertices();
+
+	// Render the bottom quad
+	rs->bindTexture(mId[CUBE_DOWN], 0);
+	rs->startVertices(VERTEXMODE_QUAD);
+		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-0.5f, -0.5f, -0.5f));
+		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-0.5f, -0.5f,  0.5f));
+		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 0.5f, -0.5f,  0.5f));
+		rs->texCoord(vector2(0, 0)); rs->vertex(vector3( 0.5f, -0.5f, -0.5f));
+	rs->endVertices();
+	
+	// Take it back to default
+	rs->setDepthTest(true);
+}
+
 void renderer::draw()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
@@ -185,6 +300,9 @@ void renderer::draw()
 
 	// Time since frame start.
 	mFrameTime.reset();
+
+	// Draw Skybox
+	_drawSkybox();
 
 	if (mActiveCamera)
 	{

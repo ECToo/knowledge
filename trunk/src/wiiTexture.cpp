@@ -35,6 +35,11 @@ void wiiTexture::setId(void* id)
 	assert(id != NULL);
 	mTextureId = (GXTexObj*)id;
 }
+
+void* wiiTexture::getId()
+{
+	return mTextureId;
+}
 			
 void wiiTexture::setTexCoordGen()
 {

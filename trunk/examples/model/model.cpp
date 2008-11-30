@@ -49,6 +49,9 @@ int main(int argc, char** argv)
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("model");
 
+	// Set Skybox
+	mRenderer->setSkyBox("nightzSky");
+
 	// Create Model
 	k::vector3 modelPosition;
 	modelPosition.z = -100;
@@ -62,6 +65,7 @@ int main(int argc, char** argv)
 	#endif
 
 	assert(newModel != NULL);
+	newModel->setScale(k::vector3(10, 10, 10));
 	newModel->getMesh(0)->setMaterial("donutMetal");
 
 	/*

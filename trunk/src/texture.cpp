@@ -40,6 +40,16 @@ void textureStage::setBlendMode(unsigned short src, unsigned short dst)
 	mBlendDst = dst;
 }
 
+void textureStage::setImagesCount(unsigned short count)
+{
+	mImagesCount = count;
+}
+
+unsigned short textureStage::getImagesCount()
+{
+	return mImagesCount;
+}
+
 unsigned int textureStage::getWidth()
 {
 	return mWidth;

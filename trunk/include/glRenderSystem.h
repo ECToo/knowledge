@@ -49,6 +49,7 @@ namespace k
 			void setDepthMask(bool test);
 
 			void setShadeModel(ShadeModel model);
+			void setWireFrame(bool wire);
 
 			void setMatrixMode(MatrixMode mode);
 			void pushMatrix();

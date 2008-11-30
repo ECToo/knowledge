@@ -28,15 +28,15 @@ glTexture::glTexture(unsigned int width, unsigned int height, unsigned short ind
 {
 }
 
-void glTexture::setId(void* id)
+void glTexture::setId(GLuint* id)
 {
 	assert(id != NULL);
+	mTextureId = id;
+}
 
-	mDevilTextureId = (ILuint*)id;
-	ilBindImage(*mDevilTextureId);
-	ilutRenderer(ILUT_OPENGL);
-
-	mTextureId = ilutGLBindTexImage();
+GLuint* glTexture::getId()
+{
+	return mTextureId;
 }
 
 void glTexture::draw()
@@ -83,10 +83,11 @@ void glTexture::draw()
 		rs->setBlend(false);
 	}
 
-	rs->bindTexture(mTextureId, mIndex);
+	rs->bindTexture(mTextureId[0], mIndex);
 
 	switch (mTexCoordType)
 	{
+		default:
 		case TEXCOORD_UV:
 			// Dont touch texture matrix
 			if (!mRotate || !mScroll.x || !mScroll.y)
@@ -136,6 +137,8 @@ void glTexture::finish()
 
 	switch (mTexCoordType)
 	{
+		default:
+		case TEXCOORD_NONE:
 		case TEXCOORD_UV:
 			if (!mRotate || !mScroll.x || !mScroll.y)
 				break;

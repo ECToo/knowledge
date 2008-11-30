@@ -56,11 +56,20 @@ class kPlane : public k::drawable3D
 			mMaterial = mat;
 		}
 
+		void setMaterial(const std::string& matName)
+		{
+			k::materialManager* mMaterialManager = &k::materialManager::getSingleton();
+			assert(mMaterialManager != NULL);
+
+			setMaterial(mMaterialManager->getMaterial(matName));
+		}
+
 		void draw()
 		{
 			k::renderSystem* rs = k::root::getSingleton().getRenderSystem();
 			assert(rs != NULL);
 
+			rs->setMatrixMode(k::MATRIXMODE_MODELVIEW);
 			mMaterial->prepare();
 
 			rs->startVertices(k::VERTEXMODE_QUAD);
@@ -76,6 +85,8 @@ class kPlane : public k::drawable3D
 				rs->texCoord(k::vector2(1, 0));
 				rs->vertex(k::vector3(40, 0, -40));
 			rs->endVertices();
+
+			mMaterial->finish();
 		}
 };
 
@@ -131,7 +142,6 @@ int main(int argc, char** argv)
 	k::root* appRoot = new k::root();
 	k::renderSystem* mRenderSystem = appRoot->getRenderSystem();
 	k::renderer* mRenderer = appRoot->getRenderer();
-	k::materialManager* mMaterialManager = appRoot->getMaterialManager();
 	k::guiManager* mGuiManager = appRoot->getGuiManager();
 	k::inputManager* mInputManager = appRoot->getInputManager();
 
@@ -147,20 +157,21 @@ int main(int argc, char** argv)
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("physics");
 
+	mRenderer->setSkyBox("nightzSky");
+
 	assert(mGuiManager != NULL);
 	mGuiManager->setCursor("wiiCursor", k::vector2(48, 48));
 
 	k::sticker* odeLogo = new k::sticker("odeLogo");
 	assert(odeLogo != NULL);
 	odeLogo->setScale(k::vector2(128, 128));
-	// odeLogo->setPosition(k::vector2(10, mRenderSystem->getScreenHeight() - 138));
-	odeLogo->setPosition(k::vector2(10, 480 - 128));
+	odeLogo->setPosition(k::vector2(10, mRenderSystem->getScreenHeight() - 138));
 	mRenderer->push2D(odeLogo);
 
 	// Make The plane
 	kPlane* newPlane = new kPlane();
 	assert(newPlane != NULL);
-	newPlane->setMaterial(k::materialManager::getSingleton().createMaterial("odePlane"));
+	newPlane->setMaterial("odePlane");
 	mRenderer->push3D(newPlane);
 	
 	/**

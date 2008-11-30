@@ -30,6 +30,7 @@ namespace k
 	 * functions.
 	 */
 	texture* createRawTexture(const std::string& filename);
+	texture* createRawCubemap(const std::string& filename);
 }
 
 #endif
