@@ -77,6 +77,7 @@ namespace k
 
 			virtual void frameStart() = 0;
 			virtual void frameEnd() = 0;
+			virtual void setWireFrame(bool wire) = 0;
 
 			virtual void setClearColor(const vector3& color) = 0;
 			virtual void setClearDepth(const vec_t amount) = 0;

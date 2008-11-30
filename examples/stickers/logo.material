@@ -6,7 +6,7 @@ material logo
 	
 	texture
 	{
-		filename logo.png
+		filename ./stickers/logo.png
 		texcoords uv
 		scroll 0 0 
 		rotate 0

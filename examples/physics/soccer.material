@@ -1,9 +1,5 @@
 material soccerBall
-{
-	ambient 1 1 1
-	diffuse 1 1 1
-	specular 1 1 1 
-	
+{	
 	texture
 	{
 		filename ./physics/ball.png
@@ -13,10 +9,6 @@ material soccerBall
 
 material box
 {
-	ambient 1 1 1
-	diffuse 1 1 1
-	specular 1 1 1 
-	
 	texture
 	{
 		filename ./physics/box.png
@@ -36,12 +28,10 @@ material odeLogo
 
 material odePlane
 {
+	cull none
 	texture
 	{
 		filename ./physics/ode_plane.png
 		texcoord uv
-		blendfunc srcalpha invsrcalpha
 	}
 }
-
-

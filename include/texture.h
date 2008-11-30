@@ -36,6 +36,16 @@ namespace k
 		TEXCOORD_TANGENT
 	};
 
+	enum cubeTexOrdering
+	{
+		CUBE_FRONT,
+		CUBE_BACK,
+		CUBE_LEFT,
+		CUBE_RIGHT,
+		CUBE_UP,
+		CUBE_DOWN
+	};
+
 	class texture
 	{
 		public:
@@ -43,8 +53,13 @@ namespace k
 
 			unsigned int mWidth;
 			unsigned int mHeight;
+			unsigned int mImagesCount;
 
-			void* mId;
+			#ifdef __WII__
+			GXTexObj* mId;
+			#else
+			GLuint* mId;
+			#endif
 	};
 
 	class textureStage
@@ -90,6 +105,12 @@ namespace k
 			 */
 			std::string mProgram;
 
+			/**
+			 * How many images does the
+			 * mTextureId array have
+			 */
+			unsigned short mImagesCount;
+
 		public:
 			textureStage(unsigned int width, unsigned int height,
 					unsigned short index);
@@ -100,16 +121,13 @@ namespace k
 			void setScroll(vector2 scroll);
 			void setRotate(vec_t angle);
 
+			void setImagesCount(unsigned short count);
+			unsigned short getImagesCount();
+
 			unsigned int getWidth();
 			unsigned int getHeight();
 
 			texCoordType getTexCoordType();
-
-			/**
-			 * Set the texture id. On opengl this is a
-			 * pointer to ILuint and on wii GXTexObj
-			 */
-			virtual void setId(void* id) = 0;
 
 			/**
 			 * Draw texture setting needed params.
@@ -120,6 +138,14 @@ namespace k
 			 * Unset texture set params.
 			 */
 			virtual void finish() = 0;
+
+			#ifdef __WII__
+			virtual void setId(GXTexObj* id) = 0;
+			virtual GXTexObj* getId() = 0;
+			#else
+			virtual void setId(GLuint* id) = 0;
+			virtual GLuint* getId() = 0;
+			#endif
 	};
 
 	#ifdef __WII__
@@ -135,7 +161,9 @@ namespace k
 			wiiTexture(unsigned int width, unsigned int height,
 					unsigned short index);
 
-			void setId(void* id);
+			void setId(GXTexObj* id);
+			GXTexObj* getId();
+
 			void draw();
 			void finish();
 	};
@@ -143,14 +171,15 @@ namespace k
 	class glTexture : public textureStage
 	{
 		private:
-			GLuint mTextureId;
-			ILuint* mDevilTextureId;
+			GLuint* mTextureId;
 
 		public:
 			glTexture(unsigned int width, unsigned int height,
 					unsigned short index);
 
-			void setId(void* id);
+			void setId(GLuint* id);
+			GLuint* getId();
+
 			void draw();
 			void finish();
 	};

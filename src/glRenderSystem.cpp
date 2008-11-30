@@ -39,6 +39,14 @@ void glRenderSystem::deinitialise()
 {
 	SDL_Quit();
 }
+			
+void glRenderSystem::setWireFrame(bool wire)
+{
+	if (wire)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	else
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
 
 void glRenderSystem::configure()
 {

@@ -1,6 +1,7 @@
 // Crate, multitextured
 material crate
 {
+	cull back
 	texture
 	{
 		filename /texture/crate.png

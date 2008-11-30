@@ -19,6 +19,7 @@
 #include "root.h"
 #include "renderer.h"
 #include "sticker.h"
+#include "resourceManager.h"
 
 int main(int argc, char** argv)
 {
@@ -33,12 +34,17 @@ int main(int argc, char** argv)
 
 	mRenderSystem->createWindow(512, 512);
 
+	// Common library
+	new k::resourceManager("../resources.cfg");
+	k::resourceManager::getSingleton().loadGroup("common");
+	k::resourceManager::getSingleton().loadGroup("stickers");
+
 	// Create the sticker with a texture =]
 	k::sticker* newSticker = new k::sticker("logo");
 	newSticker->setScale(k::vector2(512, 512));
 
 	// Create the texture
-	k::textureStage* newTexture = mTextureManager->createTexture("logo.png", 0);
+	k::textureStage* newTexture = mTextureManager->createTexture("./stickers/logo.png", 0);
 	newSticker->getMaterial()->pushTexture(newTexture);
 
 	// Push the sticker to the graphics renderer
@@ -53,6 +59,9 @@ int main(int argc, char** argv)
 		{
 			switch (events.type)
 			{
+				default:
+					break;
+
 				case SDL_QUIT:
 					running = false;
 					break;
@@ -60,6 +69,8 @@ int main(int argc, char** argv)
 					{
 						switch (events.key.keysym.sym)
 						{
+							default:
+								break;
 							case SDLK_ESCAPE:
 								running = false;
 								break;
