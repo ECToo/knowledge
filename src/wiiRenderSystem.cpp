@@ -153,6 +153,7 @@ void genericMesh::end(Mtx& mModelViewMatrix, std::map<int, GXTexObj*>* mActiveTe
 	std::map<int, GXTexObj*>::const_iterator it;
 	for (it = mActiveTextures->begin(); it != mActiveTextures->end(); it++)
 	{
+		assert(it->second != NULL);
 		GX_LoadTexObj(it->second, GX_TEXMAP0 + it->first);
 	}
 
@@ -324,6 +325,9 @@ void wiiRenderSystem::configure()
 	setMatrixMode(MATRIXMODE_PROJECTION);
 	identityMatrix();
 
+	// Depth Testing
+	mDepthTest = mDepthMask = true;
+
 	setPerspective(90, 1.33f, 0.1f, 1000.0f);
 }
 
@@ -347,7 +351,8 @@ void wiiRenderSystem::setBlend(bool state)
 
 void wiiRenderSystem::setDepthMask(bool state)
 {
-	// TODO
+	mDepthMask = state;
+	GX_SetZMode(mDepthTest, GX_LEQUAL, mDepthMask);
 }
 
 void wiiRenderSystem::destroyWindow()
@@ -355,7 +360,7 @@ void wiiRenderSystem::destroyWindow()
 	// Doesnt make sense on wii ;)
 }
 			
-void setWindowTitle(const std::string& title)
+void wiiRenderSystem::setWindowTitle(const std::string& title)
 {
 	// Doesnt make sense on wii ;)
 }
@@ -408,7 +413,8 @@ void wiiRenderSystem::setClearDepth(const vec_t amount)
 
 void wiiRenderSystem::setDepthTest(bool test)
 {
-	// TODO
+	mDepthTest = test;
+	GX_SetZMode(mDepthTest, GX_LEQUAL, mDepthMask);
 }
 
 void wiiRenderSystem::setShadeModel(ShadeModel model)
@@ -703,6 +709,12 @@ void wiiRenderSystem::bindTexture(GXTexObj* tex, int chan)
 	assert(chan < 8);
 	mActiveTextures[chan] = tex;
 }
+			
+void wiiRenderSystem::unBindTexture(int chan)
+{
+	assert(chan < 8);
+	mActiveTextures[chan] = NULL;
+}
 
 void wiiRenderSystem::drawArrays()
 {
@@ -773,6 +785,7 @@ void wiiRenderSystem::drawArrays()
 	std::map<int, GXTexObj*>::const_iterator it;
 	for (it = mActiveTextures.begin(); it != mActiveTextures.end(); it++)
 	{
+		assert(it->second != NULL);
 		GX_LoadTexObj(it->second, GX_TEXMAP0 + it->first);
 	}
 

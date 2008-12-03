@@ -18,8 +18,15 @@
 #include "texture.h"
 #include "root.h"
 #include "logger.h"
+#include "textureLib.h"
 
 namespace k {
+			
+texture::~texture()
+{
+	// TODO: TEST THIS
+	// textureLoader::getSingleton().unLoadTexture(mId);
+}
 
 textureStage::textureStage(unsigned int width, unsigned int height, unsigned short index)
 {
@@ -32,6 +39,7 @@ textureStage::textureStage(unsigned int width, unsigned int height, unsigned sho
 	mRotate = 0;
 	mScroll.x = 0;
 	mScroll.y = 0;
+	mTextureId.clear();
 }
 			
 void textureStage::setBlendMode(unsigned short src, unsigned short dst)
@@ -53,6 +61,17 @@ unsigned short textureStage::getImagesCount()
 unsigned int textureStage::getWidth()
 {
 	return mWidth;
+}
+			
+void textureStage::setId(std::vector<kTexture*>* id)
+{
+	assert(id != NULL);
+	mTextureId = *id;
+}
+
+std::vector<kTexture*>* textureStage::getId()
+{
+	return &mTextureId;
 }
 
 void textureStage::setProgram(const std::string& name)

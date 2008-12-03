@@ -69,7 +69,7 @@ namespace k
 			 * The time (based on timer class)
 			 * this particle was spawned.
 			 */
-			unsigned long mSpawnTime;
+			long mSpawnTime;
 
 			/**
 			 * Each particle has an independent radius.

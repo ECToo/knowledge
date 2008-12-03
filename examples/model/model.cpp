@@ -79,6 +79,7 @@ int main(int argc, char** argv)
 	newModel->setAnimation("idle");
 	newModel->setAnimationFrame(10);
 	*/
+	
 	mRenderer->push3D(newModel);
 
 	assert(mGuiManager != NULL);

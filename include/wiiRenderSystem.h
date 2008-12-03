@@ -107,6 +107,16 @@ namespace k
 			 */
 			GXColor mClearColor;
 			u32 mClearDepth;
+			
+			/**
+			 * Depth testing
+			 */
+			bool mDepthTest;
+
+			/**
+			 * Depth masking 
+			 */
+			bool mDepthMask;
 
 			/**
 			 * Since the wii doesn't have a matrix stack by itself
@@ -198,7 +208,8 @@ namespace k
 			void matDiffuse(const vector3& color);
 			void matSpecular(const vector3& color);
 
-			void bindTexture(GXTexObj* tex, int chan);
+			void bindTexture(kTexture* tex, int chan);
+			void unBindTexture(int chan);
 
 			void setBlendMode(unsigned short src, unsigned short dst);
 			void setBlend(bool state);

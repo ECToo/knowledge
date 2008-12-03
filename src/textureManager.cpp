@@ -120,6 +120,7 @@ void textureManager::deallocateTextureData(const std::string& filename)
 
 textureStage* textureManager::createCubicTexture(const std::string& filename, unsigned short index)
 {
+	return NULL;
 	// 
 	std::string fullPath = filename;
 
@@ -155,7 +156,7 @@ textureStage* textureManager::createCubicTexture(const std::string& filename, un
 	}
 
 	newStage->setImagesCount(rawTex->mImagesCount);
-	newStage->setId(rawTex->mId);
+	newStage->setId(&rawTex->mId);
 
 	return newStage;
 }
@@ -196,7 +197,7 @@ textureStage* textureManager::createTexture(const std::string& filename, unsigne
 	}
 
 	newStage->setImagesCount(rawTex->mImagesCount);
-	newStage->setId(rawTex->mId);
+	newStage->setId(&rawTex->mId);
 
 	return newStage;
 }

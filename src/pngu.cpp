@@ -15,6 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef __WII__
 #include <stdio.h>
 #include <malloc.h>
 #include <png.h>
@@ -1137,4 +1138,7 @@ int pngu_clamp (int value, int min, int max)
 
 	return value;
 }
+
+#endif
+
 

@@ -19,6 +19,7 @@
 #include "logger.h"
 #include "glRenderSystem.h"
 #include "wiiRenderSystem.h"
+#include "textureLib.h"
 
 #ifdef __WII__
 #include <debug.h>
@@ -62,6 +63,7 @@ root::root()
 
 	// Create a new Texture Manager
 	mTextureManager = new textureManager();
+	new textureLoader();
 
 	// Create the Material manager
 	mMaterialManager = new materialManager();
@@ -108,6 +110,24 @@ inputManager* root::getInputManager()
 {
 	assert(mInputManager != NULL);
 	return mInputManager;
+}
+	
+std::string getExtension(const std::string& file)
+{
+	char* dot = strstr(file.c_str(), ".");
+
+	if (!dot)
+	{
+		return std::string("");
+	}
+	else
+	{
+		unsigned int pos = (strrchr(file.c_str(), '.') - file.c_str());
+		std::string extension;
+		extension.append(file.c_str() + pos, file.length() - pos); 
+
+		return extension;
+	}
 }
 
 } // namespace k

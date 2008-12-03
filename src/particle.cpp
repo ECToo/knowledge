@@ -250,7 +250,7 @@ void pointEmitter::feed()
 		// Spawn
 		if (mSpawnQuantity <= mFreeParticles)
 		{
-			for (int i = 0; i < mSpawnQuantity; i++)
+			for (unsigned short i = 0; i < mSpawnQuantity; i++)
 				spawnParticle(findFreeParticle());
 		}
 

@@ -16,6 +16,7 @@ libknowledge_la_SOURCES = drawable.cpp\
 								  physicsManager.cpp\
 								  resourceManager.cpp\
 								  renderer.cpp\
+								  textureLib.cpp\
 								  glTextureLib.cpp\
 								  sticker.cpp\
 								  sprite.cpp\

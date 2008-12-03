@@ -129,11 +129,8 @@ namespace k
 				mActiveMaterial = mat;
 			}
 
-			#ifndef __WII__
-			virtual void bindTexture(GLuint* tex, int chan) = 0;
-			#else
-			virtual void bindTexture(GXTexObj* tex, int chan) = 0;
-			#endif
+			virtual void bindTexture(kTexture* tex, int chan) = 0;
+			virtual void unBindTexture(int chan) = 0;
 
 			virtual void setBlendMode(unsigned short src, unsigned short dst) = 0;
 			virtual void setBlend(bool state) = 0;
