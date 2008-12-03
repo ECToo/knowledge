@@ -29,17 +29,6 @@ wiiTexture::wiiTexture(unsigned int width, unsigned int height, unsigned short i
 {
 	guMtxIdentity(mTransRotate);
 }
-
-void wiiTexture::setId(GXTexObj* id)
-{
-	assert(id != NULL);
-	mTextureId = id;
-}
-
-GXTexObj* wiiTexture::getId()
-{
-	return mTextureId;
-}
 			
 void wiiTexture::setTexCoordGen()
 {
@@ -166,17 +155,10 @@ void wiiTexture::draw()
 		rs->setDepthMask(true);
 	}
 
-	rs->bindTexture(mTextureId, mIndex);
+	rs->bindTexture(mTextureId[0], mIndex);
 }
 
-void wiiTexture::finish()
-{
-}
-
-// This shouldnt be here but i have no choice
-texture::~texture()
-{
-}
+void wiiTexture::finish() {}
 
 }
 

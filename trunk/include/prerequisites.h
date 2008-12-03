@@ -66,14 +66,14 @@
 
 // Platform independent definitions
 #ifndef __WII__
+	typedef GLuint kTexture;
 	typedef GLfloat vec_t;
 	typedef unsigned int index_t;
 #else
+	typedef GXTexObj kTexture;
 	typedef float vec_t;
 	typedef u16 index_t;
 #endif
-
-// Global Constants
 
 #endif
 

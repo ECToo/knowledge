@@ -154,7 +154,12 @@ int main(int argc, char** argv)
 	mRenderSystem->setDepthTest(true);
 
 	// Common library
+	#ifdef __WII__
+	new k::resourceManager("/knowledge/resources.cfg");
+	#else
 	new k::resourceManager("../resources.cfg");
+	#endif
+
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("physics");
 

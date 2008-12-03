@@ -27,6 +27,8 @@
 
 #ifndef __WII__
 #include <ode/ode.h>
+#else
+#include "ode/ode.h"
 #endif
 
 #define ATTACH_POSITION (1 << 0)

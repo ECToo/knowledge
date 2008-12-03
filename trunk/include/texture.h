@@ -49,18 +49,59 @@ namespace k
 	class texture
 	{
 		public:
+			texture()
+			{
+				mWidth = mHeight = mImagesCount = 0;
+				mId.clear();
+			}
+
 			~texture();
 
-			unsigned int mWidth;
-			unsigned int mHeight;
-			unsigned int mImagesCount;
+			unsigned short mWidth;
+			unsigned short mHeight;
+			unsigned short mImagesCount;
 
-			#ifdef __WII__
-			GXTexObj* mId;
-			#else
-			GLuint* mId;
-			#endif
+			std::vector<kTexture*> mId;
 	};
+
+	/*
+	class texture
+	{
+		protected:
+			unsigned short mWidth;
+			unsigned short mHeight;
+			unsigned short mImagesCount;
+
+			kTexture* mId;
+
+		public:
+			unsigned short getWidth()
+			{
+				return mWidth;
+			}
+
+			unsigned short getHeight()
+			{
+				return mHeight;
+			}
+
+			unsigned short getImagesCount()
+			{
+				return mImagesCount;
+			}
+
+			~texture()
+			{
+				textureLoader::getSingleton().unLoadTexture(mId);
+			}
+
+			void setTextureId(kTexture* id);
+			kTexture* getId();
+
+			void bind();
+			void bindStage(unsigned short);
+	};
+	*/
 
 	class textureStage
 	{
@@ -111,6 +152,12 @@ namespace k
 			 */
 			unsigned short mImagesCount;
 
+			/**
+			 * Texture ID, specific to
+			 * the low level implementation
+			 */
+			std::vector<kTexture*> mTextureId;
+
 		public:
 			textureStage(unsigned int width, unsigned int height,
 					unsigned short index);
@@ -126,6 +173,8 @@ namespace k
 
 			unsigned int getWidth();
 			unsigned int getHeight();
+			void setId(std::vector<kTexture*>* id);
+			std::vector<kTexture*>* getId();
 
 			texCoordType getTexCoordType();
 
@@ -139,13 +188,6 @@ namespace k
 			 */
 			virtual void finish() = 0;
 
-			#ifdef __WII__
-			virtual void setId(GXTexObj* id) = 0;
-			virtual GXTexObj* getId() = 0;
-			#else
-			virtual void setId(GLuint* id) = 0;
-			virtual GLuint* getId() = 0;
-			#endif
 	};
 
 	#ifdef __WII__
@@ -153,7 +195,6 @@ namespace k
 	{
 		private:
 			Mtx mTransRotate;
-			GXTexObj* mTextureId;
 
 			void setTexCoordGen();
 
@@ -161,24 +202,15 @@ namespace k
 			wiiTexture(unsigned int width, unsigned int height,
 					unsigned short index);
 
-			void setId(GXTexObj* id);
-			GXTexObj* getId();
-
 			void draw();
 			void finish();
 	};
 	#else
 	class glTexture : public textureStage
 	{
-		private:
-			GLuint* mTextureId;
-
 		public:
 			glTexture(unsigned int width, unsigned int height,
 					unsigned short index);
-
-			void setId(GLuint* id);
-			GLuint* getId();
 
 			void draw();
 			void finish();

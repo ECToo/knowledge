@@ -20,6 +20,7 @@
 
 #include "prerequisites.h"
 #include "texture.h"
+#include "singleton.h"
 
 namespace k
 {
@@ -31,6 +32,32 @@ namespace k
 	 */
 	texture* createRawTexture(const std::string& filename);
 	texture* createRawCubemap(const std::string& filename);
+ 
+	class textureLoader : public singleton<textureLoader>
+	{
+		private:
+			std::map<kTexture*, char*> mTextureData;
+
+		public:
+			textureLoader()
+			{
+				mTextureData.clear();
+			}
+
+			void pushTextureData(kTexture* tex, char* data)
+			{
+				std::map<kTexture*, char*>::iterator it = mTextureData.find(tex);
+				if (it != mTextureData.end())
+				{
+					mTextureData[tex] = data;
+				}
+			}
+
+			static textureLoader& getSingleton();
+
+			void unLoadTexture(kTexture* tex);
+			kTexture* loadTexture(const char* file, unsigned short* w, unsigned short* h);
+	};
 }
 
 #endif

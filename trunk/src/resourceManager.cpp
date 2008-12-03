@@ -19,6 +19,7 @@
 #include "textureManager.h"
 #include "materialManager.h"
 #include "logger.h"
+#include "root.h"
 
 #ifndef __WII__
 #include <dirent.h>
@@ -74,22 +75,6 @@ resourceManager& resourceManager::getSingleton()
 	return (*singleton_instance);  
 }
 			
-static inline std::string getExtension(const std::string& file)
-{
-	char* dot = strstr(file.c_str(), ".");
-
-	if (!dot)
-		return std::string("");
-	else
-	{
-		unsigned int pos = (strrchr(file.c_str(), '.') - file.c_str());
-		std::string extension;
-		extension.append(file.c_str() + pos, file.length() - pos); 
-
-		return extension;
-	}
-}
-
 void resourceGroup::filterResource(const std::string& path)
 {
 	std::string extension = getExtension(path);

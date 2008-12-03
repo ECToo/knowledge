@@ -28,17 +28,6 @@ glTexture::glTexture(unsigned int width, unsigned int height, unsigned short ind
 {
 }
 
-void glTexture::setId(GLuint* id)
-{
-	assert(id != NULL);
-	mTextureId = id;
-}
-
-GLuint* glTexture::getId()
-{
-	return mTextureId;
-}
-
 void glTexture::draw()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
@@ -83,7 +72,7 @@ void glTexture::draw()
 		rs->setBlend(false);
 	}
 
-	rs->bindTexture(mTextureId[0], mIndex);
+	rs->bindTexture(mTextureId, mIndex);
 
 	switch (mTexCoordType)
 	{
@@ -123,11 +112,8 @@ void glTexture::finish()
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	assert(rs != NULL);
 
-	glClientActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
-	glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
-		
-	// Bind Texture 0
-	rs->bindTexture(0, mIndex);
+	// unBind texture
+	rs->unBindTexture(mIndex);
 
 	// Reset params
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
@@ -152,11 +138,6 @@ void glTexture::finish()
 			glDisable(GL_TEXTURE_GEN_T);
 			break;
 	}
-}
-
-// This shouldnt be here but i have no choice
-texture::~texture()
-{
 }
 
 }
