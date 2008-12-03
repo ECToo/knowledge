@@ -163,10 +163,10 @@ int main(int argc, char** argv)
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("physics");
 
-	mRenderer->setSkyBox("nightzSky");
+	// mRenderer->setSkyBox("nightzSky");
 
 	assert(mGuiManager != NULL);
-	mGuiManager->setCursor("wiiCursor", k::vector2(48, 48));
+	mGuiManager->setCursor("wiiCursor3", k::vector2(32, 32));
 
 	k::sticker* odeLogo = new k::sticker("odeLogo");
 	assert(odeLogo != NULL);

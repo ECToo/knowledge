@@ -457,9 +457,6 @@ void renderer::draw()
 	/**
 	 * Set the 2D projection here and draw the 2d objects on it
 	 */
-
-	// Doesnt matter now since we disabled depth mask
-	// rs->setDepthTest(false);
 	rs->setMatrixMode(MATRIXMODE_PROJECTION);
 	rs->pushMatrix();
 	rs->identityMatrix();
