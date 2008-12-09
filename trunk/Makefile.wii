@@ -25,7 +25,7 @@ INCLUDES	:= include
 # options for code generation
 #---------------------------------------------------------------------------------
 
-CFLAGS	= -g -O2 -DHAVE_CONFIG_H -DdTRIMESH_ENABLED -DdTRIMESH_OPCODE -DdSINGLE -DDEBUG_NET $(MACHDEP) -D__WII__ $(INCLUDE) 
+CFLAGS	= -g -O0 -DDEBUG_NET $(MACHDEP) -D__WII__ $(INCLUDE) 
 CXXFLAGS	=	-save-temps -Xassembler -aln=$@.lst $(CFLAGS)
 
 LDFLAGS	=	-g -DDEBUG_NET $(MACHDEP) -Wl,-Map,$(notdir $@).map
@@ -83,7 +83,7 @@ export OFILES	:=	$(addsuffix .o,$(BINFILES)) \
 export INCLUDE	:=	$(foreach dir,$(INCLUDES), -iquote $(CURDIR)/$(dir)) \
 					$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
 					-I$(CURDIR)/$(BUILD) \
-					-I$(LIBOGC_INC) -I$(CURDIR)/ -I$(CURDIR)/include/ -I$(CURDIR)/include/opcode_k/ \
+					-I$(DEVKITPPC)/include/ -I$(CURDIR)/ -I$(CURDIR)/include/ -I$(CURDIR)/include/opcode_k/ \
 					-I$(CURDIR)/include/opcode_k/Ice/
 
 #---------------------------------------------------------------------------------

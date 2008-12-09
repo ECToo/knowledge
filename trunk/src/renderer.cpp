@@ -249,8 +249,9 @@ void renderer::_drawSkyPlane()
 	rs->identityMatrix();
 
 	std::vector<kTexture*>* mId = stage->getId();
-	rs->bindTexture((*mId)[0], 0);
+	assert(mId != NULL);
 
+	rs->bindTexture((*mId)[0], 0);
  	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 0.5f, -0.5f, -0.5f));
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-0.5f, -0.5f, -0.5f));

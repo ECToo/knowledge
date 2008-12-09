@@ -51,7 +51,7 @@ namespace k
 		public:
 			texture()
 			{
-				mWidth = mHeight = mImagesCount = 0;
+				mWidth = mHeight = 0;
 				mId.clear();
 			}
 
@@ -70,9 +70,8 @@ namespace k
 		protected:
 			unsigned short mWidth;
 			unsigned short mHeight;
-			unsigned short mImagesCount;
 
-			kTexture* mId;
+			std::vector<kTexture*> mId;
 
 		public:
 			unsigned short getWidth()
@@ -87,7 +86,7 @@ namespace k
 
 			unsigned short getImagesCount()
 			{
-				return mImagesCount;
+				return mId.size();
 			}
 
 			~texture()

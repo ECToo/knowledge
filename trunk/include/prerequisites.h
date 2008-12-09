@@ -62,6 +62,7 @@
 	#include <ogc/lwp_watchdog.h>
 	#include <malloc.h>
 	#include <wiiuse/wpad.h>
+	#include <debug.h>
 #endif
 
 // Platform independent definitions

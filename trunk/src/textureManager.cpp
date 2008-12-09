@@ -120,7 +120,6 @@ void textureManager::deallocateTextureData(const std::string& filename)
 
 textureStage* textureManager::createCubicTexture(const std::string& filename, unsigned short index)
 {
-	return NULL;
 	// 
 	std::string fullPath = filename;
 
