@@ -279,8 +279,6 @@ void wiiRenderSystem::configure()
 	GX_Init(mFifo, DEFAULT_FIFO_SIZE);
 
 	// Set Default Clear Color to black
-	mClearDepth = 0x00ffffff;
-
 	setClearColor(vector3(0, 0, 0));
 	setClearDepth(0x00ffffff);
 	GX_SetCopyClear(mClearColor, mClearDepth);
@@ -378,7 +376,6 @@ void wiiRenderSystem::frameEnd()
 		
 	// Flip Buffers
 	mBufferIndex ^= 1;
-	GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
 	GX_SetColorUpdate(GX_TRUE);
 	GX_CopyDisp(mFrameBuffers[mBufferIndex], GX_TRUE);
 

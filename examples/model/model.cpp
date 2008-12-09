@@ -40,6 +40,8 @@ int main(int argc, char** argv)
 	mRenderSystem->setWindowTitle("knowledge, the power of mind");
 	mRenderSystem->setDepthTest(true);
 
+	_break();
+
 	// Initialize resources
 	#ifdef __WII__
 	new k::resourceManager("/knowledge/resources.cfg");
@@ -58,18 +60,18 @@ int main(int argc, char** argv)
 	modelPosition.z = -100;
 
 	#ifdef __WII__
-	// k::md5model* newModel = new k::md5model("/knowledge/model/goku.md5mesh");
-	k::md5model* newModel = new k::md5model("/knowledge/model/torus.md5mesh");
+	k::md5model* newModel = new k::md5model("/knowledge/model/goku.md5mesh");
+	// k::md5model* newModel = new k::md5model("/knowledge/model/torus.md5mesh");
 	#else
-	// k::md5model* newModel = new k::md5model("goku.md5mesh");
-	k::md5model* newModel = new k::md5model("torus.md5mesh");
+	k::md5model* newModel = new k::md5model("goku.md5mesh");
+	// k::md5model* newModel = new k::md5model("torus.md5mesh");
 	#endif
 
-	assert(newModel != NULL);
-	newModel->setScale(k::vector3(10, 10, 10));
-	newModel->getMesh(0)->setMaterial("donutMetal");
-
 	/*
+	assert(newModel != NULL);
+	newModel->getMesh(0)->setMaterial("donutMetal");
+	*/
+
 	#ifdef __WII__
 	newModel->attachAnimation("/knowledge/model/idle.md5anim", "idle");
 	#else
@@ -78,7 +80,6 @@ int main(int argc, char** argv)
 
 	newModel->setAnimation("idle");
 	newModel->setAnimationFrame(10);
-	*/
 	
 	mRenderer->push3D(newModel);
 

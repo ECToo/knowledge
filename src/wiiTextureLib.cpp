@@ -57,7 +57,7 @@ kTexture* loadTexturePNG(const char* file, unsigned short* w, unsigned short* h)
 		return NULL;
 	}
 
-	kTexture* newKTexture = new kTexture;	
+	kTexture* newKTexture = (kTexture*) memalign(32, sizeof(kTexture));	
 	if (!newKTexture)
 	{
 		S_LOG_INFO("Failed to allocate GX texture object");
@@ -77,13 +77,14 @@ kTexture* loadTexturePNG(const char* file, unsigned short* w, unsigned short* h)
 			imgProperties.imgHeight, GX_TF_RGBA8, GX_REPEAT, GX_REPEAT, GX_FALSE);
 
 	// Save data for deallocation
-	textureLoader::getSingleton().pushTextureData(newKTexture, textureData);
+	// textureLoader::getSingleton().pushTextureData(newKTexture, textureData);
 
 	return newKTexture;
 }
 
 void textureLoader::unLoadTexture(kTexture* tex)
 {
+	/*
 	std::map<kTexture*, char*>::iterator it = mTextureData.find(tex);
 	if (it != mTextureData.end())
 	{
@@ -93,6 +94,7 @@ void textureLoader::unLoadTexture(kTexture* tex)
 		free(data);
 		free(tex);
 	}
+	*/
 }
 
 kTexture* textureLoader::loadTexture(const char* file, unsigned short* w, unsigned short* h)
@@ -101,7 +103,7 @@ kTexture* textureLoader::loadTexture(const char* file, unsigned short* w, unsign
 	if (extension == ".png" || extension == ".PNG")
 		return loadTexturePNG(file, w, h);
 	else
-		return false;
+		return NULL;
 }
 
 }

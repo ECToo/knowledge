@@ -26,7 +26,7 @@ namespace k {
 
 texture* createRawTexture(const std::string& filename)
 {
-	texture* newTexture = new texture;
+	texture* newTexture = new texture();
 	if (newTexture)
 	{
 		textureLoader* loader = &textureLoader::getSingleton();
@@ -42,6 +42,10 @@ texture* createRawTexture(const std::string& filename)
 			newTexture->mId.push_back(newKTexture);
 			return newTexture;
 		}
+		else
+		{
+			delete newTexture;
+		}
 	}
 		
 	return NULL;
@@ -49,6 +53,8 @@ texture* createRawTexture(const std::string& filename)
 
 texture* createRawCubemap(const std::string& filename)
 {
+	return NULL;
+
 	textureLoader* texLoader = &textureLoader::getSingleton();
 	if (!texLoader)
 		return NULL;
@@ -135,8 +141,8 @@ texture* createRawCubemap(const std::string& filename)
 	{
 		newTexture->mWidth = width;
 		newTexture->mHeight = height;
-		newTexture->mImagesCount = 6;
 		newTexture->mId = cubeTex;
+		newTexture->mImagesCount = 6;
 
 		return newTexture;
 	}
