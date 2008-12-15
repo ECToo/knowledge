@@ -125,7 +125,6 @@ namespace k
 
 			void bindMaterial(material* mat)
 			{
-				assert(mat != NULL);
 				mActiveMaterial = mat;
 			}
 

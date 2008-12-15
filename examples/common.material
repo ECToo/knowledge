@@ -59,3 +59,25 @@ material skyPlane
 		texcoord uv
 	}
 }
+
+material fontSize8
+{
+	cull none
+	texture
+	{
+		filename font/font_0_8.tga
+		texcoord uv
+		blendfunc srcalpha invsrcalpha
+	}
+}
+
+material fontSize12
+{
+	cull none
+	texture
+	{
+		filename font/font_0_12.tga
+		texcoord uv
+		blendfunc srcalpha invsrcalpha
+	}
+}

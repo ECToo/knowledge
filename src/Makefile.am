@@ -12,6 +12,7 @@ libknowledge_la_SOURCES = drawable.cpp\
 								  material.cpp\
 								  materialManager.cpp\
 								  guiManager.cpp\
+								  fontManager.cpp\
 								  inputManager.cpp\
 								  physicsManager.cpp\
 								  resourceManager.cpp\
