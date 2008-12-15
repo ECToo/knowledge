@@ -34,7 +34,10 @@ logger::logger(const std::string& logFilename)
 	// Reset File
 	FILE* logFile = fopen(mLogFile.c_str(), "w");
 	if (logFile)
+	{
+		fprintf(logFile, "Knowledge 1.0 - Test Version\n");
 		fclose(logFile);
+	}
 }
 			
 void logger::setLogMode(logMode log)
@@ -95,4 +98,5 @@ void logger::info(const std::string& message)
 	};
 }
 
-}
+} // namespace
+

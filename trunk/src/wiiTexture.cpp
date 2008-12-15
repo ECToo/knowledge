@@ -115,12 +115,10 @@ void wiiTexture::setTexCoordGen()
 				guMtxConcat(t, s, postMtx);
 
 				GX_LoadTexMtxImm(destMtx, GX_TEXMTX0 + mIndex * 3, GX_TG_MTX3x4);
-				// GX_LoadTexMtxImm(postMtx, GX_DTTMTX0 + mIndex * 3, GX_TG_MTX3x4);
-				GX_LoadTexMtxImm(postMtx, GX_DTTMTX0, GX_TG_MTX3x4);
+				GX_LoadTexMtxImm(postMtx, GX_DTTMTX0 + mIndex * 3, GX_TG_MTX3x4);
 
 				GX_SetTexCoordGen2(GX_TEXCOORD0 + mIndex, GX_TG_MTX3x4, GX_TG_NRM, 
-						// GX_TEXMTX0 + mIndex * 3, GX_TRUE, GX_DTTMTX0 + mIndex * 3);
-						GX_TEXMTX0 + mIndex * 3, GX_TRUE, GX_DTTMTX0);
+						GX_TEXMTX0 + mIndex * 3, GX_TRUE, GX_DTTMTX0 + mIndex * 3);
 			}
 			break;
 	}

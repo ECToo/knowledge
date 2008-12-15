@@ -31,26 +31,31 @@ root& root::getSingleton()
 	return (*singleton_instance);  
 }
 
+#ifndef __WII__
+const char* logPath = "knowledge.log";
+#else
+const char* logPath = "sd:/knowledge/knowledge.log";
+#endif
+
 root::root()
 {
 	// Initialize the render system
 	#ifndef __WII__
-	mActiveRS = new glRenderSystem();
-	new logger("knowledge.log");
+		mActiveRS = new glRenderSystem();
 	#else
-
-	// Gecko
-	DEBUG_Init(GDBSTUB_DEVICE_USB, 1);
-	mActiveRS = new wiiRenderSystem();
-
-	// Initialize SD card
-	fatInitDefault();
-	new logger("sd://knowledge/knowledge.log");
+		DEBUG_Init(GDBSTUB_DEVICE_USB, 1);
+		mActiveRS = new wiiRenderSystem();
 	#endif
 
+	new logger(logPath);
 	logger::getSingleton().setLogMode(LOGMODE_BOTH);
+
 	mActiveRS->initialise();
 	mActiveRS->configure();
+
+	#ifdef __WII__
+		fatInitDefault();
+	#endif
 
 	// Create the renderer
 	mRenderer = new renderer();

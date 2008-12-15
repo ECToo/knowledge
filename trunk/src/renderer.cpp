@@ -238,9 +238,17 @@ void renderer::_drawSkyPlane()
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	assert(rs != NULL);
 
-	// Disable depth test
-	rs->setDepthTest(false);
+	// Disable depth test drawing on orthogonal way
+	rs->setMatrixMode(MATRIXMODE_PROJECTION);
+	rs->identityMatrix();
+	rs->setOrthographic(0, 0.5, 0, 0.5, -1, 1);
+
+	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+	rs->identityMatrix();
+
+	rs->setDepthMask(false);
 	rs->setCulling(CULLMODE_NONE);
+	rs->bindMaterial(NULL);
 
 	textureStage* stage = mSkyPlane->getTextureStage(0);
 	assert(stage != NULL);
@@ -270,7 +278,19 @@ void renderer::_drawSkyPlane()
 	rs->endVertices();
 
 	// Take it back to default
-	rs->setDepthTest(true);
+	rs->setMatrixMode(MATRIXMODE_PROJECTION);
+	rs->identityMatrix();
+
+	if (mActiveCamera)
+		mActiveCamera->setPerspective();
+	else
+		rs->setPerspective(90, 1.33, 0.1, 1000.0f);
+
+	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+	rs->identityMatrix();
+
+	// Set back depth mask
+	rs->setDepthMask(true);
 }
 
 void renderer::_drawSkybox()
@@ -282,8 +302,15 @@ void renderer::_drawSkybox()
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	assert(rs != NULL);
 
-	// Disable depth test
-	rs->setDepthTest(false);
+	// Disable depth test drawing on orthogonal way
+	rs->setMatrixMode(MATRIXMODE_PROJECTION);
+	rs->identityMatrix();
+	rs->setOrthographic(0, 0.5, 0, 0.5, -1, 1);
+
+	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+	rs->identityMatrix();
+
+	rs->setDepthMask(false);
 	rs->setCulling(CULLMODE_NONE);
 
 	textureStage* texStage = mSkybox->getTextureStage(0);
@@ -364,7 +391,19 @@ void renderer::_drawSkybox()
 	rs->endVertices();
 	
 	// Take it back to default
-	rs->setDepthTest(true);
+	rs->setMatrixMode(MATRIXMODE_PROJECTION);
+	rs->identityMatrix();
+
+	if (mActiveCamera)
+		mActiveCamera->setPerspective();
+	else
+		rs->setPerspective(90, 1.33, 0.1, 1000.0f);
+
+	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+	rs->identityMatrix();
+
+	// Set back depth mask
+	rs->setDepthMask(true);
 }
 
 void renderer::draw()

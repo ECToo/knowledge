@@ -22,9 +22,12 @@
 #include "rendersystem.h"
 #include "resourceManager.h"
 #include "logger.h"
+#include "fontManager.h"
 
 int main(int argc, char** argv)
 {
+	_break();
+
 	// Initialize knowledge
 	k::root* appRoot = new k::root();
 	k::renderSystem* mRenderSystem = appRoot->getRenderSystem();
@@ -38,19 +41,36 @@ int main(int argc, char** argv)
 	// Doesnt matter on wii
 	mRenderSystem->createWindow(800, 600);
 	mRenderSystem->setWindowTitle("knowledge, the power of mind");
-	mRenderSystem->setDepthTest(true);
-
-	_break();
 
 	// Initialize resources
 	#ifdef __WII__
-	new k::resourceManager("/knowledge/resources.cfg");
+	new k::resourceManager("sd:/knowledge/resources.cfg");
 	#else
 	new k::resourceManager("../resources.cfg");
 	#endif
 
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("model");
+
+	// Fps Counter
+	k::bitmapText* fpsText = new k::bitmapText("font/fontImage_8.dat", "fontSize8");
+	assert(fpsText != NULL);
+	fpsText->setPosition(k::vector2(2, 10));
+	mRenderer->push2D(fpsText);
+
+	k::bitmapText* newFont = new k::bitmapText("font/fontImage_8.dat", "fontSize8");
+	assert(newFont != NULL);
+
+	newFont->setPosition(k::vector2(150, 150));
+	newFont->setText("Testing...1..2..3...");
+	mRenderer->push2D(newFont);
+
+	k::bitmapText* newFont2 = new k::bitmapText("font/fontImage_12.dat", "fontSize12");
+	assert(newFont2 != NULL);
+
+	newFont2->setPosition(k::vector2(150, 170));
+	newFont2->setText("Bigger Font?");
+	mRenderer->push2D(newFont2);
 
 	// Set Skybox
 	mRenderer->setSkyPlane("skyPlane");
@@ -60,26 +80,26 @@ int main(int argc, char** argv)
 	modelPosition.z = -100;
 
 	#ifdef __WII__
-	k::md5model* newModel = new k::md5model("/knowledge/model/goku.md5mesh");
-	// k::md5model* newModel = new k::md5model("/knowledge/model/torus.md5mesh");
+	// k::md5model* newModel = new k::md5model("sd:/knowledge/model/goku.md5mesh");
+	k::md5model* newModel = new k::md5model("/knowledge/model/torus.md5mesh");
 	#else
-	k::md5model* newModel = new k::md5model("goku.md5mesh");
-	// k::md5model* newModel = new k::md5model("torus.md5mesh");
+	// k::md5model* newModel = new k::md5model("goku.md5mesh");
+	k::md5model* newModel = new k::md5model("torus.md5mesh");
 	#endif
 
-	/*
 	assert(newModel != NULL);
 	newModel->getMesh(0)->setMaterial("donutMetal");
-	*/
 
+	/*
 	#ifdef __WII__
-	newModel->attachAnimation("/knowledge/model/idle.md5anim", "idle");
+	newModel->attachAnimation("sd:/knowledge/model/idle.md5anim", "idle");
 	#else
 	newModel->attachAnimation("idle.md5anim", "idle");
 	#endif
 
 	newModel->setAnimation("idle");
 	newModel->setAnimationFrame(10);
+	*/
 	
 	mRenderer->push3D(newModel);
 
@@ -198,8 +218,12 @@ int main(int argc, char** argv)
 		frame += 0.1;
 		#endif
 		*/
-		
+
 		mRenderer->draw();
+
+		std::stringstream fpsT;
+		fpsT << "fps: " << mRenderer->getFps();
+		fpsText->setText(fpsT.str());
 	}
 
 	delete appRoot;

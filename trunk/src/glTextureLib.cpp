@@ -38,16 +38,15 @@ void textureLoader::unLoadTexture(kTexture* tex)
 	glDeleteTextures(1, tex);
 }
 
-bool textureLoader::loadTexture(char* file, kTexture* tex,
-					unsigned short* w, unsigned short* h)
+kTexture* textureLoader::loadTexture(const char* file, unsigned short* w, unsigned short* h)
 {
 	ILuint* newImage = new ILuint;
 	if (!newImage)
-		return false;
+		return NULL;
 
 	ilGenImages(1, newImage);
 	ilBindImage(newImage[0]);
-	ilLoadImage(file);
+	ilLoadImage((char*)file);
 
 	if (ilGetError() == IL_NO_ERROR)
 	{
@@ -60,14 +59,14 @@ bool textureLoader::loadTexture(char* file, kTexture* tex,
 		ilBindImage(newImage[0]);
 		ilutRenderer(ILUT_OPENGL);
 	
-		tex = new kTexture;
+		kTexture* tex = new kTexture;
 		if (tex)
 		{
 			*tex = ilutGLBindTexImage();
 			ilDeleteImages(1, &newImage[0]);
 
 			delete newImage;
-			return true;
+			return tex;
 		}
 		else
 		{
@@ -77,7 +76,7 @@ bool textureLoader::loadTexture(char* file, kTexture* tex,
 	}
 
 	delete newImage;
-	return false;
+	return NULL;
 }
 
 }

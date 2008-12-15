@@ -70,6 +70,7 @@
 	typedef GLuint kTexture;
 	typedef GLfloat vec_t;
 	typedef unsigned int index_t;
+	#define _break(); ""
 #else
 	typedef GXTexObj kTexture;
 	typedef float vec_t;

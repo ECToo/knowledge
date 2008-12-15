@@ -72,7 +72,7 @@ void glTexture::draw()
 		rs->setBlend(false);
 	}
 
-	rs->bindTexture(mTextureId, mIndex);
+	rs->bindTexture(mTextureId[0], mIndex);
 
 	switch (mTexCoordType)
 	{

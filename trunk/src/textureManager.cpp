@@ -92,7 +92,7 @@ void textureManager::allocateTextureData(const std::string& filename)
 		if (newTexture)
 		{
 			S_LOG_INFO("Texture data for " + fullPath + " allocated.");
-			mTextures[fullPath] = newTexture;
+			mTextures[filename] = newTexture;
 		}
 	}
 }
