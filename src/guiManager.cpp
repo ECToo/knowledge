@@ -52,7 +52,7 @@ void guiManager::setCursor(std::string mat, vector2 scale)
 	assert(mCursor != NULL);
 
 	mCursor->setScale(scale);
-	mCursor->setZ(300.0f);
+	mCursor->setZ(-1.0f);
 
 	#ifndef __WII__
 	mCursorSize = scale.x;

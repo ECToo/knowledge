@@ -43,32 +43,24 @@ void sticker::draw()
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	assert(rs != NULL);
 
-	vec_t realY = mPosition.y;
-
-	#ifndef __WII__
-	// The position for openGL should be switched in
-	// Y axis because it starts from bottom while on
-	// wii it starts on the top.
-	realY = rs->getScreenHeight() - mPosition.y;
-	#endif
-
 	// Prepare the material
 	mMaterial->prepare();
+	rs->setCulling(CULLMODE_NONE);
 
 	rs->setDepthMask(false);
 	rs->startVertices(VERTEXMODE_QUAD);
 
 	rs->texCoord(vector2(0.0f, 0.0f));
-	rs->vertex(vector3(mPosition.x, realY, mZ));
+	rs->vertex(vector3(mPosition.x, mPosition.y, -0.5));
 
 	rs->texCoord(vector2(1.0f, 0.0f));
-	rs->vertex(vector3(mPosition.x + mScale.x, realY, mZ));
+	rs->vertex(vector3(mPosition.x + mScale.x, mPosition.y, -0.5));
 
 	rs->texCoord(vector2(1.0f, 1.0f));
-	rs->vertex(vector3(mPosition.x + mScale.x, realY + mScale.y, mZ));
+	rs->vertex(vector3(mPosition.x + mScale.x, mPosition.y + mScale.y, -0.5));
 
 	rs->texCoord(vector2(0.0f, 1.0f));
-	rs->vertex(vector3(mPosition.x, realY + mScale.y, mZ));
+	rs->vertex(vector3(mPosition.x, mPosition.y + mScale.y, -0.5));
 
 	rs->endVertices();
 	rs->setDepthMask(true);

@@ -204,6 +204,26 @@ unsigned short getBlendMode(std::string& mode)
 	return GL_ZERO;
 }
 #endif
+
+static inline void parseUntilEndOfSection(parsingFile* file)
+{
+	unsigned int openBraces = 0;
+
+	while(true)
+	{
+		std::string token = file->getNextToken();
+		if (token == "{")
+			openBraces++;
+		else
+		if (token == "}")
+		{
+			if (openBraces == 0)
+				break;
+			else
+				openBraces--;
+		}
+	}
+}
 			
 void materialManager::parseTextureSection(material* mat, parsingFile* file, unsigned short index)
 {
@@ -497,20 +517,7 @@ void materialManager::parseMaterialScript(parsingFile* file, materialList* map)
 
 				S_LOG_INFO("Material " + token + " already exists.");
 				file->skipNextToken(); // {
-				while(true)
-				{
-					token = file->getNextToken();
-					if (token == "{")
-						openBraces++;
-					else
-					if (token == "}")
-					{
-						if (openBraces == 0)
-							break;
-						else
-							openBraces--;
-					}
-				}
+				parseUntilEndOfSection(file);
 			}
 			else
 			{

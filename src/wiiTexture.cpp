@@ -28,6 +28,7 @@ wiiTexture::wiiTexture(unsigned int width, unsigned int height, unsigned short i
 	: textureStage(width, height, index)
 {
 	guMtxIdentity(mTransRotate);
+	mProgram.clear();
 }
 			
 void wiiTexture::setTexCoordGen()
@@ -63,8 +64,8 @@ void wiiTexture::setTexCoordGen()
 				mTransRotate[1][3] = 0.5 - 0.5 * sinAngle - 0.5 * cosAngle + mScrolled.y;
 				mTransRotate[2][3] = 0;
 
-				GX_LoadTexMtxImm(mTransRotate, GX_TEXMTX0 + mIndex * 3, GX_TG_MTX2x4);
-				GX_SetTexCoordGen(GX_TEXCOORD0 + mIndex, GX_TG_MTX2x4, GX_TG_TEX0 + mIndex, GX_TEXMTX0 + mIndex * 3);
+				GX_LoadTexMtxImm(mTransRotate, GX_TEXMTX1 + mIndex * 3, GX_TG_MTX2x4);
+				GX_SetTexCoordGen(GX_TEXCOORD0 + mIndex, GX_TG_MTX2x4, GX_TG_TEX0 + mIndex, GX_TEXMTX1 + mIndex * 3);
 			}
 			else 
 			{
@@ -104,15 +105,18 @@ void wiiTexture::setTexCoordGen()
 				Mtx destMtx;
 				Mtx s, t, postMtx;
 
-				rs->getModelView(destMtx);
-				guMtxInverse(destMtx, destMtx);
-				guMtxTranspose(destMtx, destMtx);
+				rs->getModelView(postMtx);
+				guMtxInverse(postMtx, postMtx);
+				guMtxTranspose(postMtx, postMtx);
 
+				guMtxIdentity(destMtx);
 				guMtxIdentity(s);
 				guMtxIdentity(t);
+
 				guMtxScale(s, 0.5f, -0.5f, 0.0f);
 				guMtxTrans(t, 0.5f, 0.5f, 1.0f);
-				guMtxConcat(t, s, postMtx);
+				guMtxConcat(s, postMtx, postMtx);
+				guMtxConcat(t, postMtx, postMtx);
 
 				GX_LoadTexMtxImm(destMtx, GX_TEXMTX0 + mIndex * 3, GX_TG_MTX3x4);
 				GX_LoadTexMtxImm(postMtx, GX_DTTMTX0 + mIndex * 3, GX_TG_MTX3x4);

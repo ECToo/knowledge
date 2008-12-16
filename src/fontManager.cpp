@@ -21,7 +21,7 @@
 #include "textureManager.h"
 #include "resourceManager.h"
 
-#ifndef LITTLE_ENDIAN
+#ifdef __WII__
 #define byteSwap4(Y) (((Y & 0xff)<<24)|((Y & 0xff00) << 8)|((Y & 0xff0000) >> 8)|((Y & 0xff000000) >> 24))
 #else
 #define byteSwap4(Y) (Y)
@@ -53,36 +53,23 @@ int readEndianSafeInt(FILE* f)
 
 float readEndianSafeFloat(FILE* f)
 {
-	float value;
 	assert(f != NULL);
 
-	#ifndef LITTLE_ENDIAN
-	if (fread(&value, 4, 1, f) > 0)
+	union
 	{
-		union 
-		{
-			float f;
-			char b[4];
-		} dat1, dat2;
+		float f;
+		int i;
+	} data;
 
-		dat1.f = value;
-		dat2.b[0] = dat1.b[3];
-		dat2.b[1] = dat1.b[2];
-		dat2.b[2] = dat1.b[1];
-		dat2.b[3] = dat1.b[0];
-
-		return dat2.f;
+	if (fread(&data.f, 4, 1, f) > 0)
+	{
+		data.i = byteSwap4(data.i);
+		return data.f;
 	}
 	else 
 	{
 		return 0.0f;
 	}
-	#else
-	if (fread(&value, 4, 1, f) > 0)
-		return value;
-	else
-		return 0.0f;
-	#endif
 }
 			
 bitmapText::bitmapText(const std::string& datName, const std::string& matName)
@@ -137,31 +124,25 @@ vec_t bitmapText::_drawChar(vec_t posX, vec_t y, char c)
 {
 	doom3Glyph* activeGlyph = &mGlyphs[(int)c];
 	if (!activeGlyph)
+	{
+		S_LOG_INFO("Warning, glyph for " + std::string(&c) + " not found.");
 		return 0;
+	}
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	assert(rs != NULL);
 
-	vec_t realY = y;
-
-	#ifndef __WII__
-	// The position for openGL should be switched in
-	// Y axis because it starts from bottom while on
-	// wii it starts on the top.
-	realY = rs->getScreenHeight() - y;
-	#endif
-
-	rs->texCoord(vector2(activeGlyph->s, activeGlyph->t2));
-	rs->vertex(vector3(posX, realY, mZ));
-
-	rs->texCoord(vector2(activeGlyph->s2, activeGlyph->t2));
-	rs->vertex(vector3(posX + activeGlyph->imgWidth, realY, mZ));
+	rs->texCoord(vector2(activeGlyph->s, activeGlyph->t));
+	rs->vertex(vector3(posX, y, -0.5));
 
 	rs->texCoord(vector2(activeGlyph->s2, activeGlyph->t));
-	rs->vertex(vector3(posX + activeGlyph->imgWidth, realY + activeGlyph->imgHeight, mZ));
+	rs->vertex(vector3(posX + activeGlyph->imgWidth, y, -0.5));
 
-	rs->texCoord(vector2(activeGlyph->s, activeGlyph->t));
-	rs->vertex(vector3(posX, realY + activeGlyph->imgHeight, mZ));
+	rs->texCoord(vector2(activeGlyph->s2, activeGlyph->t2));
+	rs->vertex(vector3(posX + activeGlyph->imgWidth, y + activeGlyph->imgHeight, -0.5));
+
+	rs->texCoord(vector2(activeGlyph->s, activeGlyph->t2));
+	rs->vertex(vector3(posX, y + activeGlyph->imgHeight, -0.5));
 
 	return activeGlyph->xSkip;
 }
@@ -179,9 +160,13 @@ void bitmapText::draw()
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	assert(rs != NULL);
 
+	// Material setup
 	mMaterial->prepare();
 
+	// Indepedent of material
+	rs->setCulling(CULLMODE_NONE);
 	rs->setDepthMask(false);
+
 	rs->startVertices(VERTEXMODE_QUAD);
 
 	vec_t x = mPosition.x;
@@ -189,9 +174,10 @@ void bitmapText::draw()
 		x += _drawChar(x, mPosition.y, mContents[i]);
 
 	rs->endVertices();
-	rs->setDepthMask(true);
 
+	// Take it back
 	mMaterial->finish();
+	rs->setDepthMask(true);
 }
 
 }

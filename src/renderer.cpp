@@ -192,7 +192,7 @@ static inline bool compare2D(drawable2D* first, drawable2D* second)
 	assert(first != NULL);
 	assert(second != NULL);
 
-	if (first->getZ() < second->getZ())
+	if (first->getZ() > second->getZ())
 		return true;
 	else
 		return false;
@@ -208,7 +208,7 @@ void renderer::push2D(drawable2D* object)
 	assert(object != NULL);
 	m2DObjects.push_back(object);
 
-	sort2D();
+	// sort2D();
 }
 
 void renderer::pop2D(drawable2D* object)
@@ -240,26 +240,18 @@ void renderer::_drawSkyPlane()
 
 	// Disable depth test drawing on orthogonal way
 	rs->setMatrixMode(MATRIXMODE_PROJECTION);
-	rs->identityMatrix();
 	rs->setOrthographic(0, 0.5, 0, 0.5, -1, 1);
 
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 	rs->identityMatrix();
 
+	// Prepare Material
+	mSkyPlane->prepare();
+
+	// Obrigatory, independent of material settings.
 	rs->setDepthMask(false);
 	rs->setCulling(CULLMODE_NONE);
-	rs->bindMaterial(NULL);
 
-	textureStage* stage = mSkyPlane->getTextureStage(0);
-	assert(stage != NULL);
-
-	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
-	rs->identityMatrix();
-
-	std::vector<kTexture*>* mId = stage->getId();
-	assert(mId != NULL);
-
-	rs->bindTexture((*mId)[0], 0);
  	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 0.5f, -0.5f, -0.5f));
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-0.5f, -0.5f, -0.5f));
@@ -277,20 +269,23 @@ void renderer::_drawSkyPlane()
 		rs->texCoord(vector2(0, 0)); rs->vertex(vector3(-0.5f,  0.5f, -0.5f));
 	rs->endVertices();
 
+	mSkyPlane->finish();
+	rs->setDepthMask(true);
+
 	// Take it back to default
 	rs->setMatrixMode(MATRIXMODE_PROJECTION);
 	rs->identityMatrix();
 
 	if (mActiveCamera)
+	{
 		mActiveCamera->setPerspective();
+	}
 	else
+	{
 		rs->setPerspective(90, 1.33, 0.1, 1000.0f);
+	}
 
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
-	rs->identityMatrix();
-
-	// Set back depth mask
-	rs->setDepthMask(true);
 }
 
 void renderer::_drawSkybox()
@@ -415,7 +410,6 @@ void renderer::draw()
 	 * Call the frame start
 	 */
 	rs->frameStart();
-	rs->setDepthTest(true);
 
 	// Time since frame start.
 	mFrameTime.reset();
@@ -424,6 +418,7 @@ void renderer::draw()
 	_drawSkybox();
 	_drawSkyPlane();
 
+	rs->setDepthTest(true);
 	if (mActiveCamera)
 	{
 		mActiveCamera->setPerspective();
@@ -498,33 +493,25 @@ void renderer::draw()
 	 * Set the 2D projection here and draw the 2d objects on it
 	 */
 	rs->setMatrixMode(MATRIXMODE_PROJECTION);
-	rs->pushMatrix();
-	rs->identityMatrix();
-	rs->setOrthographic(0, rs->getScreenWidth(), 0, rs->getScreenHeight(), -1, 1);
+	rs->setOrthographic(0, rs->getScreenWidth(), rs->getScreenHeight(), 0, -128, 128);
 
-	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
-	rs->pushMatrix();
-	rs->identityMatrix();
-
-	for (std::list<drawable2D*>::const_iterator dit = m2DObjects.begin(); dit != m2DObjects.end(); ++dit)
+	for (std::list<drawable2D*>::const_iterator dit = m2DObjects.begin(); dit != m2DObjects.end(); dit++)
 	{
 		drawable2D* obj = (*dit);
 		assert(obj != NULL);
 
+		rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+		rs->identityMatrix();
+
 		obj->draw();
 	}
-
-	rs->setMatrixMode(MATRIXMODE_PROJECTION);
-	rs->popMatrix();
-
-	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
-	rs->popMatrix();
 
 	/**
 	 * Call the frame end
 	 */
 	rs->frameEnd();
 			
+	// Frames per Second 
 	if (mCalculateFps)
 	{
 		mFpsCount++;

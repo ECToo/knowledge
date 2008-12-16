@@ -71,10 +71,12 @@
 	typedef GLfloat vec_t;
 	typedef unsigned int index_t;
 	#define _break(); ""
+	#define MAT_ROW_MAJOR 
 #else
 	typedef GXTexObj kTexture;
 	typedef float vec_t;
 	typedef u16 index_t;
+	#define MAT_COLUMN_MAJOR 
 #endif
 
 #endif
