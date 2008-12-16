@@ -77,7 +77,10 @@ kTexture* loadTexturePNG(const char* file, unsigned short* w, unsigned short* h)
 			imgProperties.imgHeight, GX_TF_RGBA8, GX_REPEAT, GX_REPEAT, GX_FALSE);
 
 	// Save data for deallocation
-	// textureLoader::getSingleton().pushTextureData(newKTexture, textureData);
+	textureLoader::getSingleton().pushTextureData(newKTexture, textureData);
+	
+	// Invalidate texture cache since we changed texture data.
+	GX_InvalidateTexAll();
 
 	return newKTexture;
 }

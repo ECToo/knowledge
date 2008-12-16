@@ -52,28 +52,35 @@ int main(int argc, char** argv)
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("model");
 
+	// Set Skybox
+	mRenderer->setSkyPlane("skyPlane");
+
 	// Fps Counter
-	k::bitmapText* fpsText = new k::bitmapText("font/fontImage_8.dat", "fontSize8");
+	k::bitmapText* fpsText = new k::bitmapText("fonts/04B08_8.dat", "04B08_8");
 	assert(fpsText != NULL);
-	fpsText->setPosition(k::vector2(2, 10));
+	fpsText->setPosition(k::vector2(4, 10));
 	mRenderer->push2D(fpsText);
 
-	k::bitmapText* newFont = new k::bitmapText("font/fontImage_8.dat", "fontSize8");
+	k::bitmapText* newFont = new k::bitmapText("fonts/04B08_8.dat", "04B08_8");
 	assert(newFont != NULL);
 
 	newFont->setPosition(k::vector2(150, 150));
 	newFont->setText("Testing...1..2..3...");
 	mRenderer->push2D(newFont);
 
-	k::bitmapText* newFont2 = new k::bitmapText("font/fontImage_12.dat", "fontSize12");
+	k::bitmapText* newFont2 = new k::bitmapText("fonts/04B08_12.dat", "04B08_12");
 	assert(newFont2 != NULL);
 
 	newFont2->setPosition(k::vector2(150, 170));
 	newFont2->setText("Bigger Font?");
 	mRenderer->push2D(newFont2);
 
-	// Set Skybox
-	mRenderer->setSkyPlane("skyPlane");
+	k::bitmapText* cubeFont = new k::bitmapText("fonts/cube_14.dat", "cube_14");
+	assert(cubeFont != NULL);
+
+	cubeFont->setPosition(k::vector2(180, 30));
+	cubeFont->setText("WII LOVE LIBOGC");
+	mRenderer->push2D(cubeFont);
 
 	// Create Model
 	k::vector3 modelPosition;
@@ -219,11 +226,11 @@ int main(int argc, char** argv)
 		#endif
 		*/
 
-		mRenderer->draw();
-
 		std::stringstream fpsT;
-		fpsT << "fps: " << mRenderer->getFps();
+		fpsT << "fps: " << mRenderer->getLastFps();
 		fpsText->setText(fpsT.str());
+
+		mRenderer->draw();
 	}
 
 	delete appRoot;

@@ -20,6 +20,27 @@
 
 namespace k {
 
+static inline void copyMtx44(Mtx44 src, Mtx44 dst)
+{
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			dst[i][j] = src[i][j];
+}
+
+static inline void identityMtx44(Mtx44 mat)
+{
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			if (i == j)
+				mat[i][j] = 1.0;
+			else
+				mat[i][j] = 0.0;
+		}
+	}
+}
+
 matrixStack::matrixStack()
 {
 	for (int i = 0; i < 32; i++)
@@ -51,7 +72,7 @@ matrix44Stack::matrix44Stack()
 {
 	for (int i = 0; i < 16; i++)
 	{
-		guMtxIdentity(stack[i]);
+		identityMtx44(stack[i]);
 	}
 
 	// Top of the stack
@@ -63,173 +84,15 @@ void matrix44Stack::push(Mtx44 matrix)
 	if (mPosition <= 0)
 		return;
 
-	guMtxCopy(matrix, stack[--mPosition]);
+	copyMtx44(matrix, stack[--mPosition]);
 }
 
 void matrix44Stack::pop(Mtx44 destination)
 {
 	if (mPosition < 32)
-	{
-		guMtxCopy(stack[mPosition++], destination);
-	}
+		copyMtx44(stack[mPosition++], destination);
 }
 
-void genericMesh::initialise(VertexMode vMode)
-{
-	mRenderingMode = vMode;
-
-	mVertices.clear();
-	mNormals.clear();
-	mColors.clear();
-	mTexCoords.clear();
-}
-
-void genericMesh::end(Mtx& mModelViewMatrix, std::map<int, GXTexObj*>* mActiveTextures, material* mat)
-{
-	unsigned int mVertexSize = mVertices.size();
-
-	assert(mActiveTextures != NULL);
-
-	GX_ClearVtxDesc();
-	GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
-	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
-
-	u8 texCoord = GX_TEXCOORDNULL;
-	u32 texMap = GX_TEXMAP_NULL;
-	u8 tevColor = GX_COLORNULL;
-
-	bool renderColors = (mColors.size() == mVertexSize);
-	if (renderColors)
-	{
- 		GX_SetVtxDesc(GX_VA_CLR0, GX_DIRECT);
-		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGB8, 0);
-
-		tevColor = GX_COLOR0A0;
-	}
-	else
-	{
-		GX_SetVtxDesc(GX_VA_CLR0, GX_NONE);
-	}
-
-	bool renderNormals = (mNormals.size() == mVertexSize);
-	if (renderNormals)
-	{
- 		GX_SetVtxDesc(GX_VA_NRM, GX_DIRECT);
-		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_POS_XYZ, GX_F32, 0);
-	}
-
-	bool renderTexCoords = (mTexCoords.size() == mVertexSize);
-	if (renderTexCoords)
-	{
- 		GX_SetVtxDesc(GX_VA_TEX0, GX_DIRECT);
-		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
-
-		if (mat)
-		for (unsigned int i = 1; i < mat->getTextureUnits(); i++)
-		{
-			textureStage* stage = mat->getTextureStage(i);
-			assert(stage != NULL);
-
-			GX_SetVtxDesc(GX_VA_TEX0MTXIDX + i, GX_TEXMTX0 + i);
- 			GX_SetVtxDesc(GX_VA_TEX0 + i, GX_DIRECT);
-			GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0 + i, GX_TEX_ST, GX_F32, 0);
-		}
-
-		texCoord = GX_TEXCOORD0;
-		texMap = GX_TEXMAP0;
-	}
-	else
-	{
-		GX_SetVtxDesc(GX_VA_TEX0, GX_NONE);
-	}
-
-	GX_SetTevOrder(GX_TEVSTAGE0, texCoord, texMap, tevColor);
-	if (mat)
-	{
-		for (unsigned int i = 1; i < mat->getTextureUnits(); i++)
-			GX_SetTevOrder(GX_TEVSTAGE0 + i, GX_TEXCOORD0 + i, GX_TEXMAP0 + i, tevColor);
-	}
-
-	std::map<int, GXTexObj*>::const_iterator it;
-	for (it = mActiveTextures->begin(); it != mActiveTextures->end(); it++)
-	{
-		assert(it->second != NULL);
-		GX_LoadTexObj(it->second, GX_TEXMAP0 + it->first);
-	}
-
-	// ModelView
-	GX_LoadPosMtxImm(mModelViewMatrix, GX_PNMTX0);
-	GX_SetCurrentMtx(GX_PNMTX0);
-
-	// Start the Vertex Descriptor on Flipper
-	switch (mRenderingMode)
-	{
-		case VERTEXMODE_LINE:
-			GX_Begin(GX_LINES, GX_VTXFMT0, mVertices.size());
-			break;
-		default:
-		case VERTEXMODE_TRIANGLES:
-			GX_Begin(GX_TRIANGLES, GX_VTXFMT0, mVertices.size());
-			break;
-		case VERTEXMODE_QUAD:
-			GX_Begin(GX_QUADS, GX_VTXFMT0, mVertices.size());
-			break;
-	}
-
-	// Draw Vertices
-	unsigned int index = 0;
-	std::list<vector3>::iterator vIt;
-	for (vIt = mVertices.begin(); vIt != mVertices.end(); vIt++)
-	{
-		GX_Position3f32((*vIt).x, (*vIt).y, (*vIt).z);
-
-		if (renderColors)
-		{
-			GX_Color3f32(mColors[index].x, mColors[index].y, mColors[index].z);
-		}
-
-		if (renderNormals)
-		{
-			GX_Normal3f32(mNormals[index].x, mNormals[index].y, mNormals[index].z);
-		}
-
-		if (renderTexCoords)
-		{
-			GX_TexCoord2f32(mTexCoords[index].x, mTexCoords[index].y);
-			if (mat)
-			{
-				for (unsigned int i = 1; i < mat->getTextureUnits(); i++)
-					GX_TexCoord2f32(mTexCoords[index].x, mTexCoords[index].y);
-			}
-		}
-
-		// Increment index
-		index++;
-	}
-
-	GX_End();
-}
-
-void genericMesh::pushVertex(const vector3& vec)
-{
-	mVertices.push_back(vec);
-}
-
-void genericMesh::pushNormal(const vector3& vec)
-{
-	mNormals.push_back(vec);
-}
-
-void genericMesh::pushColor(const vector3& vec)
-{
-	mColors.push_back(vec);
-}
-
-void genericMesh::pushTexCoord(const vector2& vec)
-{
-	mTexCoords.push_back(vec);
-}
-			
 wiiRenderSystem::wiiRenderSystem()
 {
 }
@@ -309,7 +172,7 @@ void wiiRenderSystem::configure()
 	{
 		GX_SetPixelFmt(GX_PF_RGB8_Z24, GX_ZC_LINEAR);
 	}
- 
+
 	// Initial Culling is 0
 	GX_SetCullMode(GX_CULL_NONE);
 	GX_CopyDisp(mFrameBuffers[mBufferIndex], GX_TRUE);
@@ -330,9 +193,7 @@ void wiiRenderSystem::configure()
 }
 
 void wiiRenderSystem::createWindow(const int w, const int h)
-{
-	// Doesnt make sense on wii ;)
-}
+{}
 			
 void wiiRenderSystem::setBlendMode(unsigned short src, unsigned short dst)
 {
@@ -349,25 +210,19 @@ void wiiRenderSystem::setBlend(bool state)
 
 void wiiRenderSystem::setDepthMask(bool state)
 {
-	mDepthMask = state;
-	GX_SetZMode(GX_TRUE, GX_LEQUAL, mDepthMask);
+	GX_SetZMode(GX_TRUE, GX_LEQUAL, state);
 }
 
 void wiiRenderSystem::destroyWindow()
-{
-	// Doesnt make sense on wii ;)
-}
+{}
 			
 void wiiRenderSystem::setWindowTitle(const std::string& title)
-{
-	// Doesnt make sense on wii ;)
-}
+{}
 
 void wiiRenderSystem::frameStart()
 {
 	GX_SetViewport(0, 0, mVideoMode->fbWidth, mVideoMode->efbHeight, 0, 1);
 	GX_InvVtxCache();
-	GX_InvalidateTexAll();
 }
 
 void wiiRenderSystem::frameEnd()
@@ -410,8 +265,10 @@ void wiiRenderSystem::setClearDepth(const vec_t amount)
 
 void wiiRenderSystem::setDepthTest(bool test)
 {
+	/*
 	mDepthTest = test;
 	GX_SetZMode(GX_TRUE, GX_LEQUAL, mDepthMask);
+	*/
 }
 
 void wiiRenderSystem::setShadeModel(ShadeModel model)
@@ -477,7 +334,7 @@ void wiiRenderSystem::copyMatrix(f32 matrix[][4])
 	switch (mActiveMatrix)
 	{
 		case MATRIXMODE_PROJECTION:
-			guMtxCopy(matrix, mProjectionMatrix);
+			copyMtx44(matrix, mProjectionMatrix);
 			break;
 		case MATRIXMODE_MODELVIEW:
 			guMtxCopy(matrix, mModelViewMatrix);
@@ -520,7 +377,7 @@ void wiiRenderSystem::translateScene(vec_t x, vec_t y, vec_t z)
 			{
 				Mtx44 temp;
 
-				guMtxIdentity(temp);
+				identityMtx44(temp);
 				guMtxTrans(temp, x, y, z);
 				guMtxConcat(mProjectionMatrix, temp, mProjectionMatrix);
 			}
@@ -541,10 +398,9 @@ void wiiRenderSystem::rotateScene(vec_t angle, vec_t x, vec_t y, vec_t z)
 	Mtx temp;
 	Vector axis;
 
-	// zero or 2pi
-	if (!angle || angle == 6.28318531)
+	if (angle == 0 || angle == M_PI*2)
 		return;
-	
+
 	axis.x = x;
 	axis.y = y;
 	axis.z = z;
@@ -555,7 +411,7 @@ void wiiRenderSystem::rotateScene(vec_t angle, vec_t x, vec_t y, vec_t z)
 	switch (mActiveMatrix)
 	{
 		case MATRIXMODE_PROJECTION:
-			// guMtxConcat(mProjectionMatrix, temp, mProjectionMatrix);
+			guMtxConcat(mProjectionMatrix, temp, mProjectionMatrix);
 			break;
 		case MATRIXMODE_MODELVIEW:
 			guMtxConcat(mModelViewMatrix, temp, mModelViewMatrix);
@@ -603,14 +459,14 @@ void wiiRenderSystem::setPerspective(vec_t fov, vec_t aspect, vec_t near, vec_t 
 {
 	Mtx44 perspective;
 
-	guMtxIdentity(perspective);
+	identityMtx44(perspective);
 	guPerspective(perspective, fov, aspect, near, far);
 	GX_LoadProjectionMtx(perspective, GX_PERSPECTIVE);
 
 	switch (mActiveMatrix)
 	{
 		case MATRIXMODE_PROJECTION:
-			guMtxConcat(mProjectionMatrix, perspective, mProjectionMatrix);
+			copyMtx44(perspective, mProjectionMatrix);
 			break;
 		default:
 			S_LOG_INFO("Invalid matrix mode");
@@ -622,14 +478,13 @@ void wiiRenderSystem::setOrthographic(vec_t left, vec_t right, vec_t bottom, vec
 {
 	Mtx44 ortho;
 
-	guMtxIdentity(ortho);
-	guOrtho(ortho, left, right, bottom, top, near, far);
+	guOrtho(ortho, top, bottom, left, right, near, far);
 	GX_LoadProjectionMtx(ortho, GX_ORTHOGRAPHIC);
 
 	switch (mActiveMatrix)
 	{
 		case MATRIXMODE_PROJECTION:
-			guMtxConcat(mProjectionMatrix, ortho, mProjectionMatrix);
+			copyMtx44(ortho, mProjectionMatrix);
 			break;
 		default:
 			S_LOG_INFO("Invalid matrix mode");
@@ -658,32 +513,156 @@ void wiiRenderSystem::setCulling(CullMode culling)
 
 void wiiRenderSystem::startVertices(VertexMode mode)
 {
-	mGenericMesh.initialise(mode);
+	mRenderingMode = mode;
+
+	mVertices.clear();
+	mNormals.clear();
+	mColors.clear();
+	mTexCoords.clear();
 }
 
 void wiiRenderSystem::vertex(const vector3& vert)
 {
-	mGenericMesh.pushVertex(vert);
+	mVertices.push_back(vert);
 }
 
 void wiiRenderSystem::normal(const vector3& norm)
 {
-	mGenericMesh.pushNormal(norm);
+	mNormals.push_back(norm);
 }
 
 void wiiRenderSystem::color(const vector3& col)
 {
-	mGenericMesh.pushColor(col);
+	mColors.push_back(col);
 }
 
 void wiiRenderSystem::texCoord(const vector2& coord)
 {
-	mGenericMesh.pushTexCoord(coord);
+	mTexCoords.push_back(coord);
 }
 
 void wiiRenderSystem::endVertices()
 {
-	mGenericMesh.end(mModelViewMatrix, &mActiveTextures, mActiveMaterial);
+	unsigned int mVertexSize = mVertices.size();
+
+	GX_ClearVtxDesc();
+	GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+
+	u8 texCoord = GX_TEXCOORDNULL;
+	u32 texMap = GX_TEXMAP_NULL;
+	u8 tevColor = GX_COLORNULL;
+
+	bool renderColors = (mColors.size() == mVertexSize);
+	if (renderColors)
+	{
+ 		GX_SetVtxDesc(GX_VA_CLR0, GX_DIRECT);
+		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGB8, 0);
+
+		tevColor = GX_COLOR0A0;
+	}
+	else
+	{
+		GX_SetVtxDesc(GX_VA_CLR0, GX_NONE);
+	}
+
+	bool renderNormals = (mNormals.size() == mVertexSize);
+	if (renderNormals)
+	{
+ 		GX_SetVtxDesc(GX_VA_NRM, GX_DIRECT);
+		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_POS_XYZ, GX_F32, 0);
+	}
+
+	bool renderTexCoords = (mTexCoords.size() == mVertexSize);
+	if (renderTexCoords)
+	{
+ 		GX_SetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+		GX_SetVtxDesc(GX_VA_TEX0MTXIDX, GX_TEXMTX0);
+		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+
+		if (mActiveMaterial)
+		for (unsigned int i = 1; i < mActiveMaterial->getTextureUnits(); i++)
+		{
+			textureStage* stage = mActiveMaterial->getTextureStage(i);
+			assert(stage != NULL);
+
+			GX_SetVtxDesc(GX_VA_TEX0MTXIDX + i, GX_TEXMTX0 + i * 3);
+ 			GX_SetVtxDesc(GX_VA_TEX0 + i, GX_DIRECT);
+			GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0 + i, GX_TEX_ST, GX_F32, 0);
+		}
+
+		texCoord = GX_TEXCOORD0;
+		texMap = GX_TEXMAP0;
+	}
+	else
+	{
+		GX_SetVtxDesc(GX_VA_TEX0, GX_NONE);
+	}
+
+	GX_SetTevOrder(GX_TEVSTAGE0, texCoord, texMap, tevColor);
+	if (mActiveMaterial)
+	{
+		for (unsigned int i = 1; i < mActiveMaterial->getTextureUnits(); i++)
+			GX_SetTevOrder(GX_TEVSTAGE0 + i, GX_TEXCOORD0 + i, GX_TEXMAP0 + i, tevColor);
+	}
+
+	std::map<int, GXTexObj*>::const_iterator it;
+	for (it = mActiveTextures.begin(); it != mActiveTextures.end(); it++)
+	{
+		assert(it->second != NULL);
+		GX_LoadTexObj(it->second, GX_TEXMAP0 + it->first);
+	}
+
+	// ModelView
+	GX_LoadPosMtxImm(mModelViewMatrix, GX_PNMTX0);
+	GX_SetCurrentMtx(GX_PNMTX0);
+
+	// Start the Vertex Descriptor on Flipper
+	switch (mRenderingMode)
+	{
+		case VERTEXMODE_LINE:
+			GX_Begin(GX_LINES, GX_VTXFMT0, mVertices.size());
+			break;
+		default:
+		case VERTEXMODE_TRIANGLES:
+			GX_Begin(GX_TRIANGLES, GX_VTXFMT0, mVertices.size());
+			break;
+		case VERTEXMODE_QUAD:
+			GX_Begin(GX_QUADS, GX_VTXFMT0, mVertices.size());
+			break;
+	}
+
+	// Draw Vertices
+	unsigned int index = 0;
+	std::list<vector3>::iterator vIt;
+	for (vIt = mVertices.begin(); vIt != mVertices.end(); vIt++)
+	{
+		GX_Position3f32((*vIt).x, (*vIt).y, (*vIt).z);
+
+		if (renderColors)
+		{
+			GX_Color3f32(mColors[index].x, mColors[index].y, mColors[index].z);
+		}
+
+		if (renderNormals)
+		{
+			GX_Normal3f32(mNormals[index].x, mNormals[index].y, mNormals[index].z);
+		}
+
+		if (renderTexCoords)
+		{
+			GX_TexCoord2f32(mTexCoords[index].x, mTexCoords[index].y);
+			if (mActiveMaterial)
+			{
+				for (unsigned int i = 1; i < mActiveMaterial->getTextureUnits(); i++)
+					GX_TexCoord2f32(mTexCoords[index].x, mTexCoords[index].y);
+			}
+		}
+
+		index++;
+	}
+
+	GX_End();
 }
 
 void wiiRenderSystem::matAmbient(const vector3& color)
@@ -737,6 +716,7 @@ void wiiRenderSystem::drawArrays()
 	if (mTexCoordArray)
 	{
  		GX_SetVtxDesc(GX_VA_TEX0, GX_INDEX16);
+		GX_SetVtxDesc(GX_VA_TEX0MTXIDX, GX_TEXMTX0);
 		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
 
 		DCFlushRange(mTexCoordArray, mVertexCount * sizeof(vec_t) * 2);
@@ -749,7 +729,7 @@ void wiiRenderSystem::drawArrays()
 			assert(stage != NULL);
 
  			GX_SetVtxDesc(GX_VA_TEX0 + i, GX_INDEX16);
-			GX_SetVtxDesc(GX_VA_TEX0MTXIDX + i, GX_TEXMTX0 + i);
+			GX_SetVtxDesc(GX_VA_TEX0MTXIDX + i * 3, GX_TEXMTX0 + i * 3);
 			GX_SetArray(GX_VA_TEX0 + i, mTexCoordArray, 2 * sizeof(vec_t));
 			GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0 + i, GX_TEX_ST, GX_F32, 0);
 		}
@@ -839,14 +819,12 @@ void wiiRenderSystem::drawArrays()
 
 unsigned int wiiRenderSystem::getScreenWidth()
 {
-	// return mVideoMode->viWidth;
 	return mVideoMode->fbWidth;
 }
 
 unsigned int wiiRenderSystem::getScreenHeight()
 {
-	// return mVideoMode->viHeight;
-	return mVideoMode->efbHeight;
+	return mVideoMode->xfbHeight;
 }
 
 }

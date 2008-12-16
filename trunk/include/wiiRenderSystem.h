@@ -51,33 +51,6 @@ namespace k
 			void pop(Mtx44 destination);
 	};
 
-	class genericMesh
-	{
-		private:
-			std::list<vector3> mVertices;
-			std::vector<vector3> mNormals;
-			std::vector<vector3> mColors;
-			std::vector<vector2> mTexCoords;
-
-			VertexMode mRenderingMode;
-
-		public:
-			void initialise(VertexMode vMode);
-
-			/**
-			 * Note that this function doesnt
-			 * support multi textures neither
-			 * multi pass for rendering yet.
-			 */
-			void end(Mtx& mModelViewMatrix, std::map<int, GXTexObj*>* mActiveTextures,
-					material* mat);
-
-			void pushVertex(const vector3& vec);
-			void pushNormal(const vector3& vec);
-			void pushColor(const vector3& vec);
-			void pushTexCoord(const vector2& vec);
-	};
-
 	class wiiRenderSystem : public renderSystem
 	{
 		private:
@@ -149,7 +122,11 @@ namespace k
 			 * and adjust everything, better to use
 			 * a generic mesh to do the job for us
 			 */
-			genericMesh mGenericMesh;
+			std::list<vector3> mVertices;
+			std::vector<vector3> mNormals;
+			std::vector<vector3> mColors;
+			std::vector<vector2> mTexCoords;
+			VertexMode mRenderingMode;
 
 			/**
 			 * Active texture unit, if any

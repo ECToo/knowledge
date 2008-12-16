@@ -36,7 +36,7 @@ camera::camera()
 void camera::setFov(unsigned int fov)
 {
 	if (!fov)
-		S_LOG_INFO("Warning, setting camera fov to 0!");
+		S_LOG_INFO("Warning: Setting camera fov to 0!");
 
 	mFov = fov;
 }
@@ -105,11 +105,9 @@ void camera::lookAt(vector3 pos)
 	// the up vector cross the forward direction
 	vector3 up = vector3::unit_y;
 	vector3 dirX = up.crossProduct(dirZ);
-	dirX.normalise();
 
 	// Same goes to the up direction
 	vector3 dirY = dirZ.crossProduct(dirX);
-	dirY.normalise();
 
 	matrix3 mat(dirX, dirY, dirZ);
 	mOrientation = quaternion(mat);
@@ -132,7 +130,7 @@ void camera::setView()
 
 	#else
 
-	vector3 look(mRotation.m[0][2], mRotation.m[1][2], mRotation.m[2][2]);
+	vector3 look(-mRotation.m[0][2], -mRotation.m[1][2], -mRotation.m[2][2]);
 	vector3 up(mRotation.m[0][1], mRotation.m[1][1], mRotation.m[2][1]);
 	vector3 right(mRotation.m[0][0], mRotation.m[1][0], mRotation.m[2][0]);
 
@@ -148,9 +146,9 @@ void camera::setView()
 	mRotation.m[2][1] = look.y;
 	mRotation.m[2][2] = look.z;
 
-	mRotation.m[0][3] = - 2 * (right.dotProduct(mPosition));
-	mRotation.m[1][3] = - 2 * (up.dotProduct(mPosition));
-	mRotation.m[2][3] = - 2 * (look.dotProduct(mPosition));
+	mRotation.m[0][3] = -right.dotProduct(mPosition);
+	mRotation.m[1][3] = -up.dotProduct(mPosition);
+	mRotation.m[2][3] = -look.dotProduct(mPosition);
 
 	mFinal = mRotation;
 	#endif
@@ -198,6 +196,7 @@ void camera::copyView()
 	assert(rs != NULL);
 
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+
 	#ifdef __WII__
 	rs->copyMatrix(mFinal.m);
 	#else

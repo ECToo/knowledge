@@ -25,21 +25,21 @@
 #include "resourceManager.h"
 
 // Plane Stuff
-const vec_t vertices[4][3] = { 
+const vec_t vertices[4][3] ATTRIBUTE_ALIGN(32) = { 
 	{40, 0, 40}, 
 	{-40, 0, 40}, 
 	{-40, 0, -40}, 
 	{40, 0, -40}
 };
 
-const vec_t normals[4][3] = {
+const vec_t normals[4][3] ATTRIBUTE_ALIGN(32) = {
 	{0, 1, 0},
 	{0, 1, 0},
 	{0, 1, 0},
 	{0, 1, 0}
 };
 
-const int indices[6] = { 
+const int indices[6] ATTRIBUTE_ALIGN(32) = { 
 	0, 2, 1, 
 	2, 0, 3 
 };
@@ -69,7 +69,6 @@ class kPlane : public k::drawable3D
 			k::renderSystem* rs = k::root::getSingleton().getRenderSystem();
 			assert(rs != NULL);
 
-			rs->setMatrixMode(k::MATRIXMODE_MODELVIEW);
 			mMaterial->prepare();
 
 			rs->startVertices(k::VERTEXMODE_QUAD);
@@ -93,7 +92,7 @@ class kPlane : public k::drawable3D
 void addRandomBox()
 {
 	#ifdef __WII__
-	k::md5model* newBoxModel = new k::md5model("/knowledge/soccer/box.md5mesh");
+	k::md5model* newBoxModel = new k::md5model("sd:/knowledge/physics/box.md5mesh");
 	#else
 	k::md5model* newBoxModel = new k::md5model("box.md5mesh");
 	#endif
@@ -116,7 +115,7 @@ void addRandomBox()
 void addRandomSphere()
 {
 	#ifdef __WII__
-	k::md5model* newModel = new k::md5model("/knowledge/soccer/soccer.md5mesh");
+	k::md5model* newModel = new k::md5model("sd:/knowledge/physics/soccer.md5mesh");
 	#else
 	k::md5model* newModel = new k::md5model("soccer.md5mesh");
 	#endif
@@ -151,11 +150,10 @@ int main(int argc, char** argv)
 	// Doesnt matter on wii
 	mRenderSystem->createWindow(800, 600);
 	mRenderSystem->setWindowTitle("knowledge, the power of mind");
-	mRenderSystem->setDepthTest(true);
 
 	// Common library
 	#ifdef __WII__
-	new k::resourceManager("/knowledge/resources.cfg");
+	new k::resourceManager("sd:/knowledge/resources.cfg");
 	#else
 	new k::resourceManager("../resources.cfg");
 	#endif
@@ -163,22 +161,11 @@ int main(int argc, char** argv)
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("physics");
 
-	mRenderer->setSkyBox("nightzSky");
+	// mRenderer->setSkyBox("nightzSky");
+	mRenderer->setSkyPlane("skyPlane");
 
 	assert(mGuiManager != NULL);
 	mGuiManager->setCursor("wiiCursor3", k::vector2(32, 32));
-
-	k::sticker* odeLogo = new k::sticker("odeLogo");
-	assert(odeLogo != NULL);
-	odeLogo->setScale(k::vector2(128, 128));
-	odeLogo->setPosition(k::vector2(10, mRenderSystem->getScreenHeight() - 138));
-	mRenderer->push2D(odeLogo);
-
-	// Make The plane
-	kPlane* newPlane = new kPlane();
-	assert(newPlane != NULL);
-	newPlane->setMaterial("odePlane");
-	mRenderer->push3D(newPlane);
 	
 	/**
 	 * Setup the input Manager
@@ -206,9 +193,17 @@ int main(int argc, char** argv)
 	mPhysicsManager->setGravity(k::vector3(0, -9.78, 0));
 
 	// Plane
+	
+	/*
+	kPlane* newPlane = new kPlane();
+	assert(newPlane != NULL);
+	newPlane->setMaterial("odePlane");
+	mRenderer->push3D(newPlane);
+	*/
+
 	k::physicTriMesh* planePhysic = mPhysicsManager->createTriMesh(vertices, 4, indices, 6, normals);
 	assert(planePhysic != NULL);
-	planePhysic->attachDrawable(newPlane);
+	// planePhysic->attachDrawable(newPlane);
 
 	// Angles
 	bool running = true;
