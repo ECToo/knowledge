@@ -210,7 +210,12 @@ void wiiRenderSystem::setBlend(bool state)
 
 void wiiRenderSystem::setDepthMask(bool state)
 {
-	GX_SetZMode(GX_TRUE, GX_LEQUAL, state);
+	mDepthMask = state;
+
+	if (!mDepthTest)
+		GX_SetZMode(GX_TRUE, GX_ALWAYS, mDepthMask);
+	else
+		GX_SetZMode(GX_TRUE, GX_LEQUAL, mDepthMask);
 }
 
 void wiiRenderSystem::destroyWindow()
@@ -228,7 +233,7 @@ void wiiRenderSystem::frameStart()
 void wiiRenderSystem::frameEnd()
 {
 	GX_DrawDone();
-		
+
 	// Flip Buffers
 	mBufferIndex ^= 1;
 	GX_SetColorUpdate(GX_TRUE);
@@ -265,10 +270,12 @@ void wiiRenderSystem::setClearDepth(const vec_t amount)
 
 void wiiRenderSystem::setDepthTest(bool test)
 {
-	/*
 	mDepthTest = test;
-	GX_SetZMode(GX_TRUE, GX_LEQUAL, mDepthMask);
-	*/
+
+	if (!mDepthTest)
+		GX_SetZMode(GX_TRUE, GX_ALWAYS, mDepthMask);
+	else
+		GX_SetZMode(GX_TRUE, GX_LEQUAL, mDepthMask);
 }
 
 void wiiRenderSystem::setShadeModel(ShadeModel model)
@@ -318,7 +325,7 @@ void wiiRenderSystem::identityMatrix()
 	switch (mActiveMatrix)
 	{
 		case MATRIXMODE_PROJECTION:
-			guMtxIdentity(mProjectionMatrix);
+			identityMtx44(mProjectionMatrix);
 			break;
 		case MATRIXMODE_MODELVIEW:
 			guMtxIdentity(mModelViewMatrix);
