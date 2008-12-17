@@ -105,9 +105,11 @@ void camera::lookAt(vector3 pos)
 	// the up vector cross the forward direction
 	vector3 up = vector3::unit_y;
 	vector3 dirX = up.crossProduct(dirZ);
+	dirX.normalise();
 
 	// Same goes to the up direction
 	vector3 dirY = dirZ.crossProduct(dirX);
+	dirY.normalise();
 
 	matrix3 mat(dirX, dirY, dirZ);
 	mOrientation = quaternion(mat);

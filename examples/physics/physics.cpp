@@ -137,6 +137,8 @@ void addRandomSphere()
 
 int main(int argc, char** argv)
 {
+	_break();
+
 	// Initialize knowledge
 	k::root* appRoot = new k::root();
 	k::renderSystem* mRenderSystem = appRoot->getRenderSystem();
@@ -161,8 +163,8 @@ int main(int argc, char** argv)
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("physics");
 
-	// mRenderer->setSkyBox("nightzSky");
-	mRenderer->setSkyPlane("skyPlane");
+	mRenderer->setSkyBox("nightzSky");
+	// mRenderer->setSkyPlane("skyPlane");
 
 	assert(mGuiManager != NULL);
 	mGuiManager->setCursor("wiiCursor3", k::vector2(32, 32));
@@ -194,16 +196,14 @@ int main(int argc, char** argv)
 
 	// Plane
 	
-	/*
 	kPlane* newPlane = new kPlane();
 	assert(newPlane != NULL);
 	newPlane->setMaterial("odePlane");
 	mRenderer->push3D(newPlane);
-	*/
 
 	k::physicTriMesh* planePhysic = mPhysicsManager->createTriMesh(vertices, 4, indices, 6, normals);
 	assert(planePhysic != NULL);
-	// planePhysic->attachDrawable(newPlane);
+	planePhysic->attachDrawable(newPlane);
 
 	// Angles
 	bool running = true;

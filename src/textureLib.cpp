@@ -53,8 +53,6 @@ texture* createRawTexture(const std::string& filename)
 
 texture* createRawCubemap(const std::string& filename)
 {
-	return NULL;
-
 	textureLoader* texLoader = &textureLoader::getSingleton();
 	if (!texLoader)
 		return NULL;
@@ -71,7 +69,7 @@ texture* createRawCubemap(const std::string& filename)
 	std::string tempName;	
 
 	// Opengl Textures
-	std::vector<kTexture*> cubeTex;
+	std::vector<kTexture*> cubeTex(6);
 	kTexture* tempTex = NULL;
 		
 	// Front

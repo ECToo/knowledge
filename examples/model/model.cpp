@@ -54,6 +54,7 @@ int main(int argc, char** argv)
 
 	// Set Skybox
 	mRenderer->setSkyPlane("skyPlane");
+	// mRenderer->setSkyBox("nightzSky");
 
 	// Fps Counter
 	k::bitmapText* fpsText = new k::bitmapText("fonts/04B08_8.dat", "04B08_8");

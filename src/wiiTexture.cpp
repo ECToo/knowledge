@@ -108,8 +108,9 @@ void wiiTexture::setTexCoordGen()
 				rs->getModelView(postMtx);
 				guMtxInverse(postMtx, postMtx);
 				guMtxTranspose(postMtx, postMtx);
+				guMtxCopy(postMtx, destMtx);
 
-				guMtxIdentity(destMtx);
+				// guMtxIdentity(destMtx);
 				guMtxIdentity(s);
 				guMtxIdentity(t);
 
