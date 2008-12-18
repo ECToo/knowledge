@@ -62,6 +62,13 @@ int main(int argc, char** argv)
 	fpsText->setPosition(k::vector2(4, 10));
 	mRenderer->push2D(fpsText);
 
+	k::sticker* newSticker = new k::sticker("donutSoft");
+	assert(newSticker != NULL);
+
+	newSticker->setScale(k::vector2(256, 256));
+	newSticker->setPosition(k::vector2(150, 150));
+	mRenderer->push2D(newSticker);
+
 	k::bitmapText* newFont = new k::bitmapText("fonts/04B08_8.dat", "04B08_8");
 	assert(newFont != NULL);
 
@@ -96,7 +103,7 @@ int main(int argc, char** argv)
 	#endif
 
 	assert(newModel != NULL);
-	newModel->getMesh(0)->setMaterial("donutMetal");
+	newModel->getMesh(0)->setMaterial("donutSoft");
 
 	/*
 	#ifdef __WII__
