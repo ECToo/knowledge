@@ -105,14 +105,17 @@ void camera::lookAt(vector3 pos)
 	// the up vector cross the forward direction
 	vector3 up = vector3::unit_y;
 	vector3 dirX = up.crossProduct(dirZ);
-	dirX.normalise();
 
 	// Same goes to the up direction
 	vector3 dirY = dirZ.crossProduct(dirX);
-	dirY.normalise();
 
 	matrix3 mat(dirX, dirY, dirZ);
 	mOrientation = quaternion(mat);
+
+	// 
+	std::stringstream vec;
+	vec << dirZ.x << ", " << dirZ.y << ", " << dirZ.z;
+	S_LOG_INFO(vec.str());
 
 	setView();
 }
@@ -123,11 +126,10 @@ void camera::setView()
 
 	#ifndef __WII__
 
-	// Multiply by 2 because of the lookAt translation + object inverse translation
 	matrix4 mTranslation;
-	mTranslation.m[3][0] = -mPosition.x * 2;
-	mTranslation.m[3][1] = -mPosition.y * 2;
-	mTranslation.m[3][2] = -mPosition.z * 2;
+	mTranslation.m[3][0] = -mPosition.x;
+	mTranslation.m[3][1] = -mPosition.y;
+	mTranslation.m[3][2] = -mPosition.z;
 	mFinal = mTranslation * mRotation;
 
 	#else
@@ -135,6 +137,11 @@ void camera::setView()
 	vector3 look(-mRotation.m[0][2], -mRotation.m[1][2], -mRotation.m[2][2]);
 	vector3 up(mRotation.m[0][1], mRotation.m[1][1], mRotation.m[2][1]);
 	vector3 right(mRotation.m[0][0], mRotation.m[1][0], mRotation.m[2][0]);
+
+	// 
+	std::stringstream vec;
+	vec << look.x << ", " << look.y << ", " << look.z;
+	S_LOG_INFO(vec.str());
 
 	mRotation.m[0][0] = right.x;
 	mRotation.m[0][1] = right.y;
