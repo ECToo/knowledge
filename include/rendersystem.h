@@ -43,6 +43,7 @@ namespace k
 	{
 		VERTEXMODE_LINE,
 		VERTEXMODE_TRIANGLES,
+		VERTEXMODE_TRI_STRIP,
 		VERTEXMODE_QUAD
 	};
 
@@ -183,6 +184,7 @@ namespace k
 			}
 
 			virtual void drawArrays() = 0;
+			virtual void screenshot(const char* filename) = 0;
 
 			virtual unsigned int getScreenWidth() = 0;
 			virtual unsigned int getScreenHeight() = 0;

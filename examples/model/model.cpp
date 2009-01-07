@@ -53,8 +53,8 @@ int main(int argc, char** argv)
 	k::resourceManager::getSingleton().loadGroup("model");
 
 	// Set Skybox
-	mRenderer->setSkyPlane("skyPlane");
-	// mRenderer->setSkyBox("nightzSky");
+	// mRenderer->setSkyPlane("skyPlane");
+	mRenderer->setSkyBox("nightzSky");
 
 	// Fps Counter
 	k::bitmapText* fpsText = new k::bitmapText("fonts/04B08_8.dat", "04B08_8");
@@ -64,10 +64,6 @@ int main(int argc, char** argv)
 
 	k::sticker* newSticker = new k::sticker("donutSoft");
 	assert(newSticker != NULL);
-
-	newSticker->setScale(k::vector2(256, 256));
-	newSticker->setPosition(k::vector2(150, 150));
-	mRenderer->push2D(newSticker);
 
 	k::bitmapText* newFont = new k::bitmapText("fonts/04B08_8.dat", "04B08_8");
 	assert(newFont != NULL);
@@ -103,7 +99,7 @@ int main(int argc, char** argv)
 	#endif
 
 	assert(newModel != NULL);
-	newModel->getMesh(0)->setMaterial("donutSoft");
+	newModel->getMesh(0)->setMaterial("donutMetal");
 
 	/*
 	#ifdef __WII__
@@ -138,6 +134,10 @@ int main(int argc, char** argv)
 	int dX = 0;
 	int dY = 0;
 	vec_t frame = 0;
+
+	// Screenshot
+	bool oneHold = false;
+	int scrCont = 0;
 
 	bool running = true;
 	while (running)
@@ -209,6 +209,22 @@ int main(int argc, char** argv)
 		{
 			modelPosition.x += dX;
 			modelPosition.y -= dY;
+		}
+
+		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_1))
+		{
+			oneHold = true;
+		}
+		else
+		if (oneHold)
+		{
+			oneHold = false;
+
+			std::stringstream shot;
+			shot << k::resourceManager::getSingleton().getRoot();
+			shot << "screenshot_" << scrCont++ << ".jpg";
+
+			mRenderSystem->screenshot(shot.str().c_str());
 		}
 
 		// Quit Application

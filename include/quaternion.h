@@ -149,6 +149,26 @@ namespace k
 				return *this;				
 			}
 
+			bool operator == (const quaternion& newQuat)
+			{
+				return (
+						x == newQuat.x && 
+						y == newQuat.y &&
+						z == newQuat.z &&
+						w == newQuat.w
+						);
+			}
+
+			bool operator != (const quaternion& newQuat)
+			{
+				return !(
+						x == newQuat.x && 
+						y == newQuat.y &&
+						z == newQuat.z &&
+						w == newQuat.w
+						);
+			}
+
 			quaternion operator * (const quaternion& newQuat)
 			{
 				quaternion output;

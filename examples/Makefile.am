@@ -1,1 +1,1 @@
-SUBDIRS = model stickers texture physics lightmap particles
+SUBDIRS = model texture physics lightmap particles

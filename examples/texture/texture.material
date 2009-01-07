@@ -16,4 +16,3 @@ material crate
 		blendfunc srcalpha invsrcalpha
 	}
 }
-

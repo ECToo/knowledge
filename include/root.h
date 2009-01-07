@@ -26,6 +26,7 @@
 #include "renderer.h"
 #include "guiManager.h"
 #include "inputManager.h"
+#include "thread.h"
 
 namespace k
 {

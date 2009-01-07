@@ -15,6 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// Jpeg is not C++ safe
+extern "C" 
+{
+	#include <stdio.h>
+	#include <jpeglib.h>
+	#include <jerror.h>
+}
+
 #include "wiiRenderSystem.h"
 #include "logger.h"
 
@@ -210,12 +218,7 @@ void wiiRenderSystem::setBlend(bool state)
 
 void wiiRenderSystem::setDepthMask(bool state)
 {
-	mDepthMask = state;
-
-	if (!mDepthTest)
-		GX_SetZMode(GX_TRUE, GX_ALWAYS, mDepthMask);
-	else
-		GX_SetZMode(GX_TRUE, GX_LEQUAL, mDepthMask);
+	GX_SetZMode(GX_TRUE, GX_LEQUAL, state);
 }
 
 void wiiRenderSystem::destroyWindow()
@@ -270,12 +273,7 @@ void wiiRenderSystem::setClearDepth(const vec_t amount)
 
 void wiiRenderSystem::setDepthTest(bool test)
 {
-	mDepthTest = test;
-
-	if (!mDepthTest)
-		GX_SetZMode(GX_TRUE, GX_ALWAYS, mDepthMask);
-	else
-		GX_SetZMode(GX_TRUE, GX_LEQUAL, mDepthMask);
+	// Nothing =D
 }
 
 void wiiRenderSystem::setShadeModel(ShadeModel model)
@@ -484,6 +482,13 @@ void wiiRenderSystem::setPerspective(vec_t fov, vec_t aspect, vec_t near, vec_t 
 void wiiRenderSystem::setOrthographic(vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far)
 {
 	Mtx44 ortho;
+
+	// Setup black borders
+	if (left == 0 && top == 0)
+	{
+		top = -40;
+		left = -20;
+	}
 
 	guOrtho(ortho, top, bottom, left, right, near, far);
 	GX_LoadProjectionMtx(ortho, GX_ORTHOGRAPHIC);
@@ -822,6 +827,145 @@ void wiiRenderSystem::drawArrays()
 
 		GX_End();
 	}
+}
+
+void wiiRenderSystem::screenshot(const char* filename)
+{
+	assert(filename != NULL);
+
+	FILE* texFile = fopen(filename, "wb");
+	if (!texFile)
+	{
+		S_LOG_INFO("Failed to create screenshot file " + std::string(filename));
+		return;
+	}
+
+	int w = 640;
+	int h = 480;
+
+	char* textureData = (char*) memalign(32, w * h * 4);
+	if (!textureData)
+	{
+		S_LOG_INFO("Failed to allocate screenshot memory");
+		fclose(texFile);
+
+		return;
+	}
+
+	GX_SetTexCopySrc(0, 0, w, h);
+	GX_SetTexCopyDst(w, h, GX_TF_RGBA8, false);
+	GX_CopyTex(textureData, false);
+	GX_PixModeSync();
+
+	// Write to file
+	char* rgbTex = (char*) malloc(w * h * 3);
+	if (!rgbTex)
+	{
+		free(textureData);
+		fclose(texFile);
+
+		S_LOG_INFO("Failed to allocate screenshot memory");
+		return;
+	}
+
+	// Copy true rgb data
+	/*
+	char* finalWii = textureData;
+	for (int y = 0; y < h; y += 4)
+	{
+		char* line = &rgbTex[y * w * 3];
+		for (int x = 0; x < w; x += 8)
+		{
+			char* color = line + (x * 3);
+			for (int ty = 0; ty < 4; ty++)
+			{
+				for (int tx = 0; tx < 4; tx++)
+				{
+					*color = finalWii[1];
+					*(color + 1) = finalWii[32];
+					*(color + 2) = finalWii[33];
+
+					finalWii += 2;
+					color += 3;
+				}
+				color += w * 3 - 12;
+			}
+			finalWii += 32;
+		}
+	}
+	*/
+
+	int x0, y0, ix0, iy0;
+	int pitch = w<<1;
+	short *d = (short*)textureData;
+
+	for (y0 = 0; y0 < h; y0 += 4) 
+	{
+		for (x0 = 0; x0 < w; x0 += 4) 
+		{
+			for (iy0 = 0; iy0 < 4; iy0++) 
+			{
+				for (ix0 = 0; ix0 < 4; ix0++) 
+				{
+					int i = (y0*pitch)+(iy0<<2)+(x0<<3)+ix0;
+					u32 k = (d[i]<<16)|d[i+16];
+		
+					rgbTex[(y0+iy0)*(w*3)+((x0+ix0)*3) + 0] = (k >> 16) & 0xff;
+					rgbTex[(y0+iy0)*(w*3)+((x0+ix0)*3) + 1] = (k >> 8) & 0xff;
+					rgbTex[(y0+iy0)*(w*3)+((x0+ix0)*3) + 2] = k & 0xff;
+				}
+			}
+		}
+	}
+
+
+	/*
+	short* p = (short*)textureData;
+
+	int pitch = w << 1;
+	int pitch2 = w * 3;
+
+	for (short y = 0; y < h; y += 4) 
+	for (short x = 0; x < w; x += 4) 
+	for (short iy = 0; iy < 4; iy++) 
+	for (short ix = 0; ix < 4; ix++) 
+	{
+		u32 c = (p[(y*pitch)+(x<<2)+(iy<<2)+((ix/4)*32)+(ix%4)]<<16)|p[(y*pitch)+(x<<2)+(iy<<2)+((ix/4)*32)+(ix%4)+16];
+		rgbTex[(y+iy)*(pitch2)+((x+ix)<<2)] = (c >> 16) & 0xff;
+		rgbTex[(y+iy)*(pitch2)+((x+ix)<<2) + 1] = (c >> 8) & 0xff;
+		rgbTex[(y+iy)*(pitch2)+((x+ix)<<2) + 2] = c & 0xff;
+	}
+	*/
+
+	// Compress the texture
+	struct jpeg_compress_struct jInfo;
+	struct jpeg_error_mgr jError;
+
+	jInfo.err = jpeg_std_error(&jError);
+	jpeg_create_compress(&jInfo);
+	jpeg_stdio_dest(&jInfo, texFile);
+
+	jInfo.image_width = w;
+	jInfo.image_height = h;
+	jInfo.input_components = 3;
+	jInfo.in_color_space = JCS_RGB;
+	jpeg_set_defaults(&jInfo);
+	jpeg_set_quality(&jInfo, 100, true);
+	jpeg_start_compress(&jInfo, true);
+
+	while (jInfo.next_scanline < jInfo.image_height)
+	{
+		char* data = &rgbTex[w * 3 * jInfo.next_scanline];
+		jpeg_write_scanlines(&jInfo, (JSAMPLE**)&data, 1);
+	}
+
+	jpeg_finish_compress(&jInfo);
+	fclose(texFile);
+
+	// Free Texture
+	jpeg_destroy_compress(&jInfo);
+	free(rgbTex);
+	free(textureData);
 }
 
 unsigned int wiiRenderSystem::getScreenWidth()

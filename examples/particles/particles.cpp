@@ -65,7 +65,7 @@ int main(int argc, char** argv)
 	// Setup Camera
 	k::camera* newCamera = new k::camera();
 	assert(newCamera != NULL);
-	newCamera->setPosition(k::vector3(0, 0, 10));
+	newCamera->setPosition(k::vector3(0, 0, 0));
 	newCamera->lookAt(k::vector3(0, 0, -1));
 	mRenderer->setCamera(newCamera);
 
@@ -122,6 +122,37 @@ int main(int argc, char** argv)
 		// User clicked on Close Window
 		if (mInputManager->getQuitEvent() || mInputManager->getKbdKeyDown(K_KBD_ESCAPE))
 			running = false;
+
+		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_LEFT))
+		{
+			k::quaternion dirQuat(-1, k::vector3(0, 1, 0));
+			k::quaternion ori = newCamera->getOrientation();
+
+			newCamera->setOrientation(dirQuat * ori);
+		}
+
+		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_RIGHT))
+		{
+			k::quaternion dirQuat(1, k::vector3(0, 1, 0));
+			k::quaternion ori = newCamera->getOrientation();
+
+			newCamera->setOrientation(dirQuat * ori);
+		}
+
+		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_UP) ||
+			 mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_DOWN))
+		{
+			k::vector3 look = newCamera->getDirection();
+			k::vector3 pos = newCamera->getPosition();
+
+			if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_DOWN))
+				pos -= look*2;
+			else
+				pos += look*2;
+
+			newCamera->setPosition(pos);
+		}
+
 
 		// Quit Application
 		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_HOME))

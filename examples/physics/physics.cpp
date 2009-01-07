@@ -25,21 +25,21 @@
 #include "resourceManager.h"
 
 // Plane Stuff
-const vec_t vertices[4][3] ATTRIBUTE_ALIGN(32) = { 
+const vec_t vertices[4][3] = { 
 	{40, 0, 40}, 
 	{-40, 0, 40}, 
 	{-40, 0, -40}, 
 	{40, 0, -40}
 };
 
-const vec_t normals[4][3] ATTRIBUTE_ALIGN(32) = {
+const vec_t normals[4][3] = {
 	{0, 1, 0},
 	{0, 1, 0},
 	{0, 1, 0},
 	{0, 1, 0}
 };
 
-const int indices[6] ATTRIBUTE_ALIGN(32) = { 
+const int indices[6] = { 
 	0, 2, 1, 
 	2, 0, 3 
 };
@@ -163,8 +163,8 @@ int main(int argc, char** argv)
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("physics");
 
-	mRenderer->setSkyBox("nightzSky");
-	// mRenderer->setSkyPlane("skyPlane");
+	// mRenderer->setSkyBox("nightzSky");
+	mRenderer->setSkyPlane("skyPlane");
 
 	assert(mGuiManager != NULL);
 	mGuiManager->setCursor("wiiCursor3", k::vector2(32, 32));
@@ -181,7 +181,7 @@ int main(int argc, char** argv)
 	// Setup Camera
 	k::camera* newCamera = new k::camera();
 	assert(newCamera != NULL);
-	newCamera->setPosition(k::vector3(14, 18, -14));
+	newCamera->setPosition(k::vector3(35, 40, -35));
 	newCamera->lookAt(k::vector3(0, 0, 0));
 	mRenderer->setCamera(newCamera);
 

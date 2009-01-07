@@ -52,11 +52,6 @@ void glRenderSystem::configure()
 {
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
-	// All vertices will be passed by arrays so...
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-
 	// Set Depth
 	setClearDepth(1.0f);
 	setClearColor(vector3(0, 0, 0));
@@ -247,11 +242,13 @@ void glRenderSystem::setViewPort(int x, int y, int w, int h)
 
 void glRenderSystem::setPerspective(vec_t fov, vec_t aspect, vec_t near, vec_t far)
 {
+	glLoadIdentity();
 	gluPerspective(fov, aspect, near, far);
 }
 
 void glRenderSystem::setOrthographic(vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far)
 {
+	glLoadIdentity();
 	glOrtho(left, right, bottom, top, near, far);
 }
 
@@ -287,6 +284,9 @@ void glRenderSystem::startVertices(VertexMode mode)
 	{
 		case VERTEXMODE_LINE:
 			glBegin(GL_LINES);
+			break;
+		case VERTEXMODE_TRI_STRIP:
+			glBegin(GL_TRIANGLE_STRIP);
 			break;
 		default:
 		case VERTEXMODE_TRIANGLES: 
@@ -334,11 +334,6 @@ void glRenderSystem::texCoord(const vector2& coord)
 void glRenderSystem::endVertices()
 {
 	glEnd();
-
-	if (glIsEnabled(GL_TEXTURE_GEN_S))
-		glDisable(GL_TEXTURE_GEN_S);
-	if (glIsEnabled(GL_TEXTURE_GEN_T))
-		glDisable(GL_TEXTURE_GEN_T);
 }
 
 void glRenderSystem::matAmbient(const vector3& color)
@@ -384,8 +379,8 @@ void glRenderSystem::bindTexture(GLuint* tex, int chan)
 	glClientActiveTextureARB(GL_TEXTURE0_ARB + chan);
 	glActiveTextureARB(GL_TEXTURE0_ARB + chan);
 
-	glBindTexture(GL_TEXTURE_2D, tex[0]);
 	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, tex[0]);
 }
 			
 void glRenderSystem::unBindTexture(int chan)
@@ -393,8 +388,8 @@ void glRenderSystem::unBindTexture(int chan)
 	glClientActiveTextureARB(GL_TEXTURE0_ARB + chan);
 	glActiveTextureARB(GL_TEXTURE0_ARB + chan);
 
+	glDisable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	glEnable(GL_TEXTURE_2D);
 }
 
 void glRenderSystem::drawArrays()
@@ -461,6 +456,11 @@ void glRenderSystem::drawArrays()
 
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
+}
+
+void glRenderSystem::screenshot(const char* filename)
+{
+	// TODO
 }
 
 unsigned int glRenderSystem::getScreenWidth()

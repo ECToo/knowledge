@@ -48,10 +48,6 @@ const vec_t drawable2D::getZ()
 void drawable2D::setScale(const vector2& size)
 {
 	mScale = size;
-
-	#ifndef __WII__
-	mScale.y *= -1;
-	#endif
 }
 
 const vector2& drawable2D::getPosition()

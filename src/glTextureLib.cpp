@@ -57,7 +57,6 @@ kTexture* textureLoader::loadTexture(const char* file, unsigned short* w, unsign
 		}
 
 		ilBindImage(newImage[0]);
-		ilutRenderer(ILUT_OPENGL);
 	
 		kTexture* tex = new kTexture;
 		if (tex)

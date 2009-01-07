@@ -12,23 +12,23 @@ Features for first beta release:
 [x] Doom3 MD5 Models with skeletons and animations
 [x] Multi texturing
 [x] Cameras (supports rotation, translation, directions and lookAt)
+[x] PNG and JPG Textures on Wii
+[x] Material manager 	
+[x] Billboards (sprites)
+[x] Timers
 
+[.] Particle System
 [.] Logger Object (Pending XHTML/CSS output).
-[.] Material manager (Autoload and more material functions)
-[.] PNG and JPG Textures on Wii (Pending jpeg loading)
 [.] Network (Pending integration and test on the Wii)
 [.] Physics (ODE is behaving strangely on wii, need to recompile it)
+[.] Skyboxes and Skyplanes (needs skyboxes on wii - pc works fine)
+[.] Frustrum culling (code done, needs checking and ordering)
 
 [t] Render to texture
 [t] Fake dynamic lights
 [t] BSP (quake3 maps) support
-[t] Billboards (sprites)
-[t] Particle System
-[t] Skyboxes
-[t] Frustrum culling
 [t] Stencil shadows
 
 [t] Sound
-[t] Timers
 [t] Configuration Editor/Loader
 

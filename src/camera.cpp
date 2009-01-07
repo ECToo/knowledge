@@ -111,11 +111,7 @@ void camera::lookAt(vector3 pos)
 
 	matrix3 mat(dirX, dirY, dirZ);
 	mOrientation = quaternion(mat);
-
-	// 
-	std::stringstream vec;
-	vec << dirZ.x << ", " << dirZ.y << ", " << dirZ.z;
-	S_LOG_INFO(vec.str());
+	mOrientation.normalise();
 
 	setView();
 }
@@ -134,14 +130,9 @@ void camera::setView()
 
 	#else
 
-	vector3 look(-mRotation.m[0][2], -mRotation.m[1][2], -mRotation.m[2][2]);
+	vector3 look(mRotation.m[0][2], mRotation.m[1][2], mRotation.m[2][2]);
 	vector3 up(mRotation.m[0][1], mRotation.m[1][1], mRotation.m[2][1]);
 	vector3 right(mRotation.m[0][0], mRotation.m[1][0], mRotation.m[2][0]);
-
-	// 
-	std::stringstream vec;
-	vec << look.x << ", " << look.y << ", " << look.z;
-	S_LOG_INFO(vec.str());
 
 	mRotation.m[0][0] = right.x;
 	mRotation.m[0][1] = right.y;
@@ -238,7 +229,7 @@ quaternion& camera::getOrientation()
 			
 vector3 camera::getDirection()
 {
-	return vector3(-mFinal.m[0][2], -mFinal.m[1][2], -mFinal.m[2][2]);
+	return vector3(mFinal.m[0][2], mFinal.m[1][2], mFinal.m[2][2]);
 }
 			
 vector3 camera::getUp()

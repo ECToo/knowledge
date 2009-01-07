@@ -33,7 +33,7 @@ LDFLAGS	=	-g -DDEBUG_NET $(MACHDEP) -Wl,-Map,$(notdir $@).map
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:= -lknowledge -ldb -lwiiuse -lbte -lfat -logc -lpng -lz -lm 
+LIBS	:= -lknowledge -ldb -lwiiuse -lbte -lfat -logc -ljpeg -lpng -lz -lm 
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
