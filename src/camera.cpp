@@ -229,7 +229,7 @@ quaternion& camera::getOrientation()
 			
 vector3 camera::getDirection()
 {
-	return vector3(mFinal.m[0][2], mFinal.m[1][2], mFinal.m[2][2]);
+	return vector3(-mFinal.m[0][2], -mFinal.m[1][2], -mFinal.m[2][2]);
 }
 			
 vector3 camera::getUp()

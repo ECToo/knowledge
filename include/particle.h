@@ -30,13 +30,12 @@ namespace k
 	enum emissorType
 	{
 		EMISSOR_POINT,
-		EMISSOR_PLANE,
-		EMISSOR_CIRCUMFERENCE
+		EMISSOR_PLANE
 	};
 
 	enum affectorType
 	{
-		AFFECTOR_GRAVITY,
+		AFFECTOR_ACCELERATOR,
 		AFFECTOR_LINEAR,
 		AFFECTOR_WAVE
 	};
@@ -76,6 +75,9 @@ namespace k
 			 */
 			vec_t mRadius;
 
+			/**
+			 * Is this particle visible?
+			 */
 			bool mVisible;
 
 		public:
@@ -184,11 +186,12 @@ namespace k
 	
 	class pointEmitter : public particleEmitter
 	{
-		private:
+		protected:
 			/**
 			 * Initial velocities.
 			 */
-			vector3 mVelocity;
+			vector3 mMinVelocity;
+			vector3 mMaxVelocity;
 
 			/**
 			 * System acceleration.
@@ -204,6 +207,47 @@ namespace k
 			void feed();
 			void draw(camera* c);
 
+			/**
+			 * The emitter will release
+			 * random particle velocity values between
+			 * the minimum and the maximum values
+			 */
+			void setVelocity(vector3& min, vector3& max);
+			void setAcceleration(vector3& accel);
+	};
+
+	/**
+	 * The plane emitter uses a finite plane
+	 * (defined by 4 vertexes) to generate particles.
+	 * Each particle is positioned somewhere randomly
+	 * within the plane bounds and then shoot with
+	 * initial velocity and acceleration.
+	 */
+	class planeEmitter : public particleEmitter
+	{
+		protected:
+			vector3 mVelocity;
+			vector3 mAcceleration;
+
+			/**
+			 * Plane Vertices
+			 *
+			 * A--*
+			 * |  |
+			 * *--B
+			 */
+			vector3 mVertices[2];
+
+		public:
+			planeEmitter(unsigned int numParticles, material* mat);
+			planeEmitter(unsigned int numParticles, const std::string& mat);
+
+			void spawnParticle(particle* p);
+
+			void feed();
+			void draw(camera* c);
+
+			void setBounds(vector3& a, vector3& b);
 			void setVelocity(vector3& vel);
 			void setAcceleration(vector3& accel);
 	};
@@ -231,9 +275,9 @@ namespace k
 			vec_t mParticleMass;
 
 			/**
-			 * Emissors
+			 * Emitters
 			 */
-			std::map<std::string, particleEmitter*> mEmissors;
+			std::map<std::string, particleEmitter*> mEmitters;
 
 			/**
 			 * Affectors

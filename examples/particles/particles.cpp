@@ -71,13 +71,31 @@ int main(int argc, char** argv)
 
 	// Particles
 	k::pointEmitter* pE = new k::pointEmitter(2000, "bubble");
-	assert(pE != NULL);
+	assert(pE);
+
+	k::planeEmitter* planeE = new k::planeEmitter(2000, "bubble");
+	assert(planeE);
+
+	k::vector3 pVel = k::vector3(0, 20, 0);
+	k::vector3 pBounds[2];
+
+	pBounds[0] = k::vector3(-20, 0, -20);
+	pBounds[1] = k::vector3(20, 0, 20);
+
+	planeE->setVelocity(pVel);
+	planeE->setRadius(1.5);
+	planeE->setSpawnQuantity(30);
+	planeE->setSpawnTime(100);
+	planeE->setLifeTime(2000);
+	planeE->setBounds(pBounds[0], pBounds[1]);
 
 	k::particleSystem* pS = new k::particleSystem();
 	assert(pS != NULL);
 
-	k::vector3 pVel = k::vector3(0, 20, 0);
-	pE->setVelocity(pVel);
+	k::vector3 pMinVel = k::vector3(-20, 20, -20);
+	k::vector3 pMaxVel = k::vector3(20, 30, 20);
+
+	pE->setVelocity(pMinVel, pMaxVel);
 	pE->setRadius(1.5);
 	pE->setSpawnQuantity(2);
 	pE->setSpawnTime(100);
@@ -85,7 +103,9 @@ int main(int argc, char** argv)
 
 	k::vector3 pSPos = k::vector3(0, -40, -10);
 	pS->setPosition(pSPos);
-	pS->pushEmitter("test", pE);
+	// pS->pushEmitter("test", pE);
+	
+	pS->pushEmitter("testPlane", planeE);
 	mRenderer->pushParticle(pS);
 
 	// Particle system 2 - smaller ones
@@ -101,8 +121,10 @@ int main(int argc, char** argv)
 	pE2->setLifeTime(2000);
 
 	pS2->setPosition(pSPos);
+	/*
 	pS2->pushEmitter("test2", pE2);
 	mRenderer->pushParticle(pS2);
+	*/
 
 	bool running = true;
 	bool leftHold = false;
@@ -123,7 +145,8 @@ int main(int argc, char** argv)
 		if (mInputManager->getQuitEvent() || mInputManager->getKbdKeyDown(K_KBD_ESCAPE))
 			running = false;
 
-		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_LEFT))
+		if ((mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_LEFT)) ||
+			 mInputManager->getKbdKeyDown(K_KBD_LEFT))
 		{
 			k::quaternion dirQuat(-1, k::vector3(0, 1, 0));
 			k::quaternion ori = newCamera->getOrientation();
@@ -131,7 +154,8 @@ int main(int argc, char** argv)
 			newCamera->setOrientation(dirQuat * ori);
 		}
 
-		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_RIGHT))
+		if ((mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_RIGHT)) ||
+			 mInputManager->getKbdKeyDown(K_KBD_RIGHT))
 		{
 			k::quaternion dirQuat(1, k::vector3(0, 1, 0));
 			k::quaternion ori = newCamera->getOrientation();
@@ -139,16 +163,23 @@ int main(int argc, char** argv)
 			newCamera->setOrientation(dirQuat * ori);
 		}
 
-		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_UP) ||
-			 mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_DOWN))
+		if ((mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_UP) ||
+			 mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_DOWN)) ||
+			(mInputManager->getKbdKeyDown(K_KBD_UP) ||
+			 mInputManager->getKbdKeyDown(K_KBD_DOWN)))
 		{
 			k::vector3 look = newCamera->getDirection();
 			k::vector3 pos = newCamera->getPosition();
 
-			if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_DOWN))
+			if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_DOWN) ||
+				 mInputManager->getKbdKeyDown(K_KBD_DOWN))
+			{
 				pos -= look*2;
+			}
 			else
+			{
 				pos += look*2;
+			}
 
 			newCamera->setPosition(pos);
 		}
