@@ -53,10 +53,14 @@ int main(int argc, char** argv)
 	k::resourceManager::getSingleton().loadGroup("model");
 
 	// Set Skybox
-	// mRenderer->setSkyPlane("skyPlane");
-	mRenderer->setSkyBox("nightzSky");
+	mRenderer->setSkyPlane("skyPlane");
+
+	// Uncomment this and comment the above if you want
+	// a skybox "demo"
+	// mRenderer->setSkyBox("nightzSky");
 
 	// Fps Counter
+	/*
 	k::bitmapText* fpsText = new k::bitmapText("fonts/04B08_8.dat", "04B08_8");
 	assert(fpsText != NULL);
 	fpsText->setPosition(k::vector2(4, 10));
@@ -85,23 +89,26 @@ int main(int argc, char** argv)
 	cubeFont->setPosition(k::vector2(180, 30));
 	cubeFont->setText("WII LOVE LIBOGC");
 	mRenderer->push2D(cubeFont);
+	*/
 
 	// Create Model
 	k::vector3 modelPosition;
 	modelPosition.z = -100;
 
 	#ifdef __WII__
-	// k::md5model* newModel = new k::md5model("sd:/knowledge/model/goku.md5mesh");
-	k::md5model* newModel = new k::md5model("/knowledge/model/torus.md5mesh");
+	k::md5model* newModel = new k::md5model("sd:/knowledge/model/goku.md5mesh");
+	// k::md5model* newModel = new k::md5model("/knowledge/model/torus.md5mesh");
 	#else
-	// k::md5model* newModel = new k::md5model("goku.md5mesh");
-	k::md5model* newModel = new k::md5model("torus.md5mesh");
+	k::md5model* newModel = new k::md5model("goku.md5mesh");
+	// k::md5model* newModel = new k::md5model("torus.md5mesh");
 	#endif
 
+	/*
+	 * Only valid for the broken donut
 	assert(newModel != NULL);
 	newModel->getMesh(0)->setMaterial("donutMetal");
+	 */
 
-	/*
 	#ifdef __WII__
 	newModel->attachAnimation("sd:/knowledge/model/idle.md5anim", "idle");
 	#else
@@ -110,7 +117,6 @@ int main(int argc, char** argv)
 
 	newModel->setAnimation("idle");
 	newModel->setAnimationFrame(10);
-	*/
 	
 	mRenderer->push3D(newModel);
 
@@ -241,18 +247,18 @@ int main(int argc, char** argv)
 		newModel->setPosition(modelPosition);
 		newModel->setOrientation(modelQuat);
 
-		/*
 		#ifdef __WII__
 		newModel->setAnimationFrame((frame++)/2);
 		#else
 		newModel->setAnimationFrame((frame)/2);
 		frame += 0.1;
 		#endif
-		*/
 
+		/*
 		std::stringstream fpsT;
 		fpsT << "fps: " << mRenderer->getLastFps();
 		fpsText->setText(fpsT.str());
+		*/
 
 		mRenderer->draw();
 	}
