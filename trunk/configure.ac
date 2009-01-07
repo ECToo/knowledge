@@ -28,7 +28,6 @@ AC_OUTPUT(Makefile src/Makefile \
 			 include/Makefile \
 			 examples/Makefile \
 			 examples/model/Makefile \
-			 examples/stickers/Makefile \
 			 examples/texture/Makefile \
 			 examples/physics/Makefile \
 			 examples/lightmap/Makefile \

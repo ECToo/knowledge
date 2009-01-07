@@ -39,6 +39,8 @@ renderer::renderer()
 	mActiveCamera = NULL;
 	mSkybox = NULL;
 	mSkyPlane = NULL;
+
+	mCalculateFps = true;
 }
 
 renderer::~renderer()
@@ -299,13 +301,6 @@ void renderer::_drawSkybox()
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	assert(rs != NULL);
 
-	// Disable depth test drawing on orthogonal way
-	
-	/*
-	rs->setMatrixMode(MATRIXMODE_PROJECTION);
-	rs->setOrthographic(0, 0.5, 0, 0.5, -2, 2);
-	*/
-
 	// Draw
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 	if (mActiveCamera)
@@ -327,10 +322,8 @@ void renderer::_drawSkybox()
 	// Material
 	mSkybox->prepare();
 
-
 	// Material Independent Settings
 	rs->setCulling(CULLMODE_NONE);
-	rs->setDepthTest(false);
 	rs->setDepthMask(false);
 
 	textureStage* texStage = mSkybox->getTextureStage(0);
@@ -342,55 +335,55 @@ void renderer::_drawSkybox()
 	// Render the front quad
 	rs->bindTexture((*mId)[CUBE_FRONT], 0);
  	rs->startVertices(VERTEXMODE_QUAD);
-		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 1.0f, -1.0f, -1.0f));
-		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-1.0f, -1.0f, -1.0f));
-		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-1.0f,  1.0f, -1.0f));
-		rs->texCoord(vector2(0, 0)); rs->vertex(vector3( 1.0f,  1.0f, -1.0f));
+		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 400.0f, -200.0f, -400.0f));
+		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-400.0f, -200.0f, -400.0f));
+		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-400.0f,  200.0f, -400.0f));
+		rs->texCoord(vector2(0, 0)); rs->vertex(vector3( 400.0f,  200.0f, -400.0f));
 	rs->endVertices();
 
 	// Render the left quad
 	rs->bindTexture((*mId)[CUBE_LEFT], 0);
 	rs->startVertices(VERTEXMODE_QUAD);
-		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 1.0f, -1.0f,  1.0f));
-		rs->texCoord(vector2(1, 1)); rs->vertex(vector3( 1.0f, -1.0f, -1.0f));
-		rs->texCoord(vector2(1, 0)); rs->vertex(vector3( 1.0f,  1.0f, -1.0f));
-		rs->texCoord(vector2(0, 0)); rs->vertex(vector3( 1.0f,  1.0f,  1.0f));
+		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 400.0f, -200.0f,  400.0f));
+		rs->texCoord(vector2(1, 1)); rs->vertex(vector3( 400.0f, -200.0f, -400.0f));
+		rs->texCoord(vector2(1, 0)); rs->vertex(vector3( 400.0f,  200.0f, -400.0f));
+		rs->texCoord(vector2(0, 0)); rs->vertex(vector3( 400.0f,  200.0f,  400.0f));
 	rs->endVertices();
 
 	// Render the back quad
 	rs->bindTexture((*mId)[CUBE_BACK], 0);
 	rs->startVertices(VERTEXMODE_QUAD);
-		rs->texCoord(vector2(0, 1)); rs->vertex(vector3(-1.0f, -1.0f,  1.0f));
-		rs->texCoord(vector2(1, 1)); rs->vertex(vector3( 1.0f, -1.0f,  1.0f));
-		rs->texCoord(vector2(1, 0)); rs->vertex(vector3( 1.0f,  1.0f,  1.0f));
-		rs->texCoord(vector2(0, 0)); rs->vertex(vector3(-1.0f,  1.0f,  1.0f));
+		rs->texCoord(vector2(0, 1)); rs->vertex(vector3(-400.0f, -200.0f,  400.0f));
+		rs->texCoord(vector2(1, 1)); rs->vertex(vector3( 400.0f, -200.0f,  400.0f));
+		rs->texCoord(vector2(1, 0)); rs->vertex(vector3( 400.0f,  200.0f,  400.0f));
+		rs->texCoord(vector2(0, 0)); rs->vertex(vector3(-400.0f,  200.0f,  400.0f));
 	rs->endVertices();
 
 	// Render the right quad
 	rs->bindTexture((*mId)[CUBE_RIGHT], 0);
 	rs->startVertices(VERTEXMODE_QUAD);
-		rs->texCoord(vector2(0, 1)); rs->vertex(vector3(-1.0f, -1.0f, -1.0f));
-		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-1.0f, -1.0f,  1.0f));
-		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-1.0f,  1.0f,  1.0f));
-		rs->texCoord(vector2(0, 0)); rs->vertex(vector3(-1.0f,  1.0f, -1.0f));
+		rs->texCoord(vector2(0, 1)); rs->vertex(vector3(-400.0f, -200.0f, -400.0f));
+		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-400.0f, -200.0f,  400.0f));
+		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-400.0f,  200.0f,  400.0f));
+		rs->texCoord(vector2(0, 0)); rs->vertex(vector3(-400.0f,  200.0f, -400.0f));
 	rs->endVertices();
 
 	// Render the top quad
 	rs->bindTexture((*mId)[CUBE_UP], 0);
 	rs->startVertices(VERTEXMODE_QUAD);
-		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-1.0f,  1.0f, -1.0f));
-		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-1.0f,  1.0f,  1.0f));
-		rs->texCoord(vector2(0, 0)); rs->vertex(vector3( 1.0f,  1.0f,  1.0f));
-		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 1.0f,  1.0f, -1.0f));
+		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-400.0f,  200.0f, -400.0f));
+		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-400.0f,  200.0f,  400.0f));
+		rs->texCoord(vector2(0, 0)); rs->vertex(vector3( 400.0f,  200.0f,  400.0f));
+		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 400.0f,  200.0f, -400.0f));
 	rs->endVertices();
 
 	// Render the bottom quad
 	rs->bindTexture((*mId)[CUBE_DOWN], 0);
 	rs->startVertices(VERTEXMODE_QUAD);
-		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-1.0f, -1.0f, -1.0f));
-		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-1.0f, -1.0f,  1.0f));
-		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 1.0f, -1.0f,  1.0f));
-		rs->texCoord(vector2(0, 0)); rs->vertex(vector3( 1.0f, -1.0f, -1.0f));
+		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-400.0f, -200.0f, -400.0f));
+		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-400.0f, -200.0f,  400.0f));
+		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 400.0f, -200.0f,  400.0f));
+		rs->texCoord(vector2(0, 0)); rs->vertex(vector3( 400.0f, -200.0f, -400.0f));
 	rs->endVertices();
 	
 	// Take it back to default
@@ -405,7 +398,6 @@ void renderer::_drawSkybox()
 
 	// Set back depth mask
 	rs->setDepthMask(true);
-	rs->setDepthTest(true);
 }
 
 void renderer::draw()
@@ -421,6 +413,18 @@ void renderer::draw()
 	// Time since frame start.
 	mFrameTime.reset();
 
+	// Set default perspective
+	if (mActiveCamera)
+	{
+		mActiveCamera->setPerspective();
+	}
+	else
+	{
+		rs->setMatrixMode(MATRIXMODE_PROJECTION);
+		rs->identityMatrix();
+		rs->setPerspective(90, 1.33, 0.1, 1000.0f);
+	}
+
 	// Draw Skybox, Plane
 	_drawSkybox();
 	_drawSkyPlane();
@@ -429,7 +433,8 @@ void renderer::draw()
 	if (mActiveCamera)
 	{
 		mActiveCamera->setPerspective();
-		if (mActiveCamera->getPosition() != mLastCameraPos)
+		if ((mActiveCamera->getPosition() != mLastCameraPos) ||
+			 (mActiveCamera->getOrientation() != mLastCameraOrientation))
 		{
 			// Invalidate all Sprite positions
 			std::list<sprite*>::const_iterator it;

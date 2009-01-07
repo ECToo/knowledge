@@ -44,6 +44,7 @@ root::root()
 		mActiveRS = new glRenderSystem();
 	#else
 		DEBUG_Init(GDBSTUB_DEVICE_USB, 1);
+		CON_EnableGecko(1, 0);
 		mActiveRS = new wiiRenderSystem();
 	#endif
 

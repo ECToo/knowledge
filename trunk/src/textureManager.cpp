@@ -39,6 +39,8 @@ textureManager::textureManager()
 	ilEnable(IL_CONV_PAL);
 	iluInit();
 	ilutInit();
+	ilutEnable(ILUT_OPENGL_CONV);
+	ilutRenderer(ILUT_OPENGL);
 	#endif
 
 	mTextures.clear();

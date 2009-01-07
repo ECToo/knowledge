@@ -45,6 +45,9 @@
 
 	// SDL
 	#include "SDL.h"
+	
+	// posix threads
+	#include <pthread.h>
 
 	#ifdef WIN32
 		#include <windows.h>
@@ -59,6 +62,7 @@
 	#include <fat.h>
 	#include <sys/unistd.h>
 	#include <sys/dir.h>
+	#include <ogc/lwp.h>
 	#include <ogc/lwp_watchdog.h>
 	#include <malloc.h>
 	#include <wiiuse/wpad.h>
@@ -70,13 +74,26 @@
 	typedef GLuint kTexture;
 	typedef GLfloat vec_t;
 	typedef unsigned int index_t;
+
+	// Threads
+	typedef pthread_t kthread;
+	typedef pthread_mutex_t kmutex;
+
 	#define _break(); ""
 	#define MAT_ROW_MAJOR 
+
 #else
+
 	typedef GXTexObj kTexture;
 	typedef float vec_t;
 	typedef u16 index_t;
+
+	// Threads
+	typedef lwp_t kthread;
+	typedef int kmutex;
+
 	#define MAT_COLUMN_MAJOR 
+
 #endif
 
 #endif

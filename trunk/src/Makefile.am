@@ -21,6 +21,7 @@ libknowledge_la_SOURCES = drawable.cpp\
 								  glTextureLib.cpp\
 								  sticker.cpp\
 								  sprite.cpp\
+								  pthread.cpp\
 								  particle.cpp\
 								  logger.cpp\
 								  timer.cpp\
@@ -30,6 +31,7 @@ INCLUDES = -I@top_srcdir@/include $(CXXFLAGS)
 
 libknowledge_la_CFLAGS = -I$(INCLUDES) -g
 libknowledge_la_LIBADD = -lode -lm -lGL -lGLU -lGLEW -lILU -lILUT
+libknowledge_la_LDFLAGS = -pthread
 
 pkginclude_HEADERS = @top_srcdir@/include/prerequisites.h \
 							@top_srcdir@/include/physicsManager.h \

@@ -45,6 +45,7 @@ namespace k
 			 * are invalid.
 			 */
 			vector3 mLastCameraPos;
+			quaternion mLastCameraOrientation;
 
 			/**
 			 * Keep a timer to calculate FPS
