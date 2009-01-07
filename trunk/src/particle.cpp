@@ -21,6 +21,15 @@
 #include "root.h"
 
 namespace k {
+
+static inline int getRandNonZero()
+{
+	int random = rand();
+	while (!random)
+		random = rand();
+
+	return random;
+}
 			
 particle::particle()
 {
@@ -222,9 +231,26 @@ void pointEmitter::spawnParticle(particle* p)
 
 	p->setPosition(mPosition);
 
-	vector3 randVel = vector3(rand()%25 * pow(-1, rand()), rand() % 20 * 2, 0);
+	/**
+	 * Randomize particles velocity between minimum and max speeds
+	 */
+	vector3 randVel;
+	int tmp;
+
+	if ((tmp = (int)(mMaxVelocity.x - mMinVelocity.x + 1)) != 0)
+		randVel.x = getRandNonZero() % tmp + mMinVelocity.x;
+	else
+		randVel.x = mMinVelocity.x;
+	if ((tmp = (int)(mMaxVelocity.y - mMinVelocity.y + 1)) != 0)
+		randVel.y = getRandNonZero() % tmp + mMinVelocity.y;
+	else
+		randVel.y = mMinVelocity.y;
+	if ((tmp = (int)(mMaxVelocity.z - mMinVelocity.z + 1)) != 0)
+		randVel.z = getRandNonZero() % tmp + mMinVelocity.z;
+	else
+		randVel.z = mMinVelocity.z;
+
 	p->setVelocity(randVel);
-	// p->setVelocity(mVelocity);
 	p->setAcceleration(mAcceleration);
 }
 					
@@ -286,12 +312,135 @@ void pointEmitter::draw(camera* c)
 	}
 }
 			
-void pointEmitter::setVelocity(vector3& vel)
+void pointEmitter::setVelocity(vector3& min, vector3& max)
+{
+	mMinVelocity = min;
+	mMaxVelocity = max;
+}
+
+void pointEmitter::setAcceleration(vector3& accel)
+{
+	mAcceleration = accel;
+}
+			
+planeEmitter::planeEmitter(unsigned int numParticles, material* mat)
+	: particleEmitter(numParticles, mat)
+{
+}
+
+planeEmitter::planeEmitter(unsigned int numParticles, const std::string& mat)
+	: particleEmitter(numParticles, mat)
+{
+}
+
+/**
+ * Here we set the plane bounds.
+ *
+ * A--*
+ * |  |
+ * *--B
+ */
+
+void planeEmitter::setBounds(vector3& a, vector3& b)
+{
+	mVertices[0] = a;
+	mVertices[1] = b;
+}
+
+void planeEmitter::spawnParticle(particle* p)
+{
+	particleEmitter::spawnParticle(p);
+
+	/**
+	 * Randomize particles position between plane bounds
+	 */
+	vector3 randPos = mPosition;
+	int tmp;
+
+	if ((tmp = (int)(mVertices[1].x - mVertices[0].x)) != 0)
+		randPos.x += getRandNonZero() % tmp + mVertices[0].x;
+	else
+		randPos.x += mVertices[0].x;
+
+	if ((tmp = (int)(mVertices[1].y - mVertices[0].y)) != 0)
+		randPos.y += getRandNonZero() % tmp + mVertices[0].y;
+	else
+		randPos.y += mVertices[0].y;
+
+	if ((tmp = (int)(mVertices[1].z - mVertices[0].z)) != 0)
+		randPos.z += getRandNonZero() % tmp + mVertices[0].z;
+	else
+		randPos.z += mVertices[0].z;
+
+	p->setPosition(randPos);
+	p->setVelocity(mVelocity);
+	p->setAcceleration(mAcceleration);
+}
+					
+void planeEmitter::feed()
+{
+	long timeElapsed = mTimer.getMilliSeconds();
+
+	for (std::vector<particle>::iterator it = mParticles->begin();
+			it != mParticles->end(); it++)
+	{
+		particle* p = &(*it);
+		
+		if (p->isVisible() && (timeElapsed - p->getSpawnTime()) > mLifetime)
+		{
+			// Particle is dead
+			killParticle(p);
+		}
+	}
+			
+	// Spawn new particles
+	if (mSpawnTimer.getMilliSeconds() > mSpawnTime)
+	{
+		// Spawn
+		if (mSpawnQuantity <= mFreeParticles)
+		{
+			for (unsigned short i = 0; i < mSpawnQuantity; i++)
+				spawnParticle(findFreeParticle());
+		}
+
+		// Reset Timer
+		mSpawnTimer.reset();
+	}
+}
+
+void planeEmitter::draw(camera* c)
+{
+	for (std::vector<particle>::iterator it = mParticles->begin();
+			it != mParticles->end(); it++)
+	{
+		particle* p = &(*it);
+
+		if (p->isVisible())
+		{
+			if (c == NULL)
+			{
+				renderSystem* rs = root::getSingleton().getRenderSystem();
+				assert(rs != NULL);
+
+				rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+				rs->identityMatrix();
+			}
+			else
+			{
+				c->copyView();
+			}
+
+			p->draw(mSprite, mTimer.getMilliSeconds());
+		}
+	}
+}
+
+void planeEmitter::setVelocity(vector3& vel)
 {
 	mVelocity = vel;
 }
 
-void pointEmitter::setAcceleration(vector3& accel)
+void planeEmitter::setAcceleration(vector3& accel)
 {
 	mAcceleration = accel;
 }
@@ -328,7 +477,7 @@ void particleSystem::setMass(vec_t mass)
 void particleSystem::pushEmitter(const std::string& name, particleEmitter* em)
 {
 	assert(em != NULL);
-	mEmissors[name] = em;
+	mEmitters[name] = em;
 
 	em->setPosition(mPosition);
 }
@@ -336,7 +485,7 @@ void particleSystem::pushEmitter(const std::string& name, particleEmitter* em)
 void particleSystem::cycle(camera* c)
 {
 	std::map<std::string, particleEmitter*>::const_iterator it;
-	for (it = mEmissors.begin(); it != mEmissors.end(); it++)
+	for (it = mEmitters.begin(); it != mEmitters.end(); it++)
 	{
 		particleEmitter* em = it->second;
 
