@@ -50,6 +50,7 @@ void logger::infoArg(const char* message, va_list args)
 			vprintf(message, args);
 			break;
 		case LOGMODE_BOTH:
+			vprintf(message, args);
 		case LOGMODE_FILE:
 			{
 				FILE* logFile = fopen(mLogFile.c_str(), "a");
@@ -63,11 +64,23 @@ void logger::infoArg(const char* message, va_list args)
 	};
 }
 
+static inline void printGecko(const std::string& msg)
+#ifdef __WII__
+{
+	if (usb_isgeckoalive(1))
+		usb_sendbuffer_safe(1, msg.c_str(), msg.size());
+}
+#else
+{
+}
+#endif
+
 void logger::info(const std::string& message)
 {
 	switch (mLoggingMode)
 	{
 		case LOGMODE_STDOUT:
+			printGecko(message);
 			std::cout << message << std::endl;
 			break;
 		case LOGMODE_FILE:
@@ -83,6 +96,7 @@ void logger::info(const std::string& message)
 		case LOGMODE_BOTH:
 			{
 				std::cout << message << std::endl;
+				printGecko(message);
 
 				FILE* logFile = fopen(mLogFile.c_str(), "a");
 				if (logFile)

@@ -44,15 +44,45 @@ int main(int argc, char** argv)
 
 	// Initialize resources
 	#ifdef __WII__
-	new k::resourceManager("sd:/knowledge/resources.cfg");
+	k::resourceManager* resourceMgr = new k::resourceManager("/knowledge/resources.cfg");
 	#else
-	new k::resourceManager("../resources.cfg");
+	k::resourceManager* resourceMgr = new k::resourceManager("../resources.cfg");
 	#endif
+
+	// Loading Screen
+	k::bgLoadScreen* newLoadingScreen = new k::bgLoadScreen();
+	assert(newLoadingScreen);
+
+	resourceMgr->setLoadingScreen(newLoadingScreen);
+	newLoadingScreen->loadBg("loading.jpg");
+	newLoadingScreen->update("");
 
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("model");
 
-	// Set Skybox
+	// Load the Model
+	k::vector3 modelPosition;
+	modelPosition.z = -100;
+
+	#ifdef __WII__
+	k::md5model* newModel = new k::md5model("sd:/knowledge/model/goku.md5mesh");
+	#else
+	k::md5model* newModel = new k::md5model("goku.md5mesh");
+	#endif
+
+	#ifdef __WII__
+	newModel->attachAnimation("sd:/knowledge/model/idle.md5anim", "idle");
+	newModel->attachAnimation("sd:/knowledge/model/fly_f.md5anim", "runf");
+	newModel->attachAnimation("sd:/knowledge/model/fly_b.md5anim", "runb");
+	#else
+	newModel->attachAnimation("idle.md5anim", "idle");
+	newModel->attachAnimation("fly_f.md5anim", "runf");
+	newModel->attachAnimation("fly_b.md5anim", "runb");
+	#endif
+
+	delete newLoadingScreen;
+
+	// Set Skyplane
 	mRenderer->setSkyPlane("skyPlane");
 
 	// Uncomment this and comment the above if you want
@@ -60,61 +90,12 @@ int main(int argc, char** argv)
 	// mRenderer->setSkyBox("nightzSky");
 
 	// Fps Counter
-	/*
 	k::bitmapText* fpsText = new k::bitmapText("fonts/04B08_8.dat", "04B08_8");
 	assert(fpsText != NULL);
 	fpsText->setPosition(k::vector2(4, 10));
 	mRenderer->push2D(fpsText);
 
-	k::sticker* newSticker = new k::sticker("donutSoft");
-	assert(newSticker != NULL);
-
-	k::bitmapText* newFont = new k::bitmapText("fonts/04B08_8.dat", "04B08_8");
-	assert(newFont != NULL);
-
-	newFont->setPosition(k::vector2(150, 150));
-	newFont->setText("Testing...1..2..3...");
-	mRenderer->push2D(newFont);
-
-	k::bitmapText* newFont2 = new k::bitmapText("fonts/04B08_12.dat", "04B08_12");
-	assert(newFont2 != NULL);
-
-	newFont2->setPosition(k::vector2(150, 170));
-	newFont2->setText("Bigger Font?");
-	mRenderer->push2D(newFont2);
-
-	k::bitmapText* cubeFont = new k::bitmapText("fonts/cube_14.dat", "cube_14");
-	assert(cubeFont != NULL);
-
-	cubeFont->setPosition(k::vector2(180, 30));
-	cubeFont->setText("WII LOVE LIBOGC");
-	mRenderer->push2D(cubeFont);
-	*/
-
-	// Create Model
-	k::vector3 modelPosition;
-	modelPosition.z = -100;
-
-	#ifdef __WII__
-	k::md5model* newModel = new k::md5model("sd:/knowledge/model/goku.md5mesh");
-	// k::md5model* newModel = new k::md5model("/knowledge/model/torus.md5mesh");
-	#else
-	k::md5model* newModel = new k::md5model("goku.md5mesh");
-	// k::md5model* newModel = new k::md5model("torus.md5mesh");
-	#endif
-
-	/*
-	 * Only valid for the broken donut
-	assert(newModel != NULL);
-	newModel->getMesh(0)->setMaterial("donutMetal");
-	 */
-
-	#ifdef __WII__
-	newModel->attachAnimation("sd:/knowledge/model/idle.md5anim", "idle");
-	#else
-	newModel->attachAnimation("idle.md5anim", "idle");
-	#endif
-
+	// Set Model animatino
 	newModel->setAnimation("idle");
 	newModel->setAnimationFrame(10);
 	
@@ -145,6 +126,11 @@ int main(int argc, char** argv)
 	bool oneHold = false;
 	int scrCont = 0;
 
+	// Anims
+	bool runf = false;
+	bool runb = false;
+	bool idle = false;
+
 	bool running = true;
 	while (running)
 	{
@@ -161,10 +147,33 @@ int main(int argc, char** argv)
 			modelPosition.x--;
 
 		if (mInputManager->getKbdKeyDown(K_KBD_UP))
-			modelPosition.y++;
+		{
+			if (!runf)
+			{
+				newModel->setAnimation("runf");
+				runf = true;
+				runb = idle = false;
+			}
+		}
 		else
 		if (mInputManager->getKbdKeyDown(K_KBD_DOWN))
-			modelPosition.y--;
+		{
+			if (!runb)
+			{
+				newModel->setAnimation("runb");
+				runb = true;
+				runf = idle = false;
+			}
+		}
+		else
+		{
+			if (!idle)
+			{
+				newModel->setAnimation("idle");
+				idle = true;
+				runf = runb = false;
+			}
+		}
 
 		if (mInputManager->getKbdKeyDown(K_KBD_a) || mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_PLUS))
 		{
@@ -254,11 +263,9 @@ int main(int argc, char** argv)
 		frame += 0.1;
 		#endif
 
-		/*
 		std::stringstream fpsT;
 		fpsT << "fps: " << mRenderer->getLastFps();
 		fpsText->setText(fpsT.str());
-		*/
 
 		mRenderer->draw();
 	}

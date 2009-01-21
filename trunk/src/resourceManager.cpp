@@ -20,6 +20,7 @@
 #include "materialManager.h"
 #include "logger.h"
 #include "root.h"
+#include "loadscr.h"
 
 #ifndef __WII__
 #include <dirent.h>
@@ -71,22 +72,37 @@ template<> resourceManager* singleton<resourceManager>::singleton_instance = 0;
 
 resourceManager& resourceManager::getSingleton()
 {  
-	assert(singleton_instance);
 	return (*singleton_instance);  
 }
 			
-void resourceGroup::filterResource(const std::string& path)
+void resourceGroup::filterResource(const std::string& path, bool material)
 {
 	std::string extension = getExtension(path);
 	if (!extension.length())
 		return;
 
-	if ((mLoadOptions & (1 << LOAD_MATERIALS)) && extension == ".material")
+	// Check if we have a loading screen
+	loadScreen* loadingScreen = resourceManager::getSingleton().getLoadingScreen();
+
+	if (material && (mLoadOptions & (1 << LOAD_MATERIALS)) && extension == ".material")
+	{
+		if (loadingScreen)
+			loadingScreen->update(path);
+
 		materialManager::getSingleton().parseMaterialScript(path, &mMaterials);
+	}
+	else
+	if (!material && (mLoadOptions & (1 << LOAD_SCRIPTS)) && extension == ".particle")
+	{
+		if (loadingScreen)
+			loadingScreen->update(path);
+
+		particleManager::getSingleton().parseParticleScript(path);
+	}
 }
 
 #ifndef __WII__
-void resourceGroup::scanDir(std::string path, bool recursive)
+void resourceGroup::scanDir(std::string path, bool recursive, bool materialParsing)
 {
 	DIR *dp;
 	struct dirent *dirp;
@@ -105,8 +121,8 @@ void resourceGroup::scanDir(std::string path, bool recursive)
 		std::string fullPath = path + dirp->d_name;
 		if (opendir(fullPath.c_str()) == NULL)
 		{
-			// Do something with file names.
-			filterResource(fullPath);
+			// Do something with file names
+			filterResource(fullPath, materialParsing);
 		}
 		else
 		if (recursive)
@@ -118,7 +134,7 @@ void resourceGroup::scanDir(std::string path, bool recursive)
 			path += dirp->d_name;
 			path += "/";
 
-			scanDir(path, false);
+			scanDir(path, false, materialParsing);
 
 			path = original;
 		}
@@ -127,7 +143,7 @@ void resourceGroup::scanDir(std::string path, bool recursive)
 	closedir(dp);
 }
 #else
-void resourceGroup::scanDir(std::string path, bool recursive)
+void resourceGroup::scanDir(std::string path, bool recursive, bool materialParsing)
 {
 	// Hold Wii directories
 	DIR_ITER *dp = NULL;
@@ -150,7 +166,7 @@ void resourceGroup::scanDir(std::string path, bool recursive)
 		if (diropen(fullPath.c_str()) == NULL)
 		{
 			// Do something with file names.
-			filterResource(fullPath);
+			filterResource(fullPath, materialParsing);
 		}
 		else
 		if (recursive)
@@ -162,7 +178,7 @@ void resourceGroup::scanDir(std::string path, bool recursive)
 			path += filename;
 			path += "/";
 
-			scanDir(path, false);
+			scanDir(path, false, materialParsing);
 
 			path = original;
 		}
@@ -367,7 +383,8 @@ void resourceManager::loadGroup(const std::string& name)
 		return;
 	}
 
-	group->scanDir(mBasePath + group->getRoot(), group->getRecursivity());
+	group->scanDir(mBasePath + group->getRoot(), group->getRecursivity(), true);
+	group->scanDir(mBasePath + group->getRoot(), group->getRecursivity(), false);
 }
 
 void resourceManager::unloadGroup(const std::string& name)
@@ -390,6 +407,22 @@ void resourceManager::unloadGroup(const std::string& name)
 const std::string& resourceManager::getRoot()
 {
 	return mBasePath;
+}
+
+loadScreen* resourceManager::getLoadingScreen()
+{
+	return mLoadingScreen;
+}
+
+void resourceManager::setLoadingScreen(loadScreen* scr)
+{
+	assert(scr);
+	mLoadingScreen = scr;
+}
+
+void resourceManager::unsetLoadingScreen()
+{
+	mLoadingScreen = NULL;
 }
 
 }

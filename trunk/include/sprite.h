@@ -66,12 +66,14 @@ namespace k
 
 		public:
 			sprite(material* mat, vec_t radi);
+			sprite(const std::string& mat, vec_t radi);
 			~sprite();
 
 			material* getMaterial();
 			vec_t getRadius();
 
 			void setMaterial(material* mat);
+			void setMaterial(const std::string& mat);
 			void setRadius(vec_t rad);
 
 			void setPosition(vector3& pos);

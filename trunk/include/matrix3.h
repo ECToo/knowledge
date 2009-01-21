@@ -118,7 +118,7 @@ namespace k
         		return m[0][0]*fCofactor00 + m[0][1]*fCofactor10 + m[0][2]*fCofactor20;
 			}
 
-			void cout()
+			void cout() const
 			{
 				std::cout << m[0][0] << "\t" << m[1][0] << "\t" << m[2][0] << std::endl;
 				std::cout << m[0][1] << "\t" << m[1][1] << "\t" << m[2][1] << std::endl;

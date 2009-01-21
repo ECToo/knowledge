@@ -35,7 +35,6 @@ namespace k
 			std::list<drawable3D*> m3DObjects;
 			std::list<drawable2D*> m2DObjects;
 			std::list<sprite*> mSprites;
-			std::list<particleSystem*> mParticles;
 
 			camera* mActiveCamera;
 
@@ -84,9 +83,6 @@ namespace k
 			void push2D(drawable2D* object);
 			void pop2D(drawable2D* object);
 			void sort2D();
-
-			void pushParticle(particleSystem* p);
-			void popParticle(particleSystem* p);
 
 			void setSkyBox(const std::string& matName);
 			void setSkyBox(material* mat);

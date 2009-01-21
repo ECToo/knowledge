@@ -21,6 +21,7 @@
 #include "logger.h"
 #include "resourceManager.h"
 #include "particle.h"
+#include "fontManager.h"
 
 int main(int argc, char** argv)
 {
@@ -36,22 +37,35 @@ int main(int argc, char** argv)
 
 	// Doesnt matter on wii
 	mRenderSystem->createWindow(800, 600);
-	mRenderSystem->setDepthTest(true);
+	mRenderSystem->setWindowTitle("knowledge, the power of mind");
 	mRenderSystem->setClearColor(k::vector3(0.125, 0.349, 0.505));
 
 	// Common library
 	#ifdef __WII__
-	new k::resourceManager("/knowledge/resources.cfg");
+	k::resourceManager* resourceMgr = new k::resourceManager("/knowledge/resources.cfg");
 	#else
-	new k::resourceManager("../resources.cfg");
+	k::resourceManager* resourceMgr = new k::resourceManager("../resources.cfg");
 	#endif
+
+	// Loading Screen
+	k::bgLoadScreen* newLoadingScreen = new k::bgLoadScreen();
+	assert(newLoadingScreen);
+
+	resourceMgr->setLoadingScreen(newLoadingScreen);
+	newLoadingScreen->loadBg("loading.jpg");
+	newLoadingScreen->update("");
 
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("particles");
 
+	delete newLoadingScreen;
+
+	// Set the skybox
+	mRenderer->setSkyBox("nightzSky");
+
 	// Parse material file
 	assert(mGuiManager != NULL);
-	mGuiManager->setCursor("wiiCursor", k::vector2(48, 48));
+	mGuiManager->setCursor("wiiCursor3", k::vector2(48, 48));
 
 	/**
 	 * Setup the input Manager
@@ -69,62 +83,12 @@ int main(int argc, char** argv)
 	newCamera->lookAt(k::vector3(0, 0, -1));
 	mRenderer->setCamera(newCamera);
 
-	// Particles
-	k::pointEmitter* pE = new k::pointEmitter(2000, "bubble");
-	assert(pE);
+	// Font for frustum culling
+	k::bitmapText* fpsText = new k::bitmapText("fonts/04B08_8.dat", "04B08_8");
+	assert(fpsText != NULL);
 
-	k::planeEmitter* planeE = new k::planeEmitter(2000, "bubble");
-	assert(planeE);
-
-	k::vector3 pVel = k::vector3(0, 20, 0);
-	k::vector3 pBounds[2];
-
-	pBounds[0] = k::vector3(-20, 0, -20);
-	pBounds[1] = k::vector3(20, 0, 20);
-
-	planeE->setVelocity(pVel);
-	planeE->setRadius(1.5);
-	planeE->setSpawnQuantity(30);
-	planeE->setSpawnTime(100);
-	planeE->setLifeTime(2000);
-	planeE->setBounds(pBounds[0], pBounds[1]);
-
-	k::particleSystem* pS = new k::particleSystem();
-	assert(pS != NULL);
-
-	k::vector3 pMinVel = k::vector3(-20, 20, -20);
-	k::vector3 pMaxVel = k::vector3(20, 30, 20);
-
-	pE->setVelocity(pMinVel, pMaxVel);
-	pE->setRadius(1.5);
-	pE->setSpawnQuantity(2);
-	pE->setSpawnTime(100);
-	pE->setLifeTime(2000);
-
-	k::vector3 pSPos = k::vector3(0, -40, -10);
-	pS->setPosition(pSPos);
-	// pS->pushEmitter("test", pE);
-	
-	pS->pushEmitter("testPlane", planeE);
-	mRenderer->pushParticle(pS);
-
-	// Particle system 2 - smaller ones
-	k::pointEmitter* pE2 = new k::pointEmitter(1000, "bubble");
-	assert(pE != NULL);
-
-	k::particleSystem* pS2 = new k::particleSystem();
-	assert(pS != NULL);
-
-	pE2->setRadius(1.0);
-	pE2->setSpawnQuantity(2);
-	pE2->setSpawnTime(100);
-	pE2->setLifeTime(2000);
-
-	pS2->setPosition(pSPos);
-	/*
-	pS2->pushEmitter("test2", pE2);
-	mRenderer->pushParticle(pS2);
-	*/
+	fpsText->setPosition(k::vector2(5, 10));
+	mRenderer->push2D(fpsText);
 
 	bool running = true;
 	bool leftHold = false;
@@ -165,20 +129,56 @@ int main(int argc, char** argv)
 
 		if ((mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_UP) ||
 			 mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_DOWN)) ||
-			(mInputManager->getKbdKeyDown(K_KBD_UP) ||
-			 mInputManager->getKbdKeyDown(K_KBD_DOWN)))
+			(mInputManager->getKbdKeyDown(K_KBD_w) ||
+			 mInputManager->getKbdKeyDown(K_KBD_s)))
 		{
 			k::vector3 look = newCamera->getDirection();
 			k::vector3 pos = newCamera->getPosition();
 
 			if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_DOWN) ||
-				 mInputManager->getKbdKeyDown(K_KBD_DOWN))
+				 mInputManager->getKbdKeyDown(K_KBD_s))
 			{
 				pos -= look*2;
 			}
 			else
 			{
 				pos += look*2;
+			}
+
+			newCamera->setPosition(pos);
+		}
+
+		if (mInputManager->getKbdKeyDown(K_KBD_LCTRL) ||
+			 mInputManager->getKbdKeyDown(K_KBD_SPACE))
+		{
+			k::vector3 up = newCamera->getUp();
+			k::vector3 pos = newCamera->getPosition();
+
+			if (mInputManager->getKbdKeyDown(K_KBD_LCTRL))
+			{
+				pos -= up * 2;
+			}
+			else
+			{
+				pos += up * 2;
+			}
+
+			newCamera->setPosition(pos);
+		}
+
+		if (mInputManager->getKbdKeyDown(K_KBD_a) ||
+			 mInputManager->getKbdKeyDown(K_KBD_d))
+		{
+			k::vector3 right = newCamera->getRight();
+			k::vector3 pos = newCamera->getPosition();
+
+			if (mInputManager->getKbdKeyDown(K_KBD_a))
+			{
+				pos -= right * 2;
+			}
+			else
+			{
+				pos += right * 2;
 			}
 
 			newCamera->setPosition(pos);
@@ -201,6 +201,11 @@ int main(int argc, char** argv)
 			// Do Something
 			leftHold = false;
 		}
+
+		// Set Demo FPS
+		std::stringstream fps;
+		fps << "FPS: " << mRenderer->getLastFps();
+		fpsText->setText(fps.str());
 
 		k::vector2 mousePos = mInputManager->getWiiMotePosition(0);
 		mGuiManager->setCursorPos(mousePos);

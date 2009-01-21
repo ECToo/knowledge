@@ -31,7 +31,7 @@ void timer::reset()
 long timer::getMilliSeconds()
 {
 	#ifdef __WII__
-		s64 end = gettime();
+		long long end = gettime();
 
 		return ticks_to_millisecs(diff_ticks(start, end));
 	#else

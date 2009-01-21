@@ -4,6 +4,7 @@ Resource group model loaded.
 Resource group physics loaded.
 Resource group particles loaded.
 Resource group texture loaded.
+Texture data for ../loading.jpg allocated.
 Material knowledgeLogo created.
 Material wiiCursor created.
 Material wiiCursor2 created.
@@ -15,3 +16,4 @@ Material 04B08_12 created.
 Material cube_14 created.
 Material poison created.
 Material bubble created.
+Particle System bubbles created.

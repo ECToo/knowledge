@@ -144,6 +144,7 @@ kTexture* loadTextureJPEG(const char* file, unsigned short* w, unsigned short* h
 	// Flush and set GX Object
 	DCFlushRange(wiiTexture, width * height * 4);
 	GX_InitTexObj(newKTexture, wiiTexture, width, height, GX_TF_RGBA8, GX_REPEAT, GX_REPEAT, GX_FALSE);
+	GX_InitTexObjLOD(newKTexture, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
 
 	// Save data for deallocation
 	textureLoader::getSingleton().pushTextureData(newKTexture, textureData);
@@ -199,6 +200,8 @@ kTexture* loadTexturePNG(const char* file, unsigned short* w, unsigned short* h)
 
 	GX_InitTexObj(newKTexture, textureData, imgProperties.imgWidth, 
 			imgProperties.imgHeight, GX_TF_RGBA8, GX_REPEAT, GX_REPEAT, GX_FALSE);
+
+	GX_InitTexObjLOD(newKTexture, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
 
 	// Save data for deallocation
 	textureLoader::getSingleton().pushTextureData(newKTexture, textureData);

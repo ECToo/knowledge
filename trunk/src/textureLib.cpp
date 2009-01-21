@@ -125,7 +125,7 @@ texture* createRawCubemap(const std::string& filename)
 	// back 
 	unsigned short width, height;
 	tempName = newName + "_back" + extension;	
-	tempTex = texLoader->loadTexture((char*)tempName.c_str(), NULL, NULL);
+	tempTex = texLoader->loadTexture((char*)tempName.c_str(), &width, &height);
 	if (!tempTex)
 	{
 		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");

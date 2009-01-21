@@ -34,7 +34,6 @@ renderer::renderer()
 	m3DObjects.clear();
 	m2DObjects.clear();
 	mSprites.clear();
-	mParticles.clear();
 
 	mActiveCamera = NULL;
 	mSkybox = NULL;
@@ -101,31 +100,6 @@ void renderer::removeSprite(sprite* spr)
 	S_LOG_INFO("Failed to remove sprite.");
 }
 			
-void renderer::pushParticle(particleSystem* p)
-{
-	assert(p != NULL);
-	mParticles.push_back(p);
-}
-
-void renderer::popParticle(particleSystem* p)
-{
-	assert(p != NULL);
-
-	std::list<particleSystem*>::iterator it;
-	for (it = mParticles.begin(); it != mParticles.end(); )
-	{
-		particleSystem* obj = (*it);
-		if (obj == p)
-		{
-			it = mParticles.erase(it);
-		}
-		else
-		{
-			++it;
-		}
-	}
-}
-
 void renderer::push3D(drawable3D* object)
 {
 	assert(object != NULL);
@@ -154,8 +128,6 @@ void renderer::pop3D(drawable3D* object)
 void renderer::setSkyBox(const std::string& matName)
 {
 	materialManager* matMgr = &materialManager::getSingleton();
-	assert(matMgr != NULL);
-
 	material* mat = matMgr->getMaterial(matName);
 	assert(mat != NULL);
 
@@ -173,8 +145,6 @@ void renderer::setSkyBox(material* mat)
 void renderer::setSkyPlane(const std::string& matName)
 {
 	materialManager* matMgr = &materialManager::getSingleton();
-	assert(matMgr != NULL);
-
 	material* mat = matMgr->getMaterial(matName);
 	assert(mat != NULL);
 
@@ -495,11 +465,7 @@ void renderer::draw()
 	}
 
 	// Particles
-	std::list<particleSystem*>::const_iterator pIt;
-	for (pIt = mParticles.begin(); pIt != mParticles.end(); pIt++)
-	{
-		(*pIt)->cycle(mActiveCamera);
-	}
+	particleManager::getSingleton().drawParticles(mActiveCamera);
 
 	/**
 	 * Set the 2D projection here and draw the 2d objects on it

@@ -155,13 +155,23 @@ int main(int argc, char** argv)
 
 	// Common library
 	#ifdef __WII__
-	new k::resourceManager("sd:/knowledge/resources.cfg");
+	k::resourceManager* resourceMgr = new k::resourceManager("/knowledge/resources.cfg");
 	#else
-	new k::resourceManager("../resources.cfg");
+	k::resourceManager* resourceMgr = new k::resourceManager("../resources.cfg");
 	#endif
+
+	// Loading Screen
+	k::bgLoadScreen* newLoadingScreen = new k::bgLoadScreen();
+	assert(newLoadingScreen);
+
+	resourceMgr->setLoadingScreen(newLoadingScreen);
+	newLoadingScreen->loadBg("loading.jpg");
+	newLoadingScreen->update("");
 
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("physics");
+
+	delete newLoadingScreen;
 
 	// mRenderer->setSkyBox("nightzSky");
 	mRenderer->setSkyPlane("skyPlane");
@@ -195,7 +205,6 @@ int main(int argc, char** argv)
 	mPhysicsManager->setGravity(k::vector3(0, -9.78, 0));
 
 	// Plane
-	
 	kPlane* newPlane = new kPlane();
 	assert(newPlane != NULL);
 	newPlane->setMaterial("odePlane");

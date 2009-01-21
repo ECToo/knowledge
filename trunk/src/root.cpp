@@ -44,7 +44,6 @@ root::root()
 		mActiveRS = new glRenderSystem();
 	#else
 		DEBUG_Init(GDBSTUB_DEVICE_USB, 1);
-		CON_EnableGecko(1, 0);
 		mActiveRS = new wiiRenderSystem();
 	#endif
 
@@ -73,6 +72,9 @@ root::root()
 
 	// Create The Input Manager
 	mInputManager = new inputManager();
+
+	// Create Particle Manager
+	mParticleManager = new particleManager();
 }
 
 root::~root()
@@ -83,6 +85,11 @@ root::~root()
 	delete mMaterialManager;
 }
 			
+particleManager* root::getParticleManager()
+{
+	return mParticleManager;
+}
+			
 renderSystem* root::getRenderSystem()
 {
 	return mActiveRS;
@@ -90,25 +97,21 @@ renderSystem* root::getRenderSystem()
 			
 renderer* root::getRenderer()
 {
-	assert(mRenderer != NULL);
 	return mRenderer;
 }
 
 materialManager* root::getMaterialManager()
 {
-	assert(mMaterialManager != NULL);
 	return mMaterialManager;
 }
 			
 guiManager* root::getGuiManager()
 {
-	assert(mGuiManager != NULL);
 	return mGuiManager;
 }
 
 inputManager* root::getInputManager()
 {
-	assert(mInputManager != NULL);
 	return mInputManager;
 }
 	

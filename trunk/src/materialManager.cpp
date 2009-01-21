@@ -513,8 +513,6 @@ void materialManager::parseMaterialScript(parsingFile* file, materialList* map)
 			material* searchMaterial = getMaterial(token);
 			if (searchMaterial)
 			{
-				unsigned int openBraces = 0;
-
 				S_LOG_INFO("Material " + token + " already exists.");
 				file->skipNextToken(); // {
 				parseUntilEndOfSection(file);

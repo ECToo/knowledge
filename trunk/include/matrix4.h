@@ -139,7 +139,7 @@ namespace k
 			}
 			#endif
 
-			void cout()
+			void cout() const
 			{
 				std::cout << m[0][0] << "\t" << m[1][0] << "\t" << m[2][0] << "\t" << m[3][0] << std::endl;
 				std::cout << m[0][1] << "\t" << m[1][1] << "\t" << m[2][1] << "\t" << m[3][1] << std::endl;
