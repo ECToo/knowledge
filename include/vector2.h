@@ -63,7 +63,7 @@ namespace k
 				return out;
 			}
 
-			vector2 operator+ (const vector2 &newVec)
+			inline vector2 operator+ (const vector2 &newVec) const
 			{
 				vector2 tempVec(newVec.x + x, newVec.y + y);
 				return tempVec;
@@ -72,7 +72,7 @@ namespace k
 			/**
 	 		 * Assign the vector to another one with same dimension
 	 		 */
-			vector2& operator = (const vector2 &newVec)
+			inline vector2& operator = (const vector2 &newVec)
 			{
 				x = newVec.x;
 				y = newVec.y;
@@ -80,25 +80,25 @@ namespace k
 				return *this;				
 			}
 			
-			vector2 operator - (const vector2 &newVec)
+			inline vector2 operator - (const vector2 &newVec) const
 			{
 				vector2 tempVec(x - newVec.x , y - newVec.y);
 				return tempVec;				
 			}
 
-			vector2 operator * (const vec_t scalar)
+			inline vector2 operator * (const vec_t scalar) const
 			{
 				vector2 tempVec(x * scalar, y * scalar);
 				return tempVec;				
 			}
 			
-			vector2 operator * (const vector2 &newVec)
+			inline vector2 operator * (const vector2 &newVec) const
 			{
 				vector2 tempVec(x * newVec.x, y * newVec.y);
 				return tempVec;				
 			}
 			
-			vector2 operator / (const vec_t scalar)
+			inline vector2 operator / (const vec_t scalar) const
 			{
 				assert (scalar != 0.0);
 				
@@ -106,33 +106,36 @@ namespace k
 				return tempVec;				
 			}
 			
-			vector2 operator / (const vector2 &newVec)
+			inline vector2 operator / (const vector2 &newVec) const
 			{
 				vector2 tempVec(x / newVec.x, y / newVec.y);
 				return tempVec;				
 			}
 			
-			bool operator == (const vector2 &newVec)
+			inline bool operator == (const vector2 &newVec) const
 			{
 				return ((x == newVec.x) && (y == newVec.y));
 			}
 
-			bool operator != (const vector2 &newVec)
+			inline bool operator != (const vector2 &newVec) const
 			{
 				return !((x == newVec.x) && (y == newVec.y));
 			}
 			
-			/**
-	 		 * Get the opposite of this vector
-			 * If vector is (1,1) it becomes (-1,-1)
-	 		 */
-			void negate()
+			inline vector2 negate() const
+			{
+				return vector2(-x, -y);
+			}
+
+			inline vector2 negateItself() 
 			{
 				x = -x;
 				y = -y;
+
+				return *this;
 			}
 			
-			const vec_t length()
+			inline const vec_t length() const
 			{
 				return sqrt((x*x)+(y*y));
 			}
@@ -140,7 +143,7 @@ namespace k
 			/**
 	 		 * Dot product between this vector and another one
 	 		 */
-			const vec_t dotProduct(const vector2 &newVec)
+			inline const vec_t dotProduct(const vector2 &newVec) const
 			{
 				return ((x * newVec.x) + (y * newVec.y));
 			}
@@ -148,7 +151,7 @@ namespace k
 			/**
 	 		 * Transform this vector into a unit vector
 	 		 */
-			void normalise()
+			inline void normalise() 
 			{
 				vec_t sq = length();
 
@@ -159,7 +162,7 @@ namespace k
 			/**
 	 		 * Distance between this vector and another vector
 	 		 */
-			inline vec_t distance(const vector2& newVec)
+			inline vec_t distance(const vector2& newVec) const
 			{
 				return sqrt(pow((newVec.x-x), 2) + pow((newVec.y-y), 2));
 			}
@@ -167,7 +170,7 @@ namespace k
 			/**
 	 		 * Print Vector information
 	 		 */
-			void cout()
+			inline void cout() const
 			{
 				std::cout << "X: " << x << std::endl;
 				std::cout << "Y: " << y << std::endl;

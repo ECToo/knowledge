@@ -116,6 +116,17 @@ void camera::lookAt(vector3 pos)
 	setView();
 }
 
+static inline vector3 getPlaneNormal(const vector3& a, const vector3& b, const vector3& c)
+{
+	vector3 dir1 = b - a;
+	vector3 dir2 = c - a;
+
+	vector3 result = dir1.crossProduct(dir2);
+	result.normalise();
+
+	return result;
+}
+
 void camera::setView()
 {
 	matrix4 mRotation = mOrientation.toMatrix();
@@ -154,8 +165,12 @@ void camera::setView()
 	#endif
 
 	// View Frustum
-	vec_t hFar = 2 * tan(mFov / 2) * mFarPlane;
+	vec_t tanFov = 2 * tan(mFov / 2);
+	vec_t hFar = tanFov * mFarPlane;
 	vec_t wFar = hFar * mAspectRatio;
+
+	vec_t hNear = tanFov * mNearPlane;
+	vec_t wNear = hNear * mAspectRatio;
 
 	// Far Plane
 	vector3 farCenter = mPosition + getDirection() * mFarPlane;
@@ -170,24 +185,33 @@ void camera::setView()
 	// Near Plane
 	vector3 nearCenter = mPosition + getDirection() * mNearPlane;
 
+	vector3 nearTopBase = (getUp() * hNear/2);
+	vector3 nearRightBase = (getRight() * wNear/2);
+
+	vector3 nearTopLeft = nearCenter + nearTopBase - nearRightBase;
+	vector3 nearTopRight = nearCenter + nearTopBase + nearRightBase;
+
+	vector3 nearBottomLeft = nearCenter - nearTopBase - nearRightBase;
+	vector3 nearBottomRight = nearCenter - nearTopBase + nearRightBase;
+
 	// Ok lets define the frustum planes
 	mFrustumPlanes[PLANE_NEAR] = getDirection();
 	mFrustumDs[PLANE_NEAR] = -getDirection().dotProduct(nearCenter);
 
 	mFrustumPlanes[PLANE_FAR] = getDirection().negate();
-	mFrustumDs[PLANE_FAR] = getDirection().dotProduct(nearCenter);
+	mFrustumDs[PLANE_FAR] = getDirection().dotProduct(farCenter);
 
-	mFrustumPlanes[PLANE_RIGHT] = getRight().negate();
-	mFrustumDs[PLANE_RIGHT] = getRight().dotProduct(farTopRight);
+	mFrustumPlanes[PLANE_RIGHT] = getPlaneNormal(nearTopRight, farTopRight, nearBottomRight); 
+	mFrustumDs[PLANE_RIGHT] = -mFrustumPlanes[PLANE_RIGHT].dotProduct(farTopRight);
 
-	mFrustumPlanes[PLANE_LEFT] = getRight();
-	mFrustumDs[PLANE_LEFT] = -getRight().dotProduct(farTopLeft);
+	mFrustumPlanes[PLANE_LEFT] = getPlaneNormal(nearTopLeft, nearBottomLeft, farTopLeft);
+	mFrustumDs[PLANE_LEFT] = -mFrustumPlanes[PLANE_LEFT].dotProduct(farTopLeft);
 
-	mFrustumPlanes[PLANE_TOP] = getUp().negate();
-	mFrustumDs[PLANE_TOP] = getUp().dotProduct(farTopRight);
+	mFrustumPlanes[PLANE_TOP] = getPlaneNormal(farTopRight, nearTopRight, farTopLeft);
+	mFrustumDs[PLANE_TOP] = -mFrustumPlanes[PLANE_TOP].dotProduct(farTopRight);
 
-	mFrustumPlanes[PLANE_BOTTOM] = getUp();
-	mFrustumDs[PLANE_BOTTOM] = -getUp().dotProduct(farBottomRight);
+	mFrustumPlanes[PLANE_BOTTOM] = getPlaneNormal(nearTopLeft, nearTopRight, farTopLeft);
+	mFrustumDs[PLANE_BOTTOM] = -mFrustumPlanes[PLANE_BOTTOM].dotProduct(farBottomRight);
 }
 
 void camera::copyView()

@@ -111,6 +111,9 @@ bitmapText::bitmapText(const std::string& datName, const std::string& matName)
 		glyph->s2 = readEndianSafeFloat(datFile);
 		glyph->t2 = readEndianSafeFloat(datFile);
 
+		// TODO: We will need the image name
+		// for larger paged fonts.
+		//
 		// Skip unneeded data like image name.
 		fseek(datFile, 36, SEEK_CUR);
 	}

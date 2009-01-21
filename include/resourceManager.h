@@ -21,6 +21,7 @@
 #include "prerequisites.h"
 #include "fileAccess.h"
 #include "singleton.h"
+#include "loadscr.h"
 
 #include "material.h"
 #include "md5.h"
@@ -55,8 +56,8 @@ namespace k
 			void setRecursivity(bool recursive);
 			void setLoadOptions(char opt);
 
-			void scanDir(std::string dir, bool recursive);
-			void filterResource(const std::string& path);
+			void scanDir(std::string dir, bool recursive, bool materialParsing);
+			void filterResource(const std::string& path, bool material);
 	};
 
 	class resourceManager : public singleton<resourceManager>
@@ -73,6 +74,11 @@ namespace k
 			 */
 			std::string mBasePath;
 
+			/**
+			 * For loading screens ;)
+			 */
+			loadScreen* mLoadingScreen;
+
 		public:
 			resourceManager(const std::string& resourceCfg = "./resources.cfg");
 			~resourceManager();
@@ -81,6 +87,10 @@ namespace k
 
 			void loadGroup(const std::string& name);
 			void unloadGroup(const std::string& name);
+
+			loadScreen* getLoadingScreen();
+			void setLoadingScreen(loadScreen* scr);
+			void unsetLoadingScreen();
 
 			const std::string& getRoot();
 	};

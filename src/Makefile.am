@@ -22,6 +22,7 @@ libknowledge_la_SOURCES = drawable.cpp\
 								  sticker.cpp\
 								  sprite.cpp\
 								  pthread.cpp\
+								  loadscr.cpp\
 								  particle.cpp\
 								  logger.cpp\
 								  timer.cpp\
@@ -45,6 +46,7 @@ pkginclude_HEADERS = @top_srcdir@/include/prerequisites.h \
 							@top_srcdir@/include/textureLib.h \
 							@top_srcdir@/include/textureManager.h \
 							@top_srcdir@/include/guiManager.h \
+							@top_srcdir@/include/loadscr.h \
 							@top_srcdir@/include/inputManager.h \
 							@top_srcdir@/include/keysyms.h \
 							@top_srcdir@/include/logger.h \

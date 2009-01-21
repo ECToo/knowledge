@@ -27,6 +27,7 @@
 #include "guiManager.h"
 #include "inputManager.h"
 #include "thread.h"
+#include "particle.h"
 
 namespace k
 {
@@ -40,6 +41,7 @@ namespace k
 			renderer* mRenderer;
 			guiManager* mGuiManager;
 			inputManager* mInputManager;
+			particleManager* mParticleManager;
 
 		public:
 			root();
@@ -62,6 +64,9 @@ namespace k
 
 			// Input
 			inputManager* getInputManager();
+
+			// Particles
+			particleManager* getParticleManager();
 	};
 }
 

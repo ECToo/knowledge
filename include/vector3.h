@@ -66,13 +66,13 @@ namespace k
 				return out;
 			}
 
-			vector3 operator + (const vector3& newVec)
+			inline vector3 operator + (const vector3& newVec) const
 			{
 				vector3 tempVec(newVec.x + x, newVec.y + y, newVec.z + z);
 				return tempVec;
 			}
 
-			vector3& operator += (const vector3& newVec)
+			inline vector3& operator += (const vector3& newVec)
 			{
 				x += newVec.x;
 				y += newVec.y;
@@ -81,7 +81,7 @@ namespace k
 				return *this;
 			}
 			
-			vector3& operator = (const vector3& newVec)
+			inline vector3& operator = (const vector3& newVec)
 			{
 				x = newVec.x;
 				y = newVec.y;
@@ -90,7 +90,7 @@ namespace k
 				return *this;				
 			}
 			
-			vector3 operator - (const vector3& newVec)
+			inline vector3 operator - (const vector3& newVec) const
 			{
 				vector3 tempVec(x - newVec.x, 
 						y - newVec.y,
@@ -99,7 +99,7 @@ namespace k
 				return tempVec;				
 			}
 
-			vector3& operator -= (const vector3& newVec)
+			inline vector3& operator -= (const vector3& newVec)
 			{
 				x -= newVec.x;
 				y -= newVec.y;
@@ -108,7 +108,7 @@ namespace k
 				return *this;
 			}
 
-			vector3& operator *= (const vec_t newVec)
+			inline vector3& operator *= (const vec_t newVec)
 			{
 				x *= newVec;
 				y *= newVec;
@@ -121,7 +121,7 @@ namespace k
 			 * Multiply this vector by a rotation matrix
 			 * @return Another vector with the multiplication stored
 			 */
-			inline vector3 operator * (const vec_t matrix[9])
+			inline vector3 operator * (const vec_t matrix[9]) const
 			{
 				vector3 tempVec
 						(
@@ -146,7 +146,7 @@ namespace k
 				return *this;				
 			}
 			
-			vector3 operator * (const vec_t scalar)
+			inline vector3 operator * (const vec_t scalar) const
 			{
 				vector3 tempVec(x * scalar, 
 						y * scalar,
@@ -155,7 +155,7 @@ namespace k
 				return tempVec;				
 			}
 			
-			vector3 operator * (const vector3& newVec)
+			inline vector3 operator * (const vector3& newVec) const
 			{
 				vector3 tempVec(x * newVec.x, 
 						y * newVec.y,
@@ -164,7 +164,7 @@ namespace k
 				return tempVec;				
 			}
 			
-			vector3 operator / (const vec_t scalar)
+			inline vector3 operator / (const vec_t scalar) const
 			{
 				assert (scalar != 0.0);
 				
@@ -172,7 +172,7 @@ namespace k
 				return tempVec;				
 			}
 			
-			vector3 operator / (const vector3& newVec)
+			inline vector3 operator / (const vector3& newVec) const
 			{
 				vector3 tempVec(x / newVec.x, 
 						y / newVec.y,
@@ -181,7 +181,7 @@ namespace k
 				return tempVec;				
 			}
 			
-			bool operator == (const vector3& newVec)
+			inline bool operator == (const vector3& newVec) const
 			{
 				return (
 						x == newVec.x && 
@@ -190,7 +190,7 @@ namespace k
 						);
 			}
 
-			bool operator != (const vector3& newVec)
+			inline bool operator != (const vector3& newVec) const
 			{
 				return !(
 						x == newVec.x && 
@@ -199,7 +199,12 @@ namespace k
 						);
 			}
 
-			vector3 negate()
+			inline vector3 negate() const
+			{
+				return vector3(-x, -y, -z);
+			}
+
+			inline vector3 negateItself()
 			{
 				x = -x;
 				y = -y;
@@ -208,7 +213,7 @@ namespace k
 				return *this;
 			}
 			
-			const vec_t length()
+			inline const vec_t length() const
 			{
 				return sqrt(x*x + y*y + z*z);
 			}
@@ -216,7 +221,7 @@ namespace k
 			/**
 	 		 * Dot product between this vector and another one
 	 		 */
-			const vec_t dotProduct(const vector3& newVec)
+			inline const vec_t dotProduct(const vector3& newVec) const
 			{
 				return ((x * newVec.x) + (y * newVec.y) + (z * newVec.z));
 			}
@@ -224,7 +229,7 @@ namespace k
 			/**
 	 		 * The cross product between this vector and another vector
 	 		 */
-			vector3 crossProduct(const vector3& newVec)
+			inline vector3 crossProduct(const vector3& newVec) const
 			{
 				vector3 tempVec
 				(
@@ -236,7 +241,7 @@ namespace k
 				return tempVec;
 			}
 
-			vector3& cross(const vector3& newVec)
+			inline vector3& cross(const vector3& newVec)
 			{
 				vector3 tempVec
 				(
@@ -255,7 +260,7 @@ namespace k
 			/**
 	 		 * Transform this vector into a unit vector
 	 		 */
-			void normalise()
+			inline void normalise()
 			{
 				vec_t sq = 1.0 / length();
 
@@ -267,7 +272,7 @@ namespace k
 			/**
 	 		 * Distance between this vector and another vector
 	 		 */
-			inline const vec_t distance(const vector3& newVec)
+			inline const vec_t distance(const vector3& newVec) const
 			{
 				return sqrt(pow((newVec.x-x), 2) + 
 						pow((newVec.y-y), 2) + 
@@ -277,7 +282,7 @@ namespace k
 			/**
 	 		 * Print Vector information
 	 		 */
-			void cout()
+			inline void cout() const
 			{
 				std::cout << "X: " << x << std::endl;
 				std::cout << "Y: " << y << std::endl;

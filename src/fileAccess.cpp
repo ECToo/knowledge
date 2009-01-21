@@ -112,9 +112,15 @@ std::string parsingFile::getNextToken()
 			actualChar = string[++index];
 			while (actualChar != '\"')
 			{
+				// TODO: Remove that hack for 1024 strings
+				if (bufferPtr > 1023)
+				{
+					S_LOG_INFO("Unsupported string greated than 1024 chars on file detected.");
+					bufferPtr = 0;
+				}
+
 				buffer[bufferPtr++] = actualChar;
 				actualChar = string[++index];
-				// TODO: Check strings larger than 1024 chars
 			}
 
 			index++;

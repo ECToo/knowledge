@@ -15,38 +15,36 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _TIMER_H_
-#define _TIMER_H_
+#ifndef _LOAD_SCR_H_
+#define _LOAD_SCR_H_
 
 #include "prerequisites.h"
-#include "logger.h"
+#include "texture.h"
 
 namespace k
 {
-	class timer
+	/**
+	 * This class is only a interface for a load screen
+	 * implementation
+	 */
+	class loadScreen
 	{
-		private:
-			/**
-			 * Keep reference of the start
-			 * of the counting.
-			 */
-	
-			#ifdef __WII__
-				long long start;
-			#else
-				struct timeval start;
-			#endif
+		public:
+			void update(const std::string& filename) {}
+	};
+
+	/**
+	 * A load screen with a background image
+	 */
+	class bgLoadScreen : public loadScreen
+	{
+		protected:
+			k::texture* mBackground;
 
 		public:
-			timer()
-			{
-				reset();
-			}
-
-			void reset();
-			long getMilliSeconds();
+			void loadBg(const std::string& filename);
+			void update(const std::string& filename);
 	};
 }
 
 #endif
-

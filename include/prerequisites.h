@@ -63,6 +63,7 @@
 	#include <sys/unistd.h>
 	#include <sys/dir.h>
 	#include <ogc/lwp.h>
+	#include <ogc/mutex.h>
 	#include <ogc/lwp_watchdog.h>
 	#include <malloc.h>
 	#include <wiiuse/wpad.h>
@@ -90,7 +91,7 @@
 
 	// Threads
 	typedef lwp_t kthread;
-	typedef int kmutex;
+	typedef mutex_t kmutex;
 
 	#define MAT_COLUMN_MAJOR 
 

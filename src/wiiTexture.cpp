@@ -109,17 +109,15 @@ void wiiTexture::setTexCoordGen()
 				guMtxInverse(postMtx, postMtx);
 				guMtxTranspose(postMtx, postMtx);
 
-				guMtxIdentity(destMtx);
 				guMtxIdentity(s);
 				guMtxIdentity(t);
 
 				guMtxScale(s, 0.5f, -0.5f, 0.0f);
 				guMtxTrans(t, 0.5f, 0.5f, 1.0f);
-				guMtxConcat(s, postMtx, postMtx);
-				guMtxConcat(t, postMtx, postMtx);
+				guMtxConcat(t, s, destMtx);
 
-				GX_LoadTexMtxImm(destMtx, GX_TEXMTX0 + mIndex * 3, GX_TG_MTX3x4);
-				GX_LoadTexMtxImm(postMtx, GX_DTTMTX0 + mIndex * 3, GX_TG_MTX3x4);
+				GX_LoadTexMtxImm(postMtx, GX_TEXMTX0 + mIndex * 3, GX_TG_MTX3x4);
+				GX_LoadTexMtxImm(destMtx, GX_DTTMTX0 + mIndex * 3, GX_TG_MTX3x4);
 
 				GX_SetTexCoordGen2(GX_TEXCOORD0 + mIndex, GX_TG_MTX3x4, GX_TG_NRM, 
 						GX_TEXMTX0 + mIndex * 3, GX_TRUE, GX_DTTMTX0 + mIndex * 3);

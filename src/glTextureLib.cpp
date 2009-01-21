@@ -62,6 +62,11 @@ kTexture* textureLoader::loadTexture(const char* file, unsigned short* w, unsign
 		if (tex)
 		{
 			*tex = ilutGLBindTexImage();
+
+			// TODO: Make functions for that ;)
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
 			ilDeleteImages(1, &newImage[0]);
 
 			delete newImage;

@@ -118,7 +118,7 @@ namespace k
 				z = newQuat.z;
 			}
 
-			quaternion(const vec_t angle, const vector3& axis)
+			inline quaternion(const vec_t angle, const vector3& axis)
 			{
 				vec_t r, s;
 
@@ -133,13 +133,13 @@ namespace k
 	 			z = axis.z * s;
 			}
 
-			void clear()
+			inline void clear()
 			{
 				w = 1;
 				x = y = z = 0;
 			}
 
-			quaternion& operator = (const quaternion& newQuat)
+			inline quaternion& operator = (const quaternion& newQuat)
 			{
 				w = newQuat.w;
 				x = newQuat.x;
@@ -149,7 +149,7 @@ namespace k
 				return *this;				
 			}
 
-			bool operator == (const quaternion& newQuat)
+			inline bool operator == (const quaternion& newQuat) const
 			{
 				return (
 						x == newQuat.x && 
@@ -159,7 +159,7 @@ namespace k
 						);
 			}
 
-			bool operator != (const quaternion& newQuat)
+			inline bool operator != (const quaternion& newQuat) const
 			{
 				return !(
 						x == newQuat.x && 
@@ -169,7 +169,7 @@ namespace k
 						);
 			}
 
-			quaternion operator * (const quaternion& newQuat)
+			inline quaternion operator * (const quaternion& newQuat) const
 			{
 				quaternion output;
 	
@@ -181,7 +181,7 @@ namespace k
 				return output;
 			}
 
-			quaternion operator * (const vector3& newVec)
+			inline quaternion operator * (const vector3& newVec) const
 			{
 				quaternion output;
 
@@ -193,7 +193,7 @@ namespace k
 				return output;
 			}
 
-			vector3 rotateVector (const vector3& newVec)
+			inline vector3 rotateVector (const vector3& newVec) const
 			{
 				quaternion qInv = duplicate().negate();
 				quaternion copy = duplicate();
@@ -205,7 +205,7 @@ namespace k
 				return vector3(qFinal.x, qFinal.y, qFinal.z);
 			}
 
-			vector3 inverseVector (const vector3& newVec)
+			inline vector3 inverseVector (const vector3& newVec) const
 			{
 				quaternion qInv = duplicate().negate();
 				quaternion copy = duplicate();
@@ -217,7 +217,7 @@ namespace k
 				return vector3(qFinal.x, qFinal.y, qFinal.z);
 			}
 
-			void normalise()
+			inline void normalise()
 			{
 				vec_t magnitude = sqrt(w*w + x*x + y*y + z*z);
 				if (magnitude > 0.0f)
@@ -270,7 +270,7 @@ namespace k
 				return mat;
 			}
 
-			void toMatrix(vec_t matrix[])
+			void toMatrix(vec_t matrix[]) const
 			{
 				assert(matrix != NULL);
 
@@ -304,7 +304,7 @@ namespace k
 				matrix[15] = 1.0f;
 			}
 
-			void toAxisAngle(vec_t& angle, vector3& axis)
+			void toAxisAngle(vec_t& angle, vector3& axis) 
 			{
 				if (w > 1)
 					normalise();
@@ -327,7 +327,7 @@ namespace k
 				}
 			}
 
-			void computeW()
+			inline void computeW()
 			{
 				vec_t temp = 1.0f - x*x - y*y - z*z;
 
@@ -337,7 +337,7 @@ namespace k
 					w = -(vec_t)sqrt(temp);
 			}
 
-			quaternion& negate()
+			inline quaternion& negate()
 			{
 				x = -x;
 				y = -y;
@@ -346,7 +346,7 @@ namespace k
 				return *this;
 			}
 
-			vector3 getDirection()
+			inline vector3 getDirection() const
 			{
 				// Lets Consider here the
 				// direction of the default camera
@@ -354,7 +354,7 @@ namespace k
 				return rotateVector(vector3(0, 0, -1));
 			}
 
-			quaternion duplicate()
+			inline quaternion duplicate() const
 			{
 				return quaternion(x, y, z, w);
 			}
@@ -362,7 +362,7 @@ namespace k
 			/**
 	 		 * Print Quaternion information
 	 		 */
-			void cout()
+			inline void cout() const
 			{
 				std::cout << "W: " << w << std::endl;
 				std::cout << "X: " << x << std::endl;

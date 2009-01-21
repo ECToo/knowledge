@@ -16,12 +16,12 @@ Features for first beta release:
 [x] Material manager 	
 [x] Billboards (sprites)
 [x] Timers
+[x] Skyboxes and Skyplanes
 
 [.] Particle System
 [.] Logger Object (Pending XHTML/CSS output).
 [.] Network (Pending integration and test on the Wii)
 [.] Physics (ODE is behaving strangely on wii, need to recompile it)
-[.] Skyboxes and Skyplanes (needs skyboxes on wii - pc works fine)
 [.] Frustrum culling (code done, needs checking and ordering)
 
 [t] Render to texture

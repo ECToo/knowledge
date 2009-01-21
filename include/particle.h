@@ -24,6 +24,8 @@
 #include "material.h"
 #include "sprite.h"
 #include "camera.h"
+#include "fileAccess.h"
+#include "camera.h"
 
 namespace k 
 {
@@ -89,9 +91,9 @@ namespace k
 
 			unsigned int getSpawnTime();
 
-			void setVelocity(vector3& vel);
-			void setAcceleration(vector3& accel);
-			void setPosition(vector3& pos);
+			void setVelocity(const vector3& vel);
+			void setAcceleration(const vector3& accel);
+			void setPosition(const vector3& pos);
 
 			void setRadius(vec_t radi);
 			void setVisibility(bool vis);
@@ -102,6 +104,9 @@ namespace k
 	class particleEmitter
 	{
 		protected:
+			vector3 mMinVelocity;
+			vector3 mMaxVelocity;
+
 			/**
 			 * Particle initial radius.
 			 */
@@ -168,17 +173,28 @@ namespace k
 			void spawnParticle(particle* p);
 
 		public:
+			particleEmitter();
 			particleEmitter(unsigned int numParticles, material* mat);
 			particleEmitter(unsigned int numParticles, const std::string& mat);
 
 			virtual ~particleEmitter();
 
+			void setNumParticles(unsigned int amount);
 			void setRadius(vec_t radi);
 			void setSpawnQuantity(unsigned int amount);
 			void setSpawnTime(long time);
 			void setLifeTime(long time);
 			void setMaterial(const std::string& mat);
-			void setPosition(vector3& pos);
+			void setPosition(const vector3& pos);
+
+			/**
+			 * The emitter will release
+			 * random particle velocity values between
+			 * the minimum and the maximum values
+			 */
+			void setVelocity(const vector3& min, const vector3& max);
+			void setMinVelocity(const vector3& min);
+			void setMaxVelocity(const vector3& min);
 
 			virtual void feed() = 0;
 			virtual void draw(camera* c) = 0;
@@ -188,17 +204,12 @@ namespace k
 	{
 		protected:
 			/**
-			 * Initial velocities.
-			 */
-			vector3 mMinVelocity;
-			vector3 mMaxVelocity;
-
-			/**
 			 * System acceleration.
 			 */
 			vector3 mAcceleration;
 
 		public:
+			pointEmitter();
 			pointEmitter(unsigned int numParticles, material* mat);
 			pointEmitter(unsigned int numParticles, const std::string& mat);
 
@@ -207,13 +218,7 @@ namespace k
 			void feed();
 			void draw(camera* c);
 
-			/**
-			 * The emitter will release
-			 * random particle velocity values between
-			 * the minimum and the maximum values
-			 */
-			void setVelocity(vector3& min, vector3& max);
-			void setAcceleration(vector3& accel);
+			void setAcceleration(const vector3& accel);
 	};
 
 	/**
@@ -226,7 +231,6 @@ namespace k
 	class planeEmitter : public particleEmitter
 	{
 		protected:
-			vector3 mVelocity;
 			vector3 mAcceleration;
 
 			/**
@@ -239,6 +243,7 @@ namespace k
 			vector3 mVertices[2];
 
 		public:
+			planeEmitter();
 			planeEmitter(unsigned int numParticles, material* mat);
 			planeEmitter(unsigned int numParticles, const std::string& mat);
 
@@ -247,9 +252,8 @@ namespace k
 			void feed();
 			void draw(camera* c);
 
-			void setBounds(vector3& a, vector3& b);
-			void setVelocity(vector3& vel);
-			void setAcceleration(vector3& accel);
+			void setBounds(const vector3& a, const vector3& b);
+			void setAcceleration(const vector3& accel);
 	};
 
 	class particleAffector
@@ -289,6 +293,7 @@ namespace k
 			~particleSystem();
 
 			void setPosition(const vector3& pos);
+			const vector3& getPosition();
 
 			void setMaterial(const std::string& mat);
 			void setMaterial(material* mat);
@@ -298,6 +303,31 @@ namespace k
 			void pushEmitter(const std::string& name, particleEmitter* em);
 
 			void cycle(camera* c);
+	};
+
+	class particleManager : public singleton<particleManager>
+	{
+		protected:
+			std::map<std::string, particleSystem*> mSystems;
+
+		public:
+			particleManager();
+			~particleManager();
+
+			particleSystem* getParticleSystem(const std::string& name);
+			particleSystem* allocatePS(const std::string& name);
+
+			static particleManager& getSingleton();
+
+			void parseParticleScript(const std::string& filename);
+			void parseParticleScript(parsingFile* file);
+
+			void parseParticleSystem(parsingFile* file, const std::string& psName);
+
+			void parsePlaneEmitter(parsingFile* file, particleSystem* system, const std::string& name);
+			void parsePointEmitter(parsingFile* file, particleSystem* system, const std::string& name);
+
+			void drawParticles(camera* active);
 	};
 }
 

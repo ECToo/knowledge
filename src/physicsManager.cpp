@@ -15,6 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef __WII__
+
 #include "physicsManager.h"
 #include "logger.h"
 #include "root.h"
@@ -323,4 +325,7 @@ physicTriMesh::~physicTriMesh()
 }
 
 }
+
+#endif
+// Wii is not working right now, set this for it 
 

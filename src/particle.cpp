@@ -47,17 +47,17 @@ const vector3& particle::getAcceleration()
 	return mAcceleration;
 }
 
-void particle::setVelocity(vector3& vel)
+void particle::setVelocity(const vector3& vel)
 {
 	mVelocity = vel;
 }
 			
-void particle::setPosition(vector3& pos)
+void particle::setPosition(const vector3& pos)
 {
 	mPosition = pos;
 }
 
-void particle::setAcceleration(vector3& accel)
+void particle::setAcceleration(const vector3& accel)
 {
 	mAcceleration = accel;
 }
@@ -90,10 +90,8 @@ void particle::setRadius(vec_t radi)
 
 void particle::draw(sprite* spr, long time)
 {
-	if (!mVisible)
+	if (!mVisible || !spr)
 		return;
-
-	assert(spr != NULL);
 
 	// Update sprite position
 	vec_t timeScaleDiff = (time - mLastDrawTime)/1000.0f;
@@ -114,12 +112,21 @@ void particle::draw(sprite* spr, long time)
 	spr->draw();
 }
 			
+particleEmitter::particleEmitter()
+{
+	mParticles = NULL;
+	mSprite = NULL;
+
+	mTimer.reset();
+	mFreeParticles = 0;
+}
+
 particleEmitter::particleEmitter(unsigned int numParticles, material* mat)
 {
 	assert(numParticles != 0);
 	assert(mat != NULL);
 
-	mParticles = new std::vector<particle>;
+	mParticles = new std::vector<particle>(numParticles);
 	assert(mParticles != NULL);
 
 	mTimer.reset();
@@ -137,8 +144,8 @@ particleEmitter::particleEmitter(unsigned int numParticles, const std::string& m
 	mParticles = new std::vector<particle>(numParticles);
 	mTimer.reset();
 
-	mSprite = new sprite(materialManager::getSingleton().getMaterial(mat), 0);
-	assert(mSprite != NULL);
+	mSprite = new sprite(mat, 0);
+	assert(mSprite);
 
 	mFreeParticles = numParticles;
 }
@@ -187,10 +194,31 @@ void particleEmitter::setLifeTime(long time)
 {
 	mLifetime = time;
 }
+			
+void particleEmitter::setNumParticles(unsigned int amount)
+{
+	if (mParticles)
+		delete mParticles;
+
+	mParticles = new std::vector<particle>(amount);
+	assert(mParticles);
+
+	mFreeParticles = amount;
+}
 
 void particleEmitter::setMaterial(const std::string& mat)
 {
 	mMaterial = mat;
+
+	if (mSprite)
+	{
+		mSprite->setMaterial(mat);
+	}
+	else
+	{
+		mSprite = new sprite(mat, 0);
+		assert(mSprite);
+	}
 }
 			
 particleEmitter::~particleEmitter()
@@ -210,9 +238,14 @@ particle* particleEmitter::findFreeParticle()
 	return NULL;
 }
 
-void particleEmitter::setPosition(vector3& pos)
+void particleEmitter::setPosition(const vector3& pos)
 {
 	mPosition = pos;
+}
+
+pointEmitter::pointEmitter()
+	: particleEmitter()
+{
 }
 			
 pointEmitter::pointEmitter(unsigned int numParticles, material* mat)
@@ -225,6 +258,36 @@ pointEmitter::pointEmitter(unsigned int numParticles, const std::string& mat)
 {
 }
 
+static inline vector3 getRandomVelocity(const vector3& mMaxVelocity, const vector3& mMinVelocity)
+{
+	vector3 randVel;
+	if (mMaxVelocity != mMinVelocity)
+	{
+		int tmp;
+
+		if ((tmp = (int)(mMaxVelocity.x - mMinVelocity.x + 1)) != 0 && (mMaxVelocity.x != mMinVelocity.x))
+			randVel.x = getRandNonZero() % tmp + mMinVelocity.x;
+		else
+			randVel.x = mMinVelocity.x;
+
+		if ((tmp = (int)(mMaxVelocity.y - mMinVelocity.y + 1)) != 0 && (mMaxVelocity.y != mMinVelocity.y))
+			randVel.y = getRandNonZero() % tmp + mMinVelocity.y;
+		else
+			randVel.y = mMinVelocity.y;
+
+		if ((tmp = (int)(mMaxVelocity.z - mMinVelocity.z + 1)) != 0 && (mMaxVelocity.z != mMinVelocity.z))
+			randVel.z = getRandNonZero() % tmp + mMinVelocity.z;
+		else
+			randVel.z = mMinVelocity.z;
+	}
+	else
+	{
+		randVel = mMinVelocity;
+	}
+
+	return randVel;
+}
+
 void pointEmitter::spawnParticle(particle* p)
 {
 	particleEmitter::spawnParticle(p);
@@ -234,23 +297,7 @@ void pointEmitter::spawnParticle(particle* p)
 	/**
 	 * Randomize particles velocity between minimum and max speeds
 	 */
-	vector3 randVel;
-	int tmp;
-
-	if ((tmp = (int)(mMaxVelocity.x - mMinVelocity.x + 1)) != 0)
-		randVel.x = getRandNonZero() % tmp + mMinVelocity.x;
-	else
-		randVel.x = mMinVelocity.x;
-	if ((tmp = (int)(mMaxVelocity.y - mMinVelocity.y + 1)) != 0)
-		randVel.y = getRandNonZero() % tmp + mMinVelocity.y;
-	else
-		randVel.y = mMinVelocity.y;
-	if ((tmp = (int)(mMaxVelocity.z - mMinVelocity.z + 1)) != 0)
-		randVel.z = getRandNonZero() % tmp + mMinVelocity.z;
-	else
-		randVel.z = mMinVelocity.z;
-
-	p->setVelocity(randVel);
+	p->setVelocity(getRandomVelocity(mMaxVelocity, mMinVelocity));
 	p->setAcceleration(mAcceleration);
 }
 					
@@ -287,6 +334,9 @@ void pointEmitter::feed()
 
 void pointEmitter::draw(camera* c)
 {
+	if (!mSprite || !mParticles)
+		return;
+
 	for (std::vector<particle>::iterator it = mParticles->begin();
 			it != mParticles->end(); it++)
 	{
@@ -312,17 +362,32 @@ void pointEmitter::draw(camera* c)
 	}
 }
 			
-void pointEmitter::setVelocity(vector3& min, vector3& max)
+void particleEmitter::setVelocity(const vector3& min, const vector3& max)
 {
 	mMinVelocity = min;
 	mMaxVelocity = max;
 }
 
-void pointEmitter::setAcceleration(vector3& accel)
+void particleEmitter::setMinVelocity(const vector3& min)
+{
+	mMinVelocity = min;
+}
+
+void particleEmitter::setMaxVelocity(const vector3& max)
+{
+	mMaxVelocity = max;
+}
+
+void pointEmitter::setAcceleration(const vector3& accel)
 {
 	mAcceleration = accel;
 }
 			
+planeEmitter::planeEmitter()
+	: particleEmitter()
+{
+}
+
 planeEmitter::planeEmitter(unsigned int numParticles, material* mat)
 	: particleEmitter(numParticles, mat)
 {
@@ -341,7 +406,7 @@ planeEmitter::planeEmitter(unsigned int numParticles, const std::string& mat)
  * *--B
  */
 
-void planeEmitter::setBounds(vector3& a, vector3& b)
+void planeEmitter::setBounds(const vector3& a, const vector3& b)
 {
 	mVertices[0] = a;
 	mVertices[1] = b;
@@ -373,7 +438,7 @@ void planeEmitter::spawnParticle(particle* p)
 		randPos.z += mVertices[0].z;
 
 	p->setPosition(randPos);
-	p->setVelocity(mVelocity);
+	p->setVelocity(getRandomVelocity(mMinVelocity, mMaxVelocity));
 	p->setAcceleration(mAcceleration);
 }
 					
@@ -410,6 +475,9 @@ void planeEmitter::feed()
 
 void planeEmitter::draw(camera* c)
 {
+	if (!mSprite || !mParticles)
+		return;
+
 	for (std::vector<particle>::iterator it = mParticles->begin();
 			it != mParticles->end(); it++)
 	{
@@ -435,12 +503,7 @@ void planeEmitter::draw(camera* c)
 	}
 }
 
-void planeEmitter::setVelocity(vector3& vel)
-{
-	mVelocity = vel;
-}
-
-void planeEmitter::setAcceleration(vector3& accel)
+void planeEmitter::setAcceleration(const vector3& accel)
 {
 	mAcceleration = accel;
 }
@@ -456,6 +519,11 @@ particleSystem::~particleSystem()
 void particleSystem::setPosition(const vector3& pos)
 {
 	mPosition = pos;
+}
+			
+const vector3& particleSystem::getPosition()
+{
+	return mPosition;
 }
 
 void particleSystem::setMaterial(const std::string& mat)
@@ -499,6 +567,296 @@ void particleSystem::cycle(camera* c)
 	{
 	}
 	*/
+}
+
+template<> particleManager* singleton<particleManager>::singleton_instance = 0;
+
+particleManager& particleManager::getSingleton()
+{  
+	assert(singleton_instance);
+	return (*singleton_instance);  
+}
+
+particleManager::particleManager()
+{
+	mSystems.clear();
+}
+
+particleManager::~particleManager()
+{
+}
+
+particleSystem* particleManager::getParticleSystem(const std::string& name)
+{
+	std::map<std::string, particleSystem*>::iterator it = mSystems.find(name);
+	if (it != mSystems.end())
+		return it->second;
+	else
+		return NULL;
+}
+
+particleSystem* particleManager::allocatePS(const std::string& name)
+{
+	particleSystem* newSystem = getParticleSystem(name);
+	if (!newSystem)
+	{
+		newSystem = new particleSystem();
+		if (newSystem)
+		{
+			mSystems[name] = newSystem;
+		}
+	}
+
+	return newSystem;
+}
+
+static inline vector3 readVector(parsingFile* file)
+{
+	vector3 vec;
+
+	std::string token = file->getNextToken();
+	vec.x = atof(token.c_str());
+	token = file->getNextToken();
+	vec.y = atof(token.c_str());
+	token = file->getNextToken();
+	vec.z = atof(token.c_str());
+
+	return vec;
+}
+
+static inline std::string parseEmitterGenericToken(parsingFile* file, const std::string& parsedToken, particleEmitter* system)
+{
+	assert(file);
+	assert(system);
+
+	// Current Token
+	std::string token = parsedToken;
+
+	if (token == "minVelocity")
+	{
+		system->setMinVelocity(readVector(file));
+	}
+	else
+	if (token == "maxVelocity")
+	{
+		system->setMaxVelocity(readVector(file));
+	}
+	else
+	if (token == "radius")
+	{
+		token = file->getNextToken();
+		system->setRadius(atof(token.c_str()));
+	}
+	else
+	if (token == "spawnQuantity")
+	{
+		token = file->getNextToken();
+		system->setSpawnQuantity(atoi(token.c_str()));
+	}
+	else
+	if (token == "spawnTime")
+	{
+		token = file->getNextToken();
+		system->setSpawnTime(atoi(token.c_str()));
+	}
+	else
+	if (token == "lifeTime")
+	{
+		token = file->getNextToken();
+		system->setLifeTime(atoi(token.c_str()));
+	}
+	else
+	if (token == "position")
+	{
+		system->setPosition(readVector(file));
+	}
+	else
+	if (token == "quota")
+	{
+		token = file->getNextToken();
+		system->setNumParticles(atoi(token.c_str()));
+	}
+	else
+	if (token == "material")
+	{
+		token = file->getNextToken();
+		system->setMaterial(token);
+	}
+
+	return token;
+}
+
+void particleManager::parsePlaneEmitter(parsingFile* file, particleSystem* system, const std::string& name)
+{
+	assert(file);
+	assert(system);
+
+	std::string token = file->getNextToken(); // {
+	unsigned int openBraces = 1;
+
+	planeEmitter* emitter = new planeEmitter();
+	assert(emitter);
+
+	while (openBraces)
+	{
+		if (file->eof())
+			return;
+
+		// Tokens Here =]
+		token = parseEmitterGenericToken(file, token, emitter);
+		if (token == "bounds")
+		{
+			vector3 min;
+			vector3 max;
+
+			min = readVector(file);
+			max = readVector(file);
+
+			emitter->setBounds(min, max);
+		}
+
+		token = file->getNextToken();
+
+		// Script properties
+		if (token == "}")
+			openBraces--;
+		else
+		if (token == "{")
+			openBraces++;
+	}
+
+	system->pushEmitter(name, emitter);
+}
+
+void particleManager::parsePointEmitter(parsingFile* file, particleSystem* system, const std::string& name)
+{
+	assert(file);
+	assert(system);
+
+	std::string token = file->getNextToken(); // {
+	unsigned int openBraces = 1;
+
+	planeEmitter* emitter = new planeEmitter();
+	assert(emitter);
+
+	while (openBraces)
+	{
+		if (file->eof())
+			return;
+
+		// Tokens Here =]
+		parseEmitterGenericToken(file, token, emitter);
+		token = file->getNextToken();
+
+		// Script properties
+		if (token == "}")
+			openBraces--;
+		else
+		if (token == "{")
+			openBraces++;
+	}
+
+	system->pushEmitter(name, emitter);
+}
+				
+void particleManager::parseParticleSystem(parsingFile* file, const std::string& psName)
+{
+	assert(file);
+
+	particleSystem* newSystem = allocatePS(psName);
+	if (!newSystem)
+	{
+		S_LOG_INFO("Failed to allocate new particle system.");
+		return;
+	}
+
+	std::string token = file->getNextToken(); // {
+	unsigned int openBraces = 1;
+
+	while (openBraces)
+	{
+		if (file->eof())
+			return;
+
+		if (token == "planeEmitter")
+		{
+			token = file->getNextToken();
+			parsePlaneEmitter(file, newSystem, token);
+		}
+		else
+		if (token == "pointEmitter")
+		{
+			token = file->getNextToken();
+			parsePointEmitter(file, newSystem, token);
+		}
+		else
+		if (token == "position")
+		{
+			newSystem->setPosition(readVector(file));
+		}
+		else
+		if (token == "mass")
+		{
+			token = file->getNextToken();
+			newSystem->setMass(atof(token.c_str()));
+		}
+
+		token = file->getNextToken();
+
+		// Script properties
+		if (token == "}")
+			openBraces--;
+		else
+		if (token == "{")
+			openBraces++;
+	}
+
+	S_LOG_INFO("Particle System " + psName + " created.");
+}
+
+void particleManager::parseParticleScript(const std::string& filename)
+{
+	parsingFile* newFile = new parsingFile(filename);
+
+	assert(newFile);
+	parseParticleScript(newFile);
+
+	delete newFile;
+}
+
+void particleManager::parseParticleScript(parsingFile* file)
+{
+	if (!file->isReady())
+	{
+		S_LOG_INFO("File " + file->getFilename() + " is not ready to be parsed.");
+		return;
+	}
+
+	std::string token = file->getNextToken();
+	while (!file->eof())
+	{
+		if (token == "particleSystem")
+		{
+			// System name
+			token = file->getNextToken();
+			parseParticleSystem(file, token);
+		}
+
+		// if (token == "particleSystem")
+		
+		// Next Token
+		token = file->getNextToken();
+	}
+	// while (!file->eof())
+}
+			
+void particleManager::drawParticles(camera* active)
+{
+	std::map<std::string, particleSystem*>::const_iterator pIt;
+	for (pIt = mSystems.begin(); pIt != mSystems.end(); pIt++)
+	{
+		pIt->second->cycle(active);
+	}
 }
 
 }
