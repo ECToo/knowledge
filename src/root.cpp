@@ -132,6 +132,11 @@ std::string getExtension(const std::string& file)
 		return extension;
 	}
 }
+			
+long root::getGlobalTime()
+{
+	return mGlobalTimer.getMilliSeconds();
+}
 
 } // namespace k
 

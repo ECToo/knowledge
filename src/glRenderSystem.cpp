@@ -67,6 +67,9 @@ void glRenderSystem::configure()
 
 	// Some openGL improves
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+	// TODO: Anti Aliasing? 
+	glEnable(GL_POLYGON_SMOOTH);
 }
 
 void glRenderSystem::createWindow(const int w, const int h)
@@ -93,6 +96,9 @@ void glRenderSystem::createWindow(const int w, const int h)
 	{
 		S_LOG_INFO("Failed to initialize GLEW.");
 	}
+
+	// Create screenshot memory area
+	ilGenImages(1, &mScreenshotTex);
 }
 
 void glRenderSystem::setBlendMode(unsigned short src, unsigned short dst)
@@ -460,7 +466,11 @@ void glRenderSystem::drawArrays()
 
 void glRenderSystem::screenshot(const char* filename)
 {
-	// TODO
+	ilBindImage(mScreenshotTex);
+	ilEnable(IL_FILE_OVERWRITE);
+
+	ilutGLScreen();
+	ilSaveImage((char*)filename);
 }
 
 unsigned int glRenderSystem::getScreenWidth()

@@ -368,7 +368,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 void md5mesh::draw()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	assert(rs != NULL);
+	assert(rs);
 
 	mMaterial->prepare();
 
@@ -657,8 +657,12 @@ void md5model::compileBase()
 void md5model::draw()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	assert(rs != NULL);
+	assert(rs);
 
+	// Feed animations =]
+	feedAnims();
+
+	// Rotate and Translate
 	vec_t angle;
 	vector3 axis;
 	mOrientation.toAxisAngle(angle, axis);
@@ -667,6 +671,7 @@ void md5model::draw()
 	rs->translateScene(mPosition.x, mPosition.y, mPosition.z);
 	rs->rotateScene(angle, axis.x, axis.y, axis.z);
 
+	// Draw Meshes
 	std::list<md5mesh*>::iterator it;
 	for (it = mMeshes.begin(); it != mMeshes.end(); it++)
 	{
@@ -931,6 +936,7 @@ void md5model::setAnimation(const std::string& name)
 	}
 
 	destAnimation->currentFrame = 0;
+	destAnimation->lastFeedTime = root::getSingleton().getGlobalTime();
 
 	for (unsigned int i = 0; i < mBones.size(); i++)
 	{
@@ -941,8 +947,15 @@ void md5model::setAnimation(const std::string& name)
 	}
 }
 
-void md5model::setAnimationFrameTime(vec_t frameTime)
+void md5model::feedAnims()
 {
+	if (!mAutoFeedAnims)
+		return;
+
+	// Global Time
+	long timeNow = root::getSingleton().getGlobalTime();
+
+	// Update anims
 	for (unsigned int i = 0; i < mBones.size(); i++)
 	{
 		bone_t* thisBone = mBones[i];
@@ -953,16 +966,15 @@ void md5model::setAnimationFrameTime(vec_t frameTime)
 
 		anim_t* currentAnim = thisBone->currentAnim;
 
-		unsigned int frameNum = frameTime * currentAnim->frameRate;
-		unsigned int realFrameNum;
+		// Time elapsed
+		currentAnim->currentFrame += (currentAnim->frameRate * (timeNow - currentAnim->lastFeedTime)) / 1000.0f;
+		currentAnim->lastFeedTime = timeNow;
 
-		if (frameNum >= currentAnim->numFrames)
-			realFrameNum = frameNum % currentAnim->numFrames;
-		else
-			realFrameNum = frameNum;
+		if ((uint32_t)currentAnim->currentFrame >= currentAnim->numFrames)
+			currentAnim->currentFrame -= currentAnim->numFrames;
 
-		if (currentAnim->currentFrame == frameNum)
-			continue;
+		// Real frame number as int
+		unsigned int realFrameNum = (uint32_t)currentAnim->currentFrame;
 
 		// Copy Bone frame positions to modify 'em
 		thisBone->pos = currentAnim->baseFrame[thisBone->index].pos;
@@ -1119,6 +1131,11 @@ md5mesh* md5model::getMesh(unsigned int index)
 void md5model::setAutoFeed(bool feed)
 {
 	mAutoFeedAnims = feed;
+}
+
+bool md5model::getAutoFeed()
+{
+	return mAutoFeedAnims;
 }
 
 }

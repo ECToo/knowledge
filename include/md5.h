@@ -87,7 +87,12 @@ typedef struct
 	 * for the anim system it prevents
 	 * the engine from recalculating it.
 	 */
-	unsigned int currentFrame;
+	vec_t currentFrame;
+
+	/**
+	 * Last time this anim was feeded.
+	 */
+	long lastFeedTime;
 } anim_t;
 
 typedef struct
@@ -246,6 +251,17 @@ class md5model : public drawable3D
 		void setAutoFeed(bool feed);
 
 		/**
+		 * Tells if the model auto update
+		 * its anims.
+		 */
+		bool getAutoFeed();
+
+		/**
+		 * Feed animations ;)
+		 */
+		void feedAnims();
+
+		/**
 		 * Set the model desired frame.
 		 * If the specified frame is greater than the number
 		 * of the frames in the animation it will result in 
@@ -254,17 +270,13 @@ class md5model : public drawable3D
 		void setAnimationFrame(unsigned int frameNum);
 
 		/**
-		 * Set the animation frame based
-		 * on time elapsed since the frame
-		 * start.
-		 */
-		void setAnimationFrameTime(vec_t frameTime);
-
-		/**
 		 * Get one md5mesh from an index.
 		 */
 		md5mesh* getMesh(unsigned int index);
 
+		/**
+		 * Overloaded
+		 */
 		void draw();
 };
 

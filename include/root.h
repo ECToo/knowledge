@@ -28,6 +28,7 @@
 #include "inputManager.h"
 #include "thread.h"
 #include "particle.h"
+#include "timer.h"
 
 namespace k
 {
@@ -42,6 +43,11 @@ namespace k
 			guiManager* mGuiManager;
 			inputManager* mInputManager;
 			particleManager* mParticleManager;
+
+			/**
+			 * Global timer
+			 */
+			timer mGlobalTimer;
 
 		public:
 			root();
@@ -67,6 +73,9 @@ namespace k
 
 			// Particles
 			particleManager* getParticleManager();
+
+			// The Global Timer =]
+			long getGlobalTime();
 	};
 }
 
