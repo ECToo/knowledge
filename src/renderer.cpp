@@ -180,7 +180,7 @@ void renderer::push2D(drawable2D* object)
 	assert(object != NULL);
 	m2DObjects.push_back(object);
 
-	// sort2D();
+	sort2D();
 }
 
 void renderer::pop2D(drawable2D* object)
