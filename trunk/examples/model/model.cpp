@@ -120,7 +120,6 @@ int main(int argc, char** argv)
 	int lastY = 0;
 	int dX = 0;
 	int dY = 0;
-	vec_t frame = 0;
 
 	// Screenshot
 	bool oneHold = false;
@@ -226,7 +225,7 @@ int main(int argc, char** argv)
 			modelPosition.y -= dY;
 		}
 
-		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_1))
+		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_1) || mInputManager->getKbdKeyDown(K_KBD_PRINT))
 		{
 			oneHold = true;
 		}
@@ -255,13 +254,6 @@ int main(int argc, char** argv)
 
 		newModel->setPosition(modelPosition);
 		newModel->setOrientation(modelQuat);
-
-		#ifdef __WII__
-		newModel->setAnimationFrame((frame++)/2);
-		#else
-		newModel->setAnimationFrame((frame)/2);
-		frame += 0.1;
-		#endif
 
 		std::stringstream fpsT;
 		fpsT << "fps: " << mRenderer->getLastFps();

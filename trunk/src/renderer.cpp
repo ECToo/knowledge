@@ -514,6 +514,11 @@ camera* renderer::getCamera()
 {
 	return mActiveCamera;
 }
+			
+long renderer::getTimeNow()
+{
+	return mRendererTimer.getMilliSeconds();
+}
 
 }
 

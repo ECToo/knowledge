@@ -29,6 +29,11 @@ namespace k
 			vector2 mScreenSize;
 			SDL_Surface* mScreen;
 
+			/**
+			 * Screenshot ;)
+			 */
+			ILuint mScreenshotTex;
+
 		public:
 			glRenderSystem();
 			~glRenderSystem();

@@ -71,6 +71,11 @@ namespace k
 			material* mSkyPlane;
 			void _drawSkyPlane();
 
+			/**
+			 * Renderer time
+			 */
+			timer mRendererTimer;
+
 		public:
 			renderer();
 			~renderer();
@@ -112,6 +117,9 @@ namespace k
 
 			camera* getCamera();
 			void setCamera(camera* cam);
+
+			// Get renderer time
+			long getTimeNow();
 
 			// Fps Counter
 			void setFpsCounter(bool status);

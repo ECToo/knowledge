@@ -75,8 +75,59 @@ const std::string& parsingFile::getFilename()
 
 void parsingFile::skipNextToken()
 {
-	// TODO: Real Skipping
-	getNextToken();
+	if (!string)
+	{
+		S_LOG_INFO("File is not ready!");
+		return;
+	}
+
+	// Keep position ;)
+	char actualChar = string[index];
+	bool charWritten = false;
+
+	while (actualChar)
+	{
+		// Start parsing a string 'til we find
+		// another double quotes
+		if (actualChar == '\"')
+		{
+			actualChar = string[++index];
+			while (actualChar != '\"')
+			{
+				actualChar = string[++index];
+				charWritten = true;
+			}
+
+			index++;
+			return;
+		}
+		else
+		// Pay attention to carriage return
+		if (actualChar == ' ' || actualChar == '\t' || actualChar == '\n' || actualChar == 0xd)
+		{
+			actualChar = string[++index];
+			while (actualChar == '\n' || actualChar == ' ' || actualChar == '\t' || actualChar == 0xd)
+				actualChar = string[++index];
+
+			if (!charWritten)
+				continue;
+			else
+				return;
+		}
+		else
+		if (actualChar == '/' && string[index + 1] == '/')
+		{
+			while (actualChar != '\n')
+				actualChar = string[++index];
+				
+			actualChar = string[++index];
+			continue;
+		}
+
+		//
+		charWritten = true;
+		actualChar = string[++index];
+	}
 }
 
 bool parsingFile::eof()
@@ -95,9 +146,9 @@ std::string parsingFile::getNextToken()
 		return NULL;
 	}
 
-	// I hope we dont find a string greater than that.
+	// I hope we dont find a string greater than that buffer.
 	unsigned int bufferPtr = 0;
-	char buffer[1024];
+	char buffer[2048];
 	char actualChar;
 
 	memset(buffer, 0, 1024);
@@ -112,11 +163,12 @@ std::string parsingFile::getNextToken()
 			actualChar = string[++index];
 			while (actualChar != '\"')
 			{
-				// TODO: Remove that hack for 1024 strings
-				if (bufferPtr > 1023)
+				// Maximum string size, if you got 
+				// anything greater than it, im sorry man
+				if (bufferPtr > 2047)
 				{
-					S_LOG_INFO("Unsupported string greated than 1024 chars on file detected.");
-					bufferPtr = 0;
+					S_LOG_INFO("Too big string detected (> 2048 chars), cutting now.");
+					bufferPtr = 2047;
 				}
 
 				buffer[bufferPtr++] = actualChar;
