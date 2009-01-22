@@ -61,7 +61,7 @@ int main(int argc, char** argv)
 	delete newLoadingScreen;
 
 	// Set the skybox
-	mRenderer->setSkyBox("nightzSky");
+	mRenderer->setSkyPlane("skyPlane");
 
 	// Parse material file
 	assert(mGuiManager != NULL);
