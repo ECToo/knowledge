@@ -76,6 +76,13 @@ namespace k
 			 */
 			timer mRendererTimer;
 
+			/**
+			 * Render to texture
+			 */
+			kTexture* mTextureTarget;
+			bool mRenderToTexture;
+			unsigned int mRTTSize[2];
+
 		public:
 			renderer();
 			~renderer();
@@ -95,6 +102,17 @@ namespace k
 			void setSkyPlane(material* mat);
 
 			void draw();
+
+			/**
+			 * Render to texture.
+			 *
+			 * After calling this function, the first
+			 * call to draw() on renderer will render
+			 * to a texture specified by @tex. Every
+			 * subsequent call to draw() will work
+			 * normally.
+			 */
+			void prepareRTT(unsigned int w, unsigned h, kTexture* tex);	
 
 			/**
 			 * Create a sprite within this renderer

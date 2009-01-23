@@ -39,6 +39,8 @@ textureStage::textureStage(unsigned int width, unsigned int height, unsigned sho
 	mRotate = 0;
 	mScroll.x = 0;
 	mScroll.y = 0;
+
+	mTexCoordType = TEXCOORD_UV;
 	mTextureId.clear();
 }
 			

@@ -144,8 +144,31 @@ textureStage* material::getTextureStage(unsigned short index)
 
 void material::pushTexture(textureStage* tex)
 {
-	assert(tex != NULL);
+	assert(tex);
 	mTextures.push_back(tex);
+}
+			
+void material::setSingleTexture(unsigned int w, unsigned int h, kTexture* tex)
+{
+	assert(tex);
+
+	// 
+	std::vector<kTexture*> mKTextures(1);
+	mKTextures[0] = tex;
+
+	//
+	platTexture* newTexStage = new platTexture(w, h, 0);
+	if (newTexStage)
+	{
+		newTexStage->setId(&mKTextures);
+		newTexStage->setImagesCount(1);
+
+		mTextures.push_back(newTexStage);
+	}
+	else
+	{
+		S_LOG_INFO("Failed to allocate texture stage.");
+	}
 }
 
 }

@@ -229,7 +229,6 @@ void wiiRenderSystem::setWindowTitle(const std::string& title)
 
 void wiiRenderSystem::frameStart()
 {
-	GX_SetViewport(0, 0, mVideoMode->fbWidth, mVideoMode->efbHeight, 0, 1);
 	GX_InvVtxCache();
 }
 

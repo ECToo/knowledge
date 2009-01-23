@@ -40,6 +40,80 @@ void textureLoader::unLoadTexture(kTexture* tex)
 
 kTexture* textureLoader::loadTexture(const char* file, unsigned short* w, unsigned short* h)
 {
+	FREE_IMAGE_FORMAT imgFormat = FreeImage_GetFileType(file, 0);
+	if (imgFormat == FIF_UNKNOWN)
+	{
+		S_LOG_INFO("Unable to load texture " + std::string(file));
+		return NULL;
+	}
+
+	FIBITMAP* image = FreeImage_Load(imgFormat, file, 0);
+	assert(image);
+
+	uint32_t width = FreeImage_GetWidth(image);
+	uint32_t height = FreeImage_GetHeight(image);
+	uint32_t pitch = FreeImage_GetPitch(image);
+	uint32_t bpp = FreeImage_GetBPP(image);
+
+	if (bpp != 32)
+	{
+		FIBITMAP* tmp = FreeImage_ConvertTo32Bits(image);
+		FreeImage_Unload(image);
+		image = tmp;
+	}
+
+	char* imgData = (char*) malloc(width * height * 4);
+	if (!imgData)
+	{
+		S_LOG_INFO("Could not allocate memory for image data.");
+		return NULL;
+	}
+
+	// Copy Pixel data
+	char* copyImgData = imgData;
+	for (unsigned int j = (height-1); j > 0; j--)
+	{
+		for (unsigned int i = 0; i < width; i++)
+		{
+			RGBQUAD pixelColor;
+			FreeImage_GetPixelColor(image, i, j, &pixelColor);
+
+			copyImgData[0] = pixelColor.rgbRed;
+			copyImgData[1] = pixelColor.rgbGreen;
+			copyImgData[2] = pixelColor.rgbBlue;
+			copyImgData[3] = pixelColor.rgbReserved;
+			copyImgData += 4;
+		}
+	}
+
+	FreeImage_Unload(image);
+
+	kTexture* glImage = new kTexture;
+	if (!glImage)
+	{
+		S_LOG_INFO("Failed to allocate gl image.");
+		free(imgData);
+		
+		return NULL;
+	}
+
+	glGenTextures(1, glImage);
+	glBindTexture(GL_TEXTURE_2D, *glImage);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgData);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return glImage;
+
+	/*
+	 * Old DevIL code
+	 *
+
 	ILuint* newImage = new ILuint;
 	if (!newImage)
 		return NULL;
@@ -81,6 +155,7 @@ kTexture* textureLoader::loadTexture(const char* file, unsigned short* w, unsign
 
 	delete newImage;
 	return NULL;
+	*/
 }
 
 }

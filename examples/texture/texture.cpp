@@ -22,13 +22,118 @@
 #include "resourceManager.h"
 #include "logger.h"
 
+k::renderSystem* mRenderSystem;
+k::sticker* texSticker;
+k::material* crateMaterial;
+vec_t rquad;
+
+static inline void drawScene(bool rtt)
+{
+	// Clear screen, etc...
+	mRenderSystem->frameStart();
+
+	mRenderSystem->setMatrixMode(k::MATRIXMODE_PROJECTION);
+	mRenderSystem->identityMatrix();
+	mRenderSystem->setPerspective(110, 1.33f, 0.1f, 5000.0f);
+
+	mRenderSystem->setMatrixMode(k::MATRIXMODE_MODELVIEW);
+	mRenderSystem->identityMatrix();
+	mRenderSystem->translateScene(0.0f, 0.0f, -4.0f);
+	mRenderSystem->rotateScene(30, 1.0f, 0.0f, 0.0f);
+	mRenderSystem->rotateScene(rquad, 0.0f, 1.0f, 0.0f);
+
+	// Bind Texture
+	crateMaterial->prepare();
+
+	// Start Vertices
+	mRenderSystem->startVertices(k::VERTEXMODE_QUAD);
+
+	// Front Face
+	mRenderSystem->texCoord(k::vector2(0.0f, 1.0f)); 
+	mRenderSystem->vertex(k::vector3(-1.0f, -1.0f,  1.0f));
+	mRenderSystem->texCoord(k::vector2(1.0f, 1.0f)); 
+	mRenderSystem->vertex(k::vector3( 1.0f, -1.0f,  1.0f));
+	mRenderSystem->texCoord(k::vector2(1.0f, 0.0f)); 
+	mRenderSystem->vertex(k::vector3( 1.0f,  1.0f,  1.0f));
+	mRenderSystem->texCoord(k::vector2(0.0f, 0.0f)); 
+	mRenderSystem->vertex(k::vector3(-1.0f,  1.0f,  1.0f));
+
+	// Back Face
+	mRenderSystem->texCoord(k::vector2(1.0f, 1.0f)); 
+	mRenderSystem->vertex(k::vector3(-1.0f, -1.0f, -1.0f));
+	mRenderSystem->texCoord(k::vector2(1.0f, 0.0f)); 
+	mRenderSystem->vertex(k::vector3(-1.0f,  1.0f, -1.0f));
+	mRenderSystem->texCoord(k::vector2(0.0f, 0.0f)); 
+	mRenderSystem->vertex(k::vector3( 1.0f,  1.0f, -1.0f));
+	mRenderSystem->texCoord(k::vector2(0.0f, 1.0f)); 
+	mRenderSystem->vertex(k::vector3( 1.0f, -1.0f, -1.0f));
+
+	// Top Face
+	mRenderSystem->texCoord(k::vector2(0.0f, 1.0f)); 
+	mRenderSystem->vertex(k::vector3(-1.0f,  1.0f, -1.0f));
+	mRenderSystem->texCoord(k::vector2(0.0f, 0.0f)); 
+	mRenderSystem->vertex(k::vector3(-1.0f,  1.0f,  1.0f));
+	mRenderSystem->texCoord(k::vector2(1.0f, 0.0f)); 
+	mRenderSystem->vertex(k::vector3( 1.0f,  1.0f,  1.0f));
+	mRenderSystem->texCoord(k::vector2(1.0f, 1.0f)); 
+	mRenderSystem->vertex(k::vector3( 1.0f,  1.0f, -1.0f));
+
+	// Bottom Face
+	mRenderSystem->texCoord(k::vector2(1.0f, 1.0f)); 
+	mRenderSystem->vertex(k::vector3(-1.0f, -1.0f, -1.0f));
+	mRenderSystem->texCoord(k::vector2(0.0f, 1.0f)); 
+	mRenderSystem->vertex(k::vector3( 1.0f, -1.0f, -1.0f));
+	mRenderSystem->texCoord(k::vector2(0.0f, 0.0f)); 
+	mRenderSystem->vertex(k::vector3( 1.0f, -1.0f,  1.0f));	
+	mRenderSystem->texCoord(k::vector2(1.0f, 0.0f)); 
+	mRenderSystem->vertex(k::vector3(-1.0f, -1.0f,  1.0f));
+
+	// Right face
+	mRenderSystem->texCoord(k::vector2(1.0f, 1.0f)); 
+	mRenderSystem->vertex(k::vector3( 1.0f, -1.0f, -1.0f));
+	mRenderSystem->texCoord(k::vector2(1.0f, 0.0f)); 
+	mRenderSystem->vertex(k::vector3( 1.0f,  1.0f, -1.0f));
+	mRenderSystem->texCoord(k::vector2(0.0f, 0.0f)); 
+	mRenderSystem->vertex(k::vector3( 1.0f,  1.0f,  1.0f));
+	mRenderSystem->texCoord(k::vector2(0.0f, 1.0f)); 
+	mRenderSystem->vertex(k::vector3( 1.0f, -1.0f,  1.0f));
+
+	// Left Face
+	mRenderSystem->texCoord(k::vector2(0.0f, 1.0f)); 
+	mRenderSystem->vertex(k::vector3(-1.0f, -1.0f, -1.0f));
+	mRenderSystem->texCoord(k::vector2(1.0f, 1.0f)); 
+	mRenderSystem->vertex(k::vector3(-1.0f, -1.0f,  1.0f));
+	mRenderSystem->texCoord(k::vector2(1.0f, 0.0f)); 
+	mRenderSystem->vertex(k::vector3(-1.0f,  1.0f,  1.0f));
+	mRenderSystem->texCoord(k::vector2(0.0f, 0.0f)); 
+	mRenderSystem->vertex(k::vector3(-1.0f,  1.0f, -1.0f));
+
+	// End
+	mRenderSystem->endVertices();
+
+	if (!rtt)
+	{
+		mRenderSystem->setMatrixMode(k::MATRIXMODE_MODELVIEW);
+		mRenderSystem->identityMatrix();
+
+		mRenderSystem->setMatrixMode(k::MATRIXMODE_PROJECTION);
+		mRenderSystem->setOrthographic(0, mRenderSystem->getScreenWidth(), 
+			mRenderSystem->getScreenHeight(), 0, -128, 128);
+
+		texSticker->draw();
+	}
+
+	// Upload to video
+	mRenderSystem->frameEnd();
+}
+
 int main(int argc, char** argv)
 {
 	// Initialize knowledge
 	k::root* appRoot = new k::root();
-	k::renderSystem* mRenderSystem = appRoot->getRenderSystem();
 	k::materialManager* mMaterialManager = appRoot->getMaterialManager();
 	k::inputManager* mInputManager = appRoot->getInputManager();
+	mRenderSystem = appRoot->getRenderSystem();
 
 	// Doesnt matter on wii
 	mRenderSystem->createWindow(800, 600);
@@ -48,7 +153,24 @@ int main(int argc, char** argv)
 	newLoadingScreen->loadBg("loading.jpg");
 	newLoadingScreen->update("");
 
+	// Create Material for RTT
+	k::material* rttMaterial = mMaterialManager->createMaterial("rttMaterial");
+	assert(rttMaterial);
 
+	// Create Texture for RTT
+	kTexture rttTarget;
+	mRenderSystem->genTexture(128, 128, 3, &rttTarget);
+
+	// Add to material
+	rttMaterial->setSingleTexture(128, 128, &rttTarget);
+
+	// Create a sticker ;)
+	texSticker = new k::sticker("rttMaterial");
+	assert(texSticker);
+
+	texSticker->setScale(k::vector2(128, 128));
+	
+	// Load textures
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("texture");
 
@@ -63,9 +185,6 @@ int main(int argc, char** argv)
 	mInputManager->setWiiMoteTimeout(60);
 	mInputManager->setWiiMoteEmulation(true);
 
-	// Rotations
-	vec_t rquad = 0;
-
 	#ifdef __WII__
 	k::parsingFile* tevFile = new k::parsingFile("/knowledge/tev.script");
 
@@ -74,15 +193,8 @@ int main(int argc, char** argv)
 	#endif
 
 	// Get material
-	k::material* crateMaterial = mMaterialManager->getMaterial("crate");
+	crateMaterial = mMaterialManager->getMaterial("crate");
 	assert(crateMaterial);
-
-	// Return to normal mode
-	mRenderSystem->setMatrixMode(k::MATRIXMODE_PROJECTION);
-	mRenderSystem->identityMatrix();
-	mRenderSystem->setPerspective(110, 
-			mRenderSystem->getScreenWidth()/mRenderSystem->getScreenHeight(), 
-			0.1f, 5000.0f);
 
 	bool running = true;
 	while (running)
@@ -97,86 +209,14 @@ int main(int argc, char** argv)
 		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_HOME))
 			running = false;
 
-		// Clear screen, etc...
-		mRenderSystem->frameStart();
+		// Draw
+		mRenderSystem->setViewPort(0, 0, 128, 128);
+		mRenderSystem->setOnlyFlush(true);
+		drawScene(true);
+		mRenderSystem->copyToTexture(128, 128, &rttTarget);
 
-		mRenderSystem->setMatrixMode(k::MATRIXMODE_MODELVIEW);
-		mRenderSystem->identityMatrix();
-		mRenderSystem->translateScene(0.0f, 0.0f, -4.0f);
-		mRenderSystem->rotateScene(30, 1.0f, 0.0f, 0.0f);
-		mRenderSystem->rotateScene(rquad, 0.0f, 1.0f, 0.0f);
-
-		// Bind Texture
-		crateMaterial->prepare();
-
-		// Start Vertices
-		mRenderSystem->startVertices(k::VERTEXMODE_QUAD);
-
-		// Front Face
-		mRenderSystem->texCoord(k::vector2(0.0f, 1.0f)); 
-		mRenderSystem->vertex(k::vector3(-1.0f, -1.0f,  1.0f));
-		mRenderSystem->texCoord(k::vector2(1.0f, 1.0f)); 
-		mRenderSystem->vertex(k::vector3( 1.0f, -1.0f,  1.0f));
-		mRenderSystem->texCoord(k::vector2(1.0f, 0.0f)); 
-		mRenderSystem->vertex(k::vector3( 1.0f,  1.0f,  1.0f));
-		mRenderSystem->texCoord(k::vector2(0.0f, 0.0f)); 
-		mRenderSystem->vertex(k::vector3(-1.0f,  1.0f,  1.0f));
-
-		// Back Face
-		mRenderSystem->texCoord(k::vector2(1.0f, 1.0f)); 
-		mRenderSystem->vertex(k::vector3(-1.0f, -1.0f, -1.0f));
-		mRenderSystem->texCoord(k::vector2(1.0f, 0.0f)); 
-		mRenderSystem->vertex(k::vector3(-1.0f,  1.0f, -1.0f));
-		mRenderSystem->texCoord(k::vector2(0.0f, 0.0f)); 
-		mRenderSystem->vertex(k::vector3( 1.0f,  1.0f, -1.0f));
-		mRenderSystem->texCoord(k::vector2(0.0f, 1.0f)); 
-		mRenderSystem->vertex(k::vector3( 1.0f, -1.0f, -1.0f));
-
-		// Top Face
-		mRenderSystem->texCoord(k::vector2(0.0f, 1.0f)); 
-		mRenderSystem->vertex(k::vector3(-1.0f,  1.0f, -1.0f));
-		mRenderSystem->texCoord(k::vector2(0.0f, 0.0f)); 
-		mRenderSystem->vertex(k::vector3(-1.0f,  1.0f,  1.0f));
-		mRenderSystem->texCoord(k::vector2(1.0f, 0.0f)); 
-		mRenderSystem->vertex(k::vector3( 1.0f,  1.0f,  1.0f));
-		mRenderSystem->texCoord(k::vector2(1.0f, 1.0f)); 
-		mRenderSystem->vertex(k::vector3( 1.0f,  1.0f, -1.0f));
-
-		// Bottom Face
-		mRenderSystem->texCoord(k::vector2(1.0f, 1.0f)); 
-		mRenderSystem->vertex(k::vector3(-1.0f, -1.0f, -1.0f));
-		mRenderSystem->texCoord(k::vector2(0.0f, 1.0f)); 
-		mRenderSystem->vertex(k::vector3( 1.0f, -1.0f, -1.0f));
-		mRenderSystem->texCoord(k::vector2(0.0f, 0.0f)); 
-		mRenderSystem->vertex(k::vector3( 1.0f, -1.0f,  1.0f));	
-		mRenderSystem->texCoord(k::vector2(1.0f, 0.0f)); 
-		mRenderSystem->vertex(k::vector3(-1.0f, -1.0f,  1.0f));
-
-		// Right face
-		mRenderSystem->texCoord(k::vector2(1.0f, 1.0f)); 
-		mRenderSystem->vertex(k::vector3( 1.0f, -1.0f, -1.0f));
-		mRenderSystem->texCoord(k::vector2(1.0f, 0.0f)); 
-		mRenderSystem->vertex(k::vector3( 1.0f,  1.0f, -1.0f));
-		mRenderSystem->texCoord(k::vector2(0.0f, 0.0f)); 
-		mRenderSystem->vertex(k::vector3( 1.0f,  1.0f,  1.0f));
-		mRenderSystem->texCoord(k::vector2(0.0f, 1.0f)); 
-		mRenderSystem->vertex(k::vector3( 1.0f, -1.0f,  1.0f));
-
-		// Left Face
-		mRenderSystem->texCoord(k::vector2(0.0f, 1.0f)); 
-		mRenderSystem->vertex(k::vector3(-1.0f, -1.0f, -1.0f));
-		mRenderSystem->texCoord(k::vector2(1.0f, 1.0f)); 
-		mRenderSystem->vertex(k::vector3(-1.0f, -1.0f,  1.0f));
-		mRenderSystem->texCoord(k::vector2(1.0f, 0.0f)); 
-		mRenderSystem->vertex(k::vector3(-1.0f,  1.0f,  1.0f));
-		mRenderSystem->texCoord(k::vector2(0.0f, 0.0f)); 
-		mRenderSystem->vertex(k::vector3(-1.0f,  1.0f, -1.0f));
-
-		// End
-		mRenderSystem->endVertices();
-
-		// Upload to video
-		mRenderSystem->frameEnd();
+		mRenderSystem->setViewPort(0, 0, mRenderSystem->getScreenWidth(), mRenderSystem->getScreenHeight());
+		drawScene(false);
 
 		// Update Rotations
 		#ifndef __WII__

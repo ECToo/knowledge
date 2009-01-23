@@ -39,9 +39,14 @@
 	#include <GL/glu.h>
 
 	// DevIL
+	/*
 	#include <IL/il.h>
 	#include <IL/ilu.h>
 	#include <IL/ilut.h>
+	*/
+
+	// FreeImage
+	#include <FreeImage.h>
 
 	// SDL
 	#include "SDL.h"

@@ -225,7 +225,7 @@ int main(int argc, char** argv)
 			modelPosition.y -= dY;
 		}
 
-		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_1) || mInputManager->getKbdKeyDown(K_KBD_PRINT))
+		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_1) || mInputManager->getKbdKeyDown(K_KBD_F12))
 		{
 			oneHold = true;
 		}

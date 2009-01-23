@@ -35,12 +35,17 @@ textureManager::textureManager()
 	#ifdef __WII__
 	GX_InvalidateTexAll();
 	#else
+	FreeImage_Initialise(false);
+	/*
 	ilInit();
 	ilEnable(IL_CONV_PAL);
+	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
+	ilEnable(IL_ORIGIN_SET);
 	iluInit();
 	ilutInit();
 	ilutEnable(ILUT_OPENGL_CONV);
 	ilutRenderer(ILUT_OPENGL);
+	*/
 	#endif
 
 	mTextures.clear();
@@ -56,6 +61,11 @@ textureManager::~textureManager()
 
 		delete tex;
 	}
+
+	// Deinitialise freeimage
+	#ifndef __WII__
+	FreeImage_DeInitialise();
+	#endif
 }
 
 texture* textureManager::getTexture(const std::string& filename)
