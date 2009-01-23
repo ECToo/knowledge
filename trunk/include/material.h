@@ -57,6 +57,7 @@ namespace k
 			void setDepthTest(bool test);
 
 			void setTextureUnits(unsigned int tex);
+			void setSingleTexture(unsigned int w, unsigned int h, kTexture* tex);
 			void pushTexture(textureStage* tex);
 
 			unsigned int getNumberOfTextureStages();

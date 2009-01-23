@@ -64,6 +64,9 @@ namespace k
 
 			material* mActiveMaterial;
 
+			// Only Flush
+			bool mOnlyFlush;
+
 		public:
 			
 			/**
@@ -80,6 +83,11 @@ namespace k
 			virtual void frameStart() = 0;
 			virtual void frameEnd() = 0;
 			virtual void setWireFrame(bool wire) = 0;
+
+			virtual void setOnlyFlush(bool flush)
+			{
+				mOnlyFlush = flush;
+			}
 
 			virtual void setClearColor(const vector3& color) = 0;
 			virtual void setClearDepth(const vec_t amount) = 0;
@@ -129,11 +137,14 @@ namespace k
 				mActiveMaterial = mat;
 			}
 
+			virtual void genTexture(unsigned int w, unsigned int h, unsigned int bpp, kTexture* tex) = 0;
 			virtual void bindTexture(kTexture* tex, int chan) = 0;
 			virtual void unBindTexture(int chan) = 0;
 
 			virtual void setBlendMode(unsigned short src, unsigned short dst) = 0;
 			virtual void setBlend(bool state) = 0;
+
+			virtual void copyToTexture(unsigned int w, unsigned int h, kTexture* tex) = 0;
 
 			virtual void clearArrayDesc()
 			{

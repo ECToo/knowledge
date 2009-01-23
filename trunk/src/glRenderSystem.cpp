@@ -77,7 +77,8 @@ void glRenderSystem::createWindow(const int w, const int h)
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	mScreen = SDL_SetVideoMode(w, h, 32, SDL_HWSURFACE | SDL_OPENGL | SDL_HWPALETTE);
 
-	mScreenSize = vector2(w, h);
+	mScreenSize[0] = w;
+	mScreenSize[1] = h;
 	
 	// Setup viewport
 	setViewPort(0, 0, w, h);
@@ -98,7 +99,16 @@ void glRenderSystem::createWindow(const int w, const int h)
 	}
 
 	// Create screenshot memory area
-	ilGenImages(1, &mScreenshotTex);
+	glGenTextures(1, &mScreenshotTex);
+	glBindTexture(GL_TEXTURE_2D, mScreenshotTex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, mScreenSize[0], 
+			mScreenSize[1], 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void glRenderSystem::setBlendMode(unsigned short src, unsigned short dst)
@@ -135,7 +145,16 @@ void glRenderSystem::frameStart()
 
 void glRenderSystem::frameEnd()
 {
-	SDL_GL_SwapBuffers();
+	if (mOnlyFlush)
+	{
+		glFlush();
+		mOnlyFlush = false;
+	}
+	else
+	{
+		SDL_GL_SwapBuffers();
+	}
+
 	mActiveMaterial = NULL;
 }
 
@@ -378,9 +397,24 @@ void glRenderSystem::matSpecular(const vector3& color)
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, v);
 }
 			
+void glRenderSystem::genTexture(uint32_t w, uint32_t h, uint32_t bpp, kTexture* tex)
+{
+	assert(tex);
+
+	glGenTextures(1, tex);
+	glBindTexture(GL_TEXTURE_2D, *tex);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void glRenderSystem::bindTexture(GLuint* tex, int chan)
 {
-	assert(tex != NULL);
+	assert(tex);
 
 	glClientActiveTextureARB(GL_TEXTURE0_ARB + chan);
 	glActiveTextureARB(GL_TEXTURE0_ARB + chan);
@@ -463,24 +497,68 @@ void glRenderSystem::drawArrays()
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 }
+			
+void glRenderSystem::copyToTexture(unsigned int w, unsigned int h, kTexture* tex)
+{
+	assert(tex);
+	bindTexture(tex, 0);
+	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, w, h, 0);
+}
 
 void glRenderSystem::screenshot(const char* filename)
 {
-	ilBindImage(mScreenshotTex);
-	ilEnable(IL_FILE_OVERWRITE);
+	glBindTexture(GL_TEXTURE_2D, mScreenshotTex);
+	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, mScreenSize[0],
+			mScreenSize[1], 0);
 
-	ilutGLScreen();
-	ilSaveImage((char*)filename);
+	FIBITMAP* newImage = FreeImage_Allocate(mScreenSize[0], mScreenSize[1], 24);
+	if (!newImage)
+	{
+		lowMemory:
+
+		S_LOG_INFO("Failed to allocate memory for screenshot.");
+		return;
+	}
+
+	char* imgData = (char*)malloc(mScreenSize[0] * mScreenSize[1] * 3);
+	if (!imgData)
+		goto lowMemory;
+
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, imgData);
+
+	// Width * BPP
+	uint32_t pitch = mScreenSize[0] * 3;
+
+	// Write data
+	for (uint32_t y = 0; y < mScreenSize[1]; y++)
+	{
+		uint32_t Ypitch = y * pitch;
+		for (uint32_t x = 0; x < mScreenSize[0]; x++)
+		{
+			uint32_t tripleX = x * 3;
+
+			RGBQUAD color;
+			color.rgbRed = imgData[Ypitch + tripleX];
+			color.rgbGreen = imgData[Ypitch + tripleX + 1];
+			color.rgbBlue = imgData[Ypitch + tripleX + 2];
+
+			FreeImage_SetPixelColor(newImage, x, y, &color);
+		}
+	}
+
+	FreeImage_Save(FIF_JPEG, newImage, filename, JPEG_QUALITYSUPERB);
+	FreeImage_Unload(newImage);
+	free(imgData);
 }
 
 unsigned int glRenderSystem::getScreenWidth()
 {
-	return mScreenSize.x;
+	return mScreenSize[0];
 }
 
 unsigned int glRenderSystem::getScreenHeight()
 {
-	return mScreenSize.y;
+	return mScreenSize[1];
 }
 
 } // namespace k

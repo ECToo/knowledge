@@ -39,6 +39,7 @@ renderer::renderer()
 	mSkybox = NULL;
 	mSkyPlane = NULL;
 
+	mRenderToTexture = false;
 	mCalculateFps = true;
 }
 
@@ -375,6 +376,9 @@ void renderer::draw()
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	assert(rs != NULL);
 
+	if (mRenderToTexture)
+		rs->setViewPort(0, 0, mRTTSize[0], mRTTSize[1]);
+
 	/**
 	 * Call the frame start
 	 */
@@ -467,27 +471,39 @@ void renderer::draw()
 	// Particles
 	particleManager::getSingleton().drawParticles(mActiveCamera);
 
-	/**
-	 * Set the 2D projection here and draw the 2d objects on it
-	 */
-	rs->setMatrixMode(MATRIXMODE_PROJECTION);
-	rs->setOrthographic(0, rs->getScreenWidth(), rs->getScreenHeight(), 0, -128, 128);
-
-	for (std::list<drawable2D*>::const_iterator dit = m2DObjects.begin(); dit != m2DObjects.end(); dit++)
+	if (!mRenderToTexture)
 	{
-		drawable2D* obj = (*dit);
-		assert(obj != NULL);
+		/**
+		 * Set the 2D projection here and draw the 2d objects on it
+		 */
+		rs->setMatrixMode(MATRIXMODE_PROJECTION);
+		rs->setOrthographic(0, rs->getScreenWidth(), rs->getScreenHeight(), 0, -128, 128);
 
-		rs->setMatrixMode(MATRIXMODE_MODELVIEW);
-		rs->identityMatrix();
+		for (std::list<drawable2D*>::const_iterator dit = m2DObjects.begin(); dit != m2DObjects.end(); dit++)
+		{
+			drawable2D* obj = (*dit);
+			assert(obj != NULL);
 
-		obj->draw();
+			rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+			rs->identityMatrix();
+
+			obj->draw();
+		}
 	}
 
 	/**
 	 * Call the frame end
 	 */
 	rs->frameEnd();
+
+	if (mRenderToTexture)
+	{
+		rs->bindTexture(mTextureTarget, 0);
+		rs->copyToTexture(mRTTSize[0], mRTTSize[1], mTextureTarget);
+		rs->setViewPort(0, 0, rs->getScreenWidth(), rs->getScreenHeight());
+
+		mRenderToTexture = false;
+	}
 			
 	// Frames per Second 
 	if (mCalculateFps)
@@ -518,6 +534,14 @@ camera* renderer::getCamera()
 long renderer::getTimeNow()
 {
 	return mRendererTimer.getMilliSeconds();
+}
+
+void renderer::prepareRTT(unsigned int w, unsigned int h, kTexture* tex)
+{
+	mRTTSize[0] = w;
+	mRTTSize[1] = h;
+	mTextureTarget = tex;
+	mRenderToTexture = true;
 }
 
 }

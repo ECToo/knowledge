@@ -204,6 +204,7 @@ namespace k
 			void draw();
 			void finish();
 	};
+	typedef wiiTexture platTexture;
 	#else
 	class glTexture : public textureStage
 	{
@@ -214,6 +215,7 @@ namespace k
 			void draw();
 			void finish();
 	};
+	typedef glTexture platTexture;
 	#endif
 }
 

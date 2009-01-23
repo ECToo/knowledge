@@ -26,13 +26,13 @@ namespace k
 	class glRenderSystem : public renderSystem
 	{
 		private:
-			vector2 mScreenSize;
+			uint32_t mScreenSize[2];
 			SDL_Surface* mScreen;
 
 			/**
 			 * Screenshot ;)
 			 */
-			ILuint mScreenshotTex;
+			GLuint mScreenshotTex;
 
 		public:
 			glRenderSystem();
@@ -86,8 +86,11 @@ namespace k
 			void matDiffuse(const vector3& color);
 			void matSpecular(const vector3& color);
 
+			void genTexture(uint32_t w, uint32_t h, uint32_t bpp, kTexture* tex);
 			void bindTexture(GLuint* tex, int chan);
 			void unBindTexture(int chan);
+
+			void copyToTexture(unsigned int w, unsigned int h, kTexture* tex);
 
 			void setBlendMode(unsigned short src, unsigned short dst);
 			void setBlend(bool state);
