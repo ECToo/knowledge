@@ -44,20 +44,20 @@ namespace k
 			matrix3(vector3 x, vector3 y, vector3 z)
 			{
 				m[0][0] = x.x;	
-				m[0][1] = x.y;	
-				m[0][2] = x.z;	
+				m[0][1] = y.x;	
+				m[0][2] = z.x;	
 
-				m[1][0] = y.x;	
+				m[1][0] = x.y;	
 				m[1][1] = y.y;	
-				m[1][2] = y.z;	
+				m[1][2] = z.y;	
 
-				m[2][0] = z.x;	
-				m[2][1] = z.y;	
+				m[2][0] = x.z;	
+				m[2][1] = y.z;	
 				m[2][2] = z.z;	
 			}
 
 			// Get the transpose of this matrix
-			matrix3 transpose()
+			matrix3 transpose() const
 			{
 				matrix3 newM;
 				for (unsigned int row = 0; row < 3; row++)
@@ -100,9 +100,9 @@ namespace k
 				{
 					for (unsigned int col = 0; col < 3; col++)
 					{
-						result.m[row][col] = m[row][0]*mat.m[0][col] +
-							m[row][1]*mat.m[1][col] +
-							m[row][2]*mat.m[2][col];
+						result.m[col][row] = m[0][row]*mat.m[col][0] +
+							m[1][row]*mat.m[col][1] +
+							m[2][row]*mat.m[col][2];
 					}
 				}
 
@@ -123,7 +123,6 @@ namespace k
 				std::cout << m[0][0] << "\t" << m[1][0] << "\t" << m[2][0] << std::endl;
 				std::cout << m[0][1] << "\t" << m[1][1] << "\t" << m[2][1] << std::endl;
 				std::cout << m[0][2] << "\t" << m[1][2] << "\t" << m[2][2] << std::endl;
-				std::cout << m[0][3] << "\t" << m[1][3] << "\t" << m[2][3] << std::endl;
 			}
 	};
 }

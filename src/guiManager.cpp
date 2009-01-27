@@ -43,6 +43,7 @@ guiManager::~guiManager()
 		assert(rs != NULL);
 
 		rs->pop2D(mCursor);
+		delete mCursor;
 	}
 }
 

@@ -32,4 +32,4 @@ AC_OUTPUT(Makefile src/Makefile \
 			 examples/physics/Makefile \
 			 examples/lightmap/Makefile \
 			 examples/particles/Makefile \
-          libknowledge.pc)
+          knowledge.pc)

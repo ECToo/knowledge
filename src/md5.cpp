@@ -43,12 +43,13 @@ md5mesh::md5mesh()
 
 md5mesh::~md5mesh()
 {
-	delete [] mNormalList;
-	delete [] mIndexList;
-
-	delete [] mVertices;
-	delete [] mWeights;
-	delete [] mTriangles;
+	free(mNormalList);
+	free(mIndexList);
+	free(mVertices);
+	free(mVertexList);
+	free(mUvList);
+	free(mWeights);
+	free(mTriangles);
 }
 
 void md5mesh::prepareVertices(unsigned int size)
@@ -949,7 +950,7 @@ void md5model::setAnimation(const std::string& name)
 
 void md5model::feedAnims()
 {
-	if (!mAutoFeedAnims)
+	if (!mAutoFeedAnims || !mAnimations.size())
 		return;
 
 	// Global Time

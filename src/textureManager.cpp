@@ -195,12 +195,7 @@ textureStage* textureManager::createTexture(const std::string& filename, unsigne
 	}
 
 	// Ok our texture is valid, create the real thing now
-	#ifdef __WII__
-	wiiTexture* newStage = new wiiTexture(rawTex->mWidth, rawTex->mHeight, index);
-	#else
-	glTexture* newStage = new glTexture(rawTex->mWidth, rawTex->mHeight, index);
-	#endif
-
+	platTexture* newStage = new platTexture(rawTex->mWidth, rawTex->mHeight, index);
 	if (!newStage)
 	{
 		S_LOG_INFO("Failed to allocate texture stage.");
