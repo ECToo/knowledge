@@ -37,7 +37,7 @@ parsingFile::parsingFile(const std::string& filename)
 		length = input.tellg();
 		input.seekg(0, std::ios::beg);
 
-		string = new char[length];
+		string = new char[length + 1];
 		if (!string)
 		{
 			S_LOG_INFO("Failed to allocate file string.");
@@ -98,6 +98,9 @@ void parsingFile::skipNextToken()
 				charWritten = true;
 			}
 
+			if (index >= feof)
+				return;
+
 			index++;
 			return;
 		}
@@ -109,6 +112,9 @@ void parsingFile::skipNextToken()
 			while (actualChar == '\n' || actualChar == ' ' || actualChar == '\t' || actualChar == 0xd)
 				actualChar = string[++index];
 
+			if (index >= feof)
+				return;
+
 			if (!charWritten)
 				continue;
 			else
@@ -118,15 +124,24 @@ void parsingFile::skipNextToken()
 		if (actualChar == '/' && string[index + 1] == '/')
 		{
 			while (actualChar != '\n')
+			{
 				actualChar = string[++index];
+				if (index >= feof)
+					return;
+			}
 				
 			actualChar = string[++index];
+			if (index >= feof)
+				return;
+
 			continue;
 		}
 
 		//
 		charWritten = true;
 		actualChar = string[++index];
+		if (index >= feof)
+			return;
 	}
 }
 
@@ -145,6 +160,9 @@ std::string parsingFile::getNextToken()
 		S_LOG_INFO("File is not ready!");
 		return NULL;
 	}
+
+	if (index >= feof)
+		return std::string("");
 
 	// I hope we dont find a string greater than that buffer.
 	unsigned int bufferPtr = 0;
@@ -173,6 +191,9 @@ std::string parsingFile::getNextToken()
 
 				buffer[bufferPtr++] = actualChar;
 				actualChar = string[++index];
+
+				if (index >= feof)
+					break;
 			}
 
 			index++;
@@ -186,7 +207,11 @@ std::string parsingFile::getNextToken()
 		{
 			actualChar = string[++index];
 			while (actualChar == '\n' || actualChar == ' ' || actualChar == '\t' || actualChar == 0xd)
+			{
 				actualChar = string[++index];
+				if (index >= feof)
+					break;
+			}
 
 			if (!buffer[0])
 				continue;
@@ -200,15 +225,31 @@ std::string parsingFile::getNextToken()
 		if (actualChar == '/' && string[index + 1] == '/')
 		{
 			while (actualChar != '\n')
+			{
 				actualChar = string[++index];
+				if (index >= feof)
+					break;
+			}
 				
 			actualChar = string[++index];
+			if (index >= feof)
+			{
+				buffer[++bufferPtr] = 0;
+				return std::string(buffer);
+			}
+
 			continue;
 		}
 
 		//
 		buffer[bufferPtr++] = actualChar;
 		actualChar = string[++index];
+
+		if (index >= feof)
+		{
+			buffer[++bufferPtr] = 0;
+			return std::string(buffer);
+		}
 	}
 
 	return std::string(buffer);

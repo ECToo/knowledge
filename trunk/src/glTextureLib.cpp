@@ -108,6 +108,8 @@ kTexture* textureLoader::loadTexture(const char* file, unsigned short* w, unsign
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+	free(imgData);
+
 	return glImage;
 
 	/*

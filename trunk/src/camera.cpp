@@ -98,18 +98,20 @@ bool camera::isPointInsideFrustum(const vector3& point)
 void camera::lookAt(vector3 pos)
 {
 	// Find the Direction
-	vector3 dirZ = mPosition - pos;
+	vector3 dirZ = pos - mPosition;
 	dirZ.normalise();
 
 	// Direction of "right" can be determined by 
 	// the up vector cross the forward direction
 	vector3 up = vector3::unit_y;
-	vector3 dirX = up.crossProduct(dirZ);
+	vector3 dirX = dirZ.crossProduct(up);
+	dirX.normalise();
 
 	// Same goes to the up direction
-	vector3 dirY = dirZ.crossProduct(dirX);
+	vector3 dirY = dirX.crossProduct(dirZ);
+	dirY.normalise();
 
-	matrix3 mat(dirX, dirY, dirZ);
+	matrix3 mat(dirX, dirY, dirZ.negateItself());
 	mOrientation = quaternion(mat);
 	mOrientation.normalise();
 

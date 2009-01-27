@@ -2,10 +2,10 @@ prefix=@prefix@
 exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
-plugindir=@libdir@/libknowledge
+plugindir=@libdir@/knowledge
 
-Name: libKnowledge
-Description: a gaming library for the wii
+Name: knowledge
+Description: a gaming library for the pc and wii
 Version: 0.1
 Libs: -L${libdir} -lknowledge
 Cflags: -I${includedir} -I${includedir}/libknowledge

@@ -1,6 +1,6 @@
 SUBDIRS = src examples
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = libknowledge.pc
+pkgconfig_DATA = knowledge.pc
 
 LD_ADD = src/libknowledge.a

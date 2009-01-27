@@ -444,6 +444,22 @@ void renderer::draw()
 		else
 		{
 			mActiveCamera->copyView();
+			/*
+			printf("\n");
+
+			vector3 pos = mActiveCamera->getPosition();
+			glLoadIdentity();
+			gluLookAt(pos.x, pos.y, pos.z, 0, 0, 0, 0, 1, 0);
+
+			vec_t* tempMat = rs->getModelView();
+
+			printf("gluLookat:\n");
+			printf("%f %f %f %f\n", tempMat[0], tempMat[4], tempMat[8], tempMat[12]);
+			printf("%f %f %f %f\n", tempMat[1], tempMat[5], tempMat[9], tempMat[13]);
+			printf("%f %f %f %f\n", tempMat[2], tempMat[6], tempMat[10], tempMat[14]);
+			printf("%f %f %f %f\n", tempMat[3], tempMat[7], tempMat[11], tempMat[15]);
+			printf("\n");
+			*/
 		}
 
 		obj->draw();

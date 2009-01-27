@@ -31,6 +31,33 @@ namespace k
 	 */
 	class quaternion 
 	{
+		private:
+			/**
+			 * Credit goes to iD Software 
+			 * guys, im not really sure
+			 * Who.
+			 */
+			inline float ReciprocalSqrt(float x) 
+			{
+				typedef union
+				{
+					float f;
+					long l;
+				} mFloatLong;
+
+				mFloatLong i, xx;
+				float y, r;
+
+				xx.f = x;
+    			y = x * 0.5f;
+    			i.l = xx.l;
+    			i.l = 0x5f3759df - ( i.l >> 1 );
+    			r = i.f;
+    			r = r * ( 1.5f - r * r * y );
+
+    			return r;
+			}
+
 		public:
 			vec_t x, y, z, w;
 
@@ -57,6 +84,8 @@ namespace k
 			 * This function has been taken from 
 			 * Ogre3D - All credit goes to ogre3d team
 			 */
+
+			/*
 			quaternion(matrix3 mat)
 			{
 				// Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
@@ -65,7 +94,6 @@ namespace k
 				vec_t fTrace = mat.m[0][0] + mat.m[1][1] + mat.m[2][2];
 				vec_t fRoot;
 
-	        
 				if ( fTrace > 0.0 )
 				{
 					// |w| > 1/2, may as well choose w > 1/2
@@ -100,6 +128,53 @@ namespace k
 	            *apkQuat[j] = (mat.m[j][i] + mat.m[i][j]) * fRoot;
 					*apkQuat[k] = (mat.m[k][i] + mat.m[i][k]) * fRoot;
 			  }
+			}
+			*/
+
+			quaternion(const matrix3& m)
+			{
+				if (m.m[0][0] + m.m[1][1] + m.m[2][2] > 0.0f) 
+				{
+					float t = + m.m[0][0] + m.m[1][1] + m.m[2][2] + 1.0f;
+					float s = ReciprocalSqrt(t) * 0.5f;
+
+    				w = s * t;
+					z = ( m.m[1][0] - m.m[0][1] ) * s;
+					y = ( m.m[0][2] - m.m[2][0] ) * s;
+					x = ( m.m[2][1] - m.m[1][2] ) * s;
+				} 
+				else
+				if (m.m[0][0] > m.m[1][1] && m.m[0][0] > m.m[2][2]) 
+				{
+    				float t = + m.m[0][0] - m.m[1][1] - m.m[2][2] + 1.0f;
+    				float s = ReciprocalSqrt(t) * 0.5f;
+    				
+					x = s * t;
+    				y = ( m.m[1][0] + m.m[0][1] ) * s;
+					z = ( m.m[0][2] + m.m[2][0] ) * s;
+					w = ( m.m[2][1] - m.m[1][2] ) * s;
+				}
+				else 
+				if (m.m[1][1] > m.m[2][2]) 
+				{
+    				float t = - m.m[0][0] + m.m[1][1] - m.m[2][2] + 1.0f;
+					float s = ReciprocalSqrt(t) * 0.5f;
+
+					y = s * t;
+					x = ( m.m[1][0] + m.m[0][1] ) * s;
+					w = ( m.m[0][2] - m.m[2][0] ) * s;
+					z = ( m.m[2][1] + m.m[1][2] ) * s;
+				} 
+				else 
+				{
+					float t = - m.m[0][0] - m.m[1][1] + m.m[2][2] + 1.0f;
+					float s = ReciprocalSqrt(t) * 0.5f;
+
+					z = s * t;
+					w = ( m.m[1][0] - m.m[0][1] ) * s;
+					x = ( m.m[0][2] + m.m[2][0] ) * s;
+					y = ( m.m[2][1] + m.m[1][2] ) * s;
+				}
 			}
 
 			quaternion(const vector3& newVec)
@@ -231,37 +306,47 @@ namespace k
 				}
 			}
 
-			matrix4 toMatrix()
+			matrix4 toMatrix() const
 			{
 				matrix4 mat;
 
-				vec_t xx, yy, zz, xy, wz, xz, wy, yz, wx;
+				float x2 = x + x;
+				float y2 = y + y;
+				float z2 = z + z;
+				{
+					float xx2 = x * x2;
+					float yy2 = y * y2;
+					float zz2 = z * z2;
 
-				xx = x * x;
-    			yy = y * y;
-    			zz = z * z;
-    			xy = x * y;
-				wz = w * z;
-				xz = x * z;
-				wy = w * y;
-				yz = y * z;
-				wx = w * x;
+					mat.m[0][0] = 1.0f - yy2 - zz2;
+					mat.m[1][1] = 1.0f - xx2 - zz2;
+					mat.m[2][2] = 1.0f - xx2 - yy2;
+				}
+				{
+					float yz2 = y * z2;
+					float wx2 = w * x2;
 
-				mat.m[0][0] = 1.0f - 2.0f * (yy + zz);
-				mat.m[0][1] = 2.0f * (xy + wz);
-				mat.m[0][2] = 2.0f * (xz - wy);
+					mat.m[1][2] = yz2 - wx2;
+					mat.m[2][1] = yz2 + wx2;
+				}
+				{
+					float xy2 = x * y2;
+					float wz2 = w * z2;
+
+					mat.m[0][1] = xy2 - wz2;
+					mat.m[1][0] = xy2 + wz2;
+				}
+				{
+					float xz2 = x * z2;
+					float wy2 = w * y2;
+
+					mat.m[2][0] = xz2 - wy2;
+					mat.m[0][2] = xz2 + wy2;
+				}
+
 				mat.m[0][3] = 0.0f;
-
-				mat.m[1][0] = 2.0f * (xy - wz);
-				mat.m[1][1] = 1.0f - 2.0f * (xx + zz);
-				mat.m[1][2] = 2.0f * (yz + wx);
 				mat.m[1][3] = 0.0f;
-
-				mat.m[2][0] = 2.0f * (xz + wy);
-				mat.m[2][1] = 2.0f * (yz - wx);
-				mat.m[2][2] = 1.0f - 2.0f * (xx + yy);
 				mat.m[2][3] = 0.0f;
-
 				mat.m[3][0] = 0.0f;
 				mat.m[3][1] = 0.0f;
 				mat.m[3][2] = 0.0f;
