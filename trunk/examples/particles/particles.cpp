@@ -84,10 +84,10 @@ int main(int argc, char** argv)
 	mRenderer->setCamera(newCamera);
 
 	// Font for frustum culling
-	k::bitmapText* fpsText = new k::bitmapText("fonts/04B08_8.dat", "04B08_8");
+	k::bitmapText* fpsText = new k::bitmapText("fonts/cube_14.dat", "cube_14");
 	assert(fpsText != NULL);
 
-	fpsText->setPosition(k::vector2(5, 10));
+	fpsText->setPosition(k::vector2(10, 10));
 	mRenderer->push2D(fpsText);
 
 	bool running = true;
@@ -205,6 +205,13 @@ int main(int argc, char** argv)
 		// Set Demo FPS
 		std::stringstream fps;
 		fps << "FPS: " << mRenderer->getLastFps();
+		fps << "\nINSIDE FRUSTUM: ";
+
+		if (newCamera->isPointInsideFrustum(k::vector3(0, -40, -10)))
+			fps << "YES";
+		else
+			fps << "NO";
+
 		fpsText->setText(fps.str());
 
 		k::vector2 mousePos = mInputManager->getWiiMotePosition(0);

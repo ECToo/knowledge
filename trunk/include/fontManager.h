@@ -59,6 +59,7 @@ namespace k
 			material* mMaterial;
 
 			std::string mContents;
+			vec_t mMaxHeight;
 
 			vec_t _drawChar(vec_t x, vec_t y, char c);
 

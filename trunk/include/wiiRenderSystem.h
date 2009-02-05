@@ -133,6 +133,11 @@ namespace k
 			 */
 			std::map<int, GXTexObj*> mActiveTextures;
 
+			/**
+			 * Render To Texture buffer
+			 */
+			char* mRttBuffer;
+
 		public:
 			wiiRenderSystem();
 			~wiiRenderSystem();
@@ -185,8 +190,10 @@ namespace k
 			void matDiffuse(const vector3& color);
 			void matSpecular(const vector3& color);
 
+			void genTexture(uint32_t w, uint32_t h, uint32_t bpp, kTexture* tex);
 			void bindTexture(kTexture* tex, int chan);
 			void unBindTexture(int chan);
+			void copyToTexture(unsigned int w, unsigned int h, kTexture* tex);
 
 			void setBlendMode(unsigned short src, unsigned short dst);
 			void setBlend(bool state);
