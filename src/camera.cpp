@@ -143,27 +143,17 @@ void camera::setView()
 
 	#else
 
+	matrix4 mAux = mRotation.transpose();
+
 	vector3 look(mRotation.m[0][2], mRotation.m[1][2], mRotation.m[2][2]);
 	vector3 up(mRotation.m[0][1], mRotation.m[1][1], mRotation.m[2][1]);
 	vector3 right(mRotation.m[0][0], mRotation.m[1][0], mRotation.m[2][0]);
 
-	mRotation.m[0][0] = right.x;
-	mRotation.m[0][1] = right.y;
-	mRotation.m[0][2] = right.z;
+	mAux.m[0][3] = -right.dotProduct(mPosition);
+	mAux.m[1][3] = -up.dotProduct(mPosition);
+	mAux.m[2][3] = -look.dotProduct(mPosition);
 
-	mRotation.m[1][0] = up.x;
-	mRotation.m[1][1] = up.y;
-	mRotation.m[1][2] = up.z;
-
-	mRotation.m[2][0] = look.x;
-	mRotation.m[2][1] = look.y;
-	mRotation.m[2][2] = look.z;
-
-	mRotation.m[0][3] = -right.dotProduct(mPosition);
-	mRotation.m[1][3] = -up.dotProduct(mPosition);
-	mRotation.m[2][3] = -look.dotProduct(mPosition);
-
-	mFinal = mRotation;
+	mFinal = mAux;
 	#endif
 
 	// View Frustum

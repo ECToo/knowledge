@@ -95,6 +95,7 @@ bitmapText::bitmapText(const std::string& datName, const std::string& matName)
 		return;
 	}
 
+	mMaxHeight = 0;
 	for (int i = 0; i < 255; i++)
 	{
 		doom3Glyph* glyph = &mGlyphs[i];
@@ -111,12 +112,18 @@ bitmapText::bitmapText(const std::string& datName, const std::string& matName)
 		glyph->s2 = readEndianSafeFloat(datFile);
 		glyph->t2 = readEndianSafeFloat(datFile);
 
+		if (glyph->height > mMaxHeight)
+			mMaxHeight = glyph->height;
+
 		// TODO: We will need the image name
 		// for larger paged fonts.
 		//
 		// Skip unneeded data like image name.
 		fseek(datFile, 36, SEEK_CUR);
 	}
+
+	// A good line diff
+	mMaxHeight += mMaxHeight * 0.5f;
 }
 			
 bitmapText::~bitmapText()
@@ -173,8 +180,20 @@ void bitmapText::draw()
 	rs->startVertices(VERTEXMODE_QUAD);
 
 	vec_t x = mPosition.x;
+	vec_t y = mPosition.y;
+
 	for (unsigned int i = 0; i < mContents.length(); i++)
-		x += _drawChar(x, mPosition.y, mContents[i]);
+	{
+		if (mContents[i] == '\n')
+		{
+			y += mMaxHeight;
+			x = mPosition.x;
+		}
+		else
+		{
+			x += _drawChar(x, y, mContents[i]);
+		}
+	}
 
 	rs->endVertices();
 

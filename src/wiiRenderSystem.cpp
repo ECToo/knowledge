@@ -15,6 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef __WII__
+
 // Jpeg is not C++ safe
 extern "C" 
 {
@@ -197,7 +199,15 @@ void wiiRenderSystem::configure()
 	// Depth Testing
 	mDepthTest = mDepthMask = true;
 
+	// Perspective
 	setPerspective(90, 1.33f, 0.1f, 1000.0f);
+
+	// Render to texture buffer
+	mRttBuffer = (char*) memalign(32, 640 * 480 * 4);
+	if (!mRttBuffer)
+	{
+		S_LOG_INFO("Failed to allocate texture for RTT buffer.");
+	}
 }
 
 void wiiRenderSystem::createWindow(const int w, const int h)
@@ -976,5 +986,28 @@ unsigned int wiiRenderSystem::getScreenHeight()
 {
 	return mVideoMode->xfbHeight;
 }
+			
+void wiiRenderSystem::copyToTexture(unsigned int w, unsigned int h, kTexture* tex)
+{
+	assert(tex);
+	
+	if (mRttBuffer)
+	{
+		GX_SetTexCopySrc(0, 0, 640, 480);
+		GX_SetTexCopyDst(w, h, GX_TF_RGBA8, false);
+		GX_CopyTex(mRttBuffer, false);
+		GX_PixModeSync();
+		GX_InitTexObj(tex, mRttBuffer, w, h, GX_TF_RGBA8, GX_REPEAT, GX_REPEAT, GX_FALSE);
+		GX_InitTexObjLOD(tex, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
+	}
+}
+			
+void wiiRenderSystem::genTexture(uint32_t w, uint32_t h, uint32_t bpp, kTexture* tex)
+{
+	// For now, nothing
+}
 
 }
+
+#endif
+

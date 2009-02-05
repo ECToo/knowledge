@@ -52,7 +52,6 @@ kTexture* textureLoader::loadTexture(const char* file, unsigned short* w, unsign
 
 	uint32_t width = FreeImage_GetWidth(image);
 	uint32_t height = FreeImage_GetHeight(image);
-	uint32_t pitch = FreeImage_GetPitch(image);
 	uint32_t bpp = FreeImage_GetBPP(image);
 
 	if (bpp != 32)
@@ -62,7 +61,7 @@ kTexture* textureLoader::loadTexture(const char* file, unsigned short* w, unsign
 		image = tmp;
 	}
 
-	char* imgData = (char*) malloc(width * height * 4);
+	unsigned char* imgData = (unsigned char*) malloc(width * height * 4);
 	if (!imgData)
 	{
 		S_LOG_INFO("Could not allocate memory for image data.");
@@ -70,8 +69,8 @@ kTexture* textureLoader::loadTexture(const char* file, unsigned short* w, unsign
 	}
 
 	// Copy Pixel data
-	char* copyImgData = imgData;
-	for (unsigned int j = (height-1); j > 0; j--)
+	unsigned char* copyImgData = imgData;
+	for (int j = (height - 1); j >= 0; j--)
 	{
 		for (unsigned int i = 0; i < width; i++)
 		{
