@@ -57,6 +57,7 @@ int main(int argc, char** argv)
 
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("particles");
+	k::resourceManager::getSingleton().loadGroup("physics");
 
 	delete newLoadingScreen;
 
@@ -93,6 +94,9 @@ int main(int argc, char** argv)
 	bool running = true;
 	bool leftHold = false;
 
+	k::md5model* model = NULL;
+	k::vector3 direction;
+
 	while (running)
 	{
 		#ifdef WIN32
@@ -112,7 +116,7 @@ int main(int argc, char** argv)
 		if ((mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_LEFT)) ||
 			 mInputManager->getKbdKeyDown(K_KBD_LEFT))
 		{
-			k::quaternion dirQuat(-1, k::vector3(0, 1, 0));
+			k::quaternion dirQuat(1, k::vector3(0, 1, 0));
 			k::quaternion ori = newCamera->getOrientation();
 
 			newCamera->setOrientation(dirQuat * ori);
@@ -121,7 +125,7 @@ int main(int argc, char** argv)
 		if ((mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_RIGHT)) ||
 			 mInputManager->getKbdKeyDown(K_KBD_RIGHT))
 		{
-			k::quaternion dirQuat(1, k::vector3(0, 1, 0));
+			k::quaternion dirQuat(-1, k::vector3(0, 1, 0));
 			k::quaternion ori = newCamera->getOrientation();
 
 			newCamera->setOrientation(dirQuat * ori);
@@ -191,17 +195,6 @@ int main(int argc, char** argv)
 			running = false;
 		}
 
-		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_B))
-		{
-			leftHold = true;
-		}
-		else
-		if (leftHold)
-		{
-			// Do Something
-			leftHold = false;
-		}
-
 		// Set Demo FPS
 		std::stringstream fps;
 		fps << "FPS: " << mRenderer->getLastFps();
@@ -216,6 +209,37 @@ int main(int argc, char** argv)
 
 		k::vector2 mousePos = mInputManager->getWiiMotePosition(0);
 		mGuiManager->setCursorPos(mousePos);
+
+		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_B))
+		{
+			leftHold = true;
+		}
+		else
+		if (leftHold)
+		{
+			// Do Something
+			leftHold = false;
+
+			k::vector2 normalMousePos;
+			normalMousePos.x = mousePos.x / mRenderSystem->getScreenWidth();
+			normalMousePos.y = mousePos.y / mRenderSystem->getScreenHeight();
+
+			direction = newCamera->projectRayFrom2D(normalMousePos);
+			
+			model = new k::md5model("../physics/soccer.md5mesh");
+			model->setPosition(newCamera->getPosition());
+
+			mRenderer->push3D(model);
+		}
+
+		if (model)
+		{
+			k::vector3 pos = model->getPosition();
+			pos += direction;
+
+			model->setPosition(pos);
+		}
+
 
 		// Physics Loop
 		mRenderer->draw();

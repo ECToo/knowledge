@@ -28,7 +28,8 @@ camera::camera()
 	// Set the default rendering options
 	// like fov, aspect ratio.
 	mFov = 90;
-	mAspectRatio = 1.33;
+	mTanFov = tan(mFov * 0.5f);
+	mAspectRatio = 1.333f;
 	mNearPlane = 0.1;
 	mFarPlane = 1000;
 }
@@ -39,6 +40,7 @@ void camera::setFov(unsigned int fov)
 		S_LOG_INFO("Warning: Setting camera fov to 0!");
 
 	mFov = fov;
+	mTanFov = tan(mFov * 0.5f);
 }
 
 void camera::setAspectRatio(vec_t ar)
@@ -58,6 +60,7 @@ void camera::setPerspective(unsigned int fov, vec_t ar, vec_t near, vec_t far)
 		S_LOG_INFO("Warning, setting camera fov to 0!");
 
 	mFov = fov;
+	mTanFov = tan(mFov * 0.5f);
 	mAspectRatio = ar;
 	mNearPlane = near;
 	mFarPlane = far;
@@ -156,8 +159,11 @@ void camera::setView()
 	mFinal = mAux;
 	#endif
 
+	// We need the transpose
+	mFinalInverse = mFinal.transpose().inverse();
+
 	// View Frustum
-	vec_t tanFov = 2 * tan(mFov / 2);
+	vec_t tanFov = 2 * mTanFov;
 	vec_t hFar = tanFov * mFarPlane;
 	vec_t wFar = hFar * mAspectRatio;
 
@@ -204,6 +210,27 @@ void camera::setView()
 
 	mFrustumPlanes[PLANE_BOTTOM] = getPlaneNormal(nearTopLeft, nearTopRight, farTopLeft);
 	mFrustumDs[PLANE_BOTTOM] = -mFrustumPlanes[PLANE_BOTTOM].dotProduct(farBottomRight);
+}
+			
+/**
+ * This function is based on the article
+ * "Projecting a Ray from 2D Screen Coordinates"
+ * by Robert Dunlop - http://www.mvps.org/directx
+ *
+ * coords are in local screen coordinates from (0.0 to 1.0f)
+ */
+vector3 camera::projectRayFrom2D(const vector2& coords)
+{
+	vec_t dx = mTanFov * ((coords.x * 2.0f - 1.0f) / mAspectRatio);
+	vec_t dy = mTanFov * ((coords.y * 2.0f - 1.0f) / -mAspectRatio);
+
+	vector3 far = vector3(dx * mFarPlane, dy * mFarPlane, -mFarPlane);
+	vector3 near = vector3(dx * mNearPlane, dy * mNearPlane, -mNearPlane);
+
+	vector3 result = mFinalInverse * (far - near);
+	result.normalise();
+
+	return result;
 }
 
 void camera::copyView()

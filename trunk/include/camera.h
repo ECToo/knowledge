@@ -41,6 +41,7 @@ namespace k
 			// Matrix to keep camera
 			// orientation + translation
 			matrix4 mFinal;
+			matrix4 mFinalInverse;
 
 			vector3 mPosition;
 			quaternion mOrientation;
@@ -52,6 +53,7 @@ namespace k
 			 * for this is 90.
 			 */
 			unsigned int mFov;
+			vec_t mTanFov;
 
 			/**
 			 * The aspect ratio for the view perspective.
@@ -141,6 +143,12 @@ namespace k
 			vector3 getDirection();
 			vector3 getUp();
 			vector3 getRight();
+
+			/**
+			 * Generate a unit vector from camera position
+			 * to where pointer coords are.
+			 */
+			vector3 projectRayFrom2D(const vector2& coords);
 
 			// Translations
 			void setPosition(vector3 pos);
