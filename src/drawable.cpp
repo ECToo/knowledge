@@ -96,7 +96,7 @@ const vector3& drawable3D::getScale()
 
 const vector3& drawable3D::getPosition()
 {
-	return mScale;
+	return mPosition;
 }
 		
 const quaternion& drawable3D::getOrientation()

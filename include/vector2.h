@@ -40,6 +40,11 @@ namespace k
 			{ 
 				x = y = 0;
 			}
+
+			vector2(const vector2& in)
+			{
+				*this = in;
+			}
 			
 			/**
 	 		 * Constructor

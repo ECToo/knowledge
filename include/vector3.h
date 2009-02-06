@@ -40,6 +40,11 @@ namespace k
 			{ 
 				x = y = z = 0;
 			}
+
+			vector3(const vector3& in)
+			{
+				*this = in;
+			}
 			
 			/**
 	 		 * Constructor
