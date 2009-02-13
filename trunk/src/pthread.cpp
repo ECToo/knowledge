@@ -23,8 +23,8 @@ namespace k {
 
 void createKThread(kthread* t, void* (*start)(void*), void* arg)
 {
-	assert(t);
-	assert(start);
+	kAssert(t);
+	kAssert(start);
 
 	if (pthread_create(t, NULL, start, arg) < 0)
 		S_LOG_INFO("Failed to spawn a new thread");
@@ -37,31 +37,31 @@ void destroyKThread(kthread* t)
 
 void joinKThread(kthread* t)
 {
-	assert(t);
+	kAssert(t);
 	pthread_join(*t, NULL);
 }
 
 void createKMutex(kmutex* m)
 {
-	assert(m);
+	kAssert(m);
 	pthread_mutex_init(m, NULL);
 }
 	
 void lockKMutex(kmutex* m)
 {
-	assert(m);
+	kAssert(m);
 	pthread_mutex_lock(m);
 }
 
 void unlockKMutex(kmutex* m)
 {
-	assert(m);
+	kAssert(m);
 	pthread_mutex_unlock(m);
 }
 
 void destroyKMutex(kmutex* m)
 {
-	assert(m);
+	kAssert(m);
 	pthread_mutex_destroy(m);
 }
 

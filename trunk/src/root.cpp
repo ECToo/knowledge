@@ -27,7 +27,7 @@ template<> root* singleton<root>::singleton_instance = 0;
 
 root& root::getSingleton()
 {  
-	assert(singleton_instance);
+	kAssert(singleton_instance);
 	return (*singleton_instance);  
 }
 
@@ -39,16 +39,20 @@ const char* logPath = "sd:/knowledge/knowledge.log";
 
 root::root()
 {
-	// Initialize the render system
-	#ifndef __WII__
-		mActiveRS = new glRenderSystem();
-	#else
+	#ifdef __WII__
+		CON_EnableGecko(1, false);
 		DEBUG_Init(GDBSTUB_DEVICE_USB, 1);
-		mActiveRS = new wiiRenderSystem();
 	#endif
 
 	new logger(logPath);
 	logger::getSingleton().setLogMode(LOGMODE_BOTH);
+
+	// Initialize the render system
+	#ifndef __WII__
+		mActiveRS = new glRenderSystem();
+	#else
+		mActiveRS = new wiiRenderSystem();
+	#endif
 
 	mActiveRS->initialise();
 	mActiveRS->configure();

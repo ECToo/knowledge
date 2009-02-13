@@ -56,6 +56,40 @@ namespace k
 			virtual void draw() = 0;
 	};
 
+	class boundingBox
+	{
+		private:
+			vector3 mMins;
+			vector3 mMaxs;
+
+		public:
+			boundingBox(const vector3& min, const vector3& max)
+			{
+				mMins = min;
+				mMaxs = max;
+			}
+
+			void setMins(const vector3& min)
+			{
+				mMins = min;
+			}
+
+			void setMaxs(const vector3& max)
+			{
+				mMaxs = max;
+			}
+
+			const vector3& getMins()
+			{
+				return mMins;
+			}
+
+			const vector3& getMaxs()
+			{
+				return mMaxs;
+			}
+	};
+
 	class drawable3D
 	{
 		protected:
@@ -75,6 +109,9 @@ namespace k
 
 			virtual ~drawable3D();
 			virtual void draw() = 0;
+
+			virtual const boundingBox& getAABoundingBox() = 0;
+			virtual const boundingBox& getBoundingBox() = 0;
 	};
 }
 

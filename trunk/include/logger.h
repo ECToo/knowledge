@@ -50,6 +50,10 @@ namespace k
 
 			static logger& getSingleton();
 	};
+
+	extern void assertFail(const char* file, int line);
+
+	#define kAssert(expr) ((expr) ? (void)0 : k::assertFail(__FILE__, __LINE__))
 }
 
 #endif

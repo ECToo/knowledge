@@ -123,36 +123,36 @@ particleEmitter::particleEmitter()
 
 particleEmitter::particleEmitter(unsigned int numParticles, material* mat)
 {
-	assert(numParticles != 0);
-	assert(mat != NULL);
+	kAssert(numParticles != 0);
+	kAssert(mat != NULL);
 
 	mParticles = new std::vector<particle>(numParticles);
-	assert(mParticles != NULL);
+	kAssert(mParticles != NULL);
 
 	mTimer.reset();
 
 	mSprite = new sprite(mat, 0);
-	assert(mSprite != NULL);
+	kAssert(mSprite != NULL);
 
 	mFreeParticles = numParticles;
 }
 
 particleEmitter::particleEmitter(unsigned int numParticles, const std::string& mat)
 {
-	assert(numParticles != 0);
+	kAssert(numParticles != 0);
 
 	mParticles = new std::vector<particle>(numParticles);
 	mTimer.reset();
 
 	mSprite = new sprite(mat, 0);
-	assert(mSprite);
+	kAssert(mSprite);
 
 	mFreeParticles = numParticles;
 }
 
 void particleEmitter::killParticle(particle* p)
 {
-	assert(p != NULL);
+	kAssert(p != NULL);
 	p->setVisibility(false);
 
 	mFreeParticles++;
@@ -170,8 +170,8 @@ void particleEmitter::setRadius(vec_t radi)
 			
 void particleEmitter::spawnParticle(particle* p)
 {
-	assert(p != NULL);
-	assert(mFreeParticles > 0);
+	kAssert(p != NULL);
+	kAssert(mFreeParticles > 0);
 
 	p->setVisibility(true);
 	p->resetLife(mTimer.getMilliSeconds());
@@ -201,7 +201,7 @@ void particleEmitter::setNumParticles(unsigned int amount)
 		delete mParticles;
 
 	mParticles = new std::vector<particle>(amount);
-	assert(mParticles);
+	kAssert(mParticles);
 
 	mFreeParticles = amount;
 }
@@ -217,7 +217,7 @@ void particleEmitter::setMaterial(const std::string& mat)
 	else
 	{
 		mSprite = new sprite(mat, 0);
-		assert(mSprite);
+		kAssert(mSprite);
 	}
 }
 			
@@ -347,7 +347,7 @@ void pointEmitter::draw(camera* c)
 			if (c == NULL)
 			{
 				renderSystem* rs = root::getSingleton().getRenderSystem();
-				assert(rs != NULL);
+				kAssert(rs != NULL);
 
 				rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 				rs->identityMatrix();
@@ -488,7 +488,7 @@ void planeEmitter::draw(camera* c)
 			if (c == NULL)
 			{
 				renderSystem* rs = root::getSingleton().getRenderSystem();
-				assert(rs != NULL);
+				kAssert(rs != NULL);
 
 				rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 				rs->identityMatrix();
@@ -533,7 +533,7 @@ void particleSystem::setMaterial(const std::string& mat)
 
 void particleSystem::setMaterial(material* mat)
 {
-	assert(mat != NULL);
+	kAssert(mat != NULL);
 	mMaterial = mat;
 }
 
@@ -544,7 +544,7 @@ void particleSystem::setMass(vec_t mass)
 
 void particleSystem::pushEmitter(const std::string& name, particleEmitter* em)
 {
-	assert(em != NULL);
+	kAssert(em != NULL);
 	mEmitters[name] = em;
 
 	em->setPosition(mPosition);
@@ -573,7 +573,7 @@ template<> particleManager* singleton<particleManager>::singleton_instance = 0;
 
 particleManager& particleManager::getSingleton()
 {  
-	assert(singleton_instance);
+	kAssert(singleton_instance);
 	return (*singleton_instance);  
 }
 
@@ -626,8 +626,8 @@ static inline vector3 readVector(parsingFile* file)
 
 static inline std::string parseEmitterGenericToken(parsingFile* file, const std::string& parsedToken, particleEmitter* system)
 {
-	assert(file);
-	assert(system);
+	kAssert(file);
+	kAssert(system);
 
 	// Current Token
 	std::string token = parsedToken;
@@ -688,14 +688,14 @@ static inline std::string parseEmitterGenericToken(parsingFile* file, const std:
 
 void particleManager::parsePlaneEmitter(parsingFile* file, particleSystem* system, const std::string& name)
 {
-	assert(file);
-	assert(system);
+	kAssert(file);
+	kAssert(system);
 
 	std::string token = file->getNextToken(); // {
 	unsigned int openBraces = 1;
 
 	planeEmitter* emitter = new planeEmitter();
-	assert(emitter);
+	kAssert(emitter);
 
 	while (openBraces)
 	{
@@ -730,14 +730,14 @@ void particleManager::parsePlaneEmitter(parsingFile* file, particleSystem* syste
 
 void particleManager::parsePointEmitter(parsingFile* file, particleSystem* system, const std::string& name)
 {
-	assert(file);
-	assert(system);
+	kAssert(file);
+	kAssert(system);
 
 	std::string token = file->getNextToken(); // {
 	unsigned int openBraces = 1;
 
 	planeEmitter* emitter = new planeEmitter();
-	assert(emitter);
+	kAssert(emitter);
 
 	while (openBraces)
 	{
@@ -761,7 +761,7 @@ void particleManager::parsePointEmitter(parsingFile* file, particleSystem* syste
 				
 void particleManager::parseParticleSystem(parsingFile* file, const std::string& psName)
 {
-	assert(file);
+	kAssert(file);
 
 	particleSystem* newSystem = allocatePS(psName);
 	if (!newSystem)
@@ -818,7 +818,7 @@ void particleManager::parseParticleScript(const std::string& filename)
 {
 	parsingFile* newFile = new parsingFile(filename);
 
-	assert(newFile);
+	kAssert(newFile);
 	parseParticleScript(newFile);
 
 	delete newFile;

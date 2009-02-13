@@ -34,7 +34,10 @@ logger::logger(const std::string& logFilename)
 	// Reset File
 	FILE* logFile = fopen(mLogFile.c_str(), "w");
 	if (logFile)
+	{
+		fprintf(logFile, "========= Powered by knowledge %s =========\n", K_VERSION);
 		fclose(logFile);
+	}
 }
 			
 void logger::setLogMode(logMode log)
@@ -64,24 +67,12 @@ void logger::infoArg(const char* message, va_list args)
 	};
 }
 
-static inline void printGecko(const std::string& msg)
-#ifdef __WII__
-{
-	if (usb_isgeckoalive(1))
-		usb_sendbuffer_safe(1, msg.c_str(), msg.size());
-}
-#else
-{
-}
-#endif
-
 void logger::info(const std::string& message)
 {
 	switch (mLoggingMode)
 	{
 		case LOGMODE_STDOUT:
-			printGecko(message);
-			std::cout << message << std::endl;
+			printf("%s\n", message.c_str());
 			break;
 		case LOGMODE_FILE:
 			{
@@ -95,8 +86,7 @@ void logger::info(const std::string& message)
 			break;
 		case LOGMODE_BOTH:
 			{
-				std::cout << message << std::endl;
-				printGecko(message);
+				printf("%s\n", message.c_str());
 
 				FILE* logFile = fopen(mLogFile.c_str(), "a");
 				if (logFile)
@@ -107,6 +97,17 @@ void logger::info(const std::string& message)
 			}
 			break;
 	};
+}
+	
+void assertFail(const char* file, int line)
+{
+	std::stringstream assertMsg;
+	assertMsg << "Assertion failed on " << std::string(file);
+	assertMsg << ":" << line;
+
+	S_LOG_INFO(assertMsg.str());
+
+	exit(1);
 }
 
 } // namespace

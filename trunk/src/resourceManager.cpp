@@ -231,8 +231,8 @@ resourceGroup* resourceManager::findGroup(const std::string& name)
 			
 void resourceManager::parseGroup(parsingFile* file, resourceGroup* group)
 {
-	assert(group != NULL);
-	assert(file != NULL);
+	kAssert(group != NULL);
+	kAssert(file != NULL);
 
 	std::string token = file->getNextToken(); // {
 	unsigned int openBraces = 1;
@@ -308,7 +308,7 @@ resourceManager::resourceManager(const std::string& resourceCfg)
 
 	// Save the base path from the resource file full path
 	parsingFile* script = new parsingFile(resourceCfg);	
-	assert(script != NULL);
+	kAssert(script != NULL);
 
 	if (!script->isReady())
 		return;
@@ -348,7 +348,7 @@ resourceManager::resourceManager(const std::string& resourceCfg)
 			else
 			{
 				resourceGroup* newGroup = new resourceGroup();
-				assert(newGroup != NULL);
+				kAssert(newGroup != NULL);
 
 				parseGroup(script, newGroup);
 				mGroups[mLastGroupName] = newGroup;
@@ -416,7 +416,7 @@ loadScreen* resourceManager::getLoadingScreen()
 
 void resourceManager::setLoadingScreen(loadScreen* scr)
 {
-	assert(scr);
+	kAssert(scr);
 	mLoadingScreen = scr;
 }
 

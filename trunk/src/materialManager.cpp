@@ -25,7 +25,7 @@ template<> materialManager* singleton<materialManager>::singleton_instance = 0;
 
 materialManager& materialManager::getSingleton()
 {  
-	assert(singleton_instance);
+	kAssert(singleton_instance);
 	return (*singleton_instance);  
 }
 
@@ -35,7 +35,7 @@ materialManager::materialManager()
 
 	#ifdef __WII__
 	mTev = new tevManager();
-	assert (mTev);
+	kAssert (mTev);
 	#endif
 }
 
@@ -227,8 +227,8 @@ static inline void parseUntilEndOfSection(parsingFile* file)
 			
 void materialManager::parseTextureSection(material* mat, parsingFile* file, unsigned short index)
 {
-	assert(mat != NULL);
-	assert(file != NULL);
+	kAssert(mat != NULL);
+	kAssert(file != NULL);
 
 	std::string token;
 	unsigned int openBraces = 1;
@@ -387,8 +387,8 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 
 void materialManager::parseMaterial(material* mat, parsingFile* file)
 {
-	assert(mat != NULL);
-	assert(file != NULL);
+	kAssert(mat != NULL);
+	kAssert(file != NULL);
 
 	std::string token = file->getNextToken(); // {
 	unsigned int openBraces = 1;
@@ -490,7 +490,7 @@ void materialManager::parseMaterialScript(const std::string& filename, materialL
 {
 	parsingFile* newFile = new parsingFile(filename);
 
-	assert(newFile != NULL);
+	kAssert(newFile != NULL);
 	parseMaterialScript(newFile, map);
 
 	delete newFile;

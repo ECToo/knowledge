@@ -25,7 +25,7 @@ template<> inputManager* singleton<inputManager>::singleton_instance = 0;
 
 inputManager& inputManager::getSingleton()
 {  
-	assert(singleton_instance);
+	kAssert(singleton_instance);
 	return (*singleton_instance);  
 }
 
@@ -73,7 +73,7 @@ unsigned char inputManager::setupWiiMotes(unsigned char num)
 	u32 wResX, wResY;
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	assert(rs != NULL);
+	kAssert(rs != NULL);
 	wResX = rs->getScreenWidth();
 	wResY = rs->getScreenHeight();
 

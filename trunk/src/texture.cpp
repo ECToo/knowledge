@@ -67,7 +67,7 @@ unsigned int textureStage::getWidth()
 			
 void textureStage::setId(std::vector<kTexture*>* id)
 {
-	assert(id != NULL);
+	kAssert(id != NULL);
 	mTextureId = *id;
 }
 

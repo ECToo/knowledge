@@ -31,7 +31,7 @@ glTexture::glTexture(unsigned int width, unsigned int height, unsigned short ind
 void glTexture::draw()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	assert(rs != NULL);
+	kAssert(rs != NULL);
 
 	glClientActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
 	glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
@@ -110,7 +110,7 @@ void glTexture::draw()
 void glTexture::finish()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	assert(rs != NULL);
+	kAssert(rs != NULL);
 
 	// unBind texture
 	rs->unBindTexture(mIndex);

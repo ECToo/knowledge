@@ -18,6 +18,8 @@
 #ifndef _PREREQUISITES_H
 #define _PREREQUISITES_H
 
+#define K_VERSION "0.1a"
+
 // Standard
 #include <iostream>
 #include <sstream>
@@ -91,7 +93,7 @@
 #else
 
 	typedef GXTexObj kTexture;
-	typedef float vec_t;
+	typedef f32 vec_t;
 	typedef u16 index_t;
 
 	// Threads

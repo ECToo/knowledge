@@ -62,6 +62,7 @@ pkginclude_HEADERS = @top_srcdir@/include/prerequisites.h \
 							@top_srcdir@/include/thread.h \
 							@top_srcdir@/include/vector2.h \
 							@top_srcdir@/include/vector3.h \
+							@top_srcdir@/include/wiiVector3.h \
 							@top_srcdir@/include/quaternion.h \
 							@top_srcdir@/include/fontManager.h \
 							@top_srcdir@/include/fileAccess.h \

@@ -29,7 +29,7 @@ textureLoader& textureLoader::getSingleton()
 	if (!singleton_instance)
 		new textureLoader();
 
-	assert(singleton_instance);
+	kAssert(singleton_instance);
 	return (*singleton_instance);  
 }
 
@@ -48,7 +48,7 @@ kTexture* textureLoader::loadTexture(const char* file, unsigned short* w, unsign
 	}
 
 	FIBITMAP* image = FreeImage_Load(imgFormat, file, 0);
-	assert(image);
+	kAssert(image);
 
 	uint32_t width = FreeImage_GetWidth(image);
 	uint32_t height = FreeImage_GetHeight(image);

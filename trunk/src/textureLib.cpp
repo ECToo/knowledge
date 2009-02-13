@@ -24,18 +24,26 @@
 
 namespace k {
 
+inline bool isPowerOfTwo(unsigned int n)
+{
+	return ((n & (n-1)) == 0);
+}
+
 texture* createRawTexture(const std::string& filename)
 {
 	texture* newTexture = new texture();
 	if (newTexture)
 	{
 		textureLoader* loader = &textureLoader::getSingleton();
-		assert(loader != NULL);
+		kAssert(loader != NULL);
 
 		newTexture->mImagesCount = 1;
 
 		kTexture* newKTexture = NULL;
 		newKTexture = loader->loadTexture(filename.c_str(), &newTexture->mWidth, &newTexture->mHeight);
+
+		if (!isPowerOfTwo(newTexture->mWidth) || !isPowerOfTwo(newTexture->mHeight))
+			S_LOG_INFO("WARNING! The texture " + filename + " dimensions are not power of 2");
 
 		if (newKTexture)
 		{
@@ -132,6 +140,9 @@ texture* createRawCubemap(const std::string& filename)
 		return NULL;
 	}
 	cubeTex[CUBE_BACK] = tempTex;
+
+	if (!isPowerOfTwo(width) || !isPowerOfTwo(height))
+		S_LOG_INFO("WARNING! The texture " + filename + " dimensions are not power of 2");
 
 	// Ok we can setup everything
 	texture* newTexture = new texture;

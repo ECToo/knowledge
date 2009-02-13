@@ -16,11 +16,9 @@
 */
 
 #ifdef __WII__
-#include "wiiVector3.h"
-#else
 
-#ifndef _VECTOR3D_H_ 
-#define _VECTOR3D_H_ 
+#ifndef _WIIVECTOR3D_H_ 
+#define _WIIVECTOR3D_H_ 
 
 #include "prerequisites.h"
 
@@ -30,7 +28,7 @@ namespace k
 	 * vector3 Class
 	 * Used to hold 3d coordinates
 	 */
-	class vector3 
+	class vector3
 	{
 		public:
 			// Allow us to access like packed data.
@@ -43,6 +41,7 @@ namespace k
 				vec_t vec[3];
 			};
 
+		public:
 			/**
 	 		 * Default Constructor
 			 * Start as a blank vector(0,0)
@@ -84,16 +83,15 @@ namespace k
 
 			inline vector3 operator + (const vector3& newVec) const
 			{
-				vector3 tempVec(newVec.x + x, newVec.y + y, newVec.z + z);
+				vector3 tempVec;
+				guVecAdd((Vector*)vec, (Vector*)&newVec, (Vector*)&tempVec);
+
 				return tempVec;
 			}
 
 			inline vector3& operator += (const vector3& newVec)
 			{
-				x += newVec.x;
-				y += newVec.y;
-				z += newVec.z;
-
+				guVecAdd((Vector*)vec, (Vector*)&newVec, (Vector*)vec);
 				return *this;
 			}
 			
@@ -108,28 +106,21 @@ namespace k
 			
 			inline vector3 operator - (const vector3& newVec) const
 			{
-				vector3 tempVec(x - newVec.x, 
-						y - newVec.y,
-						z - newVec.z);
+				vector3 tempVec;
+				guVecSub((Vector*)vec, (Vector*)&newVec, (Vector*)&tempVec);
 
 				return tempVec;				
 			}
 
 			inline vector3& operator -= (const vector3& newVec)
 			{
-				x -= newVec.x;
-				y -= newVec.y;
-				z -= newVec.z;
-
+				guVecSub((Vector*)vec, (Vector*)&newVec, (Vector*)vec);
 				return *this;
 			}
 
 			inline vector3& operator *= (const vec_t newVec)
 			{
-				x *= newVec;
-				y *= newVec;
-				z *= newVec;
-
+				guVecScale((Vector*)vec, (Vector*)vec, newVec);
 				return *this;
 			}
 
@@ -139,6 +130,7 @@ namespace k
 			 */
 			inline vector3 operator * (const vec_t matrix[9]) const
 			{
+				// TODO
 				vector3 tempVec
 						(
 						x * matrix[0] + y * matrix[3] + z * matrix[6],
@@ -155,6 +147,7 @@ namespace k
 			 */
 			inline vector3& operator *= (const vec_t matrix[9])
 			{
+				// TODO
 				x = x * matrix[0] + y * matrix[3] + z * matrix[6];
 				y = x * matrix[1] + y * matrix[4] + z * matrix[7];
 				z = x * matrix[2] + y * matrix[5] + z * matrix[8];
@@ -164,9 +157,8 @@ namespace k
 			
 			inline vector3 operator * (const vec_t scalar) const
 			{
-				vector3 tempVec(x * scalar, 
-						y * scalar,
-						z * scalar);
+				vector3 tempVec;
+				guVecScale((Vector*)vec, (Vector*)&tempVec, scalar);
 
 				return tempVec;				
 			}
@@ -184,7 +176,9 @@ namespace k
 			{
 				assert (scalar != 0.0);
 				
-				vector3 tempVec(x/scalar, y/scalar, z/scalar);
+				vector3 tempVec;
+				guVecScale((Vector*)vec, (Vector*)&tempVec, 1.0f / scalar);
+
 				return tempVec;				
 			}
 			
@@ -239,7 +233,7 @@ namespace k
 	 		 */
 			inline const vec_t dotProduct(const vector3& newVec) const
 			{
-				return ((x * newVec.x) + (y * newVec.y) + (z * newVec.z));
+				return guVecDotProduct((Vector*)vec, (Vector*)&newVec);
 			}
 
 			/**
@@ -247,24 +241,16 @@ namespace k
 	 		 */
 			inline vector3 crossProduct(const vector3& newVec) const
 			{
-				vector3 tempVec
-				(
-					y * newVec.z - z * newVec.y,
-					z * newVec.x - x * newVec.z,
-					x * newVec.y - y * newVec.x
-				);
-				
+				vector3 tempVec;
+				guVecCross((Vector*)vec, (Vector*)&newVec, (Vector*)&tempVec);
+
 				return tempVec;
 			}
 
 			inline vector3& cross(const vector3& newVec)
 			{
-				vector3 tempVec
-				(
-					y * newVec.z - z * newVec.y,
-					z * newVec.x - x * newVec.z,
-					x * newVec.y - y * newVec.x
-				);
+				vector3 tempVec;
+				guVecCross((Vector*)vec, (Vector*)&newVec, (Vector*)&tempVec);
 
 				x = tempVec.x;
 				y = tempVec.y;
@@ -278,11 +264,7 @@ namespace k
 	 		 */
 			inline void normalise()
 			{
-				vec_t sq = 1.0 / length();
-
-				x *= sq;
-				y *= sq;
-				z *= sq;
+				guVecNormalize((Vector*)vec);
 			}
 			
 			/**

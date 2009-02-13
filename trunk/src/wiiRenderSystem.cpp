@@ -30,6 +30,13 @@ extern "C"
 
 namespace k {
 
+static inline void copyMatrix4(const matrix4& src, Mtx44 dst)
+{
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			dst[i][j] = src.m[i][j];
+}
+
 static inline void copyMtx44(Mtx44 src, Mtx44 dst)
 {
 	for (int i = 0; i < 4; i++)
@@ -49,6 +56,26 @@ static inline void identityMtx44(Mtx44 mat)
 				mat[i][j] = 0.0;
 		}
 	}
+}
+
+static inline void copyMtxTranspose(const matrix4& src, Mtx dest)
+{
+	guMtxIdentity(dest);
+
+	dest[0][0] = src.m[0][0];
+	dest[0][1] = src.m[1][0];
+	dest[0][2] = src.m[2][0];
+	dest[0][3] = src.m[3][0];
+
+	dest[1][0] = src.m[0][1];
+	dest[1][1] = src.m[1][1];
+	dest[1][2] = src.m[2][1];
+	dest[1][3] = src.m[3][1];
+
+	dest[2][0] = src.m[0][2];
+	dest[2][1] = src.m[1][2];
+	dest[2][2] = src.m[2][2];
+	dest[2][3] = src.m[3][2];
 }
 
 matrixStack::matrixStack()
@@ -203,11 +230,15 @@ void wiiRenderSystem::configure()
 	setPerspective(90, 1.33f, 0.1f, 1000.0f);
 
 	// Render to texture buffer
-	mRttBuffer = (char*) memalign(32, 640 * 480 * 4);
+	mRttBuffer = (char*) memalign(32, mVideoMode->fbWidth * mVideoMode->efbHeight * 4);
 	if (!mRttBuffer)
 	{
 		S_LOG_INFO("Failed to allocate texture for RTT buffer.");
 	}
+
+	// Clean Textures and Materials
+	mActiveMaterial = NULL;
+	mActiveTextures.clear();
 }
 
 void wiiRenderSystem::createWindow(const int w, const int h)
@@ -254,6 +285,11 @@ void wiiRenderSystem::frameEnd()
 	VIDEO_SetNextFramebuffer(mFrameBuffers[mBufferIndex]);
  	VIDEO_Flush();
 	VIDEO_WaitVSync();
+
+	if (mOnlyFlush)
+	{
+		mOnlyFlush = false;
+	}
 
 	// Clean Textures
 	mActiveTextures.clear();
@@ -343,15 +379,28 @@ void wiiRenderSystem::identityMatrix()
 	}
 }
 
-void wiiRenderSystem::copyMatrix(f32 matrix[][4])
+matrix4 wiiRenderSystem::getModelView()
+{
+	matrix4 temp;
+	guMtxCopy(mModelViewMatrix, temp.m);
+
+	return temp;
+}
+
+void wiiRenderSystem::getModelView(float mat[][4])
+{
+	guMtxCopy(mModelViewMatrix, mat);
+}
+
+void wiiRenderSystem::copyMatrix(const matrix4& mat)
 {
 	switch (mActiveMatrix)
 	{
 		case MATRIXMODE_PROJECTION:
-			copyMtx44(matrix, mProjectionMatrix);
+			copyMatrix4(mat, mProjectionMatrix);
 			break;
 		case MATRIXMODE_MODELVIEW:
-			guMtxCopy(matrix, mModelViewMatrix);
+			copyMtxTranspose(mat, mModelViewMatrix);
 			break;
 		default:
 			S_LOG_INFO("Invalid matrix mode");
@@ -359,20 +408,19 @@ void wiiRenderSystem::copyMatrix(f32 matrix[][4])
 	}
 }
 
-void wiiRenderSystem::getModelView(Mtx matrix)
+void wiiRenderSystem::multMatrix(const matrix4& mat)
 {
-	guMtxCopy(mModelViewMatrix, matrix);
-}
+	Mtx temp;
 
-void wiiRenderSystem::multMatrix(f32 matrix[][4])
-{
 	switch (mActiveMatrix)
 	{
 		case MATRIXMODE_PROJECTION:
-			guMtxConcat(mProjectionMatrix, matrix, mProjectionMatrix);
+			copyMtxTranspose(mat, temp);
+			guMtxConcat(mProjectionMatrix, temp, mProjectionMatrix);
 			break;
 		case MATRIXMODE_MODELVIEW:
-			guMtxConcat(mModelViewMatrix, matrix, mModelViewMatrix);
+			copyMtxTranspose(mat, temp);
+			guMtxConcat(mModelViewMatrix, temp, mModelViewMatrix);
 			break;
 		default:
 			S_LOG_INFO("Invalid matrix mode");
@@ -467,6 +515,7 @@ void wiiRenderSystem::scaleScene(vec_t x, vec_t y, vec_t z)
 void wiiRenderSystem::setViewPort(int x, int y, int w, int h)
 {
 	GX_SetViewport(x, y, w, h, 0, 1);
+	GX_SetScissor(x, y, w, h);
 }
 
 void wiiRenderSystem::setPerspective(vec_t fov, vec_t aspect, vec_t near, vec_t far)
@@ -521,10 +570,10 @@ void wiiRenderSystem::setCulling(CullMode culling)
 			GX_SetCullMode(GX_CULL_NONE);
 			break;
 		case CULLMODE_BACK:
-			GX_SetCullMode(GX_CULL_BACK);
+			GX_SetCullMode(GX_CULL_FRONT);
 			break;
 		case CULLMODE_FRONT:
-			GX_SetCullMode(GX_CULL_FRONT);
+			GX_SetCullMode(GX_CULL_BACK);
 			break;
 		case CULLMODE_BOTH:
 			GX_SetCullMode(GX_CULL_ALL);
@@ -604,10 +653,6 @@ void wiiRenderSystem::endVertices()
 		if (mActiveMaterial)
 		for (unsigned int i = 1; i < mActiveMaterial->getTextureUnits(); i++)
 		{
-			textureStage* stage = mActiveMaterial->getTextureStage(i);
-			assert(stage != NULL);
-
-			GX_SetVtxDesc(GX_VA_TEX0MTXIDX + i, GX_TEXMTX0 + i * 3);
  			GX_SetVtxDesc(GX_VA_TEX0 + i, GX_DIRECT);
 			GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0 + i, GX_TEX_ST, GX_F32, 0);
 		}
@@ -630,7 +675,7 @@ void wiiRenderSystem::endVertices()
 	std::map<int, GXTexObj*>::const_iterator it;
 	for (it = mActiveTextures.begin(); it != mActiveTextures.end(); it++)
 	{
-		assert(it->second != NULL);
+		kAssert(it->second);
 		GX_LoadTexObj(it->second, GX_TEXMAP0 + it->first);
 	}
 
@@ -703,13 +748,13 @@ void wiiRenderSystem::matSpecular(const vector3& color)
 
 void wiiRenderSystem::bindTexture(GXTexObj* tex, int chan)
 {
-	assert(chan < 8);
+	kAssert(chan < 8);
 	mActiveTextures[chan] = tex;
 }
 			
 void wiiRenderSystem::unBindTexture(int chan)
 {
-	assert(chan < 8);
+	kAssert(chan < 8);
 	mActiveTextures[chan] = NULL;
 }
 
@@ -729,6 +774,9 @@ void wiiRenderSystem::drawArrays()
 	DCFlushRange(mVertexArray, mVertexCount * sizeof(vec_t) * 3);
 	GX_SetArray(GX_VA_POS, mVertexArray, 3 * sizeof(vec_t));
 
+	// Real VertexCount
+	mVertexCount = mIndexCount / 3;
+
 	u8 tevStage = GX_TEVSTAGE0;
 	u8 texCoord = GX_TEXCOORDNULL;
 	u32 texMap = GX_TEXMAP_NULL;
@@ -746,11 +794,7 @@ void wiiRenderSystem::drawArrays()
 		if (mActiveMaterial)
 		for (unsigned int i = 1; i < mActiveMaterial->getTextureUnits(); i++)
 		{
-			textureStage* stage = mActiveMaterial->getTextureStage(i);
-			assert(stage != NULL);
-
  			GX_SetVtxDesc(GX_VA_TEX0 + i, GX_INDEX16);
-			GX_SetVtxDesc(GX_VA_TEX0MTXIDX + i * 3, GX_TEXMTX0 + i * 3);
 			GX_SetArray(GX_VA_TEX0 + i, mTexCoordArray, 2 * sizeof(vec_t));
 			GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0 + i, GX_TEX_ST, GX_F32, 0);
 		}
@@ -783,7 +827,7 @@ void wiiRenderSystem::drawArrays()
 	std::map<int, GXTexObj*>::const_iterator it;
 	for (it = mActiveTextures.begin(); it != mActiveTextures.end(); it++)
 	{
-		assert(it->second != NULL);
+		kAssert(it->second);
 		GX_LoadTexObj(it->second, GX_TEXMAP0 + it->first);
 	}
 
@@ -840,7 +884,7 @@ void wiiRenderSystem::drawArrays()
 
 void wiiRenderSystem::screenshot(const char* filename)
 {
-	assert(filename != NULL);
+	kAssert(filename);
 
 	FILE* texFile = fopen(filename, "wb");
 	if (!texFile)
@@ -849,8 +893,8 @@ void wiiRenderSystem::screenshot(const char* filename)
 		return;
 	}
 
-	int w = 640;
-	int h = 480;
+	int w = mVideoMode->fbWidth;
+	int h = mVideoMode->efbHeight;
 
 	char* textureData = (char*) memalign(32, w * h * 4);
 	if (!textureData)
@@ -989,7 +1033,7 @@ unsigned int wiiRenderSystem::getScreenHeight()
 			
 void wiiRenderSystem::copyToTexture(unsigned int w, unsigned int h, kTexture* tex)
 {
-	assert(tex);
+	kAssert(tex);
 	
 	if (mRttBuffer)
 	{

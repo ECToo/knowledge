@@ -87,6 +87,18 @@ class kPlane : public k::drawable3D
 
 			mMaterial->finish();
 		}
+
+		const k::boundingBox& getAABoundingBox() 
+		{
+			k::boundingBox temp(k::vector3::zero, k::vector3::zero);
+			return temp;
+		}
+
+		const k::boundingBox& getBoundingBox() 
+		{
+			k::boundingBox temp(k::vector3::zero, k::vector3::zero);
+			return temp;
+		}
 };
 
 void addRandomBox()

@@ -29,7 +29,15 @@ namespace k
 	class vector2 
 	{
 		public:
-			vec_t x, y;
+			// Allow us to access like packed data.
+			union
+			{
+				struct 
+				{
+					vec_t x, y;
+				};
+				vec_t vec[2];
+			};
 
 		public:
 			/**
@@ -177,8 +185,7 @@ namespace k
 	 		 */
 			inline void cout() const
 			{
-				std::cout << "X: " << x << std::endl;
-				std::cout << "Y: " << y << std::endl;
+				printf("X: %f - Y: %f\n", x, y);
 			}		
 	};	
 }

@@ -26,7 +26,7 @@ template<> guiManager* singleton<guiManager>::singleton_instance = 0;
 
 guiManager& guiManager::getSingleton()
 {  
-	assert(singleton_instance);
+	kAssert(singleton_instance);
 	return (*singleton_instance);  
 }
 
@@ -40,7 +40,7 @@ guiManager::~guiManager()
 	if (mCursor)
 	{
 		renderer* rs = root::getSingleton().getRenderer();
-		assert(rs != NULL);
+		kAssert(rs != NULL);
 
 		rs->pop2D(mCursor);
 		delete mCursor;
@@ -50,7 +50,7 @@ guiManager::~guiManager()
 void guiManager::setCursor(std::string mat, vector2 scale)
 {
 	mCursor = new sticker(mat);
-	assert(mCursor != NULL);
+	kAssert(mCursor != NULL);
 
 	mCursor->setScale(scale);
 	mCursor->setZ(-1.0f);
@@ -60,7 +60,7 @@ void guiManager::setCursor(std::string mat, vector2 scale)
 	#endif
 
 	renderer* rs = root::getSingleton().getRenderer();
-	assert(rs != NULL);
+	kAssert(rs != NULL);
 
 	rs->push2D(mCursor);
 
