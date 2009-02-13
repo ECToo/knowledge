@@ -26,7 +26,7 @@ template<> textureManager* singleton<textureManager>::singleton_instance = 0;
 
 textureManager& textureManager::getSingleton()
 {  
-	assert(singleton_instance);
+	kAssert(singleton_instance);
 	return (*singleton_instance);  
 }
 
@@ -36,16 +36,6 @@ textureManager::textureManager()
 	GX_InvalidateTexAll();
 	#else
 	FreeImage_Initialise(false);
-	/*
-	ilInit();
-	ilEnable(IL_CONV_PAL);
-	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
-	ilEnable(IL_ORIGIN_SET);
-	iluInit();
-	ilutInit();
-	ilutEnable(ILUT_OPENGL_CONV);
-	ilutRenderer(ILUT_OPENGL);
-	*/
 	#endif
 
 	mTextures.clear();

@@ -15,13 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "prerequisites.h"
-#include "md5.h"
-#include "root.h"
-#include "renderer.h"
-#include "rendersystem.h"
-#include "logger.h"
-#include "resourceManager.h"
+#include "knowledge.h"
 
 int main(int argc, char** argv)
 {
@@ -33,8 +27,8 @@ int main(int argc, char** argv)
 	k::guiManager* mGuiManager = appRoot->getGuiManager();
 	k::inputManager* mInputManager = appRoot->getInputManager();
 
-	assert(mRenderer != NULL);
-	assert(mRenderSystem != NULL);
+	kAssert(mRenderer);
+	kAssert(mRenderSystem);
 
 	// Doesnt matter on wii
 	mRenderSystem->createWindow(800, 600);
@@ -43,10 +37,19 @@ int main(int argc, char** argv)
 
 	// Common library
 	#ifdef __WII__
-	new k::resourceManager("/knowledge/resources.cfg");
+	k::resourceManager* resourceMgr = new k::resourceManager("/knowledge/resources.cfg");
 	#else
-	new k::resourceManager("../resources.cfg");
+	k::resourceManager* resourceMgr = new k::resourceManager("../resources.cfg");
 	#endif
+
+	// Loading Screen
+	k::imgLoadScreen* newLoadingScreen = new k::imgLoadScreen();
+	kAssert(newLoadingScreen);
+
+	resourceMgr->setLoadingScreen(newLoadingScreen);
+	newLoadingScreen->loadBg("loading.png");
+	newLoadingScreen->setImgDimension(k::vector2(256, 256));
+	newLoadingScreen->update("");
 
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("lightmap");
@@ -56,7 +59,7 @@ int main(int argc, char** argv)
 	#ifdef __WII__
 	k::parsingFile* tevFile = new k::parsingFile("/knowledge/tev.script");
 
-	assert(tevFile != NULL);
+	kAssert(tevFile);
 	k::tevManager::getSingleton().parseTevScript(tevFile);
 	#endif
 
@@ -66,17 +69,17 @@ int main(int argc, char** argv)
 	k::md5model* boxscene = new k::md5model("boxscene.md5mesh");
 	#endif
 
-	assert(boxscene != NULL);
+	kAssert(boxscene);
 	mRenderer->push3D(boxscene);
 
 	// Parse material file
-	assert(mGuiManager != NULL);
+	kAssert(mGuiManager);
 	mGuiManager->setCursor("wiiCursor", k::vector2(48, 48));
 
 	/**
 	 * Setup the input Manager
 	 */
-	assert(mInputManager != NULL);
+	kAssert(mInputManager);
 	mInputManager->initWii(false);
 	mInputManager->setupWiiMotes(1);
 	mInputManager->setWiiMoteTimeout(60);
@@ -84,16 +87,27 @@ int main(int argc, char** argv)
 
 	// Setup Camera
 	k::camera* newCamera = new k::camera();
-	assert(newCamera != NULL);
-	newCamera->setPosition(k::vector3(10, 8, 0));
+	kAssert(newCamera);
+
+	#define CAM_DIST 30
+	newCamera->setPosition(k::vector3(CAM_DIST, CAM_DIST / 2, 0));
 	newCamera->lookAt(k::vector3(0, 0, 0));
 	mRenderer->setCamera(newCamera);
+
+	// FPS
+	k::bitmapText* fpsText = new k::bitmapText("fonts/cube_14.dat", "cube_14");
+	assert(fpsText != NULL);
+
+	fpsText->setPosition(k::vector2(10, 10));
+	mRenderer->push2D(fpsText);
 
 	bool running = true;
 	bool leftHold = false;
 	bool lightmap = false;
 	vec_t camAngle = 0;
 	k::vector2 lastMousePos;
+
+	delete newLoadingScreen;
 
 	while (running)
 	{
@@ -147,12 +161,12 @@ int main(int argc, char** argv)
 			k::vector2 mouseDiff = mousePos - lastMousePos;
 			
 			// relative mouse pos
-			camAngle += mouseDiff.x/30.0f;
+			camAngle += mouseDiff.x / 60.0f;
 
 			k::vector3 camPos = newCamera->getPosition();
-			camPos.x = cos(camAngle)*10;
-			camPos.y = 8;
-			camPos.z = sin(camAngle)*10;
+			camPos.x = cos(camAngle) * CAM_DIST;
+			camPos.y = CAM_DIST / 2;
+			camPos.z = sin(camAngle) * CAM_DIST;
 
 			newCamera->setPosition(camPos);
 			newCamera->lookAt(k::vector3(0, 0, 0));
@@ -160,6 +174,11 @@ int main(int argc, char** argv)
 			lastMousePos = mInputManager->getWiiMotePosition(0);
 		}
 		mGuiManager->setCursorPos(mousePos);
+
+		// Set Demo FPS
+		std::stringstream fps;
+		fps << "FPS: " << mRenderer->getLastFps();
+		fpsText->setText(fps.str());
 
 		// Physics Loop
 		mRenderer->draw();

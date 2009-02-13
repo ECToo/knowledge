@@ -15,16 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "root.h"
-#include "renderer.h"
-#include "rendersystem.h"
-#include "logger.h"
-#include "resourceManager.h"
-#include "particle.h"
-#include "fontManager.h"
+#include "knowledge.h"
 
 int main(int argc, char** argv)
 {
+	_break();
+
 	// Initialize knowledge
 	k::root* appRoot = new k::root();
 	k::renderSystem* mRenderSystem = appRoot->getRenderSystem();
@@ -48,16 +44,16 @@ int main(int argc, char** argv)
 	#endif
 
 	// Loading Screen
-	k::bgLoadScreen* newLoadingScreen = new k::bgLoadScreen();
+	k::imgLoadScreen* newLoadingScreen = new k::imgLoadScreen();
 	assert(newLoadingScreen);
 
 	resourceMgr->setLoadingScreen(newLoadingScreen);
-	newLoadingScreen->loadBg("loading.jpg");
+	newLoadingScreen->loadBg("loading.png");
+	newLoadingScreen->setImgDimension(k::vector2(256, 256));
 	newLoadingScreen->update("");
 
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("particles");
-	k::resourceManager::getSingleton().loadGroup("physics");
 
 	delete newLoadingScreen;
 
@@ -93,9 +89,6 @@ int main(int argc, char** argv)
 
 	bool running = true;
 	bool leftHold = false;
-
-	k::md5model* model = NULL;
-	k::vector3 direction;
 
 	while (running)
 	{
@@ -219,27 +212,7 @@ int main(int argc, char** argv)
 		{
 			// Do Something
 			leftHold = false;
-
-			k::vector2 normalMousePos;
-			normalMousePos.x = mousePos.x / mRenderSystem->getScreenWidth();
-			normalMousePos.y = mousePos.y / mRenderSystem->getScreenHeight();
-
-			direction = newCamera->projectRayFrom2D(normalMousePos);
-			
-			model = new k::md5model("../physics/soccer.md5mesh");
-			model->setPosition(newCamera->getPosition());
-
-			mRenderer->push3D(model);
 		}
-
-		if (model)
-		{
-			k::vector3 pos = model->getPosition();
-			pos += direction;
-
-			model->setPosition(pos);
-		}
-
 
 		// Physics Loop
 		mRenderer->draw();

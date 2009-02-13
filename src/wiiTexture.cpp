@@ -36,10 +36,11 @@ void wiiTexture::setTexCoordGen()
 	switch (mTexCoordType)
 	{
 		default:
+			S_LOG_INFO("Undefined texture coordinate type, fallbacking to UV.");
 		case TEXCOORD_UV:
 			if (mScroll.x || mScroll.y || mRotate)
 			{
-				assert(mIndex < 8);
+				kAssert(mIndex < 8);
 
 				vec_t sinAngle = sin(mAngle);
 				vec_t cosAngle = cos(mAngle);
@@ -100,7 +101,7 @@ void wiiTexture::setTexCoordGen()
 		case TEXCOORD_SPHERE:
 			{
 				renderSystem* rs = root::getSingleton().getRenderSystem();
-				assert(rs != NULL);
+				kAssert(rs != NULL);
 
 				Mtx destMtx;
 				Mtx s, t, postMtx;
@@ -129,7 +130,7 @@ void wiiTexture::setTexCoordGen()
 void wiiTexture::draw()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	assert(rs != NULL);
+	kAssert(rs != NULL);
 
 	// Texture Coordinate
 	setTexCoordGen();

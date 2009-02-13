@@ -34,7 +34,7 @@ template<> fontManager* singleton<fontManager>::singleton_instance = 0;
 
 fontManager& fontManager::getSingleton()
 {  
-	assert(singleton_instance);
+	kAssert(singleton_instance);
 	return (*singleton_instance);  
 }
 */
@@ -43,7 +43,7 @@ fontManager& fontManager::getSingleton()
 int readEndianSafeInt(FILE* f)
 {
 	int value;
-	assert(f != NULL);
+	kAssert(f != NULL);
 
 	if (fread(&value, 4, 1, f) > 0)
 		return byteSwap4(value);
@@ -53,7 +53,7 @@ int readEndianSafeInt(FILE* f)
 
 float readEndianSafeFloat(FILE* f)
 {
-	assert(f != NULL);
+	kAssert(f != NULL);
 
 	union
 	{
@@ -140,7 +140,7 @@ vec_t bitmapText::_drawChar(vec_t posX, vec_t y, char c)
 	}
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	assert(rs != NULL);
+	kAssert(rs != NULL);
 
 	rs->texCoord(vector2(activeGlyph->s, activeGlyph->t));
 	rs->vertex(vector3(posX, y, -0.5));
@@ -168,7 +168,7 @@ void bitmapText::draw()
 		return;
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	assert(rs != NULL);
+	kAssert(rs != NULL);
 
 	// Material setup
 	mMaterial->prepare();

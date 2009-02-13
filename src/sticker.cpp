@@ -26,7 +26,7 @@ sticker::sticker(const std::string& matName)
 	materialManager* mm = root::getSingleton().getMaterialManager();
 	mMaterial = mm->createMaterial(matName);
 
-	assert(mMaterial != NULL);
+	kAssert(mMaterial != NULL);
 }
 
 sticker::~sticker()
@@ -41,7 +41,7 @@ material* sticker::getMaterial()
 void sticker::draw()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	assert(rs != NULL);
+	kAssert(rs != NULL);
 
 	// Prepare the material
 	mMaterial->prepare();

@@ -15,19 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "prerequisites.h"
-#include "md5.h"
-#include "root.h"
-#include "renderer.h"
-#include "rendersystem.h"
-#include "resourceManager.h"
-#include "logger.h"
-#include "fontManager.h"
+#include "knowledge.h"
 
 int main(int argc, char** argv)
 {
-	_break();
-
 	// Initialize knowledge
 	k::root* appRoot = new k::root();
 	k::renderSystem* mRenderSystem = appRoot->getRenderSystem();
@@ -42,6 +33,13 @@ int main(int argc, char** argv)
 	mRenderSystem->createWindow(800, 600);
 	mRenderSystem->setWindowTitle("knowledge, the power of mind");
 
+	// Input Manager
+	assert(mInputManager != NULL);
+	mInputManager->initWii(false);
+	mInputManager->setupWiiMotes(1);
+	mInputManager->setWiiMoteTimeout(60);
+	mInputManager->setWiiMoteEmulation(true);
+
 	// Initialize resources
 	#ifdef __WII__
 	k::resourceManager* resourceMgr = new k::resourceManager("/knowledge/resources.cfg");
@@ -50,15 +48,16 @@ int main(int argc, char** argv)
 	#endif
 
 	// Loading Screen
-	k::bgLoadScreen* newLoadingScreen = new k::bgLoadScreen();
+	k::imgLoadScreen* newLoadingScreen = new k::imgLoadScreen();
 	assert(newLoadingScreen);
 
 	resourceMgr->setLoadingScreen(newLoadingScreen);
-	newLoadingScreen->loadBg("loading.jpg");
+	newLoadingScreen->loadBg("loading.png");
+	newLoadingScreen->setImgDimension(k::vector2(256, 256));
 	newLoadingScreen->update("");
 
-	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("model");
+	k::resourceManager::getSingleton().loadGroup("common");
 
 	// Load the Model
 	k::vector3 modelPosition;
@@ -80,7 +79,7 @@ int main(int argc, char** argv)
 	newModel->attachAnimation("fly_b.md5anim", "runb");
 	#endif
 
-	delete newLoadingScreen;
+	// delete newLoadingScreen;
 
 	// Set Skyplane
 	mRenderer->setSkyPlane("skyPlane");
@@ -95,7 +94,7 @@ int main(int argc, char** argv)
 	fpsText->setPosition(k::vector2(4, 10));
 	mRenderer->push2D(fpsText);
 
-	// Set Model animatino
+	// Set Model animations
 	newModel->setAnimation("idle");
 	newModel->setAnimationFrame(10);
 	
@@ -103,15 +102,6 @@ int main(int argc, char** argv)
 
 	assert(mGuiManager != NULL);
 	mGuiManager->setCursor("wiiCursor3", k::vector2(32, 32));
-
-	/**
-	 * Setup the input Manager
-	 */
-	assert(mInputManager != NULL);
-	mInputManager->initWii(false);
-	mInputManager->setupWiiMotes(1);
-	mInputManager->setWiiMoteTimeout(60);
-	mInputManager->setWiiMoteEmulation(true);
 
 	// Angles
 	int rX = 0;

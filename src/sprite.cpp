@@ -24,7 +24,7 @@ namespace k {
 
 sprite::sprite(material* mat, vec_t radi)
 {
-	assert(mat != NULL);
+	kAssert(mat != NULL);
 
 	mRadius = radi;
 	mMaterial = mat;	
@@ -57,18 +57,22 @@ void sprite::calculateTransPos()
 
 	// Render must be valid
 	renderer* mRenderer = root::getSingleton().getRenderer();
-	assert(mRenderer != NULL);
+	kAssert(mRenderer != NULL);
 
 	camera* mCam = mRenderer->getCamera();
-	assert(mCam != NULL);
+	if (!mCam)
+	{
+		// Camera is not valid - yet
+		invalidate();
+
+		return;
+	}
 
 	vector3 sprZ = mCam->getPosition() - mPosition;
 	sprZ.normalise();
 
-	vector3 sprX = mCam->getRight();
+	vector3 sprX = mCam->getRight().negate();
 	vector3 sprY = mCam->getUp();
-
-	#ifdef __WII__
 
 	mTransPos.m[0][0] = sprX.x;
 	mTransPos.m[1][0] = sprX.y;
@@ -82,29 +86,9 @@ void sprite::calculateTransPos()
 	mTransPos.m[1][2] = sprZ.y;
 	mTransPos.m[2][2] = sprZ.z;
 
-	mTransPos.m[0][3] = mPosition.x;
-	mTransPos.m[1][3] = mPosition.y;
-	mTransPos.m[2][3] = mPosition.z;
-
-	#else
-
-	mTransPos.m[0][0] = sprX.x;
-	mTransPos.m[0][1] = sprX.y;
-	mTransPos.m[0][2] = sprX.z;
-	
-	mTransPos.m[1][0] = sprY.x;
-	mTransPos.m[1][1] = sprY.y;
-	mTransPos.m[1][2] = sprY.z;
-	
-	mTransPos.m[2][0] = sprZ.x;
-	mTransPos.m[2][1] = sprZ.y;
-	mTransPos.m[2][2] = sprZ.z;
-
 	mTransPos.m[3][0] = mPosition.x;
 	mTransPos.m[3][1] = mPosition.y;
 	mTransPos.m[3][2] = mPosition.z;
-
-	#endif
 
 	// TransPos is now valid =]
 	mInvalidTransPos = false;
@@ -133,7 +117,7 @@ vec_t sprite::getRadius()
 
 void sprite::setMaterial(material* mat)
 {
-	assert(mat != NULL);
+	kAssert(mat != NULL);
 	mMaterial = mat;
 }
 
@@ -172,7 +156,7 @@ void sprite::draw()
 		return;
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	assert(rs != NULL);
+	kAssert(rs != NULL);
 
 	#ifndef __WII__
 	if (GLEW_ARB_point_sprite)
@@ -180,7 +164,7 @@ void sprite::draw()
 		rs->setDepthMask(false);
 		glEnable(GL_POINT_SPRITE);
 
-		assert(mMaterial != NULL);
+		kAssert(mMaterial != NULL);
 		mMaterial->prepare();
 
 		float maxSize = 0.0f;
@@ -209,17 +193,12 @@ void sprite::draw()
 		calculateTransPos();
 
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
-
-	#ifdef __WII__
-	rs->multMatrix(mTransPos.m);
-	#else
-	rs->multMatrix(mTransPos.m[0]);
-	#endif
+	rs->multMatrix(mTransPos);
 
 	// We dont need depth masking on this case
 	rs->setDepthMask(false);
 
-	assert(mMaterial != NULL);
+	kAssert(mMaterial != NULL);
 	mMaterial->prepare();
 
 	rs->startVertices(VERTEXMODE_QUAD);

@@ -61,9 +61,17 @@ namespace k
 			void pushMatrix();
 			void popMatrix();
 			void identityMatrix();
+
+			/*
 			void copyMatrix(vec_t* matrix);
 			void multMatrix(vec_t* matrix);
 			vec_t* getModelView();
+			*/
+			void copyMatrix(const matrix4& mat);
+			void multMatrix(const matrix4& mat);
+
+			matrix4 getModelView();
+			void getModelView(float mat[][4]);
 
 			void translateScene(vec_t x, vec_t y, vec_t z);
 			void rotateScene(vec_t angle, vec_t x, vec_t y, vec_t z);

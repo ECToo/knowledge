@@ -27,13 +27,13 @@ template<> physicsManager* singleton<physicsManager>::singleton_instance = 0;
 
 physicsManager& physicsManager::getSingleton()
 {  
-	assert(singleton_instance);
+	kAssert(singleton_instance);
 	return (*singleton_instance);  
 }
 
 physicsManager::physicsManager(vec_t stepsize, stepType_t steptype)
 {
-	assert(stepsize != 0.0);
+	kAssert(stepsize != 0.0);
 
 	mStepSize = stepsize;
 	mStepType = steptype;
@@ -156,7 +156,7 @@ void physicsManager::setJointGroup(const std::string& name)
 void defaultCollision(void* data, dGeomID id1, dGeomID id2)
 {
 	physicsManager* pMgr = &physicsManager::getSingleton();
-	assert(pMgr != NULL);
+	kAssert(pMgr != NULL);
 
 	dSurfaceParameters params = pMgr->getParams();
 	dWorldID worldId = pMgr->getActiveWorld();

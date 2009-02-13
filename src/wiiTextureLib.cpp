@@ -36,7 +36,7 @@ template<> textureLoader* singleton<textureLoader>::singleton_instance = 0;
 
 textureLoader& textureLoader::getSingleton()
 {  
-	assert(singleton_instance);
+	kAssert(singleton_instance);
 	return (*singleton_instance);  
 }
 
@@ -149,7 +149,7 @@ kTexture* loadTextureJPEG(const char* file, unsigned short* w, unsigned short* h
 	// Save data for deallocation
 	textureLoader::getSingleton().pushTextureData(newKTexture, textureData);
 	
-	// Invalidate texture cache since we changed texture data.
+	// Syncronization
 	GX_InvalidateTexAll();
 
 	return newKTexture;
@@ -173,10 +173,15 @@ kTexture* loadTexturePNG(const char* file, unsigned short* w, unsigned short* h)
 		*h = imgProperties.imgHeight;
 	}
 
-	char* textureData = (char*) memalign(32, imgProperties.imgWidth * imgProperties.imgHeight * 4);
+	uint32_t texNumBytes = imgProperties.imgWidth * imgProperties.imgHeight * 4;
+	char* textureData = (char*) memalign(32, texNumBytes);
 	if (!textureData)
 	{
-		S_LOG_INFO("Failed to allocate data for texture");
+		std::stringstream dbgTex;
+		dbgTex << "Failed to allocate data (";
+		dbgTex << texNumBytes << "for texture";
+
+		S_LOG_INFO(dbgTex.str());
 
 		PNGU_ReleaseImageContext(textureCtx);
 		return NULL;
@@ -206,7 +211,7 @@ kTexture* loadTexturePNG(const char* file, unsigned short* w, unsigned short* h)
 	// Save data for deallocation
 	textureLoader::getSingleton().pushTextureData(newKTexture, textureData);
 	
-	// Invalidate texture cache since we changed texture data.
+	// Syncronization
 	GX_InvalidateTexAll();
 
 	return newKTexture;

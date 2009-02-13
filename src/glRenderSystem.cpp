@@ -224,25 +224,28 @@ void glRenderSystem::identityMatrix()
 {
 	glLoadIdentity();
 }
-						
-vec_t* glRenderSystem::getModelView()
+							
+void glRenderSystem::copyMatrix(const matrix4& mat)
 {
-	vec_t matrix[16];
-	glGetFloatv(GL_MODELVIEW_MATRIX, matrix);
-
-	return matrix;
+	glLoadMatrixf(mat.m[0]);
 }
 
-void glRenderSystem::multMatrix(vec_t* matrix)
+void glRenderSystem::multMatrix(const matrix4& mat)
 {
-	assert(matrix != NULL);
-	glMultMatrixf(matrix);
+	glMultMatrixf(mat.m[0]);
 }
 
-void glRenderSystem::copyMatrix(vec_t* matrix)
+matrix4 glRenderSystem::getModelView()
 {
-	assert(matrix != NULL);
-	glLoadMatrixf(matrix);
+	matrix4 result;
+	glGetFloatv(GL_MODELVIEW_MATRIX, result.m[0]);
+
+	return result;
+}
+
+void glRenderSystem::getModelView(float mat[][4])
+{
+	glGetFloatv(GL_MODELVIEW_MATRIX, mat[0]);
 }
 
 void glRenderSystem::translateScene(vec_t x, vec_t y, vec_t z)
@@ -399,7 +402,7 @@ void glRenderSystem::matSpecular(const vector3& color)
 			
 void glRenderSystem::genTexture(uint32_t w, uint32_t h, uint32_t bpp, kTexture* tex)
 {
-	assert(tex);
+	kAssert(tex);
 
 	glGenTextures(1, tex);
 	glBindTexture(GL_TEXTURE_2D, *tex);
@@ -414,7 +417,7 @@ void glRenderSystem::genTexture(uint32_t w, uint32_t h, uint32_t bpp, kTexture* 
 
 void glRenderSystem::bindTexture(GLuint* tex, int chan)
 {
-	assert(tex);
+	kAssert(tex);
 
 	glClientActiveTextureARB(GL_TEXTURE0_ARB + chan);
 	glActiveTextureARB(GL_TEXTURE0_ARB + chan);
@@ -500,7 +503,7 @@ void glRenderSystem::drawArrays()
 			
 void glRenderSystem::copyToTexture(unsigned int w, unsigned int h, kTexture* tex)
 {
-	assert(tex);
+	kAssert(tex);
 	bindTexture(tex, 0);
 	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, w, h, 0);
 }

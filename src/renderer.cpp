@@ -25,7 +25,7 @@ template<> renderer* singleton<renderer>::singleton_instance = 0;
 
 renderer& renderer::getSingleton()
 {  
-	assert(singleton_instance);
+	kAssert(singleton_instance);
 	return (*singleton_instance);  
 }
 
@@ -65,7 +65,7 @@ unsigned int renderer::getLastFps()
 
 sprite* renderer::createSprite(vec_t radi, material* mat)
 {
-	assert(mat != NULL);
+	kAssert(mat != NULL);
 
 	sprite* newSpr = new sprite(mat, radi);
 	if (newSpr)
@@ -86,7 +86,7 @@ void renderer::fullRemoveSprite(sprite* spr)
 
 void renderer::removeSprite(sprite* spr)
 {
-	assert(spr != NULL);
+	kAssert(spr != NULL);
 	std::list<sprite*>::iterator it;
 	for (it = mSprites.begin(); it != mSprites.end(); )
 	{
@@ -103,13 +103,13 @@ void renderer::removeSprite(sprite* spr)
 			
 void renderer::push3D(drawable3D* object)
 {
-	assert(object != NULL);
+	kAssert(object != NULL);
 	m3DObjects.push_back(object);
 }
 
 void renderer::pop3D(drawable3D* object)
 {
-	assert(object != NULL);
+	kAssert(object != NULL);
 
 	std::list<drawable3D*>::iterator it;
 	for (it = m3DObjects.begin(); it != m3DObjects.end(); )
@@ -130,7 +130,7 @@ void renderer::setSkyBox(const std::string& matName)
 {
 	materialManager* matMgr = &materialManager::getSingleton();
 	material* mat = matMgr->getMaterial(matName);
-	assert(mat != NULL);
+	kAssert(mat != NULL);
 
 	mSkybox = mat;
 	mSkyPlane = NULL;
@@ -138,7 +138,7 @@ void renderer::setSkyBox(const std::string& matName)
 
 void renderer::setSkyBox(material* mat)
 {
-	assert(mat != NULL);
+	kAssert(mat != NULL);
 	mSkybox = mat;
 	mSkyPlane = NULL;
 }
@@ -147,7 +147,7 @@ void renderer::setSkyPlane(const std::string& matName)
 {
 	materialManager* matMgr = &materialManager::getSingleton();
 	material* mat = matMgr->getMaterial(matName);
-	assert(mat != NULL);
+	kAssert(mat != NULL);
 
 	mSkyPlane = mat;
 	mSkybox = NULL;
@@ -155,15 +155,15 @@ void renderer::setSkyPlane(const std::string& matName)
 
 void renderer::setSkyPlane(material* mat)
 {
-	assert(mat != NULL);
+	kAssert(mat != NULL);
 	mSkyPlane = mat;
 	mSkybox = NULL;
 }
 
 static inline bool compare2D(drawable2D* first, drawable2D* second)
 {
-	assert(first != NULL);
-	assert(second != NULL);
+	kAssert(first != NULL);
+	kAssert(second != NULL);
 
 	if (first->getZ() > second->getZ())
 		return true;
@@ -178,7 +178,7 @@ void renderer::sort2D()
 
 void renderer::push2D(drawable2D* object)
 {
-	assert(object != NULL);
+	kAssert(object != NULL);
 	m2DObjects.push_back(object);
 
 	sort2D();
@@ -186,7 +186,7 @@ void renderer::push2D(drawable2D* object)
 
 void renderer::pop2D(drawable2D* object)
 {
-	assert(object != NULL);
+	kAssert(object != NULL);
 	std::list<drawable2D*>::iterator it;
 	for (it = m2DObjects.begin(); it != m2DObjects.end(); )
 	{
@@ -209,7 +209,7 @@ void renderer::_drawSkyPlane()
 
 	// Rendersystem
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	assert(rs != NULL);
+	kAssert(rs != NULL);
 
 	// Disable depth test drawing on orthogonal way
 	rs->setMatrixMode(MATRIXMODE_PROJECTION);
@@ -270,20 +270,14 @@ void renderer::_drawSkybox()
 
 	// Rendersystem
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	assert(rs != NULL);
+	kAssert(rs != NULL);
 
 	// Draw
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 	if (mActiveCamera)
 	{
-		matrix4 cameraRot = mActiveCamera->getOrientation().toMatrix();
-
-		#ifdef __WII__
-		matrix4 newRot = cameraRot.transpose();
-		rs->copyMatrix(newRot.m);
-		#else
-		rs->copyMatrix(cameraRot.m[0]);
-		#endif
+		matrix4 cameraRot = mActiveCamera->getOrientation().toMatrix().transpose();
+		rs->copyMatrix(cameraRot);
 	}
 	else
 	{
@@ -298,8 +292,8 @@ void renderer::_drawSkybox()
 	rs->setDepthMask(false);
 
 	textureStage* texStage = mSkybox->getTextureStage(0);
-	assert(texStage != NULL);
-	assert(texStage->getImagesCount() == 6);
+	kAssert(texStage != NULL);
+	kAssert(texStage->getImagesCount() == 6);
 
 	std::vector<kTexture*>* mId = texStage->getId();
 
@@ -374,7 +368,7 @@ void renderer::_drawSkybox()
 void renderer::draw()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	assert(rs != NULL);
+	kAssert(rs != NULL);
 
 	if (mRenderToTexture)
 		rs->setViewPort(0, 0, mRTTSize[0], mRTTSize[1]);
@@ -434,7 +428,7 @@ void renderer::draw()
 	for (std::list<drawable3D*>::const_iterator it = m3DObjects.begin(); it != m3DObjects.end(); ++it)
 	{
 		drawable3D* obj = *it;
-		assert(obj != NULL);
+		kAssert(obj != NULL);
 
 		if (!mActiveCamera)
 		{
@@ -444,22 +438,6 @@ void renderer::draw()
 		else
 		{
 			mActiveCamera->copyView();
-			/*
-			printf("\n");
-
-			vector3 pos = mActiveCamera->getPosition();
-			glLoadIdentity();
-			gluLookAt(pos.x, pos.y, pos.z, 0, 0, 0, 0, 1, 0);
-
-			vec_t* tempMat = rs->getModelView();
-
-			printf("gluLookat:\n");
-			printf("%f %f %f %f\n", tempMat[0], tempMat[4], tempMat[8], tempMat[12]);
-			printf("%f %f %f %f\n", tempMat[1], tempMat[5], tempMat[9], tempMat[13]);
-			printf("%f %f %f %f\n", tempMat[2], tempMat[6], tempMat[10], tempMat[14]);
-			printf("%f %f %f %f\n", tempMat[3], tempMat[7], tempMat[11], tempMat[15]);
-			printf("\n");
-			*/
 		}
 
 		obj->draw();
@@ -469,7 +447,7 @@ void renderer::draw()
 	for (it = mSprites.begin(); it != mSprites.end(); it++)
 	{
 		sprite* spr = (*it);
-		assert(spr != NULL);
+		kAssert(spr != NULL);
 
 		if (!mActiveCamera)
 		{
@@ -498,7 +476,7 @@ void renderer::draw()
 		for (std::list<drawable2D*>::const_iterator dit = m2DObjects.begin(); dit != m2DObjects.end(); dit++)
 		{
 			drawable2D* obj = (*dit);
-			assert(obj != NULL);
+			kAssert(obj != NULL);
 
 			rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 			rs->identityMatrix();
@@ -536,7 +514,7 @@ void renderer::draw()
 
 void renderer::setCamera(camera* cam)
 {
-	assert(cam != NULL);
+	kAssert(cam != NULL);
 	mActiveCamera = cam;
 
 	mLastCameraPos = cam->getPosition();

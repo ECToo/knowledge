@@ -23,7 +23,7 @@ namespace k {
 
 void tev::pushStage(tevStage* newStage, int index)
 {
-	assert(newStage != NULL);
+	kAssert(newStage != NULL);
 
 	if (index == -1)
 		mGeneralStage = newStage;
@@ -80,7 +80,7 @@ template<> tevManager* singleton<tevManager>::singleton_instance = 0;
 
 tevManager& tevManager::getSingleton()
 {
-	assert(singleton_instance);
+	kAssert(singleton_instance);
 	return (*singleton_instance);  
 }
 
@@ -111,7 +111,7 @@ tev* tevManager::createTev(const std::string& name)
 	else
 	{
 		newTev = new tev();
-		assert(newTev != NULL);
+		kAssert(newTev != NULL);
 
 		mTevs[name] = newTev;
 		return newTev;
@@ -288,8 +288,8 @@ u8 getOutput(const std::string& token)
 
 void tevManager::parseTev(tev* t, parsingFile* file)
 {
-	assert(t != NULL);
-	assert(file != NULL);
+	kAssert(t != NULL);
+	kAssert(file != NULL);
 
 	std::string token;
 	unsigned int openBraces = 1;
@@ -454,8 +454,8 @@ u8 getColorIn(const std::string& token)
 
 void tevManager::parseStage(tev* t, parsingFile* file, int index)
 {
-	assert(t != NULL);
-	assert(file != NULL);
+	kAssert(t != NULL);
+	kAssert(file != NULL);
 
 	std::string token;
 	unsigned int openBraces = 1;
@@ -487,7 +487,7 @@ void tevManager::parseStage(tev* t, parsingFile* file, int index)
 
 	// Ok read the stages correctly
 	tevStage* newStage = new tevStage;
-	assert(newStage != NULL);
+	kAssert(newStage != NULL);
 	memset(newStage, 0, sizeof(tevStage));
 
 	// Set Index
@@ -548,7 +548,7 @@ void tevManager::parseStage(tev* t, parsingFile* file, int index)
 
 void tevManager::parseTevScript(parsingFile* file)
 {
-	assert(file != NULL);
+	kAssert(file != NULL);
 
 	if (!file->isReady())
 	{
@@ -592,7 +592,7 @@ void tevManager::parseTevScript(parsingFile* file)
 			// Create a new TEV
 			{
 				newTev = createTev(token);
-				assert(newTev != NULL);
+				kAssert(newTev != NULL);
 
 				S_LOG_INFO("Parsing tev " + token + "...");
 				parseTev(newTev, file);

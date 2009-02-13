@@ -15,12 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "prerequisites.h"
-#include "root.h"
-#include "renderer.h"
-#include "rendersystem.h"
-#include "resourceManager.h"
-#include "logger.h"
+#include "knowledge.h"
 
 k::renderSystem* mRenderSystem;
 k::sticker* texSticker;
@@ -33,7 +28,6 @@ static inline void drawScene(bool rtt)
 	mRenderSystem->frameStart();
 
 	mRenderSystem->setMatrixMode(k::MATRIXMODE_PROJECTION);
-	mRenderSystem->identityMatrix();
 	mRenderSystem->setPerspective(110, 1.33f, 0.1f, 5000.0f);
 
 	mRenderSystem->setMatrixMode(k::MATRIXMODE_MODELVIEW);
@@ -110,6 +104,7 @@ static inline void drawScene(bool rtt)
 
 	// End
 	mRenderSystem->endVertices();
+	crateMaterial->finish();
 
 	if (!rtt)
 	{
@@ -146,16 +141,17 @@ int main(int argc, char** argv)
 	#endif
 
 	// Loading Screen
-	k::bgLoadScreen* newLoadingScreen = new k::bgLoadScreen();
-	assert(newLoadingScreen);
+	k::imgLoadScreen* newLoadingScreen = new k::imgLoadScreen();
+	kAssert(newLoadingScreen);
 
 	resourceMgr->setLoadingScreen(newLoadingScreen);
-	newLoadingScreen->loadBg("loading.jpg");
+	newLoadingScreen->loadBg("loading.png");
+	newLoadingScreen->setImgDimension(k::vector2(256, 256));
 	newLoadingScreen->update("");
 
 	// Create Material for RTT
 	k::material* rttMaterial = mMaterialManager->createMaterial("rttMaterial");
-	assert(rttMaterial);
+	kAssert(rttMaterial);
 
 	// Create Texture for RTT
 	kTexture rttTarget;
@@ -166,7 +162,7 @@ int main(int argc, char** argv)
 
 	// Create a sticker ;)
 	texSticker = new k::sticker("rttMaterial");
-	assert(texSticker);
+	kAssert(texSticker);
 
 	texSticker->setScale(k::vector2(128, 128));
 	
@@ -174,27 +170,27 @@ int main(int argc, char** argv)
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("texture");
 
+	#ifdef __WII__
+	k::parsingFile* tevFile = new k::parsingFile("/knowledge/tev.script");
+
+	kAssert(tevFile);
+	k::tevManager::getSingleton().parseTevScript(tevFile);
+	#endif
+
 	delete newLoadingScreen;
 
 	/**
 	 * Setup the input Manager
 	 */
-	assert(mInputManager != NULL);
+	kAssert(mInputManager);
 	mInputManager->initWii(false);
 	mInputManager->setupWiiMotes(1);
 	mInputManager->setWiiMoteTimeout(60);
 	mInputManager->setWiiMoteEmulation(true);
 
-	#ifdef __WII__
-	k::parsingFile* tevFile = new k::parsingFile("/knowledge/tev.script");
-
-	assert(tevFile != NULL);
-	k::tevManager::getSingleton().parseTevScript(tevFile);
-	#endif
-
 	// Get material
 	crateMaterial = mMaterialManager->getMaterial("crate");
-	assert(crateMaterial);
+	kAssert(crateMaterial);
 
 	bool running = true;
 	while (running)

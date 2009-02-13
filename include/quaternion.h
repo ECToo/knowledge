@@ -35,10 +35,19 @@ namespace k
 			/**
 			 * Credit goes to iD Software 
 			 * guys, im not really sure
-			 * Who.
+			 * Who. ASM version by Shagkur.
 			 */
 			inline float ReciprocalSqrt(float x) 
 			{
+				#ifdef __WII__
+				register f32 d = 0.0f;
+				__asm__ __volatile__(
+						"frsqrte	%0,%1\n"
+						"frsp		%0,%0"
+						: "=f"(d) : "f"(x));
+
+				return d;
+				#else
 				typedef union
 				{
 					float f;
@@ -56,10 +65,19 @@ namespace k
     			r = r * ( 1.5f - r * r * y );
 
     			return r;
+				#endif
 			}
 
 		public:
-			vec_t x, y, z, w;
+			// Allow us to access like packed data
+			union
+			{
+				struct 
+				{
+					vec_t x, y, z, w;
+				};
+				vec_t quat[4];
+			};
 
 		public:
 			/**
@@ -79,57 +97,6 @@ namespace k
 				z = zz;
 				w = ww;
 			}
-
-			/**
-			 * This function has been taken from 
-			 * Ogre3D - All credit goes to ogre3d team
-			 */
-
-			/*
-			quaternion(matrix3 mat)
-			{
-				// Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
-				// article "Quaternion Calculus and Fast Animation".
-
-				vec_t fTrace = mat.m[0][0] + mat.m[1][1] + mat.m[2][2];
-				vec_t fRoot;
-
-				if ( fTrace > 0.0 )
-				{
-					// |w| > 1/2, may as well choose w > 1/2
-					fRoot = sqrt(fTrace + 1.0);  // 2w
-
-					w = 0.5 * fRoot;
-					fRoot = 0.5/fRoot;  // 1/(4w)
-					x = (mat.m[2][1] - mat.m[1][2]) * fRoot;
-					y = (mat.m[0][2] - mat.m[2][0]) * fRoot;
-					z = (mat.m[1][0] - mat.m[0][1]) * fRoot;
-	        }
-	        else
-	        {
-	            // |w| <= 1/2
-	            static size_t s_iNext[3] = { 1, 2, 0 };
-	            size_t i = 0;
-
-	            if (mat.m[1][1] > mat.m[0][0])
-	                i = 1;
-
-	            if (mat.m[2][2] > mat.m[i][i])
-	                i = 2;
-
-	            size_t j = s_iNext[i];
-	            size_t k = s_iNext[j];
-	
-	            fRoot = sqrt(mat.m[i][i] - mat.m[j][j] - mat.m[k][k] + 1.0);
-	            vec_t* apkQuat[3] = { &x, &y, &z };
-	            *apkQuat[i] = 0.5 * fRoot;
-	            fRoot = 0.5 / fRoot;
-	            w = (mat.m[k][j] - mat.m[j][k]) * fRoot;
-	            *apkQuat[j] = (mat.m[j][i] + mat.m[i][j]) * fRoot;
-					*apkQuat[k] = (mat.m[k][i] + mat.m[i][k]) * fRoot;
-			  }
-			}
-			*/
 
 			quaternion(const matrix3& m)
 			{
@@ -260,10 +227,57 @@ namespace k
 			{
 				quaternion output;
 
+				#ifdef __WII__
+			
+				register f32 vXY,vZZ,qXY,qZW;
+				register f32 tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
+				register char* a = (char*)newVec.vec;
+				register char* b = (char*)quat;
+				register char* ab = (char*)output.quat;
+
+				__asm__ __volatile__ (
+				"psq_l		%0,0(%12),0,0\n"		// [vx][vy]
+				"lfs			%1,8(%12)\n"			// [vz][vz]
+				"psq_l		%2,0(%13),0,0\n"		// [qx][qy]
+				"ps_neg		%4,%0\n"					// [-vx][-vy]
+				"psq_l		%3,8(%13),0,0\n"		// [qz][qw]
+				"ps_neg		%5,%1\n"					// [-vz][-vz]
+				"ps_merge01	%6,%5,%1\n"				// [-vz][vz]
+				"ps_mul		%8,%3,%6\n"				// [qz*-vz][qw*vz]
+				"ps_muls1	%9,%4,%2\n"				// [-vx*qy][-vy*qy]
+				"ps_merge01	%11,%4,%0\n"			// [-vx][vy]
+				"ps_madds0	%7,%11,%2,%8\n"		// [-vx*qx+qz*-vz][vy*qx+qw*vz]
+				"ps_sum0	%10,%7,%7,%9\n"			// [-vx*qx+qz*-vz+-vy*qy][vy*qx+qw*vz]
+				"ps_sum1	%10,%9,%10,%7\n"			// [-vx*qx+qz*-vz+-vy*qy][-vx*qy+vy*qx+qw*vz]
+				"ps_merge10	%10,%10,%10\n"			// [-vx*qy+vy*qx+qw*vz][-vx*qx+qz*-vz+-vy*qy]
+				"psq_st		%10,8(%14),0,0\n"		// Z = [-vx*qy+vy*qx+qw*vz], W = [-vx*qx+qz*-vz+-vy*qy]
+				"ps_merge10	%8,%2,%2\n"				// [qy][qx]
+				"ps_muls0	%9,%8,%5\n"				// [qy*-vz][qx*-vz]
+				"ps_muls0	%7,%0,%3\n"				// [vx*qz][vy*qz]
+				"ps_merge10	%7,%7,%7\n"				// [vy*qz][vx*qz]
+				"ps_madds1	%10,%0,%3,%7\n"		// [vx*qw+vy*qz][vy*qw+vx*qz]
+				"ps_sum0	%8,%10,%10,%9\n"			// [vx*qw+vy*qz+qy*-vz][vy*qw+vx*qz]
+				"ps_sum1	%8,%9,%8,%10\n"			// [vx*qw+vy*qz+qy*-vz][qx*-vz+vy*qw+vx*qz]
+				"psq_st		%8,0(%14),0,0"			// X = [vx*qw+vy*qz+qy*-vz], Y = [qx*-vz+vy*qw+vx*qz]
+
+				// Output
+				: "=&f"(vXY),"=&f"(vZZ),"=&f"(qXY),
+				"=&f"(qZW),"=&f"(tmp0),"=&f"(tmp1),
+				"=&f"(tmp2),"=&f"(tmp3),"=&f"(tmp4),
+				"=&f"(tmp5),"=&f"(tmp6),"=&f"(tmp7)
+
+				// Input
+				: "r"(a),"r"(b),"r"(ab)
+				);
+
+				#else
+
 				output.w = -x*newVec.x - y*newVec.y - z*newVec.z;
 				output.x =  w*newVec.x + y*newVec.z - z*newVec.y;
 				output.y =  w*newVec.y + z*newVec.y - x*newVec.z;
 				output.z =  w*newVec.z + x*newVec.y - y*newVec.x;
+
+				#endif
 
 				return output;
 			}
@@ -449,10 +463,7 @@ namespace k
 	 		 */
 			inline void cout() const
 			{
-				std::cout << "W: " << w << std::endl;
-				std::cout << "X: " << x << std::endl;
-				std::cout << "Y: " << y << std::endl;
-				std::cout << "Z: " << z << std::endl;
+				printf("X: %f - Y: %f - Z: %f - W: %f\n", x, y, z, w);
 			}		
 	};	
 }

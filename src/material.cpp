@@ -24,13 +24,7 @@ namespace k {
 material::material()
 {
 	mTextureUnits = 0;
-
-	#ifdef __WII__
-	mCull = CULLMODE_BACK;
-	#else
 	mCull = CULLMODE_FRONT;
-	#endif
-
 	mDepthTest = true;
 }
 
@@ -38,7 +32,7 @@ void material::prepare()
 {
 	// Material Properties
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	assert(rs != NULL);
+	kAssert(rs != NULL);
 
 	rs->bindMaterial(this);
 	rs->matAmbient(mAmbient);
@@ -69,7 +63,7 @@ void material::prepare()
 	for (it = mTextures.begin(); it != mTextures.end(); it++)
 	{
 		textureStage* tex = (*it);
-		assert(tex != NULL);
+		kAssert(tex != NULL);
 		
 		tex->draw();
 	}
@@ -82,7 +76,7 @@ void material::finish()
 	for (it = mTextures.begin(); it != mTextures.end(); it++)
 	{
 		textureStage* tex = (*it);
-		assert(tex != NULL);
+		kAssert(tex != NULL);
 		
 		tex->finish();
 	}
@@ -144,29 +138,37 @@ textureStage* material::getTextureStage(unsigned short index)
 
 void material::pushTexture(textureStage* tex)
 {
-	assert(tex);
+	kAssert(tex);
 	mTextures.push_back(tex);
 }
 			
 void material::setSingleTexture(unsigned int w, unsigned int h, kTexture* tex)
 {
-	assert(tex);
+	kAssert(tex);
 
 	// 
-	std::vector<kTexture*> mKTextures(1);
-	mKTextures[0] = tex;
+	std::vector<kTexture*>* mKTextures = new std::vector<kTexture*>(1);
+	if (!mKTextures)
+	{
+		S_LOG_INFO("Failed to allocate memory for texture array.");
+		return;
+	}
+
+	(*mKTextures)[0] = tex;
 
 	//
 	platTexture* newTexStage = new platTexture(w, h, 0);
 	if (newTexStage)
 	{
-		newTexStage->setId(&mKTextures);
+		newTexStage->setId(mKTextures);
 		newTexStage->setImagesCount(1);
+		setTextureUnits(1);
 
-		mTextures.push_back(newTexStage);
+		pushTexture(newTexStage);
 	}
 	else
 	{
+		delete mKTextures;
 		S_LOG_INFO("Failed to allocate texture stage.");
 	}
 }

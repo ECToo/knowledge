@@ -118,7 +118,7 @@ void md5mesh::prepareWeights(unsigned int size)
 void md5mesh::pushVertex(const vector2& uv, const vector2& weight)
 {
 	vert_t* newVertex = &mVertices[mVIndex++];
-	assert(newVertex != NULL);
+	kAssert(newVertex != NULL);
 
 	newVertex->uv[0] = uv.x;
 	newVertex->uv[1] = uv.y;
@@ -128,7 +128,7 @@ void md5mesh::pushVertex(const vector2& uv, const vector2& weight)
 void md5mesh::pushTriangle(const vector3& triangle)
 {
 	triangle_t* newTri = &mTriangles[mTIndex++];
-	assert(newTri != NULL);
+	kAssert(newTri != NULL);
 		
 	newTri->index[0] = triangle.x;
 	newTri->index[1] = triangle.y;
@@ -138,7 +138,7 @@ void md5mesh::pushTriangle(const vector3& triangle)
 void md5mesh::pushWeight(const vector2& joint, const vector3& pos)
 {
 	weight_t* newWeight = &mWeights[mWIndex++];
-	assert(newWeight != NULL);
+	kAssert(newWeight != NULL);
 
 	newWeight->jointIndex = joint.x;
 	newWeight->value = joint.y;
@@ -147,17 +147,17 @@ void md5mesh::pushWeight(const vector2& joint, const vector3& pos)
 		
 void md5mesh::setMaterial(material* mat)
 {
-	assert(mat != NULL);
+	kAssert(mat != NULL);
 	mMaterial = mat;
 }
 
 void md5mesh::setMaterial(const std::string& matName)
 {
 	materialManager* matMgr = &materialManager::getSingleton();
-	assert(matMgr != NULL);
+	kAssert(matMgr != NULL);
 
 	material* mat = matMgr->getMaterial(matName);
-	assert(mat != NULL);
+	kAssert(mat != NULL);
 
 	mMaterial = mat;
 }
@@ -167,7 +167,7 @@ void md5mesh::compileVertices(std::vector<bone_t*>* boneList)
 	for (unsigned int vIt = 0; vIt < mVCount; vIt++)
 	{
 		vert_t* vertex = &mVertices[vIt];
-		assert(vertex != NULL);
+		kAssert(vertex != NULL);
 
 		vertex->renderPos[0] = vertex->renderPos[1] = vertex->renderPos[2] = 0;
 		vertex->renderNormal = vector3(0, 0, 0);
@@ -176,10 +176,10 @@ void md5mesh::compileVertices(std::vector<bone_t*>* boneList)
 			vector3 tempPos;
 
 			weight_t* weight = &mWeights[w];
-			assert(weight != NULL);
+			kAssert(weight != NULL);
 				
 			bone_t* bone = (*boneList)[weight->jointIndex];
-			assert(bone != NULL);
+			kAssert(bone != NULL);
 
 			tempPos = bone->orientation.rotateVector(weight->pos);
 			vertex->renderPos[0] += (tempPos.x + bone->pos.x) * weight->value;
@@ -212,7 +212,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 	for (unsigned int vIt = 0; vIt < mVCount; vIt++)
 	{
 		vert_t* vertex = &mVertices[vIt];
-		assert(vertex != NULL);
+		kAssert(vertex != NULL);
 
 		vertex->basePos = vector3(0, 0, 0);
 		for (int w = vertex->weight.x; w < vertex->weight.x+vertex->weight.y; w++)
@@ -220,10 +220,10 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 			vector3 tempPos;
 
 			weight_t* weight = &mWeights[w];
-			assert(weight != NULL);
+			kAssert(weight != NULL);
 				
 			bone_t* bone = (*boneList)[weight->jointIndex];
-			assert(bone != NULL);
+			kAssert(bone != NULL);
 
 			tempPos = bone->orientation.rotateVector(weight->pos);
 			vertex->basePos += (tempPos + bone->pos) * weight->value;
@@ -248,7 +248,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 	for (unsigned int tIt = 0; tIt < mTCount; tIt++)
 	{
 		triangle_t* tri = &mTriangles[tIt];
-		assert(tri != NULL);
+		kAssert(tri != NULL);
 
 		vector3 v1, v2, v3;
 		vector3 edge1, edge2;
@@ -273,7 +273,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 	for (unsigned int vIt = 0; vIt < mVCount; vIt++)
 	{
 		vert_t* vertex = &mVertices[vIt];
-		assert(vertex != NULL);
+		kAssert(vertex != NULL);
 
 		vertex->baseNormal.normalise();
 		vertex->renderNormal = vertex->baseNormal;
@@ -285,7 +285,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 	for (unsigned int vIt = 0; vIt < mVCount; vIt++)
 	{
 		vert_t* vertex = &mVertices[vIt];
-		assert(vertex != NULL);
+		kAssert(vertex != NULL);
 
 		vector3 normal;
 		for (int w = 0; w < vertex->weight.x + vertex->weight.y; w++)
@@ -293,10 +293,10 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 			vector3 tempPos;
 
 			weight_t* weight = &mWeights[w];
-			assert(weight != NULL);
+			kAssert(weight != NULL);
 
 			bone_t* bone = (*boneList)[weight->jointIndex];
-			assert(bone != NULL);
+			kAssert(bone != NULL);
 
 			tempPos = bone->orientation.inverseVector(vertex->baseNormal);
 			normal += tempPos;
@@ -369,7 +369,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 void md5mesh::draw()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	assert(rs);
+	kAssert(rs);
 
 	mMaterial->prepare();
 
@@ -405,7 +405,7 @@ md5model::md5model(const std::string& filename)
 		return;
 	}
 
-	unsigned numberOfJointsToParse = 0;
+	unsigned int numberOfJointsToParse = 0;
 
 	std::string token = file.getNextToken();
 	while (!file.eof())
@@ -597,7 +597,7 @@ md5model::md5model(const std::string& filename)
 				file.skipNextToken(); // )
 
 				bone_t* newBone = new bone_t;
-				assert(newBone != NULL);
+				kAssert(newBone != NULL);
 					
 				newBone->parentIndex = parentIndex;
 				newBone->index = i;
@@ -637,7 +637,7 @@ void md5model::compileVertices()
 	for (it = mMeshes.begin(); it != mMeshes.end(); it++)
 	{
 		md5mesh* mesh = (*it);
-		assert(mesh != NULL);
+		kAssert(mesh != NULL);
 	
 		mesh->compileVertices(&mBones);
 	}
@@ -649,7 +649,7 @@ void md5model::compileBase()
 	for (it = mMeshes.begin(); it != mMeshes.end(); it++)
 	{
 		md5mesh* mesh = (*it);
-		assert(mesh != NULL);
+		kAssert(mesh != NULL);
 	
 		mesh->compileBase(&mBones);
 	}
@@ -658,7 +658,7 @@ void md5model::compileBase()
 void md5model::draw()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	assert(rs);
+	kAssert(rs);
 
 	// Feed animations =]
 	feedAnims();
@@ -677,7 +677,7 @@ void md5model::draw()
 	for (it = mMeshes.begin(); it != mMeshes.end(); it++)
 	{
 		md5mesh* mesh = (*it);
-		assert(mesh != NULL);
+		kAssert(mesh != NULL);
 	
 		mesh->draw();
 	}
@@ -804,7 +804,7 @@ void md5model::attachAnimation(const std::string& filename, const std::string& n
 			for (unsigned int i = 0; i < newAnimation->numBones; i++)
 			{
 				boneFrame_t* thisBone = &newAnimation->hierarchy[i];
-				assert(thisBone != NULL);
+				kAssert(thisBone != NULL);
 
 				// Set Index
 				thisBone->index = i;
@@ -833,7 +833,7 @@ void md5model::attachAnimation(const std::string& filename, const std::string& n
 			for (unsigned int i = 0; i < newAnimation->numFrames; i++)
 			{
 				bound_t* thisBound = &newAnimation->bounds[i];
-				assert(thisBound != NULL);
+				kAssert(thisBound != NULL);
 
 				file.skipNextToken(); // (
 				token = file.getNextToken(); // X
@@ -865,7 +865,7 @@ void md5model::attachAnimation(const std::string& filename, const std::string& n
 				quaternion q;
 
 				baseBone_t* thisBone = &newAnimation->baseFrame[i];
-				assert(thisBone != NULL);
+				kAssert(thisBone != NULL);
 
 				file.skipNextToken(); // (
 				token = file.getNextToken(); // X
@@ -897,7 +897,7 @@ void md5model::attachAnimation(const std::string& filename, const std::string& n
 
 			token = file.getNextToken(); // frame index
 			activeFrame = newAnimation->frames[atoi(token.c_str())];
-			assert(activeFrame != NULL);
+			kAssert(activeFrame != NULL);
 
 			file.skipNextToken(); // {
 			for (unsigned int i = 0; i < newAnimation->animatedComponents; i++)
@@ -942,7 +942,7 @@ void md5model::setAnimation(const std::string& name)
 	for (unsigned int i = 0; i < mBones.size(); i++)
 	{
 		bone_t* thisBone = mBones[i];
-		assert(thisBone != NULL);
+		kAssert(thisBone != NULL);
 
 		thisBone->currentAnim = destAnimation;
 	}
@@ -960,7 +960,7 @@ void md5model::feedAnims()
 	for (unsigned int i = 0; i < mBones.size(); i++)
 	{
 		bone_t* thisBone = mBones[i];
-		assert(thisBone != NULL);
+		kAssert(thisBone != NULL);
 
 		if (!thisBone->currentAnim)
 			continue;
@@ -1019,7 +1019,7 @@ void md5model::feedAnims()
 		if (boneOnFrame->parentIndex > -1)
 		{
 			bone_t* parentBone = mBones[thisBone->parentIndex];
-			assert(parentBone != NULL);
+			kAssert(parentBone != NULL);
 
 			quaternion oriQuat = thisBone->orientation;
 			vector3 oriPos = thisBone->pos;
@@ -1040,7 +1040,7 @@ void md5model::setAnimationFrame(unsigned int frameNum)
 	for (unsigned int i = 0; i < mBones.size(); i++)
 	{
 		bone_t* thisBone = mBones[i];
-		assert(thisBone != NULL);
+		kAssert(thisBone != NULL);
 
 		if (!thisBone->currentAnim)
 			continue;
@@ -1098,7 +1098,7 @@ void md5model::setAnimationFrame(unsigned int frameNum)
 		if (boneOnFrame->parentIndex > -1)
 		{
 			bone_t* parentBone = mBones[thisBone->parentIndex];
-			assert(parentBone != NULL);
+			kAssert(parentBone != NULL);
 
 			quaternion oriQuat = thisBone->orientation;
 			vector3 oriPos = thisBone->pos;
@@ -1137,6 +1137,14 @@ void md5model::setAutoFeed(bool feed)
 bool md5model::getAutoFeed()
 {
 	return mAutoFeedAnims;
+}
+		
+const boundingBox& md5model::getBoundingBox()
+{
+}
+
+const boundingBox& md5model::getAABoundingBox()
+{
 }
 
 }

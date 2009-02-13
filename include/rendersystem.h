@@ -101,15 +101,11 @@ namespace k
 			virtual void popMatrix() = 0;
 			virtual void identityMatrix() = 0;
 
-			#ifndef __WII__
-			virtual void copyMatrix(vec_t* matrix) = 0;
-			virtual void multMatrix(vec_t* matrix) = 0;
-			virtual vec_t* getModelView() = 0;
-			#else
-			virtual void copyMatrix(Mtx44 matrix) = 0;
-			virtual void multMatrix(Mtx44 matrix) = 0;
-			virtual void getModelView(Mtx matrix) = 0;
-			#endif
+			virtual void copyMatrix(const matrix4& mat) = 0;
+			virtual void multMatrix(const matrix4& mat) = 0;
+
+			virtual matrix4 getModelView() = 0;
+			virtual void getModelView(float mat[][4]) = 0;
 
 			virtual void translateScene(vec_t x, vec_t y, vec_t z) = 0;
 			virtual void rotateScene(vec_t angle, vec_t x, vec_t y, vec_t z) = 0;
@@ -192,6 +188,54 @@ namespace k
 			{
 				assert(count != 0);
 				mIndexCount = count;
+			}
+
+			virtual void draw3DLine(const vector3& start, const vector3& end)
+			{
+				startVertices(VERTEXMODE_LINE);
+					vertex(start);
+					vertex(end);
+				endVertices();
+			}
+
+			virtual void drawLineBox(const vector3& min, const vector3& max)
+			{
+				// Base
+				startVertices(VERTEXMODE_LINE);
+					vertex(min);
+					vertex(vector3(min.x, min.y, max.z));
+					vertex(vector3(max.x, min.y, max.z));
+					vertex(vector3(max.x, min.y, min.z));
+				endVertices();
+
+				// Top
+				startVertices(VERTEXMODE_LINE);
+					vertex(vector3(min.x, max.y, min.z));
+					vertex(vector3(min.x, max.y, max.z));
+					vertex(vector3(max.x, max.y, max.z));
+					vertex(vector3(max.x, max.y, min.z));
+				endVertices();
+
+				// Edges
+				startVertices(VERTEXMODE_LINE);
+					vertex(min);
+					vertex(vector3(min.x, max.y, min.z));
+				endVertices();
+
+				startVertices(VERTEXMODE_LINE);
+					vertex(max);
+					vertex(vector3(max.x, min.y, max.z));
+				endVertices();
+
+				startVertices(VERTEXMODE_LINE);
+					vertex(vector3(max.x, min.y, min.z));
+					vertex(vector3(max.x, max.y, min.z));
+				endVertices();
+
+				startVertices(VERTEXMODE_LINE);
+					vertex(vector3(min.x, min.y, max.z));
+					vertex(vector3(min.x, max.y, max.z));
+				endVertices();
 			}
 
 			virtual void drawArrays() = 0;

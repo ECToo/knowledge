@@ -120,9 +120,9 @@ namespace k
 
 			void cout() const
 			{
-				std::cout << m[0][0] << "\t" << m[1][0] << "\t" << m[2][0] << std::endl;
-				std::cout << m[0][1] << "\t" << m[1][1] << "\t" << m[2][1] << std::endl;
-				std::cout << m[0][2] << "\t" << m[1][2] << "\t" << m[2][2] << std::endl;
+				 printf("%f %f %f\n", m[0][0], m[1][0], m[2][0]);
+				 printf("%f %f %f\n", m[0][1], m[1][1], m[2][1]);
+				 printf("%f %f %f\n", m[0][2], m[1][2], m[2][2]);
 			}
 	};
 }

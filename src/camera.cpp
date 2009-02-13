@@ -69,7 +69,7 @@ void camera::setPerspective(unsigned int fov, vec_t ar, vec_t near, vec_t far)
 void camera::setPerspective()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	assert(rs != NULL);
+	kAssert(rs != NULL);
 
 	rs->setMatrixMode(MATRIXMODE_PROJECTION);
 	rs->identityMatrix();
@@ -135,29 +135,16 @@ static inline vector3 getPlaneNormal(const vector3& a, const vector3& b, const v
 void camera::setView()
 {
 	matrix4 mRotation = mOrientation.toMatrix();
+	mFinal = mRotation;
 
-	#ifndef __WII__
+	vector3 look(mFinal.m[0][2], mFinal.m[1][2], mFinal.m[2][2]);
+	vector3 up(mFinal.m[0][1], mFinal.m[1][1], mFinal.m[2][1]);
+	vector3 right(mFinal.m[0][0], mFinal.m[1][0], mFinal.m[2][0]);
 
-	matrix4 mTranslation;
-	mTranslation.m[3][0] = -mPosition.x;
-	mTranslation.m[3][1] = -mPosition.y;
-	mTranslation.m[3][2] = -mPosition.z;
-	mFinal = mTranslation * mRotation;
-
-	#else
-
-	matrix4 mAux = mRotation.transpose();
-
-	vector3 look(mRotation.m[0][2], mRotation.m[1][2], mRotation.m[2][2]);
-	vector3 up(mRotation.m[0][1], mRotation.m[1][1], mRotation.m[2][1]);
-	vector3 right(mRotation.m[0][0], mRotation.m[1][0], mRotation.m[2][0]);
-
-	mAux.m[0][3] = -right.dotProduct(mPosition);
-	mAux.m[1][3] = -up.dotProduct(mPosition);
-	mAux.m[2][3] = -look.dotProduct(mPosition);
-
-	mFinal = mAux;
-	#endif
+	mFinal.m[3][0] = -right.dotProduct(mPosition);
+	mFinal.m[3][1] = -up.dotProduct(mPosition);
+	mFinal.m[3][2] = -look.dotProduct(mPosition);
+	mFinal.m[3][3] = 1.0f;
 
 	// We need the transpose
 	mFinalInverse = mFinal.transpose().inverse();
@@ -236,15 +223,10 @@ vector3 camera::projectRayFrom2D(const vector2& coords)
 void camera::copyView()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	assert(rs != NULL);
+	kAssert(rs != NULL);
 
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
-
-	#ifdef __WII__
-	rs->copyMatrix(mFinal.m);
-	#else
-	rs->copyMatrix(mFinal.m[0]);
-	#endif
+	rs->copyMatrix(mFinal);
 }
 
 void camera::setPosition(vector3 pos)

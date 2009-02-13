@@ -19,7 +19,7 @@
 #define _LOAD_SCR_H_
 
 #include "prerequisites.h"
-#include "texture.h"
+#include "material.h"
 
 namespace k
 {
@@ -30,7 +30,7 @@ namespace k
 	class loadScreen
 	{
 		public:
-			void update(const std::string& filename) {}
+			virtual void update(const std::string& filename) = 0;
 	};
 
 	/**
@@ -39,9 +39,46 @@ namespace k
 	class bgLoadScreen : public loadScreen
 	{
 		protected:
-			k::texture* mBackground;
+			material* mBackground;
 
 		public:
+			bgLoadScreen()
+			{
+				mBackground = NULL;
+			}
+
+			~bgLoadScreen()
+			{
+				delete mBackground;
+			}
+
+			void loadBg(const std::string& filename);
+			void update(const std::string& filename);
+	};
+
+	/**
+	 * Load screen with a centered image.
+	 */
+	class imgLoadScreen : public loadScreen
+	{
+		protected:
+			material* mImgMaterial;
+			vector3 mBgColor;
+			vector2 mDimension;
+
+		public:
+			imgLoadScreen()
+			{
+				mImgMaterial = NULL;
+			}
+			~imgLoadScreen()
+			{
+				delete mImgMaterial;
+			}
+
+
+			void setImgDimension(const vector2& dimension);
+			void setBgColor(const vector3& color);
 			void loadBg(const std::string& filename);
 			void update(const std::string& filename);
 	};

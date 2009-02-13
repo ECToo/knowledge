@@ -278,6 +278,18 @@ class md5model : public drawable3D
 		 * Overloaded
 		 */
 		void draw();
+
+
+		/**
+		 * Return model Bounding box, rotated
+		 * like model orientation.
+		 */
+		const boundingBox& getAABoundingBox();
+
+		/**
+		 * Return model bounding box, untransformed
+		 */
+		const boundingBox& getBoundingBox();
 };
 
 }

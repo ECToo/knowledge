@@ -17,6 +17,7 @@ Features for first beta release:
 [x] Billboards (sprites)
 [x] Timers
 [x] Skyboxes and Skyplanes
+[x] Render to texture
 
 [.] Particle System
 [.] Logger Object (Pending XHTML/CSS output).
@@ -24,7 +25,6 @@ Features for first beta release:
 [.] Physics (ODE is behaving strangely on wii, need to recompile it)
 [.] Frustrum culling (code done, needs checking and ordering)
 
-[t] Render to texture
 [t] Fake dynamic lights
 [t] BSP (quake3 maps) support
 [t] Stencil shadows
