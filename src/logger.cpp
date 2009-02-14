@@ -99,7 +99,7 @@ void logger::info(const std::string& message)
 	};
 }
 	
-void assertFail(const char* file, int line)
+void DLL_EXPORT assertFail(const char* file, int line)
 {
 	std::stringstream assertMsg;
 	assertMsg << "Assertion failed on " << std::string(file);

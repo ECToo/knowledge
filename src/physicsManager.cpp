@@ -153,7 +153,7 @@ void physicsManager::setJointGroup(const std::string& name)
 	mActiveJointGroup = newJointGroup;
 }
 
-void defaultCollision(void* data, dGeomID id1, dGeomID id2)
+void DLL_EXPORT defaultCollision(void* data, dGeomID id1, dGeomID id2)
 {
 	physicsManager* pMgr = &physicsManager::getSingleton();
 	kAssert(pMgr != NULL);
