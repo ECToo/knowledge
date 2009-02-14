@@ -17,7 +17,11 @@
 
 #include "knowledge.h"
 
+#ifdef WIN32
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+#else
 int main(int argc, char** argv)
+#endif
 {
 	// Initialize knowledge
 	k::root* appRoot = new k::root();

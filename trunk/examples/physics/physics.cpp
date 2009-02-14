@@ -15,14 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "prerequisites.h"
-#include "md5.h"
-#include "root.h"
-#include "renderer.h"
-#include "rendersystem.h"
-#include "logger.h"
-#include "physicsManager.h"
-#include "resourceManager.h"
+#include "knowledge.h"
 
 // Plane Stuff
 const vec_t vertices[4][3] = { 
@@ -147,7 +140,11 @@ void addRandomSphere()
 	}
 }
 
+#ifdef WIN32
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+#else
 int main(int argc, char** argv)
+#endif
 {
 	_break();
 
@@ -173,11 +170,12 @@ int main(int argc, char** argv)
 	#endif
 
 	// Loading Screen
-	k::bgLoadScreen* newLoadingScreen = new k::bgLoadScreen();
+	k::imgLoadScreen* newLoadingScreen = new k::imgLoadScreen();
 	assert(newLoadingScreen);
 
 	resourceMgr->setLoadingScreen(newLoadingScreen);
-	newLoadingScreen->loadBg("loading.jpg");
+	newLoadingScreen->loadBg("loading.png");
+	newLoadingScreen->setImgDimension(k::vector2(256, 256));
 	newLoadingScreen->update("");
 
 	k::resourceManager::getSingleton().loadGroup("common");
