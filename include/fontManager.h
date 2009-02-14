@@ -46,13 +46,13 @@ namespace k
 	 * Base class, where to 
 	 * derive the providers from.
 	 */
-	class baseText
+	class DLL_EXPORT baseText
 	{
 		public:
 			void setText(const std::string& text) {}
 	};
 
-	class bitmapText : public baseText, public drawable2D
+	class DLL_EXPORT bitmapText : public baseText, public drawable2D
 	{
 		private:
 			doom3Glyph mGlyphs[255];

@@ -26,7 +26,7 @@ namespace k
 	 * Vector2 Class
 	 * Used to hold 2d coordinates
 	 */
-	class vector2 
+	class DLL_EXPORT vector2 
 	{
 		public:
 			// Allow us to access like packed data.

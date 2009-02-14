@@ -24,7 +24,7 @@
 
 namespace k
 {
-	class sticker : public drawable2D
+	class DLL_EXPORT sticker : public drawable2D
 	{
 		protected:
 			material* mMaterial;

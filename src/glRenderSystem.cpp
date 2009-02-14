@@ -268,16 +268,16 @@ void glRenderSystem::setViewPort(int x, int y, int w, int h)
 	glViewport(x, y, w, h);
 }
 
-void glRenderSystem::setPerspective(vec_t fov, vec_t aspect, vec_t near, vec_t far)
+void glRenderSystem::setPerspective(vec_t fov, vec_t aspect, vec_t nearP, vec_t farP)
 {
 	glLoadIdentity();
-	gluPerspective(fov, aspect, near, far);
+	gluPerspective(fov, aspect, nearP, farP);
 }
 
-void glRenderSystem::setOrthographic(vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far)
+void glRenderSystem::setOrthographic(vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t nearP, vec_t farP)
 {
 	glLoadIdentity();
-	glOrtho(left, right, bottom, top, near, far);
+	glOrtho(left, right, bottom, top, nearP, farP);
 }
 
 void glRenderSystem::setCulling(CullMode culling)

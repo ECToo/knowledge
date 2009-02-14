@@ -23,7 +23,7 @@
 
 namespace k
 {
-	class timer
+	class DLL_EXPORT timer
 	{
 		private:
 			/**

@@ -28,7 +28,8 @@ namespace k
 {
 	typedef std::list<std::string> materialList;
 	typedef std::map<std::string, material*> materialMap;
-	class materialManager : public singleton<materialManager>
+
+	class DLL_EXPORT materialManager : public singleton<materialManager>
 	{
 		private:
 			materialMap mMaterials;

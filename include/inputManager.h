@@ -25,7 +25,7 @@
 
 namespace k
 {
-	class inputManager : public singleton<inputManager>
+	class DLL_EXPORT inputManager : public singleton<inputManager>
 	{
 		private:
 			#ifdef __WII__

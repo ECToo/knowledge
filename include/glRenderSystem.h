@@ -23,7 +23,7 @@
 
 namespace k 
 {
-	class glRenderSystem : public renderSystem
+	class DLL_EXPORT glRenderSystem : public renderSystem
 	{
 		private:
 			uint32_t mScreenSize[2];
@@ -62,11 +62,6 @@ namespace k
 			void popMatrix();
 			void identityMatrix();
 
-			/*
-			void copyMatrix(vec_t* matrix);
-			void multMatrix(vec_t* matrix);
-			vec_t* getModelView();
-			*/
 			void copyMatrix(const matrix4& mat);
 			void multMatrix(const matrix4& mat);
 
@@ -78,8 +73,8 @@ namespace k
 			void scaleScene(vec_t x, vec_t y, vec_t z);
 
 			void setViewPort(int x, int y, int w, int h);
-			void setPerspective(vec_t fov, vec_t aspect, vec_t near, vec_t far);
-			void setOrthographic(vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far);
+			void setPerspective(vec_t fov, vec_t aspect, vec_t nearP, vec_t farP);
+			void setOrthographic(vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t nearP, vec_t farP);
 
 			void setCulling(CullMode culling);
 

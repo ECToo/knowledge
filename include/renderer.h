@@ -29,7 +29,7 @@
 
 namespace k
 {
-	class renderer : public singleton<renderer>
+	class DLL_EXPORT renderer : public singleton<renderer>
 	{
 		private:
 			std::list<drawable3D*> m3DObjects;

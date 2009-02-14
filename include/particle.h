@@ -45,7 +45,7 @@ namespace k
 	/**
 	 * Particle class.
 	 */
-	class particle
+	class DLL_EXPORT particle
 	{
 		private:
 			vector3 mPosition;
@@ -101,7 +101,7 @@ namespace k
 			void draw(sprite* spr, long time);
 	};
 
-	class particleEmitter
+	class DLL_EXPORT particleEmitter
 	{
 		protected:
 			vector3 mMinVelocity;
@@ -200,7 +200,7 @@ namespace k
 			virtual void draw(camera* c) = 0;
 	};
 	
-	class pointEmitter : public particleEmitter
+	class DLL_EXPORT pointEmitter : public particleEmitter
 	{
 		protected:
 			/**
@@ -228,7 +228,7 @@ namespace k
 	 * within the plane bounds and then shoot with
 	 * initial velocity and acceleration.
 	 */
-	class planeEmitter : public particleEmitter
+	class DLL_EXPORT planeEmitter : public particleEmitter
 	{
 		protected:
 			vector3 mAcceleration;
@@ -256,11 +256,11 @@ namespace k
 			void setAcceleration(const vector3& accel);
 	};
 
-	class particleAffector
+	class DLL_EXPORT particleAffector
 	{
 	};
 
-	class particleSystem
+	class DLL_EXPORT particleSystem
 	{
 		private:
 			/**
@@ -305,7 +305,7 @@ namespace k
 			void cycle(camera* c);
 	};
 
-	class particleManager : public singleton<particleManager>
+	class DLL_EXPORT particleManager : public singleton<particleManager>
 	{
 		protected:
 			std::map<std::string, particleSystem*> mSystems;

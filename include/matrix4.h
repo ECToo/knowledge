@@ -23,7 +23,7 @@
 
 namespace k
 {
-	class matrix4
+	class DLL_EXPORT matrix4
 	{
 		public:
 			vec_t m[4][4];

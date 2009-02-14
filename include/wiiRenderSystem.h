@@ -25,7 +25,7 @@
 
 namespace k 
 {
-	class matrixStack
+	class DLL_EXPORT matrixStack
 	{
 		private:
 			Mtx stack[32];
@@ -38,7 +38,7 @@ namespace k
 			void pop(Mtx& destination);
 	};
 
-	class matrix44Stack
+	class DLL_EXPORT matrix44Stack
 	{
 		private:
 			Mtx44 stack[16];
@@ -51,7 +51,7 @@ namespace k
 			void pop(Mtx44 destination);
 	};
 
-	class wiiRenderSystem : public renderSystem
+	class DLL_EXPORT wiiRenderSystem : public renderSystem
 	{
 		private:
 			/**
@@ -172,19 +172,13 @@ namespace k
 			matrix4 getModelView();
 			void getModelView(float mat[][4]);
 
-			/*
-			void copyMatrix(f32 matrix[][4]);
-			void multMatrix(f32 matrix[][4]);
-			void getModelView(Mtx matrix);
-			*/
-
 			void translateScene(vec_t x, vec_t y, vec_t z);
 			void rotateScene(vec_t angle, vec_t x, vec_t y, vec_t z);
 			void scaleScene(vec_t x, vec_t y, vec_t z);
 
 			void setViewPort(int x, int y, int w, int h);
-			void setPerspective(vec_t fov, vec_t aspect, vec_t near, vec_t far);
-			void setOrthographic(vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far);
+			void setPerspective(vec_t fov, vec_t aspect, vec_t nearP, vec_t farP);
+			void setOrthographic(vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t nearP, vec_t farP);
 
 			void setCulling(CullMode culling);
 

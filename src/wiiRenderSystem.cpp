@@ -518,12 +518,12 @@ void wiiRenderSystem::setViewPort(int x, int y, int w, int h)
 	GX_SetScissor(x, y, w, h);
 }
 
-void wiiRenderSystem::setPerspective(vec_t fov, vec_t aspect, vec_t near, vec_t far)
+void wiiRenderSystem::setPerspective(vec_t fov, vec_t aspect, vec_t nearP, vec_t farP)
 {
 	Mtx44 perspective;
 
 	identityMtx44(perspective);
-	guPerspective(perspective, fov, aspect, near, far);
+	guPerspective(perspective, fov, aspect, nearP, farP);
 	GX_LoadProjectionMtx(perspective, GX_PERSPECTIVE);
 
 	switch (mActiveMatrix)
@@ -537,7 +537,7 @@ void wiiRenderSystem::setPerspective(vec_t fov, vec_t aspect, vec_t near, vec_t 
 	}
 }
 
-void wiiRenderSystem::setOrthographic(vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far)
+void wiiRenderSystem::setOrthographic(vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t nearP, vec_t farP)
 {
 	Mtx44 ortho;
 
@@ -548,7 +548,7 @@ void wiiRenderSystem::setOrthographic(vec_t left, vec_t right, vec_t bottom, vec
 		left = -20;
 	}
 
-	guOrtho(ortho, top, bottom, left, right, near, far);
+	guOrtho(ortho, top, bottom, left, right, nearP, farP);
 	GX_LoadProjectionMtx(ortho, GX_ORTHOGRAPHIC);
 
 	switch (mActiveMatrix)

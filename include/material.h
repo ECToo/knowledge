@@ -34,7 +34,7 @@ namespace k
 		CULLMODE_BOTH
 	};
 
-	class material
+	class DLL_EXPORT material
 	{
 		private:
 			vector3 mAmbient;

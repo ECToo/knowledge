@@ -35,7 +35,7 @@ namespace k
 		PLANE_RIGHT
 	};
 
-	class camera
+	class DLL_EXPORT camera
 	{
 		private:
 			// Matrix to keep camera
@@ -114,7 +114,7 @@ namespace k
 			 * @see mNearPlane
 			 * @see mFarPlane
 			 */
-			void setPlanes(vec_t near, vec_t far);
+			void setPlanes(vec_t nearP, vec_t farP);
 
 			/**
 			 * Set camera perspective projection parameters.
@@ -123,7 +123,7 @@ namespace k
 			 * @see mNearPlane
 			 * @see mFarPlane
 			 */
-			void setPerspective(unsigned int fov, vec_t ar, vec_t near, vec_t far);
+			void setPerspective(unsigned int fov, vec_t ar, vec_t nearP, vec_t farP);
 
 			/**
 			 * Called from the renderer to apply the camera

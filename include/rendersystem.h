@@ -47,7 +47,7 @@ namespace k
 		VERTEXMODE_QUAD
 	};
 
-	class renderSystem
+	class DLL_EXPORT renderSystem
 	{
 		protected:
 			/**
@@ -112,8 +112,8 @@ namespace k
 			virtual void scaleScene(vec_t x, vec_t y, vec_t z) = 0;
 
 			virtual void setViewPort(int x, int y, int w, int h) = 0;
-			virtual void setPerspective(vec_t fov, vec_t aspect, vec_t near, vec_t far) = 0;
-			virtual void setOrthographic(vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far) = 0;
+			virtual void setPerspective(vec_t fov, vec_t aspect, vec_t nearP, vec_t farP) = 0;
+			virtual void setOrthographic(vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t nearP, vec_t farP) = 0;
 
 			virtual void setCulling(CullMode culling) = 0;
 

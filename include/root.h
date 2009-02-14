@@ -33,7 +33,7 @@
 namespace k
 {
 	extern std::string getExtension(const std::string& file);
-	class root : public singleton<root>
+	class DLL_EXPORT root : public singleton<root>
 	{
 		private:
 			renderSystem* mActiveRS;

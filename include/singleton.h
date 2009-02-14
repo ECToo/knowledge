@@ -22,7 +22,7 @@
 
 namespace k
 {
-	template <typename T> class singleton
+	template <typename T> class DLL_EXPORT singleton
 	{
 		protected:
 			static T* singleton_instance;

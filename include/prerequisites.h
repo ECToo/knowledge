@@ -35,17 +35,19 @@
 
 // Platform dependent includes
 #ifndef __WII__
+
+	// Must be included before anything else
+	#ifdef WIN32
+		#include <windows.h>
+		#define DLL_EXPORT __declspec(dllexport)
+	#else
+		#define DLL_EXPORT
+	#endif
+
 	// OpenGL
 	#include <GL/glew.h>
 	#include <GL/gl.h>
 	#include <GL/glu.h>
-
-	// DevIL
-	/*
-	#include <IL/il.h>
-	#include <IL/ilu.h>
-	#include <IL/ilut.h>
-	*/
 
 	// FreeImage
 	#include <FreeImage.h>
@@ -56,10 +58,8 @@
 	// posix threads
 	#include <pthread.h>
 
-	#ifdef WIN32
-		#include <windows.h>
-	#endif
 #else
+
 	#include <ogc/video.h>
 	#include <ogc/system.h>
 	#include <ogc/gx.h>
@@ -75,6 +75,7 @@
 	#include <malloc.h>
 	#include <wiiuse/wpad.h>
 	#include <debug.h>
+
 #endif
 
 // Platform independent definitions

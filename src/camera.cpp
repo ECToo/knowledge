@@ -48,13 +48,13 @@ void camera::setAspectRatio(vec_t ar)
 	mAspectRatio = ar;
 }
 
-void camera::setPlanes(vec_t near, vec_t far)
+void camera::setPlanes(vec_t nearP, vec_t farP)
 {
-	mNearPlane = near;
-	mFarPlane = far;
+	mNearPlane = nearP;
+	mFarPlane = farP;
 }
 
-void camera::setPerspective(unsigned int fov, vec_t ar, vec_t near, vec_t far)
+void camera::setPerspective(unsigned int fov, vec_t ar, vec_t nearP, vec_t farP)
 {
 	if (!fov)
 		S_LOG_INFO("Warning, setting camera fov to 0!");
@@ -62,8 +62,8 @@ void camera::setPerspective(unsigned int fov, vec_t ar, vec_t near, vec_t far)
 	mFov = fov;
 	mTanFov = tan(mFov * 0.5f);
 	mAspectRatio = ar;
-	mNearPlane = near;
-	mFarPlane = far;
+	mNearPlane = nearP;
+	mFarPlane = farP;
 }
 
 void camera::setPerspective()
@@ -211,10 +211,10 @@ vector3 camera::projectRayFrom2D(const vector2& coords)
 	vec_t dx = mTanFov * ((coords.x * 2.0f - 1.0f) / mAspectRatio);
 	vec_t dy = mTanFov * ((coords.y * 2.0f - 1.0f) / -mAspectRatio);
 
-	vector3 far = vector3(dx * mFarPlane, dy * mFarPlane, -mFarPlane);
-	vector3 near = vector3(dx * mNearPlane, dy * mNearPlane, -mNearPlane);
+	vector3 farP = vector3(dx * mFarPlane, dy * mFarPlane, -mFarPlane);
+	vector3 nearP = vector3(dx * mNearPlane, dy * mNearPlane, -mNearPlane);
 
-	vector3 result = mFinalInverse * (far - near);
+	vector3 result = mFinalInverse * (farP - nearP);
 	result.normalise();
 
 	return result;

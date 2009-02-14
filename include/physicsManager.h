@@ -43,7 +43,7 @@ namespace k
 	/**
 	 * A physic representation of some object - base class.
 	 */
-	class physicObject
+	class DLL_EXPORT physicObject
 	{
 		protected:
 			/**
@@ -136,7 +136,7 @@ namespace k
 			}
 	};
 
-	class physicSphere : public physicObject
+	class DLL_EXPORT physicSphere : public physicObject
 	{
 		private:
 			dBodyID mBody;
@@ -146,7 +146,7 @@ namespace k
 			~physicSphere();
 	};
 
-	class physicBox : public physicObject
+	class DLL_EXPORT physicBox : public physicObject
 	{
 		private:
 			dBodyID mBody;
@@ -156,7 +156,7 @@ namespace k
 			~physicBox();
 	};
 
-	class physicTriMesh : public physicObject
+	class DLL_EXPORT physicTriMesh : public physicObject
 	{
 		public:
 			physicTriMesh(dSpaceID sId, const void* vertices, unsigned int numVertices,
@@ -178,7 +178,7 @@ namespace k
 		SPACETYPE_HASH
 	} spaceType_t;
 
-	class physicsManager : public singleton<physicsManager>
+	class DLL_EXPORT physicsManager : public singleton<physicsManager>
 	{
 		private:
 			/**

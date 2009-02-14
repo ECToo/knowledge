@@ -36,7 +36,7 @@ namespace k
 		LOAD_SCRIPTS
 	};
 
-	class resourceGroup
+	class DLL_EXPORT resourceGroup
 	{
 		private:
 			std::string mRoot;
@@ -60,7 +60,7 @@ namespace k
 			void filterResource(const std::string& path, bool material);
 	};
 
-	class resourceManager : public singleton<resourceManager>
+	class DLL_EXPORT resourceManager : public singleton<resourceManager>
 	{
 		private:
 			void parseGroup(parsingFile* file, resourceGroup* group);
