@@ -29,7 +29,7 @@ namespace k
 	 * quaternion Class
 	 * Used to hold 4d coordinates
 	 */
-	class quaternion 
+	class DLL_EXPORT quaternion 
 	{
 		private:
 			/**

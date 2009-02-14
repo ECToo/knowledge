@@ -46,7 +46,7 @@ namespace k
 		CUBE_DOWN
 	};
 
-	class texture
+	class DLL_EXPORT texture
 	{
 		public:
 			texture()
@@ -102,7 +102,7 @@ namespace k
 	};
 	*/
 
-	class textureStage
+	class DLL_EXPORT textureStage
 	{
 		protected:
 			/**
@@ -190,7 +190,7 @@ namespace k
 	};
 
 	#ifdef __WII__
-	class wiiTexture : public textureStage
+	class DLL_EXPORT wiiTexture : public textureStage
 	{
 		private:
 			Mtx mTransRotate;
@@ -206,7 +206,7 @@ namespace k
 	};
 	typedef wiiTexture platTexture;
 	#else
-	class glTexture : public textureStage
+	class DLL_EXPORT glTexture : public textureStage
 	{
 		public:
 			glTexture(unsigned int width, unsigned int height,

@@ -23,7 +23,7 @@
 
 namespace k
 {
-	class matrix3
+	class DLL_EXPORT matrix3
 	{
 		public:
 			vec_t m[3][3];

@@ -22,7 +22,7 @@
 
 namespace k {
 
-class parsingFile
+class DLL_EXPORT parsingFile
 {
 	private:
 		std::string mFilename;

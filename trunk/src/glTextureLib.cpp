@@ -110,53 +110,6 @@ kTexture* textureLoader::loadTexture(const char* file, unsigned short* w, unsign
 	free(imgData);
 
 	return glImage;
-
-	/*
-	 * Old DevIL code
-	 *
-
-	ILuint* newImage = new ILuint;
-	if (!newImage)
-		return NULL;
-
-	ilGenImages(1, newImage);
-	ilBindImage(newImage[0]);
-	ilLoadImage((char*)file);
-
-	if (ilGetError() == IL_NO_ERROR)
-	{
-		if (w && h)
-		{
-			*w = ilGetInteger(IL_IMAGE_WIDTH);
-			*h = ilGetInteger(IL_IMAGE_HEIGHT);
-		}
-
-		ilBindImage(newImage[0]);
-	
-		kTexture* tex = new kTexture;
-		if (tex)
-		{
-			*tex = ilutGLBindTexImage();
-
-			// TODO: Make functions for that ;)
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-			ilDeleteImages(1, &newImage[0]);
-
-			delete newImage;
-			return tex;
-		}
-		else
-		{
-			ilDeleteImages(1, &newImage[0]);
-			delete newImage;
-		}
-	}
-
-	delete newImage;
-	return NULL;
-	*/
 }
 
 }

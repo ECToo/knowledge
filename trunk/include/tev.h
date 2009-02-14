@@ -32,7 +32,7 @@ namespace k
 		u8 aa, ab, ac, ad;
 	} tevStage;
 
-	class tev
+	class DLL_EXPORT tev
 	{
 		private:
 			std::map<int, tevStage*> mCustomStages;
@@ -67,7 +67,7 @@ namespace k
 			void setup(int stage);
 	};
 
-	class tevManager : public singleton<tevManager>
+	class DLL_EXPORT tevManager : public singleton<tevManager>
 	{
 		private:
 			std::map<std::string, tev*> mTevs;

@@ -28,7 +28,7 @@ namespace k
 	 * vector3 Class
 	 * Used to hold 3d coordinates
 	 */
-	class vector3
+	class DLL_EXPORT vector3 : public Vector
 	{
 		public:
 			// Allow us to access like packed data.
@@ -39,7 +39,7 @@ namespace k
 					vec_t x, y, z;
 				};
 				vec_t vec[3];
-			};
+		};
 
 		public:
 			/**
@@ -84,14 +84,14 @@ namespace k
 			inline vector3 operator + (const vector3& newVec) const
 			{
 				vector3 tempVec;
-				guVecAdd((Vector*)vec, (Vector*)&newVec, (Vector*)&tempVec);
+				guVecAdd((Vector*)&(*this), (Vector*)&newVec, (Vector*)&tempVec);
 
 				return tempVec;
 			}
 
 			inline vector3& operator += (const vector3& newVec)
 			{
-				guVecAdd((Vector*)vec, (Vector*)&newVec, (Vector*)vec);
+				guVecAdd((Vector*)&(*this), (Vector*)&newVec, (Vector*)&(*this));
 				return *this;
 			}
 			
@@ -107,20 +107,20 @@ namespace k
 			inline vector3 operator - (const vector3& newVec) const
 			{
 				vector3 tempVec;
-				guVecSub((Vector*)vec, (Vector*)&newVec, (Vector*)&tempVec);
+				guVecSub((Vector*)&(*this), (Vector*)&newVec, (Vector*)&tempVec);
 
 				return tempVec;				
 			}
 
 			inline vector3& operator -= (const vector3& newVec)
 			{
-				guVecSub((Vector*)vec, (Vector*)&newVec, (Vector*)vec);
+				guVecSub((Vector*)&(*this), (Vector*)&newVec, (Vector*)&(*this));
 				return *this;
 			}
 
 			inline vector3& operator *= (const vec_t newVec)
 			{
-				guVecScale((Vector*)vec, (Vector*)vec, newVec);
+				guVecScale((Vector*)&(*this), (Vector*)&(*this), newVec);
 				return *this;
 			}
 
@@ -158,7 +158,7 @@ namespace k
 			inline vector3 operator * (const vec_t scalar) const
 			{
 				vector3 tempVec;
-				guVecScale((Vector*)vec, (Vector*)&tempVec, scalar);
+				guVecScale((Vector*)&(*this), (Vector*)&tempVec, scalar);
 
 				return tempVec;				
 			}
@@ -177,7 +177,7 @@ namespace k
 				assert (scalar != 0.0);
 				
 				vector3 tempVec;
-				guVecScale((Vector*)vec, (Vector*)&tempVec, 1.0f / scalar);
+				guVecScale((Vector*)&(*this), (Vector*)&tempVec, 1.0f / scalar);
 
 				return tempVec;				
 			}
@@ -233,7 +233,7 @@ namespace k
 	 		 */
 			inline const vec_t dotProduct(const vector3& newVec) const
 			{
-				return guVecDotProduct((Vector*)vec, (Vector*)&newVec);
+				return guVecDotProduct((Vector*)&(*this), (Vector*)&newVec);
 			}
 
 			/**
@@ -242,7 +242,7 @@ namespace k
 			inline vector3 crossProduct(const vector3& newVec) const
 			{
 				vector3 tempVec;
-				guVecCross((Vector*)vec, (Vector*)&newVec, (Vector*)&tempVec);
+				guVecCross((Vector*)&(*this), (Vector*)&newVec, (Vector*)&tempVec);
 
 				return tempVec;
 			}
@@ -250,7 +250,7 @@ namespace k
 			inline vector3& cross(const vector3& newVec)
 			{
 				vector3 tempVec;
-				guVecCross((Vector*)vec, (Vector*)&newVec, (Vector*)&tempVec);
+				guVecCross((Vector*)&(*this), (Vector*)&newVec, (Vector*)&tempVec);
 
 				x = tempVec.x;
 				y = tempVec.y;
@@ -264,7 +264,7 @@ namespace k
 	 		 */
 			inline void normalise()
 			{
-				guVecNormalize((Vector*)vec);
+				guVecNormalize((Vector*)&(*this));
 			}
 			
 			/**
@@ -282,7 +282,9 @@ namespace k
 	 		 */
 			inline void cout() const
 			{
-				printf("X: %f - Y: %f - Z: %f\n", x, y, z);
+				std::cout << "X: " << x << std::endl;
+				std::cout << "Y: " << y << std::endl;
+				std::cout << "Z: " << z << std::endl;
 			}		
 
 			static const vector3 zero;

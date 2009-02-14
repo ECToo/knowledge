@@ -89,7 +89,7 @@ int main(int argc, char** argv)
 	// mRenderer->setSkyBox("nightzSky");
 
 	// Fps Counter
-	k::bitmapText* fpsText = new k::bitmapText("fonts/04B08_8.dat", "04B08_8");
+	k::bitmapText* fpsText = new k::bitmapText("fonts/cube_14.dat", "cube_14");
 	assert(fpsText != NULL);
 	fpsText->setPosition(k::vector2(4, 10));
 	mRenderer->push2D(fpsText);

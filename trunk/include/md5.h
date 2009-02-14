@@ -141,7 +141,7 @@ typedef struct
 	index_t index[3];
 } triangle_t;
 
-class md5mesh
+class DLL_EXPORT md5mesh
 {
 	private:
 		// Vertex Data
@@ -197,7 +197,7 @@ class md5mesh
 		void draw();
 };
 
-class md5model : public drawable3D
+class DLL_EXPORT md5model : public drawable3D
 {
 	private:
 		std::map<std::string, anim_t*> mAnimations;

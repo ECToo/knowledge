@@ -24,7 +24,7 @@
 
 namespace k
 {
-	class textureManager : public singleton<textureManager>
+	class DLL_EXPORT textureManager : public singleton<textureManager>
 	{
 		private:
 			std::map<std::string, texture*> mTextures;

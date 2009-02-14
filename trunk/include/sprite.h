@@ -33,7 +33,7 @@ namespace k
 	 * shouldnt be created by yourself but instead by
 	 * the renderer class, wich will keep them.
 	 */
-	class sprite
+	class DLL_EXPORT sprite
 	{
 		private:	
 			/*

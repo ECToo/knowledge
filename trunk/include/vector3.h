@@ -30,7 +30,7 @@ namespace k
 	 * vector3 Class
 	 * Used to hold 3d coordinates
 	 */
-	class vector3 
+	class DLL_EXPORT vector3 
 	{
 		public:
 			// Allow us to access like packed data.

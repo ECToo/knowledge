@@ -27,7 +27,7 @@ namespace k
 	 * This class is only a interface for a load screen
 	 * implementation
 	 */
-	class loadScreen
+	class DLL_EXPORT loadScreen
 	{
 		public:
 			virtual void update(const std::string& filename) = 0;
@@ -36,7 +36,7 @@ namespace k
 	/**
 	 * A load screen with a background image
 	 */
-	class bgLoadScreen : public loadScreen
+	class DLL_EXPORT bgLoadScreen : public loadScreen
 	{
 		protected:
 			material* mBackground;
@@ -59,7 +59,7 @@ namespace k
 	/**
 	 * Load screen with a centered image.
 	 */
-	class imgLoadScreen : public loadScreen
+	class DLL_EXPORT imgLoadScreen : public loadScreen
 	{
 		protected:
 			material* mImgMaterial;

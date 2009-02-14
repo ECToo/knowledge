@@ -27,13 +27,13 @@ namespace k
 	/**
 	 * This function will create a new texture based
 	 * on the file type. On openGL this will be done by
-	 * DevIL and on Wii it will be done by a set of custom
+	 * FreeImage and on Wii it will be done by a set of custom
 	 * functions.
 	 */
 	texture* createRawTexture(const std::string& filename);
 	texture* createRawCubemap(const std::string& filename);
  
-	class textureLoader : public singleton<textureLoader>
+	class DLL_EXPORT textureLoader : public singleton<textureLoader>
 	{
 		private:
 			std::map<kTexture*, char*> mTextureData;

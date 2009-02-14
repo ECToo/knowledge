@@ -25,7 +25,7 @@
 
 namespace k 
 {
-	class drawable2D
+	class DLL_EXPORT drawable2D
 	{
 		protected:
 			vector2 mPosition;
@@ -56,7 +56,7 @@ namespace k
 			virtual void draw() = 0;
 	};
 
-	class boundingBox
+	class DLL_EXPORT boundingBox
 	{
 		private:
 			vector3 mMins;
@@ -90,7 +90,7 @@ namespace k
 			}
 	};
 
-	class drawable3D
+	class DLL_EXPORT drawable3D
 	{
 		protected:
 			vector3 mScale;

@@ -35,7 +35,7 @@ namespace k
 		LOGMODE_BOTH
 	};
 
-	class logger : public singleton<logger>
+	class DLL_EXPORT logger : public singleton<logger>
 	{
 		private:
 			std::string mLogFile;

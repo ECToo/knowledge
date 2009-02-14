@@ -25,7 +25,7 @@
 
 namespace k
 {
-	class guiManager : public singleton<guiManager>
+	class DLL_EXPORT guiManager : public singleton<guiManager>
 	{
 		protected:
 			sticker* mCursor;
