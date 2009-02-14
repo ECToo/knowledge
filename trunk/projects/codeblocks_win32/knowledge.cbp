@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="knowledge" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="..\lib\knowledge_d" prefix_auto="1" extension_auto="1" />
+				<Option object_output="..\lib\obj\Debug\" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-DBUILD_DLL" />
+					<Add option="-D_WINDOWS_" />
+					<Add option="-DWIN32" />
+				</Compiler>
+				<Linker>
+					<Add library="user32" />
+					<Add library="SDL" />
+					<Add library="SDLmain" />
+					<Add library="glew32" />
+					<Add library="glu32" />
+					<Add library="glut" />
+					<Add library="glaux" />
+					<Add library="opengl32" />
+					<Add library="ode_singled" />
+					<Add library="FreeImage" />
+					<Add library="pthreadGC2" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="..\lib\knowledge" prefix_auto="1" extension_auto="1" />
+				<Option object_output="..\lib\obj\Release\" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-Wall" />
+					<Add option="-DBUILD_DLL" />
+					<Add option="-D_WINDOWS_" />
+					<Add option="-DWIN32" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="user32" />
+					<Add library="SDL" />
+					<Add library="SDLmain" />
+					<Add library="glew32" />
+					<Add library="glu32" />
+					<Add library="glut" />
+					<Add library="glaux" />
+					<Add library="opengl32" />
+					<Add library="ode_singled" />
+					<Add library="FreeImage" />
+					<Add library="pthreadGC2" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-DBUILD_DLL" />
+			<Add option="-D_WINDOWS_" />
+			<Add option="-DWIN32" />
+			<Add directory="..\..\include\" />
+		</Compiler>
+		<Unit filename="..\..\include\camera.h" />
+		<Unit filename="..\..\include\drawable.h" />
+		<Unit filename="..\..\include\fileAccess.h" />
+		<Unit filename="..\..\include\fontManager.h" />
+		<Unit filename="..\..\include\glRenderSystem.h" />
+		<Unit filename="..\..\include\guiManager.h" />
+		<Unit filename="..\..\include\inputManager.h" />
+		<Unit filename="..\..\include\keysyms.h" />
+		<Unit filename="..\..\include\knowledge.h" />
+		<Unit filename="..\..\include\loadscr.h" />
+		<Unit filename="..\..\include\logger.h" />
+		<Unit filename="..\..\include\material.h" />
+		<Unit filename="..\..\include\materialManager.h" />
+		<Unit filename="..\..\include\matrix3.h" />
+		<Unit filename="..\..\include\matrix4.h" />
+		<Unit filename="..\..\include\md5.h" />
+		<Unit filename="..\..\include\particle.h" />
+		<Unit filename="..\..\include\physicsManager.h" />
+		<Unit filename="..\..\include\pngu.h" />
+		<Unit filename="..\..\include\prerequisites.h" />
+		<Unit filename="..\..\include\quaternion.h" />
+		<Unit filename="..\..\include\renderer.h" />
+		<Unit filename="..\..\include\rendersystem.h" />
+		<Unit filename="..\..\include\resourceManager.h" />
+		<Unit filename="..\..\include\root.h" />
+		<Unit filename="..\..\include\singleton.h" />
+		<Unit filename="..\..\include\sprite.h" />
+		<Unit filename="..\..\include\sticker.h" />
+		<Unit filename="..\..\include\tev.h" />
+		<Unit filename="..\..\include\texture.h" />
+		<Unit filename="..\..\include\textureLib.h" />
+		<Unit filename="..\..\include\textureManager.h" />
+		<Unit filename="..\..\include\thread.h" />
+		<Unit filename="..\..\include\timer.h" />
+		<Unit filename="..\..\include\vector2.h" />
+		<Unit filename="..\..\include\vector3.h" />
+		<Unit filename="..\..\include\wiiRenderSystem.h" />
+		<Unit filename="..\..\include\wiiVector3.h" />
+		<Unit filename="..\..\src\camera.cpp" />
+		<Unit filename="..\..\src\drawable.cpp" />
+		<Unit filename="..\..\src\fileAccess.cpp" />
+		<Unit filename="..\..\src\fontManager.cpp" />
+		<Unit filename="..\..\src\glRenderSystem.cpp" />
+		<Unit filename="..\..\src\glTexture.cpp" />
+		<Unit filename="..\..\src\glTextureLib.cpp" />
+		<Unit filename="..\..\src\guiManager.cpp" />
+		<Unit filename="..\..\src\inputManager.cpp" />
+		<Unit filename="..\..\src\loadscr.cpp" />
+		<Unit filename="..\..\src\logger.cpp" />
+		<Unit filename="..\..\src\material.cpp" />
+		<Unit filename="..\..\src\materialManager.cpp" />
+		<Unit filename="..\..\src\md5.cpp" />
+		<Unit filename="..\..\src\particle.cpp" />
+		<Unit filename="..\..\src\physicsManager.cpp" />
+		<Unit filename="..\..\src\pngu.cpp" />
+		<Unit filename="..\..\src\pthread.cpp" />
+		<Unit filename="..\..\src\renderer.cpp" />
+		<Unit filename="..\..\src\resourceManager.cpp" />
+		<Unit filename="..\..\src\root.cpp" />
+		<Unit filename="..\..\src\sprite.cpp" />
+		<Unit filename="..\..\src\sticker.cpp" />
+		<Unit filename="..\..\src\tev.cpp" />
+		<Unit filename="..\..\src\texture.cpp" />
+		<Unit filename="..\..\src\textureLib.cpp" />
+		<Unit filename="..\..\src\textureManager.cpp" />
+		<Unit filename="..\..\src\timer.cpp" />
+		<Unit filename="..\..\src\vector3.cpp" />
+		<Unit filename="..\..\src\wiiRenderSystem.cpp" />
+		<Unit filename="..\..\src\wiiTexture.cpp" />
+		<Unit filename="..\..\src\wiiTextureLib.cpp" />
+		<Unit filename="..\..\src\wiithread.cpp" />
+		<Extensions>
+			<code_completion>
+				<search_path add="include\" />
+			</code_completion>
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
