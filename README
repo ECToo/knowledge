@@ -13,6 +13,20 @@ with the proper DEVKITPPC and DEVKITPRO environment variables
 set. The pc version is known to work on GNU/Linux. I havent tested
 it on windows yet, so your best choice is deal with it, c'mon, GNU/Linux is free.
 
+== to build on MS Windows ==
+
+I only prepared projects for codeblocks since it is small and free. You
+should find all projects in knowledge_root/projects and it should be pretty easy to compile (hit build on cb). 
+What i am worried are the dependencies, here are the ones i used:
+
+pthreads-w32-2-8-0-release
+FreeImage
+SDL
+ODE
+GLEW
+
+I compiled every one of them using codeblocks and it just worked. If you are having any problems, feel free to contact me.
+
 Sincerely,
 Romulo Fernandes.
 
