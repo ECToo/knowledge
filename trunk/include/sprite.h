@@ -90,6 +90,12 @@ namespace k
 			 * Draw the sprite.
 			 */
 			void draw();
+
+			/**
+			 * Draws the sprite ignoring material
+			 * settings.
+			 */
+			void rawDraw();
 	};
 }
 

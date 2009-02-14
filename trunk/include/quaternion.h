@@ -228,10 +228,15 @@ namespace k
 				quaternion output;
 
 				#ifdef __WII__
+
+				Vector tmp;
+				tmp.x = newVec.x;
+				tmp.y = newVec.y;
+				tmp.z = newVec.z;
 			
 				register f32 vXY,vZZ,qXY,qZW;
 				register f32 tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
-				register char* a = (char*)newVec.vec;
+				register char* a = (char*)&tmp;
 				register char* b = (char*)quat;
 				register char* ab = (char*)output.quat;
 

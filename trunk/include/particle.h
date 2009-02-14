@@ -154,6 +154,7 @@ namespace k
 			 * The material used by the particles.
 			 */
 			std::string mMaterial;
+			material* mMaterialPtr;
 
 			/**
 			 * This sprite is shared among the particles

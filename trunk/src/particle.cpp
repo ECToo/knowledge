@@ -109,7 +109,7 @@ void particle::draw(sprite* spr, long time)
 	// sprite
 	spr->setPosition(mPosition);
 	spr->setRadius(mRadius);
-	spr->draw();
+	spr->rawDraw();
 }
 			
 particleEmitter::particleEmitter()
@@ -209,6 +209,7 @@ void particleEmitter::setNumParticles(unsigned int amount)
 void particleEmitter::setMaterial(const std::string& mat)
 {
 	mMaterial = mat;
+	mMaterialPtr = materialManager::getSingleton().getMaterial(mat);
 
 	if (mSprite)
 	{
@@ -334,8 +335,14 @@ void pointEmitter::feed()
 
 void pointEmitter::draw(camera* c)
 {
-	if (!mSprite || !mParticles)
+	if (!mSprite || !mParticles || !mMaterialPtr)
 		return;
+				
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	kAssert(rs);
+
+	rs->setDepthMask(false);
+	mMaterialPtr->prepare();
 
 	for (std::vector<particle>::iterator it = mParticles->begin();
 			it != mParticles->end(); it++)
@@ -346,9 +353,6 @@ void pointEmitter::draw(camera* c)
 		{
 			if (c == NULL)
 			{
-				renderSystem* rs = root::getSingleton().getRenderSystem();
-				kAssert(rs != NULL);
-
 				rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 				rs->identityMatrix();
 			}
@@ -360,6 +364,9 @@ void pointEmitter::draw(camera* c)
 			p->draw(mSprite, mTimer.getMilliSeconds());
 		}
 	}
+
+	rs->setDepthMask(true);
+	mMaterialPtr->finish();
 }
 			
 void particleEmitter::setVelocity(const vector3& min, const vector3& max)
@@ -475,8 +482,14 @@ void planeEmitter::feed()
 
 void planeEmitter::draw(camera* c)
 {
-	if (!mSprite || !mParticles)
+	if (!mSprite || !mParticles || !mMaterialPtr)
 		return;
+
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	kAssert(rs);
+
+	rs->setDepthMask(false);
+	mMaterialPtr->prepare();
 
 	for (std::vector<particle>::iterator it = mParticles->begin();
 			it != mParticles->end(); it++)
@@ -487,9 +500,6 @@ void planeEmitter::draw(camera* c)
 		{
 			if (c == NULL)
 			{
-				renderSystem* rs = root::getSingleton().getRenderSystem();
-				kAssert(rs != NULL);
-
 				rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 				rs->identityMatrix();
 			}
@@ -501,6 +511,9 @@ void planeEmitter::draw(camera* c)
 			p->draw(mSprite, mTimer.getMilliSeconds());
 		}
 	}
+
+	rs->setDepthMask(true);
+	mMaterialPtr->finish();
 }
 
 void planeEmitter::setAcceleration(const vector3& accel)

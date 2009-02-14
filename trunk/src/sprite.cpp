@@ -201,23 +201,83 @@ void sprite::draw()
 	kAssert(mMaterial != NULL);
 	mMaterial->prepare();
 
-	rs->startVertices(VERTEXMODE_QUAD);
-		rs->texCoord(vector2(0, 0));
-		rs->vertex(vector3(-1*mRadius, -1*mRadius, 0));
+	vec_t uv[] ATTRIBUTE_ALIGN(32) = {0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0};
+	vec_t vertex[] ATTRIBUTE_ALIGN(32) = {-mRadius, -mRadius, 0, mRadius, -mRadius, 0,
+		mRadius, mRadius, 0, mRadius, mRadius, 0, -mRadius, mRadius, 0,
+		-mRadius, -mRadius, 0 };
 
-		rs->texCoord(vector2(1, 0));
-		rs->vertex(vector3(1*mRadius, -1*mRadius, 0));
+	index_t index[] ATTRIBUTE_ALIGN(32) = {0, 1, 2, 3, 4, 5}; 
 
-		rs->texCoord(vector2(1, 1));
-		rs->vertex(vector3(1*mRadius, 1*mRadius, 0));
+	rs->clearArrayDesc();
+	rs->setVertexArray(vertex);
+	rs->setVertexCount(6);
 
-		rs->texCoord(vector2(0, 1));
-		rs->vertex(vector3(-1*mRadius, 1*mRadius, 0));
-	rs->endVertices();
+	rs->setTexCoordArray(uv);
 
-	//
+	rs->setVertexIndex(index);
+	rs->setIndexCount(6);
+
+	rs->drawArrays();
+
 	rs->setDepthMask(true);
 	mMaterial->finish();
+}
+			
+void sprite::rawDraw()
+{
+	if (mRadius == 0)
+		return;
+
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	kAssert(rs != NULL);
+
+	#ifndef __WII__
+	if (GLEW_ARB_point_sprite)
+	{
+		glEnable(GL_POINT_SPRITE);
+
+		float maxSize = 0.0f;
+		glGetFloatv(GL_POINT_SIZE_MAX_ARB, &maxSize);
+
+		glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
+		glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, distanceAtt);
+		glPointParameterf(GL_POINT_FADE_THRESHOLD_SIZE, 60.0f);
+		glPointParameterf(GL_POINT_SIZE_MIN, 1.0f);
+		glPointParameterf(GL_POINT_SIZE_MAX, maxSize);
+		glPointSize(mRadius*rs->getScreenHeight());
+
+		glBegin(GL_POINTS);
+			glVertex3f(mPosition.x, mPosition.y, mPosition.z);
+		glEnd();
+
+		glDisable(GL_POINT_SPRITE);
+		return;
+	}
+	#endif
+
+	if (mInvalidTransPos)
+		calculateTransPos();
+
+	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+	rs->multMatrix(mTransPos);
+
+	vec_t uv[] ATTRIBUTE_ALIGN(32) = {0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0};
+	vec_t vertex[] ATTRIBUTE_ALIGN(32) = {-mRadius, -mRadius, 0, mRadius, -mRadius, 0,
+		mRadius, mRadius, 0, mRadius, mRadius, 0, -mRadius, mRadius, 0,
+		-mRadius, -mRadius, 0 };
+
+	index_t index[] ATTRIBUTE_ALIGN(32) = {0, 1, 2, 3, 4, 5}; 
+
+	rs->clearArrayDesc();
+	rs->setVertexArray(vertex);
+	rs->setVertexCount(6);
+
+	rs->setTexCoordArray(uv);
+
+	rs->setVertexIndex(index);
+	rs->setIndexCount(6);
+
+	rs->drawArrays();
 }
 
 }

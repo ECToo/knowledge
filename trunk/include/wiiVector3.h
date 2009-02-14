@@ -31,17 +31,6 @@ namespace k
 	class DLL_EXPORT vector3 : public Vector
 	{
 		public:
-			// Allow us to access like packed data.
-			union
-			{
-				struct 
-				{
-					vec_t x, y, z;
-				};
-				vec_t vec[3];
-		};
-
-		public:
 			/**
 	 		 * Default Constructor
 			 * Start as a blank vector(0,0)

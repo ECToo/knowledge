@@ -32,6 +32,12 @@
 #include <map>
 #include <stack>
 #include <sys/time.h>
+		
+#define DLL_EXPORT
+
+#ifndef ATTRIBUTE_ALIGN
+#define ATTRIBUTE_ALIGN(v) __attribute__((aligned(v)))
+#endif
 
 // Platform dependent includes
 #ifndef __WII__
@@ -40,8 +46,6 @@
 	#ifdef WIN32
 		#include <windows.h>
 		#define DLL_EXPORT __declspec(dllexport)
-	#else
-		#define DLL_EXPORT
 	#endif
 
 	// OpenGL
