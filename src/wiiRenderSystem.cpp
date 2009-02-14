@@ -165,6 +165,11 @@ void wiiRenderSystem::configure()
 	VIDEO_Configure(mVideoMode);
 	VIDEO_SetNextFramebuffer(mFrameBuffers[mBufferIndex]);
 	VIDEO_SetBlack(FALSE);
+
+	// Clear FrameBuffers
+	VIDEO_ClearFrameBuffer(mVideoMode, mFrameBuffers[0], COLOR_BLACK);
+	VIDEO_ClearFrameBuffer(mVideoMode, mFrameBuffers[1], COLOR_BLACK);
+
 	VIDEO_Flush();
 	VIDEO_WaitVSync();
 
@@ -773,9 +778,6 @@ void wiiRenderSystem::drawArrays()
 
 	DCFlushRange(mVertexArray, mVertexCount * sizeof(vec_t) * 3);
 	GX_SetArray(GX_VA_POS, mVertexArray, 3 * sizeof(vec_t));
-
-	// Real VertexCount
-	mVertexCount = mIndexCount / 3;
 
 	u8 tevStage = GX_TEVSTAGE0;
 	u8 texCoord = GX_TEXCOORDNULL;
