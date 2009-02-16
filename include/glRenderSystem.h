@@ -62,6 +62,8 @@ namespace k
 			void popMatrix();
 			void identityMatrix();
 
+			void setInverseTransposeModelview(const matrix4& mat) {}
+
 			void copyMatrix(const matrix4& mat);
 			void multMatrix(const matrix4& mat);
 

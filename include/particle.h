@@ -126,7 +126,7 @@ namespace k
 			 * This is the time (in msec) between each set of particles
 			 * spawn.
 			 */
-			unsigned int mSpawnTime;
+			long mSpawnTime;
 
 			/**
 			 * This is the amount of particles to spawn.

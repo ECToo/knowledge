@@ -104,6 +104,7 @@ namespace k
 			 * Default matrices
 			 */
 			Mtx mModelViewMatrix;
+			Mtx mInverseModelViewMatrix;
 			Mtx44 mProjectionMatrix;
 
 			/**
@@ -165,6 +166,8 @@ namespace k
 			void pushMatrix();
 			void popMatrix();
 			void identityMatrix();
+
+			void setInverseTransposeModelview(const matrix4& mat);
 
 			void copyMatrix(const matrix4& mat);
 			void multMatrix(const matrix4& mat);

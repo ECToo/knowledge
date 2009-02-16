@@ -227,6 +227,7 @@ void camera::copyView()
 
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 	rs->copyMatrix(mFinal);
+	rs->setInverseTransposeModelview(mFinalInverse);
 }
 
 void camera::setPosition(vector3 pos)
