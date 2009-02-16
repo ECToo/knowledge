@@ -96,14 +96,6 @@ int main(int argc, char** argv)
 
 	while (running)
 	{
-		#ifdef WIN32
-		Sleep(1000);
-		#else
-			#ifndef __WII__
-			usleep(1000);
-			#endif
-		#endif
-
 		mInputManager->feed();
 
 		// User clicked on Close Window
