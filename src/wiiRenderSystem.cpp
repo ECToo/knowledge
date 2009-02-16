@@ -802,8 +802,8 @@ void wiiRenderSystem::drawArrays()
 		return;
 	}
 
-	DCFlushRange(mVertexArray, mVertexCount * sizeof(vec_t) * 3);
-	GX_SetArray(GX_VA_POS, mVertexArray, 3 * sizeof(vec_t));
+	DCFlushRange((void*)mVertexArray, mVertexCount * sizeof(vec_t) * 3);
+	GX_SetArray(GX_VA_POS, (void*)mVertexArray, 3 * sizeof(vec_t));
 
 	u8 tevStage = GX_TEVSTAGE0;
 	u8 texCoord = GX_TEXCOORDNULL;
@@ -816,14 +816,14 @@ void wiiRenderSystem::drawArrays()
 		GX_SetVtxDesc(GX_VA_TEX0MTXIDX, GX_TEXMTX0);
 		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
 
-		DCFlushRange(mTexCoordArray, mVertexCount * sizeof(vec_t) * 2);
-		GX_SetArray(GX_VA_TEX0, mTexCoordArray, 2 * sizeof(vec_t));
+		DCFlushRange((void*)mTexCoordArray, mVertexCount * sizeof(vec_t) * 2);
+		GX_SetArray(GX_VA_TEX0, (void*)mTexCoordArray, 2 * sizeof(vec_t));
 
 		if (mActiveMaterial)
 		for (unsigned int i = 1; i < mActiveMaterial->getTextureUnits(); i++)
 		{
  			GX_SetVtxDesc(GX_VA_TEX0 + i, GX_INDEX16);
-			GX_SetArray(GX_VA_TEX0 + i, mTexCoordArray, 2 * sizeof(vec_t));
+			GX_SetArray(GX_VA_TEX0 + i, (void*)mTexCoordArray, 2 * sizeof(vec_t));
 			GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0 + i, GX_TEX_ST, GX_F32, 0);
 		}
 
@@ -840,8 +840,8 @@ void wiiRenderSystem::drawArrays()
  		GX_SetVtxDesc(GX_VA_NRM, GX_INDEX16);
 		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_F32, 0);
 
-		DCFlushRange(mNormalArray, mVertexCount * sizeof(vec_t) * 3);
-		GX_SetArray(GX_VA_NRM, mNormalArray, 3 * sizeof(vec_t));
+		DCFlushRange((void*)mNormalArray, mVertexCount * sizeof(vec_t) * 3);
+		GX_SetArray(GX_VA_NRM, (void*)mNormalArray, 3 * sizeof(vec_t));
 	}
 
 	GX_SetTevOrder(GX_TEVSTAGE0, texCoord, texMap, tevColor);
