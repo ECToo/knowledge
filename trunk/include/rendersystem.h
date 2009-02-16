@@ -54,13 +54,13 @@ namespace k
 			 * For array drawing
 			 */
 			unsigned int mVertexCount;
-			vec_t* mVertexArray;
+			const vec_t* mVertexArray;
 
-			vec_t* mTexCoordArray;
-			vec_t* mNormalArray;
+			const vec_t* mTexCoordArray;
+			const vec_t* mNormalArray;
 
 			unsigned int mIndexCount;
-			index_t* mIndexArray;
+			const index_t* mIndexArray;
 
 			material* mActiveMaterial;
 
@@ -100,6 +100,10 @@ namespace k
 			virtual void pushMatrix() = 0;
 			virtual void popMatrix() = 0;
 			virtual void identityMatrix() = 0;
+
+			// Should be valid on wii and another platforms
+			// wich needs a inverse transposed modelview
+			virtual void setInverseTransposeModelview(const matrix4& mat) = 0;
 
 			virtual void copyMatrix(const matrix4& mat) = 0;
 			virtual void multMatrix(const matrix4& mat) = 0;
@@ -154,7 +158,7 @@ namespace k
 				mIndexArray = NULL;
 			}
 
-			virtual void setVertexArray(vec_t* vertices)
+			virtual void setVertexArray(const vec_t* vertices)
 			{
 				assert(vertices != NULL);
 				mVertexArray = vertices;
@@ -166,19 +170,19 @@ namespace k
 				mVertexCount = count;
 			}
 
-			virtual void setTexCoordArray(vec_t* coords)
+			virtual void setTexCoordArray(const vec_t* coords)
 			{
 				assert(coords != NULL);
 				mTexCoordArray = coords;
 			}
 
-			virtual void setNormalArray(vec_t* normals)
+			virtual void setNormalArray(const vec_t* normals)
 			{
 				assert(normals != NULL);
 				mNormalArray = normals;
 			}
 
-			virtual void setVertexIndex(index_t* indexes)
+			virtual void setVertexIndex(const index_t* indexes)
 			{
 				assert(indexes != NULL);
 				mIndexArray = indexes;

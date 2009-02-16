@@ -18,23 +18,27 @@
 #include "knowledge.h"
 
 // Plane Stuff
-const vec_t vertices[4][3] = { 
-	{40, 0, 40}, 
-	{-40, 0, 40}, 
-	{-40, 0, -40}, 
-	{40, 0, -40}
+const vec_t vertices[] ATTRIBUTE_ALIGN(32) = 
+{ 
+	40, 0, 40, -40, 0, 40, 
+	-40, 0, -40, 40, 0, -40
 };
 
-const vec_t normals[4][3] = {
-	{0, 1, 0},
-	{0, 1, 0},
-	{0, 1, 0},
-	{0, 1, 0}
+const vec_t texCoords[] ATTRIBUTE_ALIGN(32) =
+{
+	0, 0, 1, 0, 1, 1, 
+	1, 0, 0, 1, 0, 0
 };
 
-const int indices[6] = { 
-	0, 2, 1, 
-	2, 0, 3 
+const vec_t normals[] ATTRIBUTE_ALIGN(32) = 
+{
+	0, 1, 0, 0, 1, 0,
+	0, 1, 0, 0, 1, 0
+};
+
+const int indices[] ATTRIBUTE_ALIGN(32) = 
+{ 
+	0, 2, 1, 2, 0, 3 
 };
 
 class kPlane : public k::drawable3D
@@ -45,14 +49,14 @@ class kPlane : public k::drawable3D
 	public:
 		void setMaterial(k::material* mat)
 		{
-			assert(mat != NULL);
+			kAssert(mat);
 			mMaterial = mat;
 		}
 
 		void setMaterial(const std::string& matName)
 		{
 			k::materialManager* mMaterialManager = &k::materialManager::getSingleton();
-			assert(mMaterialManager != NULL);
+			kAssert(mMaterialManager);
 
 			setMaterial(mMaterialManager->getMaterial(matName));
 		}
@@ -60,23 +64,20 @@ class kPlane : public k::drawable3D
 		void draw()
 		{
 			k::renderSystem* rs = k::root::getSingleton().getRenderSystem();
-			assert(rs != NULL);
+			kAssert(rs);
 
 			mMaterial->prepare();
 
-			rs->startVertices(k::VERTEXMODE_QUAD);
-				rs->texCoord(k::vector2(0, 0));
-				rs->vertex(k::vector3(-40, 0, -40));
+			rs->clearArrayDesc();
+			rs->setVertexArray(vertices);
+			rs->setVertexCount(4);
 
-				rs->texCoord(k::vector2(0, 1));
-				rs->vertex(k::vector3(-40, 0, 40));
+			rs->setNormalArray(normals);
+			rs->setTexCoordArray(texCoords);
 
-				rs->texCoord(k::vector2(1, 1));
-				rs->vertex(k::vector3(40, 0, 40));
-
-				rs->texCoord(k::vector2(1, 0));
-				rs->vertex(k::vector3(40, 0, -40));
-			rs->endVertices();
+			rs->setIndexCount(6);
+			rs->setVertexIndex((index_t*)indices);
+			rs->drawArrays();
 
 			mMaterial->finish();
 		}
@@ -111,7 +112,7 @@ void addRandomBox()
 
 		// Box
 		k::physicBox* boxPhysic = mPhysicsManager->createBox(k::vector3(8, 8, 8));
-		assert(boxPhysic != NULL);
+		kAssert(boxPhysic);
 		boxPhysic->setPosition(k::vector3(rand()%38 - 20, rand()%20 + 15, rand()%38 - 20));
 		boxPhysic->attachDrawable(newBoxModel);
 	}
@@ -134,7 +135,7 @@ void addRandomSphere()
 
 		// Sphere
 		k::physicSphere* ballPhysic = mPhysicsManager->createSphere(2.398);
-		assert(ballPhysic != NULL);
+		kAssert(ballPhysic);
 		ballPhysic->setPosition(k::vector3(rand()%38 - 20, rand()%10 + 16, rand()%38 - 20));
 		ballPhysic->attachDrawable(newModel);
 	}
@@ -155,8 +156,8 @@ int main(int argc, char** argv)
 	k::guiManager* mGuiManager = appRoot->getGuiManager();
 	k::inputManager* mInputManager = appRoot->getInputManager();
 
-	assert(mRenderer != NULL);
-	assert(mRenderSystem != NULL);
+	kAssert(mRenderer);
+	kAssert(mRenderSystem);
 
 	// Doesnt matter on wii
 	mRenderSystem->createWindow(800, 600);
@@ -171,7 +172,7 @@ int main(int argc, char** argv)
 
 	// Loading Screen
 	k::imgLoadScreen* newLoadingScreen = new k::imgLoadScreen();
-	assert(newLoadingScreen);
+	kAssert(newLoadingScreen);
 
 	resourceMgr->setLoadingScreen(newLoadingScreen);
 	newLoadingScreen->loadBg("loading.png");
@@ -181,18 +182,23 @@ int main(int argc, char** argv)
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("physics");
 
+	// Fps Counter
+	k::bitmapText* fpsText = new k::bitmapText("fonts/cube_14.dat", "cube_14");
+	kAssert(fpsText);
+	fpsText->setPosition(k::vector2(4, 10));
+	mRenderer->push2D(fpsText);
+
 	delete newLoadingScreen;
 
-	// mRenderer->setSkyBox("nightzSky");
 	mRenderer->setSkyPlane("skyPlane");
 
-	assert(mGuiManager != NULL);
+	kAssert(mGuiManager);
 	mGuiManager->setCursor("wiiCursor3", k::vector2(32, 32));
 	
 	/**
 	 * Setup the input Manager
 	 */
-	assert(mInputManager != NULL);
+	kAssert(mInputManager);
 	mInputManager->initWii(false);
 	mInputManager->setupWiiMotes(1);
 	mInputManager->setWiiMoteTimeout(60);
@@ -200,7 +206,7 @@ int main(int argc, char** argv)
 
 	// Setup Camera
 	k::camera* newCamera = new k::camera();
-	assert(newCamera != NULL);
+	kAssert(newCamera);
 	newCamera->setPosition(k::vector3(35, 40, -35));
 	newCamera->lookAt(k::vector3(0, 0, 0));
 	mRenderer->setCamera(newCamera);
@@ -216,15 +222,15 @@ int main(int argc, char** argv)
 
 	// Plane
 	kPlane* newPlane = new kPlane();
-	assert(newPlane != NULL);
+	kAssert(newPlane);
 	newPlane->setMaterial("odePlane");
 	mRenderer->push3D(newPlane);
 
 	k::physicTriMesh* planePhysic = mPhysicsManager->createTriMesh(vertices, 4, indices, 6, normals);
-	assert(planePhysic != NULL);
+	kAssert(planePhysic);
 	planePhysic->attachDrawable(newPlane);
 
-	// Angles
+	// Mouse Buttons 
 	bool running = true;
 	bool leftHold = false;
 	bool rightHold = false;
@@ -271,6 +277,11 @@ int main(int argc, char** argv)
 		// Physics Loop
 		mPhysicsManager->collideActiveSpace();
 		mPhysicsManager->cycle();
+
+		// Update FPS
+		std::stringstream fpsT;
+		fpsT << "fps: " << mRenderer->getLastFps();
+		fpsText->setText(fpsT.str());
 
 		mRenderer->draw();
 	}

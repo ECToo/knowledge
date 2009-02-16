@@ -73,6 +73,8 @@ int main(int argc, char** argv)
 	k::md5model* newModel = new k::md5model("goku.md5mesh");
 	#endif
 
+	kAssert(newModel);
+
 	#ifdef __WII__
 	newModel->attachAnimation("sd:/knowledge/model/idle.md5anim", "idle");
 	newModel->attachAnimation("sd:/knowledge/model/fly_f.md5anim", "runf");
@@ -216,7 +218,7 @@ int main(int argc, char** argv)
 		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_B))
 		{
 			modelPosition.x += dX;
-			modelPosition.y -= dY;
+			modelPosition.y += dY;
 		}
 
 		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_1) || mInputManager->getKbdKeyDown(K_KBD_F12))

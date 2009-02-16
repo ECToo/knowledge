@@ -97,15 +97,27 @@ namespace k
 			vector3 mPosition;
 			quaternion mOrientation;
 
+			// Another Drawable this one
+			// is attached to
+			const drawable3D* mAttach;
+
 		public:
+			drawable3D()
+			{
+				mAttach = NULL;
+			}
+
 			void setOrientation(const quaternion& orientation);
 			void setScale(const vector3& scale);
 			void setScale(const vec_t scale);
 			void setPosition(const vector3& pos);
 
-			const vector3& getScale();
-			const vector3& getPosition();
-			const quaternion& getOrientation();
+			void attach(const drawable3D* target);
+			const drawable3D* getRoot() const;
+
+			const vector3& getScale() const;
+			vector3 getPosition() const;
+			quaternion getOrientation() const;
 
 			virtual ~drawable3D();
 			virtual void draw() = 0;

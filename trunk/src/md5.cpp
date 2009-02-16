@@ -663,13 +663,16 @@ void md5model::draw()
 	// Feed animations =]
 	feedAnims();
 
+	vector3 finalPos = getPosition();
+	quaternion finalOrientation = getOrientation();
+
 	// Rotate and Translate
 	vec_t angle;
 	vector3 axis;
-	mOrientation.toAxisAngle(angle, axis);
+	finalOrientation.toAxisAngle(angle, axis);
 
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
-	rs->translateScene(mPosition.x, mPosition.y, mPosition.z);
+	rs->translateScene(finalPos.x, finalPos.y, finalPos.z);
 	rs->rotateScene(angle, axis.x, axis.y, axis.z);
 
 	// Draw Meshes

@@ -89,23 +89,39 @@ void drawable3D::setPosition(const vector3& pos)
 	mPosition = pos;
 }
 
-const vector3& drawable3D::getScale()
+const vector3& drawable3D::getScale() const
 {
 	return mScale;
 }
 
-const vector3& drawable3D::getPosition()
+vector3 drawable3D::getPosition() const
 {
-	return mPosition;
+	if (mAttach)
+		return mAttach->getPosition() + mPosition;
+	else
+		return mPosition;
 }
 		
-const quaternion& drawable3D::getOrientation()
+quaternion drawable3D::getOrientation() const
 {
-	return mOrientation;
+	if (mAttach)
+		return mAttach->getOrientation() * mOrientation;
+	else
+		return mOrientation;
 }
 
 drawable3D::~drawable3D()
 {
+}
+			
+void drawable3D::attach(const drawable3D* target)
+{
+	mAttach = target;
+}
+
+const drawable3D* drawable3D::getRoot() const
+{
+	return mAttach;
 }
 
 }

@@ -58,6 +58,26 @@ static inline void identityMtx44(Mtx44 mat)
 	}
 }
 
+static inline void copyMtx(const matrix4& src, Mtx dest)
+{
+	guMtxIdentity(dest);
+
+	dest[0][0] = src.m[0][0];
+	dest[0][1] = src.m[0][1];
+	dest[0][2] = src.m[0][2];
+	dest[0][3] = src.m[0][3];
+
+	dest[1][0] = src.m[1][0];
+	dest[1][1] = src.m[1][1];
+	dest[1][2] = src.m[1][2];
+	dest[1][3] = src.m[1][3];
+
+	dest[2][0] = src.m[2][0];
+	dest[2][1] = src.m[2][1];
+	dest[2][2] = src.m[2][2];
+	dest[2][3] = src.m[2][3];
+}
+
 static inline void copyMtxTranspose(const matrix4& src, Mtx dest)
 {
 	guMtxIdentity(dest);
@@ -397,6 +417,11 @@ void wiiRenderSystem::getModelView(float mat[][4])
 	guMtxCopy(mModelViewMatrix, mat);
 }
 
+void wiiRenderSystem::setInverseTransposeModelview(const matrix4& mat)
+{
+	copyMtx(mat, mInverseModelViewMatrix);
+}
+
 void wiiRenderSystem::copyMatrix(const matrix4& mat)
 {
 	switch (mActiveMatrix)
@@ -686,6 +711,7 @@ void wiiRenderSystem::endVertices()
 
 	// ModelView
 	GX_LoadPosMtxImm(mModelViewMatrix, GX_PNMTX0);
+	GX_LoadNrmMtxImm(mInverseModelViewMatrix, GX_PNMTX0);
 	GX_SetCurrentMtx(GX_PNMTX0);
 
 	// Start the Vertex Descriptor on Flipper
@@ -835,6 +861,7 @@ void wiiRenderSystem::drawArrays()
 
 	// ModelView
 	GX_LoadPosMtxImm(mModelViewMatrix, GX_PNMTX0);
+	GX_LoadNrmMtxImm(mInverseModelViewMatrix, GX_PNMTX0);
 	GX_SetCurrentMtx(GX_PNMTX0);
 
 	for (unsigned int i = 0; i < mIndexCount; i += 3)
