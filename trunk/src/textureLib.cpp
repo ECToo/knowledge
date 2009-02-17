@@ -43,7 +43,14 @@ texture* createRawTexture(const std::string& filename)
 		newKTexture = loader->loadTexture(filename.c_str(), &newTexture->mWidth, &newTexture->mHeight);
 
 		if (!isPowerOfTwo(newTexture->mWidth) || !isPowerOfTwo(newTexture->mHeight))
-			S_LOG_INFO("WARNING! The texture " + filename + " dimensions are not power of 2");
+		{
+			std::stringstream warn;
+			warn << "WARNING! The texture " << filename << " dimensions(";
+			warn << newTexture->mWidth << "," << newTexture->mHeight;
+			warn << ") are not power of 2";
+
+			S_LOG_INFO(warn.str());
+		}
 
 		if (newKTexture)
 		{
@@ -130,8 +137,11 @@ texture* createRawCubemap(const std::string& filename)
 	}
 	cubeTex[CUBE_RIGHT] = tempTex;
 
+	// Final Size
+	unsigned short width = 0;
+	unsigned short height = 0;
+
 	// back 
-	unsigned short width, height;
 	tempName = newName + "_back" + extension;	
 	tempTex = texLoader->loadTexture((char*)tempName.c_str(), &width, &height);
 	if (!tempTex)
@@ -142,7 +152,14 @@ texture* createRawCubemap(const std::string& filename)
 	cubeTex[CUBE_BACK] = tempTex;
 
 	if (!isPowerOfTwo(width) || !isPowerOfTwo(height))
-		S_LOG_INFO("WARNING! The texture " + filename + " dimensions are not power of 2");
+	{
+		std::stringstream warn;
+		warn << "WARNING! The texture " << filename << " dimensions(";
+		warn << width << "," << height;
+		warn << ") are not power of 2";
+
+		S_LOG_INFO(warn.str());
+	}
 
 	// Ok we can setup everything
 	texture* newTexture = new texture;

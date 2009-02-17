@@ -14,6 +14,7 @@ libknowledge_la_SOURCES = drawable.cpp\
 								  guiManager.cpp\
 								  fontManager.cpp\
 								  inputManager.cpp\
+								  gameState.cpp\
 								  physicsManager.cpp\
 								  resourceManager.cpp\
 								  renderer.cpp\
@@ -38,6 +39,7 @@ pkginclude_HEADERS = @top_srcdir@/include/prerequisites.h \
 							@top_srcdir@/include/physicsManager.h \
 							@top_srcdir@/include/singleton.h \
 							@top_srcdir@/include/camera.h \
+							@top_srcdir@/include/gameState.h \
 							@top_srcdir@/include/singleton.h \
 							@top_srcdir@/include/matrix4.h \
 							@top_srcdir@/include/drawable.h \

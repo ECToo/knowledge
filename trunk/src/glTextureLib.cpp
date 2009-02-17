@@ -50,9 +50,15 @@ kTexture* textureLoader::loadTexture(const char* file, unsigned short* w, unsign
 	FIBITMAP* image = FreeImage_Load(imgFormat, file, 0);
 	kAssert(image);
 
-	uint32_t width = FreeImage_GetWidth(image);
-	uint32_t height = FreeImage_GetHeight(image);
-	uint32_t bpp = FreeImage_GetBPP(image);
+	unsigned short width = FreeImage_GetWidth(image);
+	unsigned short height = FreeImage_GetHeight(image);
+	unsigned short bpp = FreeImage_GetBPP(image);
+
+	if (w && h)
+	{
+		*w = width;
+		*h = height;
+	}
 
 	if (bpp != 32)
 	{
