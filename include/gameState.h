@@ -27,7 +27,7 @@ namespace k
 class gameState 
 {
 	public:
-		virtual ~gameState() = 0;
+		virtual ~gameState() {}
 
 		virtual void start() = 0;
 		virtual void end() = 0;
