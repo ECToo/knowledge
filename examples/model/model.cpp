@@ -68,13 +68,17 @@ int main(int argc, char** argv)
 	modelPosition.z = -100;
 
 	#ifdef __WII__
-	k::md5model* newModel = new k::md5model("sd:/knowledge/model/goku.md5mesh");
+	// k::md5model* newModel = new k::md5model("sd:/knowledge/model/goku.md5mesh");
+	k::md5model* newModel = new k::md5model("sd:/knowledge/model/torus.md5mesh");
 	#else
-	k::md5model* newModel = new k::md5model("goku.md5mesh");
+	// k::md5model* newModel = new k::md5model("goku.md5mesh");
+	k::md5model* newModel = new k::md5model("torus.md5mesh");
 	#endif
 
 	kAssert(newModel);
+	newModel->getMesh(0)->setMaterial("donutMetal");
 
+	/*
 	#ifdef __WII__
 	newModel->attachAnimation("sd:/knowledge/model/idle.md5anim", "idle");
 	newModel->attachAnimation("sd:/knowledge/model/fly_f.md5anim", "runf");
@@ -84,15 +88,12 @@ int main(int argc, char** argv)
 	newModel->attachAnimation("fly_f.md5anim", "runf");
 	newModel->attachAnimation("fly_b.md5anim", "runb");
 	#endif
+	*/
 
-	// delete newLoadingScreen;
+	delete newLoadingScreen;
 
 	// Set Skyplane
 	mRenderer->setSkyPlane("skyPlane");
-
-	// Uncomment this and comment the above if you want
-	// a skybox "demo"
-	// mRenderer->setSkyBox("nightzSky");
 
 	// Fps Counter
 	k::bitmapText* fpsText = new k::bitmapText("fonts/cube_14.dat", "cube_14");
@@ -100,9 +101,11 @@ int main(int argc, char** argv)
 	fpsText->setPosition(k::vector2(4, 10));
 	mRenderer->push2D(fpsText);
 
+	/*
 	// Set Model animations
 	newModel->setAnimation("idle");
 	newModel->setAnimationFrame(10);
+	*/
 	
 	mRenderer->push3D(newModel);
 
@@ -124,7 +127,7 @@ int main(int argc, char** argv)
 	// Anims
 	bool runf = false;
 	bool runb = false;
-	bool idle = false;
+	bool idle = true;
 
 	bool running = true;
 	while (running)
@@ -258,7 +261,14 @@ int main(int argc, char** argv)
 		mRenderer->draw();
 	}
 
+	// Clean up
+	// _break();
+	
+	delete newModel;
+	delete fpsText;
+	delete resourceMgr;
 	delete appRoot;
+
 	return 0;
 }
 

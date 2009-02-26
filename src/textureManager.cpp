@@ -71,6 +71,23 @@ texture* textureManager::getTexture(const std::string& filename)
 	}
 }
 
+texture* textureManager::createEmptyTexture()
+{
+	std::stringstream newName;
+	newName << "random_" << mTextures.size() + 1;
+
+	texture* newTexture = new texture;
+	if (newTexture)
+	{
+		mTextures[newName.str()] = newTexture;
+		return newTexture;
+	}
+	else
+	{
+		S_LOG_INFO("Failed to allocate new texture.");
+		return NULL;
+	}
+}
 			
 void textureManager::allocateTextureData(const std::string& filename)
 {
@@ -145,9 +162,9 @@ textureStage* textureManager::createCubicTexture(const std::string& filename, un
 
 	// Ok our texture is valid, create the real thing now
 	#ifdef __WII__
-	wiiTexture* newStage = new wiiTexture(rawTex->mWidth, rawTex->mHeight, index);
+	wiiTexture* newStage = new wiiTexture(index);
 	#else
-	glTexture* newStage = new glTexture(rawTex->mWidth, rawTex->mHeight, index);
+	glTexture* newStage = new glTexture(index);
 	#endif
 
 	if (!newStage)
@@ -156,8 +173,7 @@ textureStage* textureManager::createCubicTexture(const std::string& filename, un
 		return NULL;
 	}
 
-	newStage->setImagesCount(rawTex->mImagesCount);
-	newStage->setId(&rawTex->mId);
+	newStage->setTexture(rawTex);
 
 	return newStage;
 }
@@ -185,15 +201,14 @@ textureStage* textureManager::createTexture(const std::string& filename, unsigne
 	}
 
 	// Ok our texture is valid, create the real thing now
-	platTexture* newStage = new platTexture(rawTex->mWidth, rawTex->mHeight, index);
+	platTexture* newStage = new platTexture(index);
 	if (!newStage)
 	{
 		S_LOG_INFO("Failed to allocate texture stage.");
 		return NULL;
 	}
 
-	newStage->setImagesCount(rawTex->mImagesCount);
-	newStage->setId(&rawTex->mId);
+	newStage->setTexture(rawTex);
 
 	return newStage;
 }

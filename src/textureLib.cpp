@@ -37,24 +37,25 @@ texture* createRawTexture(const std::string& filename)
 		textureLoader* loader = &textureLoader::getSingleton();
 		kAssert(loader != NULL);
 
-		newTexture->mImagesCount = 1;
-
+		unsigned short w, h;
 		kTexture* newKTexture = NULL;
-		newKTexture = loader->loadTexture(filename.c_str(), &newTexture->mWidth, &newTexture->mHeight);
 
-		if (!isPowerOfTwo(newTexture->mWidth) || !isPowerOfTwo(newTexture->mHeight))
+		newKTexture = loader->loadTexture(filename.c_str(), &w, &h);
+
+		if (!isPowerOfTwo(w) || !isPowerOfTwo(h))
 		{
 			std::stringstream warn;
 			warn << "WARNING! The texture " << filename << " dimensions(";
-			warn << newTexture->mWidth << "," << newTexture->mHeight;
-			warn << ") are not power of 2";
+			warn << w << "," << h << ") are not power of 2";
 
 			S_LOG_INFO(warn.str());
 		}
 
 		if (newKTexture)
 		{
-			newTexture->mId.push_back(newKTexture);
+			newTexture->push(filename);
+			newTexture->push(newKTexture, w, h);
+
 			return newTexture;
 		}
 		else
@@ -72,6 +73,13 @@ texture* createRawCubemap(const std::string& filename)
 	if (!texLoader)
 		return NULL;
 
+	texture* newTexture = new texture;
+	if (!newTexture)
+	{
+		S_LOG_INFO("Failed to allocate texture for cubemap.");
+		return NULL;
+	}
+
 	// Get Temp name
 	std::string newName = filename;
 	std::string extension = getExtension(filename);
@@ -83,8 +91,7 @@ texture* createRawCubemap(const std::string& filename)
 	// retrieve the 6 textures
 	std::string tempName;	
 
-	// Opengl Textures
-	std::vector<kTexture*> cubeTex(6);
+	// Raw Textures
 	kTexture* tempTex = NULL;
 		
 	// Front
@@ -95,7 +102,37 @@ texture* createRawCubemap(const std::string& filename)
 		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
 		return NULL;
 	}
-	cubeTex[CUBE_FRONT] = tempTex;
+	newTexture->push(tempTex, 0, 0);
+
+	// Back
+	tempName = newName + "_back" + extension;	
+	tempTex = texLoader->loadTexture((char*)tempName.c_str(), NULL, NULL);
+	if (!tempTex)
+	{
+		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
+		return NULL;
+	}
+	newTexture->push(tempTex, 0, 0);
+
+	// Left 
+	tempName = newName + "_left" + extension;	
+	tempTex = texLoader->loadTexture((char*)tempName.c_str(), NULL, NULL);
+	if (!tempTex)
+	{
+		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
+		return NULL;
+	}
+	newTexture->push(tempTex, 0, 0);
+
+	// Right
+	tempName = newName + "_right" + extension;	
+	tempTex = texLoader->loadTexture((char*)tempName.c_str(), NULL, NULL);
+	if (!tempTex)
+	{
+		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
+		return NULL;
+	}
+	newTexture->push(tempTex, 0, 0);
 
 	// Up
 	tempName = newName + "_up" + extension;	
@@ -105,51 +142,23 @@ texture* createRawCubemap(const std::string& filename)
 		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
 		return NULL;
 	}
-	cubeTex[CUBE_UP] = tempTex;
-
-	// Down 
-	tempName = newName + "_down" + extension;	
-	tempTex = texLoader->loadTexture((char*)tempName.c_str(), NULL, NULL);
-	if (!tempTex)
-	{
-		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
-		return NULL;
-	}
-	cubeTex[CUBE_DOWN] = tempTex;
-
-	// left
-	tempName = newName + "_left" + extension;	
-	tempTex = texLoader->loadTexture((char*)tempName.c_str(), NULL, NULL);
-	if (!tempTex)
-	{
-		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
-		return NULL;
-	}
-	cubeTex[CUBE_LEFT] = tempTex;
-
-	// right
-	tempName = newName + "_right" + extension;	
-	tempTex = texLoader->loadTexture((char*)tempName.c_str(), NULL, NULL);
-	if (!tempTex)
-	{
-		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
-		return NULL;
-	}
-	cubeTex[CUBE_RIGHT] = tempTex;
+	newTexture->push(tempTex, 0, 0);
 
 	// Final Size
 	unsigned short width = 0;
 	unsigned short height = 0;
 
-	// back 
-	tempName = newName + "_back" + extension;	
+	// Down 
+	tempName = newName + "_down" + extension;	
 	tempTex = texLoader->loadTexture((char*)tempName.c_str(), &width, &height);
 	if (!tempTex)
 	{
 		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
 		return NULL;
 	}
-	cubeTex[CUBE_BACK] = tempTex;
+
+	newTexture->push(tempTex, width, height);
+	newTexture->push(filename);
 
 	if (!isPowerOfTwo(width) || !isPowerOfTwo(height))
 	{
@@ -161,26 +170,7 @@ texture* createRawCubemap(const std::string& filename)
 		S_LOG_INFO(warn.str());
 	}
 
-	// Ok we can setup everything
-	texture* newTexture = new texture;
-	if (newTexture)
-	{
-		newTexture->mWidth = width;
-		newTexture->mHeight = height;
-		newTexture->mId = cubeTex;
-		newTexture->mImagesCount = 6;
-
-		return newTexture;
-	}
-	else
-	{
-		for (unsigned int i = 0; i < 6; i++)
-		{
-			texLoader->unLoadTexture(cubeTex[i]);
-		}
-	}
-
-	return NULL;
+	return newTexture;
 }
 
 }

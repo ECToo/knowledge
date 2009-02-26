@@ -39,13 +39,15 @@ renderer::renderer()
 	mSkybox = NULL;
 	mSkyPlane = NULL;
 
-	mRenderToTexture = false;
+	// mRenderToTexture = false;
 	mCalculateFps = true;
 }
 
 renderer::~renderer()
 {
-	//TODO
+	m3DObjects.clear();
+	m2DObjects.clear();
+	mSprites.clear();
 }
 
 void renderer::setFpsCounter(bool status)
@@ -295,10 +297,8 @@ void renderer::_drawSkybox()
 	kAssert(texStage != NULL);
 	kAssert(texStage->getImagesCount() == 6);
 
-	std::vector<kTexture*>* mId = texStage->getId();
-
 	// Render the front quad
-	rs->bindTexture((*mId)[CUBE_FRONT], 0);
+	rs->bindTexture(texStage->getTexture(CUBE_FRONT), 0);
  	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 400.0f, -200.0f, -400.0f));
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-400.0f, -200.0f, -400.0f));
@@ -307,7 +307,7 @@ void renderer::_drawSkybox()
 	rs->endVertices();
 
 	// Render the left quad
-	rs->bindTexture((*mId)[CUBE_LEFT], 0);
+	rs->bindTexture(texStage->getTexture(CUBE_LEFT), 0);
 	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 400.0f, -200.0f,  400.0f));
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3( 400.0f, -200.0f, -400.0f));
@@ -316,7 +316,7 @@ void renderer::_drawSkybox()
 	rs->endVertices();
 
 	// Render the back quad
-	rs->bindTexture((*mId)[CUBE_BACK], 0);
+	rs->bindTexture(texStage->getTexture(CUBE_BACK), 0);
 	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(0, 1)); rs->vertex(vector3(-400.0f, -200.0f,  400.0f));
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3( 400.0f, -200.0f,  400.0f));
@@ -325,7 +325,7 @@ void renderer::_drawSkybox()
 	rs->endVertices();
 
 	// Render the right quad
-	rs->bindTexture((*mId)[CUBE_RIGHT], 0);
+	rs->bindTexture(texStage->getTexture(CUBE_RIGHT), 0);
 	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(0, 1)); rs->vertex(vector3(-400.0f, -200.0f, -400.0f));
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-400.0f, -200.0f,  400.0f));
@@ -334,7 +334,7 @@ void renderer::_drawSkybox()
 	rs->endVertices();
 
 	// Render the top quad
-	rs->bindTexture((*mId)[CUBE_UP], 0);
+	rs->bindTexture(texStage->getTexture(CUBE_UP), 0);
 	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-400.0f,  200.0f, -400.0f));
 		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-400.0f,  200.0f,  400.0f));
@@ -343,7 +343,7 @@ void renderer::_drawSkybox()
 	rs->endVertices();
 
 	// Render the bottom quad
-	rs->bindTexture((*mId)[CUBE_DOWN], 0);
+	rs->bindTexture(texStage->getTexture(CUBE_DOWN), 0);
 	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-400.0f, -200.0f, -400.0f));
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-400.0f, -200.0f,  400.0f));
@@ -370,8 +370,10 @@ void renderer::draw()
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	kAssert(rs != NULL);
 
+	/*
 	if (mRenderToTexture)
 		rs->setViewPort(0, 0, mRTTSize[0], mRTTSize[1]);
+	*/
 
 	/**
 	 * Call the frame start
@@ -490,14 +492,16 @@ void renderer::draw()
 	 */
 	rs->frameEnd();
 
+	/*
 	if (mRenderToTexture)
 	{
 		rs->bindTexture(mTextureTarget, 0);
-		rs->copyToTexture(mRTTSize[0], mRTTSize[1], mTextureTarget);
+		rs->copyToTexture(mTextureTarget);
 		rs->setViewPort(0, 0, rs->getScreenWidth(), rs->getScreenHeight());
 
 		mRenderToTexture = false;
 	}
+	*/
 			
 	// Frames per Second 
 	if (mCalculateFps)
@@ -535,7 +539,8 @@ void renderer::prepareRTT(unsigned int w, unsigned int h, kTexture* tex)
 	mRTTSize[0] = w;
 	mRTTSize[1] = h;
 	mTextureTarget = tex;
-	mRenderToTexture = true;
+
+	// mRenderToTexture = true;
 }
 
 }

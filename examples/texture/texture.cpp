@@ -160,6 +160,7 @@ int main(int argc, char** argv)
 	// Create Texture for RTT
 	kTexture rttTarget;
 	mRenderSystem->genTexture(128, 128, 3, &rttTarget);
+	mRenderSystem->setRttSize(128, 128);
 
 	// Add to material
 	rttMaterial->setSingleTexture(128, 128, &rttTarget);
@@ -173,13 +174,6 @@ int main(int argc, char** argv)
 	// Load textures
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("texture");
-
-	#ifdef __WII__
-	k::parsingFile* tevFile = new k::parsingFile("/knowledge/tev.script");
-
-	kAssert(tevFile);
-	k::tevManager::getSingleton().parseTevScript(tevFile);
-	#endif
 
 	delete newLoadingScreen;
 
@@ -211,9 +205,9 @@ int main(int argc, char** argv)
 
 		// Draw
 		mRenderSystem->setViewPort(0, 0, 128, 128);
-		mRenderSystem->setOnlyFlush(true);
+		mRenderSystem->setRttTarget(&rttTarget);
+		mRenderSystem->setRenderToTexture(true);
 		drawScene(true);
-		mRenderSystem->copyToTexture(128, 128, &rttTarget);
 
 		mRenderSystem->setViewPort(0, 0, mRenderSystem->getScreenWidth(), mRenderSystem->getScreenHeight());
 		drawScene(false);

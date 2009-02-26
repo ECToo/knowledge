@@ -64,8 +64,10 @@ namespace k
 
 			material* mActiveMaterial;
 
-			// Only Flush
-			bool mOnlyFlush;
+			// Render To Texture
+			bool mRenderToTexture;
+			unsigned int mRttDimensions[2];
+			kTexture* mRttTarget;
 
 		public:
 			
@@ -84,9 +86,21 @@ namespace k
 			virtual void frameEnd() = 0;
 			virtual void setWireFrame(bool wire) = 0;
 
-			virtual void setOnlyFlush(bool flush)
+			virtual void setRttTarget(kTexture* tex)
 			{
-				mOnlyFlush = flush;
+				kAssert(tex);
+				mRttTarget = tex;
+			}
+			
+			virtual void setRttSize(unsigned int width, unsigned int height)
+			{
+				mRttDimensions[0] = width;
+				mRttDimensions[1] = height;
+			}
+
+			virtual void setRenderToTexture(bool rtt)
+			{
+				mRenderToTexture = rtt;
 			}
 
 			virtual void setClearColor(const vector3& color) = 0;
@@ -144,7 +158,7 @@ namespace k
 			virtual void setBlendMode(unsigned short src, unsigned short dst) = 0;
 			virtual void setBlend(bool state) = 0;
 
-			virtual void copyToTexture(unsigned int w, unsigned int h, kTexture* tex) = 0;
+			virtual void copyToTexture(kTexture* tex) = 0;
 
 			virtual void clearArrayDesc()
 			{

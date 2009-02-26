@@ -95,7 +95,7 @@ namespace k
 			void bindTexture(GLuint* tex, int chan);
 			void unBindTexture(int chan);
 
-			void copyToTexture(unsigned int w, unsigned int h, kTexture* tex);
+			void copyToTexture(kTexture* tex);
 
 			void setBlendMode(unsigned short src, unsigned short dst);
 			void setBlend(bool state);

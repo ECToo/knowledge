@@ -21,12 +21,6 @@
 #include "textureManager.h"
 #include "resourceManager.h"
 
-#ifdef __WII__
-#define byteSwap4(Y) (((Y & 0xff)<<24)|((Y & 0xff00) << 8)|((Y & 0xff0000) >> 8)|((Y & 0xff000000) >> 24))
-#else
-#define byteSwap4(Y) (Y)
-#endif
-
 namespace k {
 
 /*
@@ -46,7 +40,7 @@ int readEndianSafeInt(FILE* f)
 	kAssert(f != NULL);
 
 	if (fread(&value, 4, 1, f) > 0)
-		return byteSwap4(value);
+		return readLEInt(value);
 	else
 		return 0;
 }
@@ -55,16 +49,10 @@ float readEndianSafeFloat(FILE* f)
 {
 	kAssert(f != NULL);
 
-	union
+	float data;
+	if (fread(&data, 4, 1, f) > 0)
 	{
-		float f;
-		int i;
-	} data;
-
-	if (fread(&data.f, 4, 1, f) > 0)
-	{
-		data.i = byteSwap4(data.i);
-		return data.f;
+		return readLEFloat(data);
 	}
 	else 
 	{

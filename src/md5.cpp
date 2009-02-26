@@ -674,6 +674,7 @@ void md5model::draw()
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 	rs->translateScene(finalPos.x, finalPos.y, finalPos.z);
 	rs->rotateScene(angle, axis.x, axis.y, axis.z);
+	rs->scaleScene(mScale.x, mScale.y, mScale.z);
 
 	// Draw Meshes
 	std::list<md5mesh*>::iterator it;

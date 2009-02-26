@@ -23,8 +23,7 @@
 
 namespace k {
 
-glTexture::glTexture(unsigned int width, unsigned int height, unsigned short index)
-	: textureStage(width, height, index)
+glTexture::glTexture(unsigned short index) : textureStage(index)
 {
 }
 
@@ -72,7 +71,7 @@ void glTexture::draw()
 		rs->setBlend(false);
 	}
 
-	rs->bindTexture(mTextureId[0], mIndex);
+	rs->bindTexture(getTexture(0), mIndex);
 
 	switch (mTexCoordType)
 	{

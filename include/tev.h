@@ -56,7 +56,9 @@ namespace k
 				for (it = mCustomStages.begin(); it != mCustomStages.end();)
 				{
 					tevStage* thisStage = it->second;
-					mCustomStages.erase(it);
+
+					mCustomStages.erase(it++);
+
 					delete thisStage;
 				}
 			}
@@ -85,6 +87,7 @@ namespace k
 			void parseTev(tev* t, parsingFile* file);
 			void parseStage(tev* t, parsingFile* file, int index);
 			void parseTevScript(parsingFile* file);
+			void parseTevScript(const std::string& filename);
 	};
 }
 

@@ -64,6 +64,8 @@ namespace k
 			unsigned int getNumberOfTextureStages();
 			textureStage* getTextureStage(unsigned short index);
 
+			bool containsTexture(const std::string& name);
+
 			/**
 			 * Prepare material, before drawing.
 			 */

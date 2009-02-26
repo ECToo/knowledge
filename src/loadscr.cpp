@@ -49,7 +49,7 @@ void bgLoadScreen::loadBg(const std::string& filename)
 		return;
 	}
 
-	mBackground->setSingleTexture(newTexture->mWidth, newTexture->mHeight, newTexture->mId[0]);
+	mBackground->setSingleTexture(newTexture->getWidth(), newTexture->getHeight(), newTexture->getId(0));
 	mBackground->setCullMode(CULLMODE_NONE);
 }
 
@@ -114,7 +114,7 @@ void imgLoadScreen::loadBg(const std::string& filename)
 		return;
 	}
 
-	mImgMaterial->setSingleTexture(newTexture->mWidth, newTexture->mHeight, newTexture->mId[0]);
+	mImgMaterial->setSingleTexture(newTexture->getWidth(), newTexture->getHeight(), newTexture->getId(0));
 	mImgMaterial->setCullMode(CULLMODE_NONE);
 }
 

@@ -39,6 +39,30 @@
 #define ATTRIBUTE_ALIGN(v) __attribute__((aligned(v)))
 #endif
 
+#define byteSwap4(Y) (((Y & 0xff)<<24)|((Y & 0xff00) << 8)|((Y & 0xff0000) >> 8)|((Y & 0xff000000) >> 24))
+
+#ifdef __WII__
+	#define readLEInt(Y) (byteSwap4(Y))
+	#define readBEInt(Y) (Y)
+	#define readBEFloat(Y) (Y)
+	static inline float readLEFloat(float f)
+	{
+		union { float f; int i; } data;
+		data.i = readLEInt(data.i);
+		return data.f;
+	}
+#else
+	#define readLEInt(Y) (Y)
+	#define readBEInt(Y) (byteSwap4(Y))
+	#define readLEFloat(Y) (Y)
+	static inline float readBEFloat(float f)
+	{
+		union { float f; int i; } data;
+		data.i = readLEInt(data.i);
+		return data.f;
+	}
+#endif
+
 // Platform dependent includes
 #ifndef __WII__
 
