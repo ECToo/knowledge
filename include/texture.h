@@ -46,27 +46,21 @@ namespace k
 		CUBE_DOWN
 	};
 
-	enum texWrapType
+	enum texFlags
 	{
-		WRAP_CLAMP_EDGE_S = 0,
-		WRAP_CLAMP_EDGE_T,
-		WRAP_CLAMP_EDGE_R,
-		WRAP_CLAMP_S,
-		WRAP_CLAMP_T,
-		WRAP_CLAMP_R,
-		WRAP_REPEAT_S,
-		WRAP_REPEAT_T,
-		WRAP_REPEAT_R
-	};
-
-	enum rawTexFlags
-	{
-		RAW_BPP_24,
-		RAW_BPP_32,
-		RAW_RGB,
-		RAW_RGBA,
-		RAW_BGR,
-		RAW_BGRA
+		FLAG_CLAMP_EDGE_S = 0,
+		FLAG_CLAMP_EDGE_T,
+		FLAG_CLAMP_EDGE_R,
+		FLAG_CLAMP_S,
+		FLAG_CLAMP_T,
+		FLAG_CLAMP_R,
+		FLAG_REPEAT_S,
+		FLAG_REPEAT_T,
+		FLAG_REPEAT_R,
+		FLAG_RGB,
+		FLAG_RGBA,
+		FLAG_BGR,
+		FLAG_BGRA
 	};
 
 	class DLL_EXPORT texture

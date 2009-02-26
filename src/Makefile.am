@@ -45,7 +45,6 @@ pkginclude_HEADERS = @top_srcdir@/include/prerequisites.h \
 							@top_srcdir@/include/drawable.h \
 							@top_srcdir@/include/sticker.h \
 							@top_srcdir@/include/texture.h \
-							@top_srcdir@/include/textureLib.h \
 							@top_srcdir@/include/textureManager.h \
 							@top_srcdir@/include/knowledge.h \
 							@top_srcdir@/include/guiManager.h \

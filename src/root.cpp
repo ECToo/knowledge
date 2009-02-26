@@ -19,7 +19,6 @@
 #include "logger.h"
 #include "glRenderSystem.h"
 #include "wiiRenderSystem.h"
-#include "textureLib.h"
 
 namespace k {
 

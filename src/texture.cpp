@@ -18,7 +18,6 @@
 #include "texture.h"
 #include "root.h"
 #include "logger.h"
-#include "textureLib.h"
 
 namespace k {
 
@@ -35,6 +34,13 @@ texture::~texture()
 {
 	std::vector<char*>::iterator it;
 	for (it = mTextureData.begin(); it != mTextureData.end(); it++)
+	{
+		char* temp = *it;
+		free(temp);
+	}
+
+	std::vector<kTexture*>::iterator kit;
+	for (kit = mId.begin(); kit != mId.end(); kit++)
 	{
 		char* temp = *it;
 		free(temp);
@@ -97,14 +103,6 @@ bool texture::containsFilename(const std::string& name)
 
 	return false;
 }
-
-/*
-texture::~texture()
-{
-	for (int i = 0; i < mImagesCount; i++)
-		textureLoader::getSingleton().unLoadTexture(mId[i]);
-}
-*/
 
 textureStage::textureStage(unsigned short index)
 {

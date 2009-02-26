@@ -43,7 +43,6 @@
 #include "sprite.h"
 #include "sticker.h"
 #include "texture.h"
-#include "textureLib.h"
 #include "textureManager.h"
 #include "thread.h"
 #include "timer.h"
