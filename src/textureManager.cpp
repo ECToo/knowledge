@@ -43,10 +43,10 @@ textureManager::textureManager()
 textureManager::~textureManager()
 {
 	std::list<texture*>::iterator it;
-	for (it = mTextures.begin(); it != mTextures.end(); )
+	for (it = mTextures.begin(); it != mTextures.end();)
 	{
 		texture* tex = (*it);
-		mTextures.erase(it++);
+		it = mTextures.erase(it);
 		delete tex;
 	}
 

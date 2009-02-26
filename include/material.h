@@ -59,6 +59,7 @@ namespace k
 
 			void setTextureUnits(unsigned int tex);
 			void setSingleTexture(unsigned int w, unsigned int h, kTexture* tex);
+			void setSingleTexture(texture* tex);
 			void pushTexture(textureStage* tex);
 
 			unsigned int getNumberOfTextureStages();

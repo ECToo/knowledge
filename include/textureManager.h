@@ -37,6 +37,7 @@ namespace k
 	static inline bool isPowerOfTwo(unsigned int n)
 	{ return ((n & (n-1)) == 0); }
 
+	extern void unloadTexture(kTexture* tex);
 	extern texture* loadTexture(const std::string& filename, int wrapBits);
 	extern texture* loadCubemap(const std::string& filename, int wrapBits);
 

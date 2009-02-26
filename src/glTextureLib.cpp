@@ -23,6 +23,12 @@
 
 namespace k {
 
+void unloadTexture(kTexture* tex)
+{
+	kAssert(tex);
+	glDeleteTextures(1, tex);
+}
+
 kTexture* loadWithFreeImage(const std::string& filename, unsigned short* w, unsigned short* h, int wrapBits)
 {
 	FREE_IMAGE_FORMAT imgFormat = FreeImage_GetFileType(filename.c_str(), 0);
@@ -86,7 +92,7 @@ kTexture* loadWithFreeImage(const std::string& filename, unsigned short* w, unsi
 
 		return NULL;
 	}
-
+		
 	glGenTextures(1, glImage);
 	glBindTexture(GL_TEXTURE_2D, *glImage);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgData);

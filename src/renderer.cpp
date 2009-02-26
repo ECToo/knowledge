@@ -370,10 +370,8 @@ void renderer::draw()
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	kAssert(rs != NULL);
 
-	/*
 	if (mRenderToTexture)
 		rs->setViewPort(0, 0, mRTTSize[0], mRTTSize[1]);
-	*/
 
 	/**
 	 * Call the frame start
@@ -492,16 +490,11 @@ void renderer::draw()
 	 */
 	rs->frameEnd();
 
-	/*
 	if (mRenderToTexture)
 	{
-		rs->bindTexture(mTextureTarget, 0);
-		rs->copyToTexture(mTextureTarget);
 		rs->setViewPort(0, 0, rs->getScreenWidth(), rs->getScreenHeight());
-
 		mRenderToTexture = false;
 	}
-	*/
 			
 	// Frames per Second 
 	if (mCalculateFps)
@@ -536,11 +529,13 @@ long renderer::getTimeNow()
 
 void renderer::prepareRTT(unsigned int w, unsigned int h, kTexture* tex)
 {
-	mRTTSize[0] = w;
-	mRTTSize[1] = h;
-	mTextureTarget = tex;
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	kAssert(rs != NULL);
 
-	// mRenderToTexture = true;
+	rs->setRttSize(w, h);
+	rs->setRttTarget(tex);
+
+	mRenderToTexture = true;
 }
 
 }

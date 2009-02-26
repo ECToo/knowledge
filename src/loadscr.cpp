@@ -49,7 +49,7 @@ void bgLoadScreen::loadBg(const std::string& filename)
 		return;
 	}
 
-	mBackground->setSingleTexture(newTexture->getWidth(), newTexture->getHeight(), newTexture->getId(0));
+	mBackground->setSingleTexture(newTexture);
 	mBackground->setCullMode(CULLMODE_NONE);
 }
 
