@@ -154,6 +154,22 @@ void material::pushTexture(textureStage* tex)
 	mTextures.push_back(tex);
 }
 			
+void material::setSingleTexture(texture* tex)
+{
+	kAssert(tex);
+
+	platTextureStage* newTexStage = new platTextureStage(0);
+	if (newTexStage)
+	{
+		newTexStage->setTexture(tex);
+		pushTexture(newTexStage);
+	}
+	else 
+	{
+		S_LOG_INFO("Failed to allocate texture stage.");
+	}
+}
+
 void material::setSingleTexture(unsigned int w, unsigned int h, kTexture* tex)
 {
 	kAssert(tex);

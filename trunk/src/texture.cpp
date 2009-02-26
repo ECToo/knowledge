@@ -40,10 +40,11 @@ texture::~texture()
 	}
 
 	std::vector<kTexture*>::iterator kit;
-	for (kit = mId.begin(); kit != mId.end(); kit++)
+	for (kit = mId.begin(); kit != mId.end(); )
 	{
-		char* temp = *it;
-		free(temp);
+		kTexture* temp = *kit;
+		kit = mId.erase(kit);
+		unloadTexture(temp);
 	}
 }
 			

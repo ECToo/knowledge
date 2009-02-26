@@ -70,6 +70,9 @@ void glRenderSystem::configure()
 
 	// TODO: Anti Aliasing? 
 	glEnable(GL_POLYGON_SMOOTH);
+		
+	// Initially we dont want it
+	mRenderToTexture = false;
 }
 
 void glRenderSystem::createWindow(const int w, const int h)
