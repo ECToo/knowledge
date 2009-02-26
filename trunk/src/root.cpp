@@ -54,7 +54,7 @@ root::root()
 		mActiveRS = new wiiRenderSystem();
 	#endif
 
-	mActiveRS->initialise();
+	mActiveRS->initialize();
 	mActiveRS->configure();
 
 	#ifdef __WII__
@@ -66,7 +66,8 @@ root::root()
 
 	// Create a new Texture Manager
 	mTextureManager = new textureManager();
-	new textureLoader();
+
+	// new textureLoader();
 
 	// Create the Material manager
 	mMaterialManager = new materialManager();

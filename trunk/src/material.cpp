@@ -159,7 +159,7 @@ void material::setSingleTexture(unsigned int w, unsigned int h, kTexture* tex)
 	kAssert(tex);
 
 	texture* newTexture = textureManager::getSingleton().createEmptyTexture();
-	platTexture* newTexStage = new platTexture(0);
+	platTextureStage* newTexStage = new platTextureStage(0);
 
 	if (newTexture && newTexStage)
 	{

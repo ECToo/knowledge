@@ -46,6 +46,29 @@ namespace k
 		CUBE_DOWN
 	};
 
+	enum texWrapType
+	{
+		WRAP_CLAMP_EDGE_S = 0,
+		WRAP_CLAMP_EDGE_T,
+		WRAP_CLAMP_EDGE_R,
+		WRAP_CLAMP_S,
+		WRAP_CLAMP_T,
+		WRAP_CLAMP_R,
+		WRAP_REPEAT_S,
+		WRAP_REPEAT_T,
+		WRAP_REPEAT_R
+	};
+
+	enum rawTexFlags
+	{
+		RAW_BPP_24,
+		RAW_BPP_32,
+		RAW_RGB,
+		RAW_RGBA,
+		RAW_BGR,
+		RAW_BGRA
+	};
+
 	class DLL_EXPORT texture
 	{
 		private:
@@ -73,73 +96,6 @@ namespace k
 
 			bool containsFilename(const std::string& name);
 	};
-
-	/*
-	class DLL_EXPORT texture
-	{
-		private:
-			unsigned short mWidth;
-			unsigned short mHeight;
-
-			kTexture** mId;
-			std::string* mFilenames;
-
-		public:
-			texture()
-			{
-				mWidth = mHeight = 0;
-				mId.clear();
-				mFilesnames.clear();
-			}
-
-			~texture();
-
-			unsigned short mWidth;
-			unsigned short mHeight;
-			unsigned short mImagesCount;
-
-			std::vector<std::string> mFilenames;
-			std::vector<kTexture*> mId;
-	};
-	*/
-
-	/*
-	class texture
-	{
-		protected:
-			unsigned short mWidth;
-			unsigned short mHeight;
-
-			std::vector<kTexture*> mId;
-
-		public:
-			unsigned short getWidth()
-			{
-				return mWidth;
-			}
-
-			unsigned short getHeight()
-			{
-				return mHeight;
-			}
-
-			unsigned short getImagesCount()
-			{
-				return mId.size();
-			}
-
-			~texture()
-			{
-				textureLoader::getSingleton().unLoadTexture(mId);
-			}
-
-			void setTextureId(kTexture* id);
-			kTexture* getId();
-
-			void bind();
-			void bindStage(unsigned short);
-	};
-	*/
 
 	class DLL_EXPORT textureStage
 	{
@@ -220,7 +176,6 @@ namespace k
 	{
 		private:
 			Mtx mTransRotate;
-
 			void setTexCoordGen();
 
 		public:
@@ -229,7 +184,7 @@ namespace k
 			void draw();
 			void finish();
 	};
-	typedef wiiTexture platTexture;
+	typedef wiiTexture platTextureStage;
 	#else
 	class DLL_EXPORT glTexture : public textureStage
 	{
@@ -239,7 +194,7 @@ namespace k
 			void draw();
 			void finish();
 	};
-	typedef glTexture platTexture;
+	typedef glTexture platTextureStage;
 	#endif
 }
 

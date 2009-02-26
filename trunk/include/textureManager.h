@@ -24,10 +24,39 @@
 
 namespace k
 {
+	/**
+	 * This function will create a new texture based
+	 * on the file type. On openGL this will be done by
+	 * FreeImage and on Wii it will be done by a set of custom
+	 * functions using libjpeg and libpng. wrapBits should be
+	 * a bitwised set of flags for wrapping parameters. 
+	 * The default wrapping is CLAMP_TO_EDGE on S,T and R.
+	 * @see texWrapType
+	 */
+
+	static inline bool isPowerOfTwo(unsigned int n)
+	{
+		return ((n & (n-1)) == 0);
+	}
+
+	extern texture* loadTexture(const std::string& filename, char wrapBits);
+	extern texture* loadCubemap(const std::string& filename, char wrapBits);
+
+	/**
+	 * Create an texture file. Keep in mind
+	 * that data must be in UNSIGNED_BYTE format.
+	 *
+	 * @data The texture pixels.
+	 * @w Texture Width.
+	 * @h Texture Height.
+	 * @flags The texture flags @see rawTexFlags
+	 */
+	extern texture* createRawTexture(unsigned char* data, int w, int h, int flags);
+
 	class DLL_EXPORT textureManager : public singleton<textureManager>
 	{
 		private:
-			std::map<std::string, texture*> mTextures;
+			std::list<texture*> mTextures;
 
 		public:
 			textureManager();
@@ -35,14 +64,14 @@ namespace k
 
 			static textureManager& getSingleton();
 
-			void allocateTextureData(const std::string& filename);
+			void allocateTextureData(const std::string& filename, char wrapBits = 0x7);
 			void deallocateTextureData(const std::string& filename);
 
 			texture* getTexture(const std::string& filename);
 			texture* createEmptyTexture();
 
-			textureStage* createCubicTexture(const std::string& filename, unsigned short index);
-			textureStage* createTexture(const std::string& filename, unsigned short index);
+			textureStage* createCubicTexture(const std::string& filename, unsigned short index, char wrapBits = 0x7);
+			textureStage* createTexture(const std::string& filename, unsigned short index, char wrapBits = 0x7);
 	};
 }
 

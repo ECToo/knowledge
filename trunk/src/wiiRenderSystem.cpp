@@ -156,15 +156,15 @@ wiiRenderSystem::wiiRenderSystem()
 
 wiiRenderSystem::~wiiRenderSystem()
 {
-	deinitialise();
+	deinitialize();
 }
 
-void wiiRenderSystem::initialise()
+void wiiRenderSystem::initialize()
 {
 	VIDEO_Init();
 }
 
-void wiiRenderSystem::deinitialise()
+void wiiRenderSystem::deinitialize()
 {
 	//TODO
 }
@@ -200,7 +200,7 @@ void wiiRenderSystem::configure()
 	mFifo = memalign(32, DEFAULT_FIFO_SIZE);
 	memset(mFifo, 0, DEFAULT_FIFO_SIZE);
 
-	// Initialise GX
+	// initialize GX
 	GX_Init(mFifo, DEFAULT_FIFO_SIZE);
 
 	// Set Default Clear Color to black

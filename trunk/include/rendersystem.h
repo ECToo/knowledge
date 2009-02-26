@@ -74,8 +74,8 @@ namespace k
 			/**
 			 * Memory allocation, configurations set
 			 */
-			virtual void initialise() = 0;
-			virtual void deinitialise() = 0;
+			virtual void initialize() = 0;
+			virtual void deinitialize() = 0;
 			virtual void configure() = 0;
 
 			virtual void createWindow(const int w, const int h) = 0;
