@@ -16,6 +16,7 @@
 */
 
 #include "prerequisites.h"
+#include "bsp46.h"
 #include "camera.h"
 #include "drawable.h"
 #include "fileAccess.h"

@@ -39,6 +39,8 @@ namespace k
 			void deallocateTextureData(const std::string& filename);
 
 			texture* getTexture(const std::string& filename);
+			texture* createEmptyTexture();
+
 			textureStage* createCubicTexture(const std::string& filename, unsigned short index);
 			textureStage* createTexture(const std::string& filename, unsigned short index);
 	};

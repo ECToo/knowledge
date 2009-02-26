@@ -21,19 +21,95 @@
 #include "textureLib.h"
 
 namespace k {
-			
-texture::~texture()
+
+texture::texture()
 {
-	// TODO: TEST THIS
-	// textureLoader::getSingleton().unLoadTexture(mId);
+	mWidth = mHeight = 0;
+
+	mId.clear();
+	mFilenames.clear();
+	mTextureData.clear();
 }
 
-textureStage::textureStage(unsigned int width, unsigned int height, unsigned short index)
+texture::~texture()
+{
+	std::vector<char*>::iterator it;
+	for (it = mTextureData.begin(); it != mTextureData.end(); it++)
+	{
+		char* temp = *it;
+		free(temp);
+	}
+}
+			
+void texture::push(kTexture* tex, unsigned short w, unsigned short h)
+{
+	kAssert(tex);
+
+	mWidth = w;
+	mHeight = h;
+	mId.push_back(tex);
+}
+
+void texture::push(const std::string& filename)
+{
+	mFilenames.push_back(filename);
+}
+
+void texture::push(char* data)
+{
+	kAssert(data);
+	mTextureData.push_back(data);
+}
+
+unsigned short texture::getSize()
+{
+	return mId.size();
+}
+			
+unsigned short texture::getWidth()
+{
+	return mWidth;
+}
+
+unsigned short texture::getHeight()
+{
+	return mHeight;
+}
+
+char* texture::getData(int i)
+{
+	return mTextureData[i];
+}
+
+kTexture* texture::getId(int i)
+{
+	return mId[i];
+}
+
+bool texture::containsFilename(const std::string& name)
+{
+	std::vector<std::string>::iterator it;
+	for (it = mFilenames.begin(); it != mFilenames.end(); it++)
+	{
+		if ((*it).find(name) != std::string::npos)
+			return true;
+	}
+
+	return false;
+}
+
+/*
+texture::~texture()
+{
+	for (int i = 0; i < mImagesCount; i++)
+		textureLoader::getSingleton().unLoadTexture(mId[i]);
+}
+*/
+
+textureStage::textureStage(unsigned short index)
 {
 	mIndex = index;
 	mAngle = 0;
-	mWidth = width;
-	mHeight = height;
 	mBlendSrc = 0;
 	mBlendDst = 0;
 	mRotate = 0;
@@ -41,7 +117,7 @@ textureStage::textureStage(unsigned int width, unsigned int height, unsigned sho
 	mScroll.y = 0;
 
 	mTexCoordType = TEXCOORD_UV;
-	mTextureId.clear();
+	mTexture = NULL;
 }
 			
 void textureStage::setBlendMode(unsigned short src, unsigned short dst)
@@ -50,42 +126,61 @@ void textureStage::setBlendMode(unsigned short src, unsigned short dst)
 	mBlendDst = dst;
 }
 
-void textureStage::setImagesCount(unsigned short count)
+void textureStage::setTexture(texture* tex)
 {
-	mImagesCount = count;
+	kAssert(tex);
+	mTexture = tex;
 }
 
 unsigned short textureStage::getImagesCount()
 {
-	return mImagesCount;
+	if (mTexture)
+		return mTexture->getSize();
+	else
+	{
+		S_LOG_INFO("Texture pointer not defined.");
+		return 0;
+	}
 }
 
-unsigned int textureStage::getWidth()
+unsigned short textureStage::getWidth()
 {
-	return mWidth;
+	if (mTexture)
+		return mTexture->getWidth();
+	else
+	{
+		S_LOG_INFO("Texture pointer not defined.");
+		return 0;
+	}
+}
+
+unsigned short textureStage::getHeight()
+{
+	if (mTexture)
+		return mTexture->getHeight();
+	else
+	{
+		S_LOG_INFO("Texture pointer not defined.");
+		return 0;
+	}
 }
 			
-void textureStage::setId(std::vector<kTexture*>* id)
+kTexture* textureStage::getTexture(int i)
 {
-	kAssert(id != NULL);
-	mTextureId = *id;
-}
-
-std::vector<kTexture*>* textureStage::getId()
-{
-	return &mTextureId;
+	if (mTexture)
+		return mTexture->getId(i);
+	else
+	{
+		S_LOG_INFO("Texture pointer not defined.");
+		return NULL;
+	}
 }
 
 void textureStage::setProgram(const std::string& name)
 {
 	mProgram = name;	
 }
-
-unsigned int textureStage::getHeight()
-{
-	return mHeight;
-}
-			
+	
 void textureStage::setTexCoordType(texCoordType type)
 {
 	mTexCoordType = type;
@@ -105,6 +200,17 @@ texCoordType textureStage::getTexCoordType()
 {
 	return mTexCoordType;
 }
-
+			
+bool textureStage::containsTexture(const std::string& name)
+{
+	if (mTexture)
+		return mTexture->containsFilename(name);
+	else
+	{
+		S_LOG_INFO("Texture pointer not defined.");
+		return false;
+	}
+}
+			
 }
 

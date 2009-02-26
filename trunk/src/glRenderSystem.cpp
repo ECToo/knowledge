@@ -145,10 +145,21 @@ void glRenderSystem::frameStart()
 
 void glRenderSystem::frameEnd()
 {
-	if (mOnlyFlush)
+	if (mRenderToTexture)
 	{
 		glFlush();
-		mOnlyFlush = false;
+
+		if (!mRttTarget)
+		{
+			S_LOG_INFO("Render to texture target not defined, aborting.");
+			kAssert(mRttTarget);
+		}
+
+		copyToTexture(mRttTarget);
+
+		// Clean Textures
+		mRenderToTexture = false;
+		mRttTarget = NULL;
 	}
 	else
 	{
@@ -501,11 +512,11 @@ void glRenderSystem::drawArrays()
 	}
 }
 			
-void glRenderSystem::copyToTexture(unsigned int w, unsigned int h, kTexture* tex)
+void glRenderSystem::copyToTexture(kTexture* tex)
 {
 	kAssert(tex);
 	bindTexture(tex, 0);
-	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, w, h, 0);
+	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, mRttDimensions[0], mRttDimensions[1], 0);
 }
 
 void glRenderSystem::screenshot(const char* filename)

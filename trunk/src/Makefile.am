@@ -20,6 +20,7 @@ libknowledge_la_SOURCES = drawable.cpp\
 								  renderer.cpp\
 								  textureLib.cpp\
 								  glTextureLib.cpp\
+								  bsp46.cpp\
 								  sticker.cpp\
 								  sprite.cpp\
 								  pthread.cpp\

@@ -24,8 +24,7 @@
 
 namespace k {
 
-wiiTexture::wiiTexture(unsigned int width, unsigned int height, unsigned short index)
-	: textureStage(width, height, index)
+wiiTexture::wiiTexture(unsigned short index) : textureStage(index)
 {
 	guMtxIdentity(mTransRotate);
 	mProgram.clear();
@@ -65,8 +64,8 @@ void wiiTexture::setTexCoordGen()
 				mTransRotate[1][3] = 0.5 - 0.5 * sinAngle - 0.5 * cosAngle + mScrolled.y;
 				mTransRotate[2][3] = 0;
 
-				GX_LoadTexMtxImm(mTransRotate, GX_TEXMTX1 + mIndex * 3, GX_TG_MTX2x4);
-				GX_SetTexCoordGen(GX_TEXCOORD0 + mIndex, GX_TG_MTX2x4, GX_TG_TEX0 + mIndex, GX_TEXMTX1 + mIndex * 3);
+				GX_LoadTexMtxImm(mTransRotate, GX_TEXMTX0 + mIndex * 3, GX_TG_MTX2x4);
+				GX_SetTexCoordGen(GX_TEXCOORD0 + mIndex, GX_TG_MTX2x4, GX_TG_TEX0 + mIndex, GX_TEXMTX0 + mIndex * 3);
 			}
 			else 
 			{
@@ -103,19 +102,17 @@ void wiiTexture::setTexCoordGen()
 				renderSystem* rs = root::getSingleton().getRenderSystem();
 				kAssert(rs != NULL);
 
-				Mtx destMtx;
-				Mtx s, t, postMtx;
+				Mtx s, t, destMtx;
+				Mtx postMtx;
 
 				rs->getModelView(postMtx);
-				guMtxInverse(postMtx, postMtx);
-				guMtxTranspose(postMtx, postMtx);
-
-				guMtxIdentity(s);
-				guMtxIdentity(t);
 
 				guMtxScale(s, 0.5f, -0.5f, 0.0f);
 				guMtxTrans(t, 0.5f, 0.5f, 1.0f);
-				guMtxConcat(t, s, destMtx);
+				guMtxConcat(s, postMtx, postMtx);
+				guMtxConcat(t, postMtx, postMtx);
+
+				guMtxIdentity(destMtx);
 
 				GX_LoadTexMtxImm(postMtx, GX_TEXMTX0 + mIndex * 3, GX_TG_MTX3x4);
 				GX_LoadTexMtxImm(destMtx, GX_DTTMTX0 + mIndex * 3, GX_TG_MTX3x4);
@@ -137,9 +134,24 @@ void wiiTexture::draw()
 
 	// TEV
 	tev* thisTev = tevManager::getSingleton().getTev(mProgram);
-	if (!mProgram.length() || !thisTev)
+	if (!mProgram.length() || !thisTev || mProgram == "replace")
 	{
 		GX_SetTevOp(GX_TEVSTAGE0 + mIndex, GX_REPLACE);
+	}
+	else
+	if (mProgram == "decal")
+	{
+		GX_SetTevOp(GX_TEVSTAGE0 + mIndex, GX_DECAL);
+	}
+	else
+	if (mProgram == "blend")
+	{
+		GX_SetTevOp(GX_TEVSTAGE0 + mIndex, GX_BLEND);
+	}
+	else
+	if (mProgram == "modulate")
+	{
+		GX_SetTevOp(GX_TEVSTAGE0 + mIndex, GX_MODULATE);
 	}
 	else
 	{
@@ -158,7 +170,7 @@ void wiiTexture::draw()
 		rs->setDepthMask(true);
 	}
 
-	rs->bindTexture(mTextureId[0], mIndex);
+	rs->bindTexture(getTexture(0), mIndex);
 }
 
 void wiiTexture::finish() 

@@ -135,6 +135,18 @@ textureStage* material::getTextureStage(unsigned short index)
 
 	return NULL;
 }
+			
+bool material::containsTexture(const std::string& name)
+{
+	std::list<textureStage*>::iterator it;
+	for (it = mTextures.begin(); it != mTextures.end(); it++)
+	{
+		if ((*it)->containsTexture(name))
+			return true;
+	}
+
+	return false;
+}
 
 void material::pushTexture(textureStage* tex)
 {
@@ -146,29 +158,18 @@ void material::setSingleTexture(unsigned int w, unsigned int h, kTexture* tex)
 {
 	kAssert(tex);
 
-	// 
-	std::vector<kTexture*>* mKTextures = new std::vector<kTexture*>(1);
-	if (!mKTextures)
-	{
-		S_LOG_INFO("Failed to allocate memory for texture array.");
-		return;
-	}
+	texture* newTexture = textureManager::getSingleton().createEmptyTexture();
+	platTexture* newTexStage = new platTexture(0);
 
-	(*mKTextures)[0] = tex;
-
-	//
-	platTexture* newTexStage = new platTexture(w, h, 0);
-	if (newTexStage)
+	if (newTexture && newTexStage)
 	{
-		newTexStage->setId(mKTextures);
-		newTexStage->setImagesCount(1);
-		setTextureUnits(1);
+		newTexture->push(tex, w, h);
+		newTexStage->setTexture(newTexture);
 
 		pushTexture(newTexStage);
 	}
-	else
+	else 
 	{
-		delete mKTextures;
 		S_LOG_INFO("Failed to allocate texture stage.");
 	}
 }

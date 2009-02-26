@@ -105,6 +105,7 @@ namespace k
 			drawable3D()
 			{
 				mAttach = NULL;
+				mScale = vector3(1, 1, 1);
 			}
 
 			void setOrientation(const quaternion& orientation);

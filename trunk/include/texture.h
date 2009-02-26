@@ -48,11 +48,48 @@ namespace k
 
 	class DLL_EXPORT texture
 	{
+		private:
+			unsigned short mWidth;
+			unsigned short mHeight;
+
+			std::vector<char*> mTextureData;
+			std::vector<std::string> mFilenames;
+			std::vector<kTexture*> mId;
+
+		public:
+			texture();
+			~texture();
+
+			void push(kTexture* tex, unsigned short w, unsigned short h);
+			void push(const std::string& filename);
+			void push(char* data);
+
+			unsigned short getWidth();
+			unsigned short getHeight();
+			unsigned short getSize();
+
+			char* getData(int i);
+			kTexture* getId(int i);
+
+			bool containsFilename(const std::string& name);
+	};
+
+	/*
+	class DLL_EXPORT texture
+	{
+		private:
+			unsigned short mWidth;
+			unsigned short mHeight;
+
+			kTexture** mId;
+			std::string* mFilenames;
+
 		public:
 			texture()
 			{
 				mWidth = mHeight = 0;
 				mId.clear();
+				mFilesnames.clear();
 			}
 
 			~texture();
@@ -61,8 +98,10 @@ namespace k
 			unsigned short mHeight;
 			unsigned short mImagesCount;
 
+			std::vector<std::string> mFilenames;
 			std::vector<kTexture*> mId;
 	};
+	*/
 
 	/*
 	class texture
@@ -128,11 +167,6 @@ namespace k
 			unsigned short mIndex;
 
 			/**
-			 * Internals of the texture file
-			 */
-			unsigned int mWidth, mHeight;
-
-			/**
 			 * Blendfunc
 			 * Note that if both src and dst are ZERO
 			 * blend will be disabled
@@ -146,35 +180,27 @@ namespace k
 			std::string mProgram;
 
 			/**
-			 * How many images does the
-			 * mTextureId array have
+			 * Textures
 			 */
-			unsigned short mImagesCount;
-
-			/**
-			 * Texture ID, specific to
-			 * the low level implementation
-			 */
-			std::vector<kTexture*> mTextureId;
+			texture* mTexture;
 
 		public:
-			textureStage(unsigned int width, unsigned int height,
-					unsigned short index);
+			textureStage(unsigned short index);
 
 			void setProgram(const std::string& name);
 			void setTexCoordType(texCoordType type);
 			void setBlendMode(unsigned short src, unsigned short dst);
 			void setScroll(vector2 scroll);
 			void setRotate(vec_t angle);
+			void setTexture(texture* tex);
 
-			void setImagesCount(unsigned short count);
+			bool containsTexture(const std::string& name);
+
+			unsigned short getWidth();
+			unsigned short getHeight();
 			unsigned short getImagesCount();
 
-			unsigned int getWidth();
-			unsigned int getHeight();
-			void setId(std::vector<kTexture*>* id);
-			std::vector<kTexture*>* getId();
-
+			kTexture* getTexture(int i);
 			texCoordType getTexCoordType();
 
 			/**
@@ -198,8 +224,7 @@ namespace k
 			void setTexCoordGen();
 
 		public:
-			wiiTexture(unsigned int width, unsigned int height,
-					unsigned short index);
+			wiiTexture(unsigned short index);
 
 			void draw();
 			void finish();
@@ -209,8 +234,7 @@ namespace k
 	class DLL_EXPORT glTexture : public textureStage
 	{
 		public:
-			glTexture(unsigned int width, unsigned int height,
-					unsigned short index);
+			glTexture(unsigned short index);
 
 			void draw();
 			void finish();

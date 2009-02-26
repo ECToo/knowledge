@@ -35,7 +35,11 @@ textureLoader& textureLoader::getSingleton()
 
 void textureLoader::unLoadTexture(kTexture* tex)
 {
-	glDeleteTextures(1, tex);
+	if (tex)
+	{
+		glDeleteTextures(1, tex);
+		tex = NULL;
+	}
 }
 
 kTexture* textureLoader::loadTexture(const char* file, unsigned short* w, unsigned short* h)

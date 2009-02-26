@@ -41,7 +41,20 @@ materialManager::materialManager()
 
 materialManager::~materialManager()
 {
-	//TODO: Free all allocated materials
+	#ifdef __WII__
+	if (mTev)
+		delete mTev;
+	#endif
+
+	std::map<std::string, material*>::iterator it;
+	for (it = mMaterials.begin(); it != mMaterials.end(); )
+	{
+		material* tmp = it->second;
+
+		mMaterials.erase(it++);
+
+		delete tmp;
+	}
 }
 			
 material* materialManager::createMaterial(const std::string& name)
@@ -79,6 +92,18 @@ material* materialManager::getMaterial(const std::string& name)
 	{
 		return NULL;
 	}
+}
+			
+material* materialManager::getMaterialWithFilename(const std::string& filename)
+{
+	std::map<std::string, material*>::iterator it;
+	for (it = mMaterials.begin(); it != mMaterials.end(); it++)
+	{
+		if (it->second->containsTexture(filename))
+			return it->second;
+	}
+		
+	return NULL;
 }
 
 void materialManager::destroyMaterial(const std::string& name)
@@ -221,6 +246,9 @@ static inline void parseUntilEndOfSection(parsingFile* file)
 				break;
 			else
 				openBraces--;
+				
+			if (openBraces == 0)
+				break;
 		}
 	}
 }

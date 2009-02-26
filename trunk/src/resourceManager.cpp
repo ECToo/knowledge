@@ -24,6 +24,7 @@
 
 #ifndef __WII__
 #include <dirent.h>
+#include "tev.h"
 #endif
 
 namespace k {
@@ -99,6 +100,17 @@ void resourceGroup::filterResource(const std::string& path, bool material)
 
 		particleManager::getSingleton().parseParticleScript(path);
 	}
+	#ifdef __WII__
+	// custom TEV scripts
+	else
+	if (mLoadOptions & (1 << LOAD_SCRIPTS) && extension == ".script")
+	{
+		if (loadingScreen)
+			loadingScreen->update(path);
+
+		tevManager::getSingleton().parseTevScript(path);
+	}
+	#endif
 }
 
 #ifndef __WII__
@@ -342,6 +354,9 @@ resourceManager::resourceManager(const std::string& resourceCfg)
 							break;
 						else
 							openBraces--;
+			
+						if (openBraces == 0)
+							break;
 					}
 				}
 			}

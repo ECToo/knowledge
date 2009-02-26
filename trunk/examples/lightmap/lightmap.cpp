@@ -61,13 +61,6 @@ int main(int argc, char** argv)
 	mRenderer->setSkyPlane("skyPlane");
 
 	#ifdef __WII__
-	k::parsingFile* tevFile = new k::parsingFile("/knowledge/tev.script");
-
-	kAssert(tevFile);
-	k::tevManager::getSingleton().parseTevScript(tevFile);
-	#endif
-
-	#ifdef __WII__
 	k::md5model* boxscene = new k::md5model("/knowledge/lightmap/boxscene.md5mesh");
 	#else
 	k::md5model* boxscene = new k::md5model("boxscene.md5mesh");

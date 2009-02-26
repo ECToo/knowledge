@@ -264,6 +264,12 @@ void wiiRenderSystem::configure()
 	// Clean Textures and Materials
 	mActiveMaterial = NULL;
 	mActiveTextures.clear();
+
+	// RTT
+	mRenderToTexture = false;
+	mRttTarget = NULL;
+	mRttDimensions[0] = getScreenWidth();
+	mRttDimensions[1] = getScreenHeight();
 }
 
 void wiiRenderSystem::createWindow(const int w, const int h)
@@ -300,6 +306,26 @@ void wiiRenderSystem::frameStart()
 
 void wiiRenderSystem::frameEnd()
 {
+	if (mRenderToTexture)
+	{
+		if (!mRttTarget)
+		{
+			S_LOG_INFO("Render to texture target not defined, aborting.");
+			kAssert(mRttTarget);
+		}
+
+		copyBufferToTexture();
+
+		// Clean Textures
+		mActiveTextures.clear();
+		mActiveMaterial = NULL;
+
+		mRenderToTexture = false;
+		mRttTarget = NULL;
+
+		return;
+	}
+
 	GX_DrawDone();
 
 	// Flip Buffers
@@ -310,11 +336,6 @@ void wiiRenderSystem::frameEnd()
 	VIDEO_SetNextFramebuffer(mFrameBuffers[mBufferIndex]);
  	VIDEO_Flush();
 	VIDEO_WaitVSync();
-
-	if (mOnlyFlush)
-	{
-		mOnlyFlush = false;
-	}
 
 	// Clean Textures
 	mActiveTextures.clear();
@@ -802,6 +823,13 @@ void wiiRenderSystem::drawArrays()
 		return;
 	}
 
+	// Define if theres a material and how many
+	// texture units it has.
+	unsigned short materialTextureUnits = 0;
+
+	if (mActiveMaterial)
+		materialTextureUnits = mActiveMaterial->getTextureUnits();
+
 	DCFlushRange((void*)mVertexArray, mVertexCount * sizeof(vec_t) * 3);
 	GX_SetArray(GX_VA_POS, (void*)mVertexArray, 3 * sizeof(vec_t));
 
@@ -819,8 +847,7 @@ void wiiRenderSystem::drawArrays()
 		DCFlushRange((void*)mTexCoordArray, mVertexCount * sizeof(vec_t) * 2);
 		GX_SetArray(GX_VA_TEX0, (void*)mTexCoordArray, 2 * sizeof(vec_t));
 
-		if (mActiveMaterial)
-		for (unsigned int i = 1; i < mActiveMaterial->getTextureUnits(); i++)
+		for (unsigned int i = 1; i < materialTextureUnits; i++)
 		{
  			GX_SetVtxDesc(GX_VA_TEX0 + i, GX_INDEX16);
 			GX_SetArray(GX_VA_TEX0 + i, (void*)mTexCoordArray, 2 * sizeof(vec_t));
@@ -845,11 +872,8 @@ void wiiRenderSystem::drawArrays()
 	}
 
 	GX_SetTevOrder(GX_TEVSTAGE0, texCoord, texMap, tevColor);
-	if (mActiveMaterial)
-	{
-		for (unsigned int i = 1; i < mActiveMaterial->getTextureUnits(); i++)
-			GX_SetTevOrder(GX_TEVSTAGE0 + i, GX_TEXCOORD0 + i, GX_TEXMAP0 + i, tevColor);
-	}
+	for (unsigned int i = 1; i < materialTextureUnits; i++)
+		GX_SetTevOrder(GX_TEVSTAGE0 + i, GX_TEXCOORD0 + i, GX_TEXMAP0 + i, tevColor);
 
 	// Bind the textures
 	std::map<int, GXTexObj*>::const_iterator it;
@@ -872,9 +896,7 @@ void wiiRenderSystem::drawArrays()
 		if (mTexCoordArray)
 		{
 			GX_TexCoord1x16(mIndexArray[i]);
-
-			if (mActiveMaterial)
-			for (unsigned int ki = 1; ki < mActiveMaterial->getTextureUnits(); ki++)
+			for (unsigned int ki = 1; ki < materialTextureUnits; ki++)
 				GX_TexCoord1x16(mIndexArray[i]);
 		}
 
@@ -885,9 +907,7 @@ void wiiRenderSystem::drawArrays()
 		if (mTexCoordArray)
 		{
 			GX_TexCoord1x16(mIndexArray[i+1]);
-
-			if (mActiveMaterial)
-			for (unsigned int ki = 1; ki < mActiveMaterial->getTextureUnits(); ki++)
+			for (unsigned int ki = 1; ki < materialTextureUnits; ki++)
 				GX_TexCoord1x16(mIndexArray[i+1]);
 		}
 
@@ -898,9 +918,7 @@ void wiiRenderSystem::drawArrays()
 		if (mTexCoordArray)
 		{
 			GX_TexCoord1x16(mIndexArray[i+2]);
-
-			if (mActiveMaterial)
-			for (unsigned int ki = 1; ki < mActiveMaterial->getTextureUnits(); ki++)
+			for (unsigned int ki = 1; ki < materialTextureUnits; ki++)
 				GX_TexCoord1x16(mIndexArray[i+2]);
 		}
 
@@ -1060,19 +1078,24 @@ unsigned int wiiRenderSystem::getScreenHeight()
 	return mVideoMode->xfbHeight;
 }
 			
-void wiiRenderSystem::copyToTexture(unsigned int w, unsigned int h, kTexture* tex)
+void wiiRenderSystem::copyBufferToTexture()
 {
-	kAssert(tex);
-	
-	if (mRttBuffer)
-	{
-		GX_SetTexCopySrc(0, 0, 640, 480);
-		GX_SetTexCopyDst(w, h, GX_TF_RGBA8, false);
-		GX_CopyTex(mRttBuffer, false);
-		GX_PixModeSync();
-		GX_InitTexObj(tex, mRttBuffer, w, h, GX_TF_RGBA8, GX_REPEAT, GX_REPEAT, GX_FALSE);
-		GX_InitTexObjLOD(tex, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
-	}
+	GX_SetTexCopySrc(0, 0, getScreenWidth(), getScreenHeight());
+	GX_SetTexCopyDst(mRttDimensions[0], mRttDimensions[1], GX_TF_RGBA8, GX_FALSE);
+	GX_CopyTex(mRttBuffer, GX_FALSE);
+	GX_PixModeSync();
+
+	GX_InitTexObj(mRttTarget, mRttBuffer, mRttDimensions[0], mRttDimensions[1], 
+				GX_TF_RGBA8, GX_REPEAT, GX_REPEAT, GX_FALSE);
+
+	GX_InitTexObjLOD(mRttTarget, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
+	GX_InvalidateTexAll();
+}
+
+void wiiRenderSystem::copyToTexture(kTexture* tex)
+{
+	tex = mRttTarget;
+	copyBufferToTexture();
 }
 			
 void wiiRenderSystem::genTexture(uint32_t w, uint32_t h, uint32_t bpp, kTexture* tex)

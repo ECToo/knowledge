@@ -28,13 +28,7 @@ void tev::pushStage(tevStage* newStage, int index)
 	if (index == -1)
 		mGeneralStage = newStage;
 	else
-	{
 		mCustomStages[index] = newStage;
-
-		std::stringstream st;
-		st << "Custom stage " << index << " added.";
-		S_LOG_INFO(st.str());
-	}
 }
 
 void tev::setOp(u8 o, u8 b, u8 scl, u8 cla, u8 claM, u8 ou)
@@ -479,6 +473,9 @@ void tevManager::parseStage(tev* t, parsingFile* file, int index)
 					break;
 				else
 					openBraces--;
+
+				if (openBraces == 0)
+					break;
 			}
 		}
 
@@ -585,6 +582,9 @@ void tevManager::parseTevScript(parsingFile* file)
 							break;
 						else
 							openBraces--;
+
+						if (openBraces == 0)
+							break;
 					}
 				}
 			}
@@ -594,15 +594,24 @@ void tevManager::parseTevScript(parsingFile* file)
 				newTev = createTev(token);
 				kAssert(newTev != NULL);
 
-				S_LOG_INFO("Parsing tev " + token + "...");
 				parseTev(newTev, file);
-				S_LOG_INFO("Finished parsing tev");
+				S_LOG_INFO("TEV " + token + " created.");
 			}
 		}
 
 		// Next Token
 		token = file->getNextToken();
 	}
+}
+			
+void tevManager::parseTevScript(const std::string& filename)
+{
+	parsingFile* newFile = new parsingFile(filename);
+
+	kAssert(newFile);
+	parseTevScript(newFile);
+
+	delete newFile;
 }
 
 }

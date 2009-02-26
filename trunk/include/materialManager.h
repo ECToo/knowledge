@@ -46,6 +46,8 @@ namespace k
 
 			material* createMaterial(const std::string& name);
 			material* getMaterial(const std::string& name);
+			material* getMaterialWithFilename(const std::string& filename);
+
 			void destroyMaterial(const std::string& name);
 
 			void parseTextureSection(material* mat, parsingFile* file, unsigned short index);

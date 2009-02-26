@@ -199,7 +199,12 @@ namespace k
 			void genTexture(uint32_t w, uint32_t h, uint32_t bpp, kTexture* tex);
 			void bindTexture(kTexture* tex, int chan);
 			void unBindTexture(int chan);
-			void copyToTexture(unsigned int w, unsigned int h, kTexture* tex);
+
+			/**
+			 * Internal, copy to temp texture
+			 */
+			void copyBufferToTexture();
+			void copyToTexture(kTexture* tex);
 
 			void setBlendMode(unsigned short src, unsigned short dst);
 			void setBlend(bool state);
