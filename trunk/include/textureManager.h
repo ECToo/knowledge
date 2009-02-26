@@ -31,16 +31,14 @@ namespace k
 	 * functions using libjpeg and libpng. wrapBits should be
 	 * a bitwised set of flags for wrapping parameters. 
 	 * The default wrapping is CLAMP_TO_EDGE on S,T and R.
-	 * @see texWrapType
+	 * @see texFlags
 	 */
 
 	static inline bool isPowerOfTwo(unsigned int n)
-	{
-		return ((n & (n-1)) == 0);
-	}
+	{ return ((n & (n-1)) == 0); }
 
-	extern texture* loadTexture(const std::string& filename, char wrapBits);
-	extern texture* loadCubemap(const std::string& filename, char wrapBits);
+	extern texture* loadTexture(const std::string& filename, int wrapBits);
+	extern texture* loadCubemap(const std::string& filename, int wrapBits);
 
 	/**
 	 * Create an texture file. Keep in mind
@@ -49,7 +47,7 @@ namespace k
 	 * @data The texture pixels.
 	 * @w Texture Width.
 	 * @h Texture Height.
-	 * @flags The texture flags @see rawTexFlags
+	 * @flags The texture flags @see texFlags
 	 */
 	extern texture* createRawTexture(unsigned char* data, int w, int h, int flags);
 
@@ -64,14 +62,14 @@ namespace k
 
 			static textureManager& getSingleton();
 
-			void allocateTextureData(const std::string& filename, char wrapBits = 0x7);
+			void allocateTextureData(const std::string& filename, int wrapBits = 0x7);
 			void deallocateTextureData(const std::string& filename);
 
 			texture* getTexture(const std::string& filename);
 			texture* createEmptyTexture();
 
-			textureStage* createCubicTexture(const std::string& filename, unsigned short index, char wrapBits = 0x7);
-			textureStage* createTexture(const std::string& filename, unsigned short index, char wrapBits = 0x7);
+			textureStage* createCubicTexture(const std::string& filename, unsigned short index, int wrapBits = 0x7);
+			textureStage* createTexture(const std::string& filename, unsigned short index, int wrapBits = 0x7);
 	};
 }
 

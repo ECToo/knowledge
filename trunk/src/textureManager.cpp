@@ -17,7 +17,6 @@
 
 #include "textureManager.h"
 #include "logger.h"
-#include "textureLib.h"
 #include "resourceManager.h"
 
 namespace k {
@@ -84,7 +83,7 @@ texture* textureManager::createEmptyTexture()
 	}
 }
 			
-void textureManager::allocateTextureData(const std::string& filename, char wrapBits)
+void textureManager::allocateTextureData(const std::string& filename, int wrapBits)
 {
 	std::string fullPath = filename;
 
@@ -133,7 +132,7 @@ void textureManager::deallocateTextureData(const std::string& filename)
 	}
 }
 
-textureStage* textureManager::createCubicTexture(const std::string& filename, unsigned short index, char wrapBits)
+textureStage* textureManager::createCubicTexture(const std::string& filename, unsigned short index, int wrapBits)
 {
 	// 
 	std::string fullPath = filename;
@@ -170,7 +169,7 @@ textureStage* textureManager::createCubicTexture(const std::string& filename, un
 	return newStage;
 }
 
-textureStage* textureManager::createTexture(const std::string& filename, unsigned short index, char wrapBits)
+textureStage* textureManager::createTexture(const std::string& filename, unsigned short index, int wrapBits)
 {
 	std::string fullPath = filename;
 

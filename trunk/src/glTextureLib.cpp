@@ -23,7 +23,7 @@
 
 namespace k {
 
-kTexture* loadWithFreeImage(const std::string& filename, unsigned short* w, unsigned short* h, char wrapBits)
+kTexture* loadWithFreeImage(const std::string& filename, unsigned short* w, unsigned short* h, int wrapBits)
 {
 	FREE_IMAGE_FORMAT imgFormat = FreeImage_GetFileType(filename.c_str(), 0);
 	if (imgFormat == FIF_UNKNOWN)
@@ -78,7 +78,7 @@ kTexture* loadWithFreeImage(const std::string& filename, unsigned short* w, unsi
 
 	FreeImage_Unload(image);
 
-	kTexture* glImage = new kTexture;
+	kTexture* glImage = (kTexture*) malloc(sizeof(kTexture));
 	if (!glImage)
 	{
 		S_LOG_INFO("Failed to allocate GLuint for image.");
@@ -92,28 +92,28 @@ kTexture* loadWithFreeImage(const std::string& filename, unsigned short* w, unsi
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgData);
 
 	// Wrapping S
-	if (wrapBits & WRAP_CLAMP_EDGE_S)
+	if (wrapBits & FLAG_CLAMP_EDGE_S)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	else
-	if (wrapBits & WRAP_CLAMP_S)
+	if (wrapBits & FLAG_CLAMP_S)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 	else
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 
 	// Wrapping T
-	if (wrapBits & WRAP_CLAMP_EDGE_T)
+	if (wrapBits & FLAG_CLAMP_EDGE_T)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	else
-	if (wrapBits & WRAP_CLAMP_T)
+	if (wrapBits & FLAG_CLAMP_T)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	else
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	// Wrapping R
-	if (wrapBits & WRAP_CLAMP_EDGE_R)
+	if (wrapBits & FLAG_CLAMP_EDGE_R)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	else
-	if (wrapBits & WRAP_CLAMP_R)
+	if (wrapBits & FLAG_CLAMP_R)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP);
 	else
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
@@ -134,7 +134,7 @@ kTexture* loadWithFreeImage(const std::string& filename, unsigned short* w, unsi
 	return glImage;
 }
 
-texture* loadTexture(const std::string& filename, char wrapBits)
+texture* loadTexture(const std::string& filename, int wrapBits)
 {
 	unsigned short width, height;
 	kTexture* tex = loadWithFreeImage(filename, &width, &height, wrapBits);
@@ -157,7 +157,7 @@ texture* loadTexture(const std::string& filename, char wrapBits)
 	return newTexture;
 }
 
-texture* loadCubemap(const std::string& filename, char wrapBits)
+texture* loadCubemap(const std::string& filename, int wrapBits)
 {
 	texture* newTexture = new texture;
 	if (!newTexture)
@@ -261,6 +261,77 @@ texture* loadCubemap(const std::string& filename, char wrapBits)
 
 texture* createRawTexture(unsigned char* data, int w, int h, int flags)
 {
+	kAssert(data);
+
+	kTexture* glImage = (kTexture*) malloc(sizeof(kTexture));
+	if (!glImage)
+	{
+		S_LOG_INFO("Failed to allocate GLuint for texture.");
+		return NULL;
+	}
+
+	glGenTextures(1, glImage);
+	glBindTexture(GL_TEXTURE_2D, *glImage);
+
+	GLuint format = GL_RGB;
+	if (flags & FLAG_RGBA)
+		format = GL_RGBA;
+	else
+	if (flags & FLAG_RGB)
+		format = GL_RGB;
+	else
+	if (flags & FLAG_BGR)
+		format = GL_BGR;
+	else
+	if (flags & FLAG_BGRA)
+		format = GL_BGRA;
+
+	glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, 
+			format, GL_UNSIGNED_BYTE, data);
+
+	// Wrapping S
+	if (flags & FLAG_CLAMP_EDGE_S)
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	else
+	if (flags & FLAG_CLAMP_S)
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	else
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+
+	// Wrapping T
+	if (flags & FLAG_CLAMP_EDGE_T)
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	else
+	if (flags & FLAG_CLAMP_T)
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	else
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	// Wrapping R
+	if (flags & FLAG_CLAMP_EDGE_R)
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	else
+	if (flags & FLAG_CLAMP_R)
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP);
+	else
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	texture* newTexture = new texture;
+	if (!newTexture)
+	{
+		S_LOG_INFO("Failed to allocate new texture.");
+		free(glImage);
+
+		return NULL;
+	}
+
+	newTexture->push(glImage, w, h);
+	return newTexture;
 }
 
 }
