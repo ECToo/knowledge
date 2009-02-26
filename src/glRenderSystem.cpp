@@ -26,16 +26,16 @@ glRenderSystem::glRenderSystem()
 
 glRenderSystem::~glRenderSystem()
 {
-	deinitialise();
+	deinitialize();
 }
 
-void glRenderSystem::initialise()
+void glRenderSystem::initialize()
 {
 	SDL_Init(SDL_INIT_VIDEO);
 	atexit(SDL_Quit);
 }
 
-void glRenderSystem::deinitialise()
+void glRenderSystem::deinitialize()
 {
 	SDL_Quit();
 }

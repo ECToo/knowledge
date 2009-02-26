@@ -38,8 +38,8 @@ namespace k
 			glRenderSystem();
 			~glRenderSystem();
 
-			void initialise();
-			void deinitialise();
+			void initialize();
+			void deinitialize();
 			void configure();
 
 			void createWindow(const int w, const int h);
