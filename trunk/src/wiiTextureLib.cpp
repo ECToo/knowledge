@@ -26,21 +26,20 @@ extern "C"
 	#include <jerror.h>
 }
 
-#include "textureLib.h"
 #include "pngu.h"
 #include "root.h"
 
 namespace k {
 
-template<> textureLoader* singleton<textureLoader>::singleton_instance = 0;
+void unloadTexture(kTexture* tex) {}
 
-textureLoader& textureLoader::getSingleton()
-{  
-	kAssert(singleton_instance);
-	return (*singleton_instance);  
-}
+typedef struct
+{
+	kTexture* tex;
+	char* data;
+} wiiKTexture;
 
-kTexture* loadTextureJPEG(const char* file, unsigned short* w, unsigned short* h)
+wiiKTexture* loadTextureJPEG(const std::string& file, unsigned short* w, unsigned short* h, int wrapBits)
 {
 	struct jpeg_decompress_struct jInfo;
 	struct jpeg_error_mgr jError;
@@ -48,10 +47,10 @@ kTexture* loadTextureJPEG(const char* file, unsigned short* w, unsigned short* h
 	jInfo.err = jpeg_std_error(&jError);
 	jpeg_create_decompress(&jInfo);
 
-	FILE* texFile = fopen(file, "rb");
+	FILE* texFile = fopen(file.c_str(), "rb");
 	if (!texFile)
 	{
-		S_LOG_INFO("Failed to open texture file " + std::string(file));
+		S_LOG_INFO("Failed to open texture file " + file);
 		return NULL;
 	}
 
@@ -73,7 +72,7 @@ kTexture* loadTextureJPEG(const char* file, unsigned short* w, unsigned short* h
 	{
 		fclose(texFile);
 
-		S_LOG_INFO("Failed to allocate texture data for " + std::string(file));
+		S_LOG_INFO("Failed to allocate texture data for " + file);
 		return NULL;
 	}
 
@@ -97,7 +96,7 @@ kTexture* loadTextureJPEG(const char* file, unsigned short* w, unsigned short* h
 	if (!wiiTexture)
 	{
 		free(textureData);
-		S_LOG_INFO("Failed to allocate aligned memory for " + std::string(file));
+		S_LOG_INFO("Failed to allocate aligned memory for " + file);
 
 		return NULL;
 	}
@@ -143,21 +142,43 @@ kTexture* loadTextureJPEG(const char* file, unsigned short* w, unsigned short* h
 
 	// Flush and set GX Object
 	DCFlushRange(wiiTexture, width * height * 4);
-	GX_InitTexObj(newKTexture, wiiTexture, width, height, GX_TF_RGBA8, GX_REPEAT, GX_REPEAT, GX_FALSE);
+
+	int envS, envT;
+	if (wrapBits & FLAG_CLAMP_S)
+		envS = GX_CLAMP;
+	else
+		envS = GX_REPEAT;
+
+	if (wrapBits & FLAG_CLAMP_T)
+		envT = GX_CLAMP;
+	else
+		envT = GX_REPEAT;
+
+	GX_InitTexObj(newKTexture, wiiTexture, width, height, GX_TF_RGBA8, envS, envT, GX_FALSE);
 	GX_InitTexObjLOD(newKTexture, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
 
-	// Save data for deallocation
-	textureLoader::getSingleton().pushTextureData(newKTexture, textureData);
-	
 	// Syncronization
 	GX_InvalidateTexAll();
 
-	return newKTexture;
+	wiiKTexture* newWiiKtexture = (wiiKTexture*)malloc(sizeof(wiiKTexture));
+	if (!newWiiKtexture)
+	{
+		S_LOG_INFO("Failed to allocate wiikTexture.");
+		free(wiiTexture);
+		free(newKTexture);
+
+		return NULL;
+	}
+
+	newWiiKtexture->tex = newKTexture;
+	newWiiKtexture->data = wiiTexture;
+
+	return newWiiKtexture;
 }
 
-kTexture* loadTexturePNG(const char* file, unsigned short* w, unsigned short* h)
+wiiKTexture* loadTexturePNG(const std::string& file, unsigned short* w, unsigned short* h, int wrapBits)
 {
-	IMGCTX textureCtx = PNGU_SelectImageFromDevice(file);
+	IMGCTX textureCtx = PNGU_SelectImageFromDevice(file.c_str());
 	if (!textureCtx)
 	{
 		S_LOG_INFO("Failed to retrieve PNG information.");
@@ -203,45 +224,187 @@ kTexture* loadTexturePNG(const char* file, unsigned short* w, unsigned short* h)
 
 	DCFlushRange(textureData, imgProperties.imgWidth * imgProperties.imgHeight * 4);
 
+	int envS, envT;
+	if (wrapBits & FLAG_CLAMP_S)
+		envS = GX_CLAMP;
+	else
+		envS = GX_REPEAT;
+
+	if (wrapBits & FLAG_CLAMP_T)
+		envT = GX_CLAMP;
+	else
+		envT = GX_REPEAT;
+
 	GX_InitTexObj(newKTexture, textureData, imgProperties.imgWidth, 
-			imgProperties.imgHeight, GX_TF_RGBA8, GX_REPEAT, GX_REPEAT, GX_FALSE);
+			imgProperties.imgHeight, GX_TF_RGBA8, envS, envT, GX_FALSE);
 
 	GX_InitTexObjLOD(newKTexture, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
 
-	// Save data for deallocation
-	textureLoader::getSingleton().pushTextureData(newKTexture, textureData);
-	
 	// Syncronization
 	GX_InvalidateTexAll();
 
-	return newKTexture;
-}
-
-void textureLoader::unLoadTexture(kTexture* tex)
-{
-	/*
-	std::map<kTexture*, char*>::iterator it = mTextureData.find(tex);
-	if (it != mTextureData.end())
+	wiiKTexture* newWiiKtexture = (wiiKTexture*)malloc(sizeof(wiiKTexture));
+	if (!newWiiKtexture)
 	{
-		char* data = it->second;
-		mTextureData.erase(it);
+		S_LOG_INFO("Failed to allocate wiikTexture.");
+		free(textureData);
+		free(newKTexture);
 
-		free(data);
-		free(tex);
+		return NULL;
 	}
-	*/
+
+	newWiiKtexture->tex = newKTexture;
+	newWiiKtexture->data = textureData;
+
+	return newWiiKtexture;
 }
 
-kTexture* textureLoader::loadTexture(const char* file, unsigned short* w, unsigned short* h)
+wiiKTexture* loadWiiTexture(const std::string& file, unsigned short* w, unsigned short* h, int wrapBits)
 {
 	std::string extension = getExtension(std::string(file));
 	if (extension == ".png" || extension == ".PNG")
-		return loadTexturePNG(file, w, h);
+		return loadTexturePNG(file, w, h, wrapBits);
 	else
 	if (extension == ".jpg" || extension == ".JPG" || extension == ".jpeg" || extension == ".JPEG")
-		return loadTextureJPEG(file, w, h);
+		return loadTextureJPEG(file, w, h, wrapBits);
 	else
 		return NULL;
+}
+
+texture* loadTexture(const std::string& filename, int wrapBits)
+{
+	unsigned short width, height;
+	wiiKTexture* tex = loadWiiTexture(filename, &width, &height, wrapBits);
+	if (!tex)
+	{
+		S_LOG_INFO("Failed to load texture " + filename);
+		return NULL;
+	}
+
+	texture* newTexture = new texture;
+	if (!newTexture)
+	{
+		S_LOG_INFO("Failed to allocate memory for texture.");
+		return NULL;
+	}
+
+	newTexture->push(tex->tex, width, height);
+	newTexture->push(tex->data);
+	newTexture->push(filename);
+
+	return newTexture;
+}
+
+texture* loadCubemap(const std::string& filename, int wrapBits)
+{
+	texture* newTexture = new texture;
+	if (!newTexture)
+	{
+		S_LOG_INFO("Failed to allocate texture for cubemap.");
+		return NULL;
+	}
+
+	// Get Temp name
+	std::string newName = filename;
+	std::string extension = getExtension(filename);
+
+	newName.erase(newName.length() - 4, 4);
+
+	// Now we are going to get the filename,
+	// append the suffixes and the extensions to
+	// retrieve the 6 textures
+	std::string tempName;	
+
+	// Raw Textures
+	wiiKTexture* tempTex = NULL;
+		
+	// Front
+	tempName = newName + "_front" + extension;	
+	tempTex = loadWiiTexture(tempName, NULL, NULL, wrapBits);
+	if (!tempTex)
+	{
+		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
+		return NULL;
+	}
+	newTexture->push(tempTex->tex, 0, 0);
+	newTexture->push(tempTex->data);
+
+	// Back
+	tempName = newName + "_back" + extension;	
+	tempTex = loadWiiTexture(tempName, NULL, NULL, wrapBits);
+	if (!tempTex)
+	{
+		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
+		return NULL;
+	}
+	newTexture->push(tempTex->tex, 0, 0);
+	newTexture->push(tempTex->data);
+
+	// Left 
+	tempName = newName + "_left" + extension;	
+	tempTex = loadWiiTexture(tempName, NULL, NULL, wrapBits);
+	if (!tempTex)
+	{
+		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
+		return NULL;
+	}
+	newTexture->push(tempTex->tex, 0, 0);
+	newTexture->push(tempTex->data);
+
+	// Right
+	tempName = newName + "_right" + extension;	
+	tempTex = loadWiiTexture(tempName, NULL, NULL, wrapBits);
+	if (!tempTex)
+	{
+		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
+		return NULL;
+	}
+	newTexture->push(tempTex->tex, 0, 0);
+	newTexture->push(tempTex->data);
+
+	// Up
+	tempName = newName + "_up" + extension;	
+	tempTex = loadWiiTexture(tempName, NULL, NULL, wrapBits);
+	if (!tempTex)
+	{
+		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
+		return NULL;
+	}
+	newTexture->push(tempTex->tex, 0, 0);
+	newTexture->push(tempTex->data);
+
+	// Final Size
+	unsigned short width = 0;
+	unsigned short height = 0;
+
+	// Down 
+	tempName = newName + "_down" + extension;	
+	tempTex = loadWiiTexture(tempName, &width, &height, wrapBits);
+	if (!tempTex)
+	{
+		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
+		return NULL;
+	}
+
+	newTexture->push(tempTex->tex, width, height);
+	newTexture->push(tempTex->data);
+	newTexture->push(filename);
+
+	if (!isPowerOfTwo(width) || !isPowerOfTwo(height))
+	{
+		std::stringstream warn;
+		warn << "WARNING! The texture " << filename << " dimensions(";
+		warn << width << "," << height;
+		warn << ") are not power of 2";
+
+		S_LOG_INFO(warn.str());
+	}
+
+	return newTexture;
+}
+
+texture* createRawTexture(unsigned char* data, int w, int h, int flags)
+{
 }
 
 }
