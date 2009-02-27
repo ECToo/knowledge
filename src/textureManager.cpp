@@ -83,7 +83,7 @@ texture* textureManager::createEmptyTexture()
 	}
 }
 			
-void textureManager::allocateTextureData(const std::string& filename, int wrapBits)
+bool textureManager::allocateTextureData(const std::string& filename, int wrapBits)
 {
 	std::string fullPath = filename;
 
@@ -98,6 +98,7 @@ void textureManager::allocateTextureData(const std::string& filename, int wrapBi
 	if (newTexture)
 	{
 		S_LOG_INFO("Texture data for " + fullPath + " is already allocated.");
+		return true;
 	}
 	else
 	{
@@ -106,8 +107,12 @@ void textureManager::allocateTextureData(const std::string& filename, int wrapBi
 		{
 			S_LOG_INFO("Texture data for " + fullPath + " allocated.");
 			mTextures.push_back(newTexture);
+			return true;
 		}
 	}
+		
+	S_LOG_INFO("Failed to allocate texture data for " + fullPath + ".");
+	return false;
 }
 
 void textureManager::deallocateTextureData(const std::string& filename)

@@ -26,6 +26,7 @@ material::material()
 	mTextureUnits = 0;
 	mCull = CULLMODE_FRONT;
 	mDepthTest = true;
+	mNoDraw = false;
 }
 
 void material::prepare()
@@ -33,6 +34,9 @@ void material::prepare()
 	// Material Properties
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	kAssert(rs != NULL);
+
+	if (mNoDraw)
+		return;
 
 	rs->bindMaterial(this);
 	rs->matAmbient(mAmbient);
@@ -42,21 +46,18 @@ void material::prepare()
 	rs->setDepthTest(mDepthTest);
 
 	// Color/Light Only
-	#ifdef __WII__
 	if (!mTextureUnits)
 	{
-		GX_SetNumTevStages(1);
-		GX_SetNumChans(0);
-		GX_SetNumTexGens(0);
-		GX_SetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+		rs->setColorChannels(0);
+		rs->setTextureGenerations(0);
+		rs->setTextureUnits(1);
 	}
 	else
 	{
-		GX_SetNumChans(1);
-		GX_SetNumTevStages(mTextureUnits);
-		GX_SetNumTexGens(mTextureUnits);
+		rs->setColorChannels(1);
+		rs->setTextureGenerations(mTextureUnits);
+		rs->setTextureUnits(mTextureUnits);
 	}
-	#endif
 
 	// Cycle through textures
 	std::list<textureStage*>::iterator it;
@@ -71,6 +72,9 @@ void material::prepare()
 
 void material::finish()
 {
+	if (mNoDraw)
+		return;
+
 	// Cycle through textures
 	std::list<textureStage*>::iterator it;
 	for (it = mTextures.begin(); it != mTextures.end(); it++)
@@ -90,6 +94,11 @@ unsigned int material::getTextureUnits()
 void material::setDepthTest(bool test)
 {
 	mDepthTest = test;
+}
+			
+void material::setNoDraw(bool nd)
+{
+	mNoDraw = nd;
 }
 
 void material::setTextureUnits(unsigned int tex)
@@ -120,6 +129,11 @@ void material::setCullMode(CullMode cull)
 unsigned int material::getNumberOfTextureStages()
 {
 	return mTextures.size();
+}
+			
+bool material::getNoDraw()
+{
+	return mNoDraw;
 }
 
 textureStage* material::getTextureStage(unsigned short index)

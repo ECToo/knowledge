@@ -98,28 +98,28 @@ kTexture* loadWithFreeImage(const std::string& filename, unsigned short* w, unsi
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgData);
 
 	// Wrapping S
-	if (wrapBits & FLAG_CLAMP_EDGE_S)
+	if (wrapBits & (1 << FLAG_CLAMP_EDGE_S))
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	else
-	if (wrapBits & FLAG_CLAMP_S)
+	if (wrapBits & (1 << FLAG_CLAMP_S))
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 	else
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 
 	// Wrapping T
-	if (wrapBits & FLAG_CLAMP_EDGE_T)
+	if (wrapBits & (1 << FLAG_CLAMP_EDGE_T))
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	else
-	if (wrapBits & FLAG_CLAMP_T)
+	if (wrapBits & (1 << FLAG_CLAMP_T))
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	else
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	// Wrapping R
-	if (wrapBits & FLAG_CLAMP_EDGE_R)
+	if (wrapBits & (1 << FLAG_CLAMP_EDGE_R))
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	else
-	if (wrapBits & FLAG_CLAMP_R)
+	if (wrapBits & (1 << FLAG_CLAMP_R))
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP);
 	else
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
@@ -280,44 +280,44 @@ texture* createRawTexture(unsigned char* data, int w, int h, int flags)
 	glBindTexture(GL_TEXTURE_2D, *glImage);
 
 	GLuint format = GL_RGB;
-	if (flags & FLAG_RGBA)
+	if (flags & (1 << FLAG_RGBA))
 		format = GL_RGBA;
 	else
-	if (flags & FLAG_RGB)
+	if (flags & (1 << FLAG_RGB))
 		format = GL_RGB;
 	else
-	if (flags & FLAG_BGR)
+	if (flags & (1 << FLAG_BGR))
 		format = GL_BGR;
 	else
-	if (flags & FLAG_BGRA)
+	if (flags & (1 << FLAG_BGRA))
 		format = GL_BGRA;
 
 	glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, 
 			format, GL_UNSIGNED_BYTE, data);
 
 	// Wrapping S
-	if (flags & FLAG_CLAMP_EDGE_S)
+	if (flags & (1 << FLAG_CLAMP_EDGE_S))
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	else
-	if (flags & FLAG_CLAMP_S)
+	if (flags & (1 << FLAG_CLAMP_S))
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 	else
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 
 	// Wrapping T
-	if (flags & FLAG_CLAMP_EDGE_T)
+	if (flags & (1 << FLAG_CLAMP_EDGE_T))
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	else
-	if (flags & FLAG_CLAMP_T)
+	if (flags & (1 << FLAG_CLAMP_T))
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	else
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	// Wrapping R
-	if (flags & FLAG_CLAMP_EDGE_R)
+	if (flags & (1 << FLAG_CLAMP_EDGE_R))
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	else
-	if (flags & FLAG_CLAMP_R)
+	if (flags & (1 << FLAG_CLAMP_R))
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP);
 	else
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);

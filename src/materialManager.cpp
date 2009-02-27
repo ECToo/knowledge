@@ -99,7 +99,7 @@ material* materialManager::getMaterialWithFilename(const std::string& filename)
 	std::map<std::string, material*>::iterator it;
 	for (it = mMaterials.begin(); it != mMaterials.end(); it++)
 	{
-		if (it->second->containsTexture(filename))
+		if (it->first == filename || it->second->containsTexture(filename))
 			return it->second;
 	}
 		
@@ -119,7 +119,7 @@ void materialManager::destroyMaterial(const std::string& name)
 }
 		
 #ifdef __WII__
-unsigned short getBlendMode(std::string& mode)
+unsigned short getBlendMode(const std::string& mode)
 {
 	if (mode == "zero")
 	{
@@ -174,7 +174,7 @@ unsigned short getBlendMode(std::string& mode)
 	return GX_BL_ZERO;
 }
 #else
-unsigned short getBlendMode(std::string& mode)
+unsigned short getBlendMode(const std::string& mode)
 {
 	if (mode == "zero")
 	{
@@ -286,7 +286,7 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 		if (token == "cubename")
 		{
 			token = file->getNextToken();
-			activeTexture = textureManager::getSingleton().createCubicTexture(token, index);
+			activeTexture = textureManager::getSingleton().createCubicTexture(token, index, FLAG_CLAMP_EDGE_S | FLAG_CLAMP_EDGE_T);
 			if (!activeTexture)
 			{
 				S_LOG_INFO("Failed to allocate material cubic texture " + token);
@@ -427,6 +427,11 @@ void materialManager::parseMaterial(material* mat, parsingFile* file)
 		if (file->eof())
 			return;
 
+		if (token == "nodraw")
+		{
+			mat->setNoDraw(true);
+		}
+		else
 		if (token == "ambient")
 		{
 			vec_t r, g, b;
@@ -552,6 +557,238 @@ void materialManager::parseMaterialScript(parsingFile* file, materialList* map)
 					map->push_back(token);
 
 				parseMaterial(currentMaterial, file);
+			}
+		}
+		// if (token == "material")
+		
+		// Next Token
+		token = file->getNextToken();
+	}
+	// while (!file->eof())
+}
+
+inline std::string translateQ3Blend(const std::string& mode)
+{
+	if (mode == "GL_ONE")
+		return std::string("one");
+	else
+	if (mode == "GL_ZERO")
+		return std::string("zero");
+	else
+	if (mode == "GL_DST_COLOR")
+		return std::string("dstclr");
+	else
+	if (mode == "GL_ONE_MINUS_DST_COLOR")
+		return std::string("invdstclr");
+	else
+	if (mode == "GL_SRC_ALPHA")
+		return std::string("srcalpha");
+	else
+	if (mode == "GL_ONE_MINUS_SRC_ALPHA")
+		return std::string("invsrcalpha");
+	else
+		return std::string("one");
+};
+			
+void materialManager::parseQ3TextureSection(material* mat, parsingFile* file, unsigned short index)
+{
+	kAssert(mat != NULL);
+	kAssert(file != NULL);
+
+	std::string token;
+	unsigned int openBraces = 1;
+
+	textureStage* activeTexture = NULL;
+	while (openBraces)
+	{
+		if (file->eof())
+			return;
+
+		if (token == "map")
+		{
+			token = file->getNextToken();
+			activeTexture = textureManager::getSingleton().createTexture(token, index, FLAG_REPEAT_S | FLAG_REPEAT_T | FLAG_REPEAT_R);
+			if (!activeTexture)
+			{
+				S_LOG_INFO("Failed to allocate material texture " + token);
+			}
+			else
+			{
+				mat->pushTexture(activeTexture);
+			}
+		}
+		else
+		if (token == "clampmap")
+		{
+			token = file->getNextToken();
+			activeTexture = textureManager::getSingleton().createTexture(token, index);
+			if (!activeTexture)
+			{
+				S_LOG_INFO("Failed to allocate material texture " + token);
+			}
+			else
+			{
+				mat->pushTexture(activeTexture);
+			}
+		}
+		else
+		if (token == "tcMod")
+		{
+			token = file->getNextToken();
+			if (activeTexture && token == "scroll")
+			{
+				vector2 scroll;
+				token = file->getNextToken();
+				scroll.x = atof(token.c_str());
+				token = file->getNextToken();
+				scroll.y = atof(token.c_str());
+				
+				activeTexture->setScroll(scroll);
+			}
+			else
+			if (activeTexture && token == "rotate")
+			{
+				vec_t angle;
+				token = file->getNextToken();
+				angle = atof(token.c_str());
+
+				activeTexture->setRotate(angle);
+			}
+			else
+			{
+				S_LOG_INFO("Error in parsing material texture: You must define first the texture filename");
+			}
+		}
+		else
+		if (token == "blendfunc")
+		{
+			token = file->getNextToken();
+			if (activeTexture && token == "add")
+			{
+				activeTexture->setBlendMode(getBlendMode("one"), getBlendMode("one"));
+			}
+			else
+			if (activeTexture && token == "filter")
+			{
+				activeTexture->setBlendMode(getBlendMode("dstclr"), getBlendMode("zero"));
+			}
+			else
+			if (activeTexture && token == "blend")
+			{
+				activeTexture->setBlendMode(getBlendMode("srcalpha"), getBlendMode("invsrcalpha"));
+			}
+			else
+			if (activeTexture)
+			{
+				unsigned short src = 0, dst = 0;
+
+				src = getBlendMode(translateQ3Blend(token));
+				token = file->getNextToken();
+				dst = getBlendMode(translateQ3Blend(token));
+
+				activeTexture->setBlendMode(src, dst);
+			}
+			else
+			{
+				S_LOG_INFO("Error in parsing material texture: You must define first the texture filename");
+			}
+		}
+
+		token = file->getNextToken();
+
+		// Script properties
+		if (token == "}")
+			openBraces--;
+		else
+		if (token == "{")
+			openBraces++;
+	}
+}
+
+void materialManager::parseQ3Material(material* mat, parsingFile* file)
+{
+	kAssert(mat != NULL);
+	kAssert(file != NULL);
+
+	std::string token = file->getNextToken(); // {
+	unsigned int openBraces = 1;
+	unsigned short textureIndex = 0;
+
+	while (openBraces)
+	{
+		if (file->eof())
+			return;
+
+		if (token == "cull")
+		{
+			token = file->getNextToken();
+			if (token == "none" || token == "disabled")
+			{
+				mat->setCullMode(CULLMODE_NONE);
+			}
+			else
+			if (token == "front")
+				mat->setCullMode(CULLMODE_FRONT);
+			else
+			if (token == "back")
+				mat->setCullMode(CULLMODE_BACK);
+			else
+			if (token == "both")
+				mat->setCullMode(CULLMODE_BOTH);
+		}
+		if (token == "{")
+		{
+			parseQ3TextureSection(mat, file, textureIndex++);
+		}
+
+		token = file->getNextToken();
+
+		// Script properties
+		if (token == "}")
+			openBraces--;
+	}
+
+	mat->setTextureUnits(textureIndex);
+}
+
+void materialManager::parseQ3MaterialScript(const std::string& filename, materialList* map)
+{
+	parsingFile* newFile = new parsingFile(filename);
+
+	kAssert(newFile != NULL);
+	parseQ3MaterialScript(newFile, map);
+
+	delete newFile;
+}
+
+void materialManager::parseQ3MaterialScript(parsingFile* file, materialList* map)
+{
+	if (!file->isReady())
+	{
+		S_LOG_INFO("File " + file->getFilename() + " is not ready to be parsed.");
+		return;
+	}
+
+	std::string token = file->getNextToken();
+	while (!file->eof())
+	{
+		// Q3 Material
+		if (token != "{" && token != "{")
+		{
+			material* searchMaterial = getMaterial(token);
+			if (searchMaterial)
+			{
+				S_LOG_INFO("Material " + token + " already exists.");
+				file->skipNextToken(); // {
+				parseUntilEndOfSection(file);
+			}
+			else
+			{
+				material* currentMaterial = createMaterial(token);
+				if (currentMaterial && map)
+					map->push_back(token);
+
+				parseQ3Material(currentMaterial, file);
 			}
 		}
 		// if (token == "material")

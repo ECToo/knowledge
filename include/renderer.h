@@ -26,6 +26,7 @@
 #include "sprite.h"
 #include "timer.h"
 #include "particle.h"
+#include "world.h"
 
 namespace k
 {
@@ -83,6 +84,11 @@ namespace k
 			bool mRenderToTexture;
 			unsigned int mRTTSize[2];
 
+			/**
+			 * World
+			 */
+			world* mActiveWorld;
+
 		public:
 			renderer();
 			~renderer();
@@ -100,6 +106,7 @@ namespace k
 			void setSkyBox(material* mat);
 			void setSkyPlane(const std::string& matName);
 			void setSkyPlane(material* mat);
+			void setWorld(world* w);
 
 			void draw();
 

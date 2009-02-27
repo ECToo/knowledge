@@ -1098,6 +1098,39 @@ void wiiRenderSystem::copyToTexture(kTexture* tex)
 	copyBufferToTexture();
 }
 			
+void wiiRenderSystem::setTexEnv(const std::string& baseEnv, int stage)
+{
+	unsigned int mod = GX_REPLACE;
+	if (baseEnv == "modulate")
+		mod = GX_MODULATE;
+	else
+	if (baseEnv == "decal")
+		mod = GX_DECAL;
+	else
+	if (baseEnv == "blend")
+		mod = GX_BLEND;
+
+	GX_SetTevOp(GX_TEVSTAGE0 + stage, mod);
+}
+		
+void wiiRenderSystem::setTextureUnits(int i)
+{
+	GX_SetNumTevStages(i);
+}
+			
+void wiiRenderSystem::setTextureGenerations(int i)
+{
+	GX_SetNumTexGens(i);
+
+	if (i == 0)
+		GX_SetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+}
+
+void wiiRenderSystem::setColorChannels(int i)
+{
+	GX_SetNumChans(i);
+}
+			
 void wiiRenderSystem::genTexture(uint32_t w, uint32_t h, uint32_t bpp, kTexture* tex)
 {
 	// For now, nothing

@@ -43,6 +43,7 @@ namespace k
 
 			CullMode mCull;
 			bool mDepthTest;
+			bool mNoDraw;
 
 			unsigned int mTextureUnits;
 
@@ -56,6 +57,7 @@ namespace k
 			void setSpecular(const vector3& color);
 			void setCullMode(CullMode cull);
 			void setDepthTest(bool test);
+			void setNoDraw(bool nd);
 
 			void setTextureUnits(unsigned int tex);
 			void setSingleTexture(unsigned int w, unsigned int h, kTexture* tex);
@@ -66,6 +68,7 @@ namespace k
 			textureStage* getTextureStage(unsigned short index);
 
 			bool containsTexture(const std::string& name);
+			bool getNoDraw();
 
 			/**
 			 * Prepare material, before drawing.

@@ -167,6 +167,10 @@ namespace k
 			void popMatrix();
 			void identityMatrix();
 
+			void setTexEnv(const std::string& baseEnv, int stage);
+			void setTextureUnits(int i);
+			void setTextureGenerations(int i);
+			void setColorChannels(int i);
 			void setInverseTransposeModelview(const matrix4& mat);
 
 			void copyMatrix(const matrix4& mat);

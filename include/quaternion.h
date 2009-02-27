@@ -173,6 +173,8 @@ namespace k
     			x = axis.x * s;
     			y = axis.y * s;
 	 			z = axis.z * s;
+
+				normalize();
 			}
 
 			inline void clear()
@@ -311,7 +313,7 @@ namespace k
 				return vector3(qFinal.x, qFinal.y, qFinal.z);
 			}
 
-			inline void normalise()
+			inline void normalize()
 			{
 				vec_t magnitude = sqrt(w*w + x*x + y*y + z*z);
 				if (magnitude > 0.0f)
@@ -411,7 +413,7 @@ namespace k
 			void toAxisAngle(vec_t& angle, vector3& axis) 
 			{
 				if (w > 1)
-					normalise();
+					normalize();
 
 				angle = 2 * acos(w);
 				angle *= 180.0/M_PI;

@@ -47,6 +47,24 @@ void glRenderSystem::setWireFrame(bool wire)
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
+			
+void glRenderSystem::setTexEnv(const std::string& baseEnv, int stage) 
+{
+	GLuint mod = GL_REPLACE;
+	if (baseEnv == "add")
+		mod = GL_ADD;
+	else
+	if (baseEnv == "modulate")
+		mod = GL_MODULATE;
+	else
+	if (baseEnv == "decal")
+		mod = GL_DECAL;
+	else
+	if (baseEnv == "blend")
+		mod = GL_BLEND;
+
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, mod);
+}
 
 void glRenderSystem::configure()
 {
@@ -77,8 +95,12 @@ void glRenderSystem::configure()
 
 void glRenderSystem::createWindow(const int w, const int h)
 {
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	mScreen = SDL_SetVideoMode(w, h, 32, SDL_HWSURFACE | SDL_OPENGL | SDL_HWPALETTE);
+	mScreen = SDL_SetVideoMode(w, h, 32, SDL_HWSURFACE | SDL_OPENGL | SDL_HWPALETTE | SDL_GL_DOUBLEBUFFER);
+	if (!mScreen)
+	{
+		S_LOG_INFO("Failed to create Window, are you sure your video depth is set to 32bits?");
+		return;
+	}
 
 	mScreenSize[0] = w;
 	mScreenSize[1] = h;
@@ -322,6 +344,9 @@ void glRenderSystem::setCulling(CullMode culling)
 			
 void glRenderSystem::startVertices(VertexMode mode)
 {
+	if (mActiveMaterial && mActiveMaterial->getNoDraw())
+		return;
+
 	switch (mode)
 	{
 		case VERTEXMODE_LINE:
@@ -342,21 +367,33 @@ void glRenderSystem::startVertices(VertexMode mode)
 
 void glRenderSystem::vertex(const vector3& vert)
 {
+	if (mActiveMaterial && mActiveMaterial->getNoDraw())
+		return;
+
 	glVertex3f(vert.x, vert.y, vert.z);
 }
 
 void glRenderSystem::normal(const vector3& norm)
 {
+	if (mActiveMaterial && mActiveMaterial->getNoDraw())
+		return;
+	
 	glNormal3f(norm.x, norm.y, norm.z);
 }
 
 void glRenderSystem::color(const vector3& col)
 {
+	if (mActiveMaterial && mActiveMaterial->getNoDraw())
+		return;
+	
 	glColor3f(col.x, col.y, col.z);
 }
 			
 void glRenderSystem::texCoord(const vector2& coord)
 {
+	if (mActiveMaterial && mActiveMaterial->getNoDraw())
+		return;
+
 	unsigned int texUnits = 1;
 
 	if (mActiveMaterial)
@@ -375,6 +412,9 @@ void glRenderSystem::texCoord(const vector2& coord)
 
 void glRenderSystem::endVertices()
 {
+	if (mActiveMaterial && mActiveMaterial->getNoDraw())
+		return;
+
 	glEnd();
 }
 
@@ -451,67 +491,75 @@ void glRenderSystem::unBindTexture(int chan)
 
 void glRenderSystem::drawArrays()
 {
+	if (mActiveMaterial && mActiveMaterial->getNoDraw())
+		return;
+
 	if (mVertexArray)
 	{
 		glEnableClientState(GL_VERTEX_ARRAY);
-		glVertexPointer(3, GL_FLOAT, 0, mVertexArray);
+		glVertexPointer(3, GL_FLOAT, mVertexStride, mVertexArray);
 	}
 
 	if (mNormalArray)
 	{
 		glEnableClientState(GL_NORMAL_ARRAY);
-		glNormalPointer(GL_FLOAT, 0, mNormalArray);
+		glNormalPointer(GL_FLOAT, mNormalStride, mNormalArray);
+	}
+	else
+	{
+		glDisableClientState(GL_NORMAL_ARRAY);
 	}
 
-	unsigned int texUnits = 1;
-
-	if (mActiveMaterial)
-		texUnits = mActiveMaterial->getTextureUnits();
-
-	if (mTexCoordArray)
+	unsigned int texUnits = 0;
+	for (int i = 0; i < 8; i++)
 	{
-		if (texUnits > 1)
-		{
-			for (unsigned int i = 0; i < texUnits; i++)
-			{
-				glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
-				glActiveTextureARB(GL_TEXTURE0_ARB + i);
-				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		if (mTexCoordArray[i])
+			texUnits = i + 1;
+	}
 
-				glTexCoordPointer(2, GL_FLOAT, 0, mTexCoordArray);
-			}
-		}
-		else
+	if (texUnits)
+	{
+		for (unsigned int i = 0; i < texUnits; i++)
 		{
-			glClientActiveTextureARB(GL_TEXTURE0_ARB);
-			glActiveTextureARB(GL_TEXTURE0_ARB);
+			if (!mTexCoordArray[i])
+				continue;
+
+			glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
+			glActiveTextureARB(GL_TEXTURE0_ARB + i);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-			glTexCoordPointer(2, GL_FLOAT, 0, mTexCoordArray);
+			glTexCoordPointer(2, GL_FLOAT, mTexCoordStride[i], mTexCoordArray[i]);
 		}
 	}
+	else
+	{
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	}
 
-	glDrawElements(GL_TRIANGLES, mIndexCount, GL_UNSIGNED_INT, mIndexArray);
+	glDrawRangeElements(GL_TRIANGLES, 0, mVertexCount, mIndexCount, GL_UNSIGNED_INT, mIndexArray);
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
 
-	if (texUnits > 1)
+	if (texUnits)
 	{
 		for (unsigned int i = 0; i < texUnits; i++)
 		{
+			if (!mTexCoordArray[i])
+				continue;
+
 			glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
 			glActiveTextureARB(GL_TEXTURE0_ARB + i);
-
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			glDisable(GL_TEXTURE_2D);
 		}
 	}
 	else
 	{
 		glClientActiveTextureARB(GL_TEXTURE0_ARB);
 		glActiveTextureARB(GL_TEXTURE0_ARB);
-
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glDisable(GL_TEXTURE_2D);
 	}
 }
 			

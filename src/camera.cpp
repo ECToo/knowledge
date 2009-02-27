@@ -31,7 +31,7 @@ camera::camera()
 	mTanFov = tan(mFov * 0.5f);
 	mAspectRatio = 1.333f;
 	mNearPlane = 0.1;
-	mFarPlane = 1000;
+	mFarPlane = 5000;
 }
 			
 void camera::setFov(unsigned int fov)
@@ -102,21 +102,21 @@ void camera::lookAt(vector3 pos)
 {
 	// Find the Direction
 	vector3 dirZ = pos - mPosition;
-	dirZ.normalise();
+	dirZ.normalize();
 
 	// Direction of "right" can be determined by 
 	// the up vector cross the forward direction
 	vector3 up = vector3::unit_y;
 	vector3 dirX = dirZ.crossProduct(up);
-	dirX.normalise();
+	dirX.normalize();
 
 	// Same goes to the up direction
 	vector3 dirY = dirX.crossProduct(dirZ);
-	dirY.normalise();
+	dirY.normalize();
 
 	matrix3 mat(dirX, dirY, dirZ.negateItself());
 	mOrientation = quaternion(mat);
-	mOrientation.normalise();
+	mOrientation.normalize();
 
 	setView();
 }
@@ -127,7 +127,7 @@ static inline vector3 getPlaneNormal(const vector3& a, const vector3& b, const v
 	vector3 dir2 = c - a;
 
 	vector3 result = dir1.crossProduct(dir2);
-	result.normalise();
+	result.normalize();
 
 	return result;
 }
@@ -215,7 +215,7 @@ vector3 camera::projectRayFrom2D(const vector2& coords)
 	vector3 nearP = vector3(dx * mNearPlane, dy * mNearPlane, -mNearPlane);
 
 	vector3 result = mFinalInverse * (farP - nearP);
-	result.normalise();
+	result.normalize();
 
 	return result;
 }

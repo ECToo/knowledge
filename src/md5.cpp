@@ -262,7 +262,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 		edge2 = v3 - v1;
 
 		normal = edge2.crossProduct(edge1);
-		normal.normalise();
+		normal.normalize();
 
 		mVertices[tri->index[0]].baseNormal += normal;
 		mVertices[tri->index[1]].baseNormal += normal;
@@ -275,7 +275,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 		vert_t* vertex = &mVertices[vIt];
 		kAssert(vertex != NULL);
 
-		vertex->baseNormal.normalise();
+		vertex->baseNormal.normalize();
 		vertex->renderNormal = vertex->baseNormal;
 	}
 
@@ -302,7 +302,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 			normal += tempPos;
 		}
 
-		normal.normalise();
+		normal.normalize();
 		vertex->normal = normal;
 	}
 
@@ -1032,7 +1032,7 @@ void md5model::feedAnims()
 			thisBone->pos = parentBone->pos + tempPos;
 
 			thisBone->orientation = parentBone->orientation * oriQuat;
-			thisBone->orientation.normalise();
+			thisBone->orientation.normalize();
 		}
 	} // for Bones
 
@@ -1111,7 +1111,7 @@ void md5model::setAnimationFrame(unsigned int frameNum)
 			thisBone->pos = parentBone->pos + tempPos;
 
 			thisBone->orientation = parentBone->orientation * oriQuat;
-			thisBone->orientation.normalise();
+			thisBone->orientation.normalize();
 		}
 	} // for Bones
 

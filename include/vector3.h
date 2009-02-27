@@ -276,7 +276,7 @@ namespace k
 			/**
 	 		 * Transform this vector into a unit vector
 	 		 */
-			inline void normalise()
+			inline void normalize()
 			{
 				vec_t sq = 1.0 / length();
 

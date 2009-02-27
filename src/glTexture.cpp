@@ -125,9 +125,6 @@ void glTexture::finish()
 		default:
 		case TEXCOORD_NONE:
 		case TEXCOORD_UV:
-			if (!mRotate || !mScroll.x || !mScroll.y)
-				break;
-
 			glMatrixMode(GL_TEXTURE);
 			glLoadIdentity();
 			break;
