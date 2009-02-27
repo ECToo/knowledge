@@ -1,0 +1,25 @@
+material textures/common/nodraw
+{
+	nodraw
+}
+
+material textures/common/clip
+{
+	nodraw
+}
+
+material textures/common/donotenter
+{
+	nodraw
+}
+
+material textures/common/caulk
+{
+	nodraw
+}
+
+material noshader
+{
+	nodraw
+}
+

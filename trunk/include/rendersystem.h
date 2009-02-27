@@ -56,11 +56,15 @@ namespace k
 			unsigned int mVertexCount;
 			const vec_t* mVertexArray;
 
-			const vec_t* mTexCoordArray;
+			const vec_t* mTexCoordArray[8];
 			const vec_t* mNormalArray;
 
 			unsigned int mIndexCount;
 			const index_t* mIndexArray;
+
+			unsigned int mVertexStride;
+			unsigned int mTexCoordStride[8];
+			unsigned int mNormalStride;
 
 			material* mActiveMaterial;
 
@@ -115,6 +119,27 @@ namespace k
 			virtual void popMatrix() = 0;
 			virtual void identityMatrix() = 0;
 
+			/**
+			 * Set Texture environment (base one like replace, modulate..)
+			 * on the following texture unit/tev stage
+			 */
+			virtual void setTexEnv(const std::string& baseEnv, int stage) = 0;
+			
+			/**
+			 * Only required on wii, to set the number of tev stages.
+			 */
+			virtual void setTextureUnits(int i) = 0;
+
+			/**
+			 * Only required on wii, to set the number of texgens.
+			 */
+			virtual void setTextureGenerations(int i) = 0;
+			
+			/**
+			 * Only required on wii, to set the number of color channels (output).
+			 */
+			virtual void setColorChannels(int i) = 0;
+
 			// Should be valid on wii and another platforms
 			// wich needs a inverse transposed modelview
 			virtual void setInverseTransposeModelview(const matrix4& mat) = 0;
@@ -165,51 +190,92 @@ namespace k
 				mVertexCount = 0;
 				mVertexArray = NULL;
 
-				mTexCoordArray = NULL;
+				mVertexStride = 0;
+				mNormalStride = 0;
+
 				mNormalArray = NULL;
+
+				for (int i = 0; i < 8; i++)
+				{
+					mTexCoordArray[i] = NULL;
+					mTexCoordStride[i] = 0;
+				}
 
 				mIndexCount = 0;
 				mIndexArray = NULL;
 			}
 
-			virtual void setVertexArray(const vec_t* vertices)
+			virtual void setVertexArray(const vec_t* vertices, unsigned int stride = 0)
 			{
-				assert(vertices != NULL);
+				if (mActiveMaterial && mActiveMaterial->getNoDraw())
+					return;
+
+				kAssert(vertices);
+
 				mVertexArray = vertices;
+				mVertexStride = stride;
 			}
 
 			virtual void setVertexCount(unsigned int count)
 			{
-				assert(count != 0);
+				if (mActiveMaterial && mActiveMaterial->getNoDraw())
+					return;
+
+				kAssert(count);
 				mVertexCount = count;
 			}
 
-			virtual void setTexCoordArray(const vec_t* coords)
+			virtual void setTexCoordArray(const vec_t* coords, unsigned int stride = 0, int slot = 0)
 			{
-				assert(coords != NULL);
-				mTexCoordArray = coords;
+				if (mActiveMaterial && mActiveMaterial->getNoDraw())
+					return;
+
+				kAssert(coords);
+
+				if (slot > 8)
+				{
+					S_LOG_INFO("Texture coordinate array slot can't be greater than 8, fallbacking to 0.");
+					slot = 0;
+				}
+
+				mTexCoordArray[slot] = coords;
+				mTexCoordStride[slot] = stride;
 			}
 
-			virtual void setNormalArray(const vec_t* normals)
+			virtual void setNormalArray(const vec_t* normals, unsigned int stride = 0)
 			{
-				assert(normals != NULL);
+				if (mActiveMaterial && mActiveMaterial->getNoDraw())
+					return;
+
+				kAssert(normals);
+
 				mNormalArray = normals;
+				mNormalStride = stride;
 			}
 
 			virtual void setVertexIndex(const index_t* indexes)
 			{
+				if (mActiveMaterial && mActiveMaterial->getNoDraw())
+					return;
+
 				assert(indexes != NULL);
 				mIndexArray = indexes;
 			}
 
 			virtual void setIndexCount(unsigned int count)
 			{
+				if (mActiveMaterial && mActiveMaterial->getNoDraw())
+					return;
+
 				assert(count != 0);
 				mIndexCount = count;
 			}
 
 			virtual void draw3DLine(const vector3& start, const vector3& end)
 			{
+				if (mActiveMaterial && mActiveMaterial->getNoDraw())
+					return;
+
 				startVertices(VERTEXMODE_LINE);
 					vertex(start);
 					vertex(end);
@@ -218,6 +284,9 @@ namespace k
 
 			virtual void drawLineBox(const vector3& min, const vector3& max)
 			{
+				if (mActiveMaterial && mActiveMaterial->getNoDraw())
+					return;
+
 				// Base
 				startVertices(VERTEXMODE_LINE);
 					vertex(min);

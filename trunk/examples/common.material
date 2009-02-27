@@ -51,6 +51,15 @@ material nightzSky
 	}
 }
 
+material q3tc_nightsky2_lf
+{
+	texture
+	{
+		filename q3tc_nightsky2_lf.jpg
+		texcoord uv
+	}
+}
+
 material skyPlane
 {
 	texture

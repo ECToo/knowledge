@@ -251,7 +251,7 @@ namespace k
 			/**
 	 		 * Transform this vector into a unit vector
 	 		 */
-			inline void normalise()
+			inline void normalize()
 			{
 				guVecNormalize((Vector*)&(*this));
 			}

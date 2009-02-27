@@ -69,7 +69,7 @@ void sprite::calculateTransPos()
 	}
 
 	vector3 sprZ = mCam->getPosition() - mPosition;
-	sprZ.normalise();
+	sprZ.normalize();
 
 	vector3 sprX = mCam->getRight().negate();
 	vector3 sprY = mCam->getUp();

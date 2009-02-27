@@ -38,6 +38,7 @@ renderer::renderer()
 	mActiveCamera = NULL;
 	mSkybox = NULL;
 	mSkyPlane = NULL;
+	mActiveWorld = NULL;
 
 	// mRenderToTexture = false;
 	mCalculateFps = true;
@@ -48,6 +49,12 @@ renderer::~renderer()
 	m3DObjects.clear();
 	m2DObjects.clear();
 	mSprites.clear();
+}
+			
+void renderer::setWorld(world* w)
+{
+	kAssert(w);
+	mActiveWorld = w;
 }
 
 void renderer::setFpsCounter(bool status)
@@ -67,7 +74,7 @@ unsigned int renderer::getLastFps()
 
 sprite* renderer::createSprite(vec_t radi, material* mat)
 {
-	kAssert(mat != NULL);
+	kAssert(mat);
 
 	sprite* newSpr = new sprite(mat, radi);
 	if (newSpr)
@@ -88,7 +95,7 @@ void renderer::fullRemoveSprite(sprite* spr)
 
 void renderer::removeSprite(sprite* spr)
 {
-	kAssert(spr != NULL);
+	kAssert(spr);
 	std::list<sprite*>::iterator it;
 	for (it = mSprites.begin(); it != mSprites.end(); )
 	{
@@ -105,13 +112,13 @@ void renderer::removeSprite(sprite* spr)
 			
 void renderer::push3D(drawable3D* object)
 {
-	kAssert(object != NULL);
+	kAssert(object);
 	m3DObjects.push_back(object);
 }
 
 void renderer::pop3D(drawable3D* object)
 {
-	kAssert(object != NULL);
+	kAssert(object);
 
 	std::list<drawable3D*>::iterator it;
 	for (it = m3DObjects.begin(); it != m3DObjects.end(); )
@@ -132,7 +139,7 @@ void renderer::setSkyBox(const std::string& matName)
 {
 	materialManager* matMgr = &materialManager::getSingleton();
 	material* mat = matMgr->getMaterial(matName);
-	kAssert(mat != NULL);
+	kAssert(mat);
 
 	mSkybox = mat;
 	mSkyPlane = NULL;
@@ -140,7 +147,7 @@ void renderer::setSkyBox(const std::string& matName)
 
 void renderer::setSkyBox(material* mat)
 {
-	kAssert(mat != NULL);
+	kAssert(mat);
 	mSkybox = mat;
 	mSkyPlane = NULL;
 }
@@ -149,7 +156,7 @@ void renderer::setSkyPlane(const std::string& matName)
 {
 	materialManager* matMgr = &materialManager::getSingleton();
 	material* mat = matMgr->getMaterial(matName);
-	kAssert(mat != NULL);
+	kAssert(mat);
 
 	mSkyPlane = mat;
 	mSkybox = NULL;
@@ -157,15 +164,15 @@ void renderer::setSkyPlane(const std::string& matName)
 
 void renderer::setSkyPlane(material* mat)
 {
-	kAssert(mat != NULL);
+	kAssert(mat);
 	mSkyPlane = mat;
 	mSkybox = NULL;
 }
 
 static inline bool compare2D(drawable2D* first, drawable2D* second)
 {
-	kAssert(first != NULL);
-	kAssert(second != NULL);
+	kAssert(first);
+	kAssert(second);
 
 	if (first->getZ() > second->getZ())
 		return true;
@@ -180,7 +187,7 @@ void renderer::sort2D()
 
 void renderer::push2D(drawable2D* object)
 {
-	kAssert(object != NULL);
+	kAssert(object);
 	m2DObjects.push_back(object);
 
 	sort2D();
@@ -188,7 +195,7 @@ void renderer::push2D(drawable2D* object)
 
 void renderer::pop2D(drawable2D* object)
 {
-	kAssert(object != NULL);
+	kAssert(object);
 	std::list<drawable2D*>::iterator it;
 	for (it = m2DObjects.begin(); it != m2DObjects.end(); )
 	{
@@ -211,11 +218,11 @@ void renderer::_drawSkyPlane()
 
 	// Rendersystem
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs != NULL);
+	kAssert(rs);
 
 	// Disable depth test drawing on orthogonal way
 	rs->setMatrixMode(MATRIXMODE_PROJECTION);
-	rs->setOrthographic(0, 0.5, 0, 0.5, -1, 1);
+	rs->setOrthographic(0, 1.0, 0, 1.0, -1, 1);
 
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 	rs->identityMatrix();
@@ -229,20 +236,20 @@ void renderer::_drawSkyPlane()
 	rs->setCulling(CULLMODE_NONE);
 
  	rs->startVertices(VERTEXMODE_QUAD);
-		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 0.5f, -0.5f, -0.5f));
-		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-0.5f, -0.5f, -0.5f));
-		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-0.5f,  0.5f, -0.5f));
-		rs->texCoord(vector2(0, 0)); rs->vertex(vector3( 0.5f,  0.5f, -0.5f));
+		rs->texCoord(vector2(0, 2)); rs->vertex(vector3( 1.0f, -1.0f, -1.0f));
+		rs->texCoord(vector2(2, 2)); rs->vertex(vector3(-1.0f, -1.0f, -1.0f));
+		rs->texCoord(vector2(2, 0)); rs->vertex(vector3(-1.0f,  1.0f, -1.0f));
+		rs->texCoord(vector2(0, 0)); rs->vertex(vector3( 1.0f,  1.0f, -1.0f));
 
-		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 0.5f, -0.5f,  0.5f));
-		rs->texCoord(vector2(1, 1)); rs->vertex(vector3( 0.5f, -0.5f, -0.5f));
-		rs->texCoord(vector2(1, 0)); rs->vertex(vector3( 0.5f,  0.5f, -0.5f));
-		rs->texCoord(vector2(0, 0)); rs->vertex(vector3( 0.5f,  0.5f,  0.5f));
+		rs->texCoord(vector2(0, 2)); rs->vertex(vector3( 1.0f, -1.0f,  1.0f));
+		rs->texCoord(vector2(2, 2)); rs->vertex(vector3( 1.0f, -1.0f, -1.0f));
+		rs->texCoord(vector2(2, 0)); rs->vertex(vector3( 1.0f,  1.0f, -1.0f));
+		rs->texCoord(vector2(0, 0)); rs->vertex(vector3( 1.0f,  1.0f,  1.0f));
 
-		rs->texCoord(vector2(0, 1)); rs->vertex(vector3(-0.5f, -0.5f, -0.5f));
-		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-0.5f, -0.5f,  0.5f));
-		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-0.5f,  0.5f,  0.5f));
-		rs->texCoord(vector2(0, 0)); rs->vertex(vector3(-0.5f,  0.5f, -0.5f));
+		rs->texCoord(vector2(0, 2)); rs->vertex(vector3(-1.0f, -1.0f, -1.0f));
+		rs->texCoord(vector2(2, 2)); rs->vertex(vector3(-1.0f, -1.0f,  1.0f));
+		rs->texCoord(vector2(2, 0)); rs->vertex(vector3(-1.0f,  1.0f,  1.0f));
+		rs->texCoord(vector2(0, 0)); rs->vertex(vector3(-1.0f,  1.0f, -1.0f));
 	rs->endVertices();
 
 	mSkyPlane->finish();
@@ -272,7 +279,7 @@ void renderer::_drawSkybox()
 
 	// Rendersystem
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs != NULL);
+	kAssert(rs);
 
 	// Draw
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
@@ -368,7 +375,7 @@ void renderer::_drawSkybox()
 void renderer::draw()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs != NULL);
+	kAssert(rs);
 
 	if (mRenderToTexture)
 		rs->setViewPort(0, 0, mRTTSize[0], mRTTSize[1]);
@@ -417,6 +424,19 @@ void renderer::draw()
 		rs->setMatrixMode(MATRIXMODE_PROJECTION);
 		rs->identityMatrix();
 		rs->setPerspective(90, 1.33, 0.1, 1000.0f);
+	}
+
+	/** 
+	 * Draw world
+	 */
+	if (mActiveWorld)
+	{
+		vector3 viewPos;
+		if (mActiveCamera)
+			viewPos = mActiveCamera->getPosition();
+
+		mActiveCamera->copyView();
+		mActiveWorld->draw(viewPos);
 	}
 
 	/**

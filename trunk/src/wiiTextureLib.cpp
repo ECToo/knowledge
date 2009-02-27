@@ -144,12 +144,12 @@ wiiKTexture* loadTextureJPEG(const std::string& file, unsigned short* w, unsigne
 	DCFlushRange(wiiTexture, width * height * 4);
 
 	int envS, envT;
-	if (wrapBits & FLAG_CLAMP_S)
+	if (wrapBits & (1 << FLAG_CLAMP_S))
 		envS = GX_CLAMP;
 	else
 		envS = GX_REPEAT;
 
-	if (wrapBits & FLAG_CLAMP_T)
+	if (wrapBits & (1 << FLAG_CLAMP_T))
 		envT = GX_CLAMP;
 	else
 		envT = GX_REPEAT;
@@ -225,12 +225,12 @@ wiiKTexture* loadTexturePNG(const std::string& file, unsigned short* w, unsigned
 	DCFlushRange(textureData, imgProperties.imgWidth * imgProperties.imgHeight * 4);
 
 	int envS, envT;
-	if (wrapBits & FLAG_CLAMP_S)
+	if (wrapBits & (1 << FLAG_CLAMP_S))
 		envS = GX_CLAMP;
 	else
 		envS = GX_REPEAT;
 
-	if (wrapBits & FLAG_CLAMP_T)
+	if (wrapBits & (1 << FLAG_CLAMP_T))
 		envT = GX_CLAMP;
 	else
 		envT = GX_REPEAT;

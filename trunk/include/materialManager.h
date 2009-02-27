@@ -56,6 +56,12 @@ namespace k
 			void parseMaterialScript(parsingFile* file, materialList* map = NULL);
 
 			void parseMaterial(material* mat, parsingFile* file);
+
+			// Quake 3 Shaders
+			void parseQ3TextureSection(material* mat, parsingFile* file, unsigned short index);
+			void parseQ3MaterialScript(const std::string& filename, materialList* map = NULL);
+			void parseQ3MaterialScript(parsingFile* file, materialList* map = NULL);
+			void parseQ3Material(material* mat, parsingFile* file);
 	};
 }
 

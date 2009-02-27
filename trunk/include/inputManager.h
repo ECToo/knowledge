@@ -83,6 +83,11 @@ namespace k
 			void initWii(bool cube);
 
 			/**
+			 * Set if the mouse is locked or not inside the window - pc
+			 */
+			void setPointerLock(bool lock);
+
+			/**
 			 * Setup the wiimote data reception.
 			 * WARNING: Be sure to call this function ONLY AFTER you setup
 			 * the Video.

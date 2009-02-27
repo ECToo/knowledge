@@ -29,6 +29,7 @@
 #include "vector2.h"
 #include "vector3.h"
 #include "material.h"
+#include "world.h"
 
 namespace k
 {
@@ -92,14 +93,21 @@ namespace k
 		int textureId;
 		int effect;
 		int type;
+
+		int startVertIndex;
+		int numVertices;
+
 		int startIndex;
 		int numIndices;
+
 		int lmId; // lightmap id
 		int lmCorner[2];
 		int lmSize[2];
+
 		vec_t lmPos[3]; // origin of lightmap
-		vec_t lmUv[2]; // s,t in space
+		vec_t lmUv[2][3]; // s,t in space
 		vec_t normal[3];
+
 		int patchSize[2]; // bezier patch
 	} q3BspFace;
 
@@ -112,12 +120,12 @@ namespace k
 
 	typedef struct
 	{
-		char bits[128][128][3];
+		unsigned char bits[128 * 128 * 3];
 	} q3BspLightmap128;
 
 	typedef struct
 	{
-		char bits[256][256][3];
+		unsigned char bits[256 * 256 * 3];
 	} q3BspLightmap256;
 
 	class DLL_EXPORT q3BitSet
@@ -148,10 +156,12 @@ namespace k
 			void clear();
 	};
 
-	class DLL_EXPORT q3Bsp
+	class DLL_EXPORT q3Bsp : public world
 	{
 		private:
 			int mLightmapCount;
+			int mTexturesCount;
+
 			int mIndicesCount;
 			int mVertexCount;
 			int mFacesCount;
@@ -162,7 +172,7 @@ namespace k
 
 			// Only 128x128 lightmaps
 			// are supported on vanilla q3.
-			q3BspLightmap128* mLightmaps;
+			texture** mLightmaps;
 
 			/**
 			 * Instead of saving the textures like quake 3 does
@@ -171,7 +181,15 @@ namespace k
 			 */
 			material** mMaterials;
 
+			/**
+			 * See wich faces we already rendered.
+			 */
 			q3BitSet mBitSet;
+
+			/**
+			 * Are we drawing lightmaps?
+			 */
+			bool mDrawLightmaps;
 
 		public:
 			q3Bsp()
@@ -187,6 +205,8 @@ namespace k
 				mVertices = NULL;
 				mFaces = NULL;
 				mLightmaps = NULL;
+
+				mDrawLightmaps = true;
 			}
 
 			~q3Bsp()
@@ -199,12 +219,21 @@ namespace k
 
 				if (mFaces)
 					free(mFaces);
+			}
 
-				if (mLightmaps)
-					free(mLightmaps);
+			void setLightmapsDrawing(bool lm)
+			{
+				mDrawLightmaps = lm;
+			}
+
+			bool isDrawingLightmaps()
+			{
+				return mDrawLightmaps;
 			}
 
 			void loadQ3Bsp(const std::string& filename);
+			void renderFace(int i);
+			void draw(const vector3& viewerPos);
 	};
 }
 
