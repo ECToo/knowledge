@@ -76,7 +76,7 @@ void camera::setPerspective()
 	rs->setPerspective(mFov, mAspectRatio, mNearPlane, mFarPlane);
 }
 			
-bool camera::isSphereInsideFrustum(const vector3& center, vec_t radius)
+bool camera::isSphereInsideFrustum(const vector3& center, vec_t radius) const
 {
 	for (unsigned short i = 0; i < 6; i++)
 	{
@@ -87,7 +87,7 @@ bool camera::isSphereInsideFrustum(const vector3& center, vec_t radius)
 	return true;
 }
 
-bool camera::isPointInsideFrustum(const vector3& point)
+bool camera::isPointInsideFrustum(const vector3& point) const
 {
 	for (unsigned short i = 0; i < 6; i++)
 	{
@@ -96,6 +96,30 @@ bool camera::isPointInsideFrustum(const vector3& point)
 	}
 
 	return true;
+}
+			
+bool camera::isBoxInsideFrustum(const vector3& mins, const vector3& maxs) const
+{
+	// Points
+	const vector3 points[] =
+	{
+		vector3(mins.x, maxs.y, mins.z),
+		vector3(mins.x, mins.y, maxs.z),
+		vector3(mins.x, maxs.y, maxs.z),
+		vector3(maxs.x, mins.y, mins.z),
+		vector3(maxs.x, maxs.y, mins.z),
+		vector3(maxs.x, mins.y, maxs.z),
+		mins,
+		maxs
+	};
+
+	for (int i = 0; i < 8; i++)
+	{
+		if (isPointInsideFrustum(points[i]))
+			return true;
+	}
+
+	return false;
 }
 
 void camera::lookAt(vector3 pos)
@@ -206,7 +230,7 @@ void camera::setView()
  *
  * coords are in local screen coordinates from (0.0 to 1.0f)
  */
-vector3 camera::projectRayFrom2D(const vector2& coords)
+const vector3 camera::projectRayFrom2D(const vector2& coords) const
 {
 	vec_t dx = mTanFov * ((coords.x * 2.0f - 1.0f) / mAspectRatio);
 	vec_t dy = mTanFov * ((coords.y * 2.0f - 1.0f) / -mAspectRatio);
@@ -220,7 +244,7 @@ vector3 camera::projectRayFrom2D(const vector2& coords)
 	return result;
 }
 
-void camera::copyView()
+void camera::copyView() const
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	kAssert(rs != NULL);
@@ -236,7 +260,7 @@ void camera::setPosition(vector3 pos)
 	setView();
 }
 
-vector3& camera::getPosition()
+const vector3& camera::getPosition() const
 {
 	return mPosition;
 }
@@ -248,22 +272,22 @@ void camera::setOrientation(quaternion ori)
 	setView();
 }
 
-quaternion& camera::getOrientation()
+const quaternion& camera::getOrientation() const
 {
 	return mOrientation;
 }
 			
-vector3 camera::getDirection()
+const vector3 camera::getDirection() const
 {
 	return vector3(-mFinal.m[0][2], -mFinal.m[1][2], -mFinal.m[2][2]);
 }
 			
-vector3 camera::getUp()
+const vector3 camera::getUp() const
 {
 	return vector3(mFinal.m[0][1], mFinal.m[1][1], mFinal.m[2][1]);
 }
 
-vector3 camera::getRight()
+const vector3 camera::getRight() const
 {
 	return vector3(mFinal.m[0][0], mFinal.m[1][0], mFinal.m[2][0]);
 }

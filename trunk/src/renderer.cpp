@@ -42,6 +42,7 @@ renderer::renderer()
 
 	// mRenderToTexture = false;
 	mCalculateFps = true;
+	mRenderToTexture = false;
 }
 
 renderer::~renderer()
@@ -429,14 +430,10 @@ void renderer::draw()
 	/** 
 	 * Draw world
 	 */
-	if (mActiveWorld)
+	if (mActiveWorld && mActiveCamera)
 	{
-		vector3 viewPos;
-		if (mActiveCamera)
-			viewPos = mActiveCamera->getPosition();
-
 		mActiveCamera->copyView();
-		mActiveWorld->draw(viewPos);
+		mActiveWorld->draw(mActiveCamera);
 	}
 
 	/**

@@ -30,6 +30,7 @@
 #include "vector3.h"
 #include "material.h"
 #include "world.h"
+#include "camera.h"
 
 namespace k
 {
@@ -128,6 +129,49 @@ namespace k
 		unsigned char bits[256 * 256 * 3];
 	} q3BspLightmap256;
 
+	typedef struct
+	{
+		int plane;
+		int children[2];
+		vec_t mins[3];
+		vec_t maxs[3];
+	} q3BspNode;
+
+	typedef struct
+	{
+		int cluster;
+		int area;
+		
+		int mins[3];
+		int maxs[3];
+
+		int firstLeafSurf;
+		int numLeafSurf;
+
+		int firstLeafBrush;
+		int numLeafBrush;
+	} q3BspLeaf;
+
+	typedef struct
+	{
+		int firstSide;
+		int numSides;
+		int shaderNum; // for content flags
+	} q3BspBrushSide;
+
+	typedef struct
+	{
+		vec_t normal[3];
+		float dist;
+	} q3BspPlane;
+
+	typedef struct
+	{
+		int numOfVis;
+		int bytesPerVis;
+		unsigned char* bitSet;
+	} q3BspVis;
+
 	class DLL_EXPORT q3BitSet
 	{
 		protected:
@@ -165,10 +209,20 @@ namespace k
 			int mIndicesCount;
 			int mVertexCount;
 			int mFacesCount;
+			int mNodesCount;
+			int mLeafsCount;
+			int mLeafFacesCount;
+			int mPlanesCount;
 
 			index_t* mIndices;
 			q3BspVertex* mVertices;
 			q3BspFace* mFaces;
+			q3BspNode* mNodes;
+			q3BspLeaf* mLeafs;
+			q3BspPlane* mPlanes;
+			int* mLeafFaces;
+
+			q3BspVis mBspVisData;
 
 			// Only 128x128 lightmaps
 			// are supported on vanilla q3.
@@ -198,6 +252,10 @@ namespace k
 				mIndicesCount = 0;
 				mVertexCount = 0;
 				mFacesCount = 0;
+				mNodesCount = 0;
+				mLeafsCount = 0;
+				mLeafFacesCount = 0;
+				mPlanesCount = 0;
 
 				mMaterials = NULL;
 
@@ -205,6 +263,14 @@ namespace k
 				mVertices = NULL;
 				mFaces = NULL;
 				mLightmaps = NULL;
+				mNodes = NULL;
+				mLeafs = NULL;
+				mLeafFaces = NULL;
+				mPlanes = NULL;
+
+				mBspVisData.numOfVis = 0;
+				mBspVisData.bytesPerVis = 0;
+				mBspVisData.bitSet = NULL;
 
 				mDrawLightmaps = true;
 			}
@@ -219,6 +285,21 @@ namespace k
 
 				if (mFaces)
 					free(mFaces);
+
+				if (mNodes)
+					free(mNodes);
+
+				if (mLeafs)
+					free(mLeafs);
+
+				if (mPlanes)
+					free(mPlanes);
+
+				if (mLeafFaces)
+					free(mLeafFaces);
+
+				if (mBspVisData.bitSet)
+					free(mBspVisData.bitSet);
 			}
 
 			void setLightmapsDrawing(bool lm)
@@ -231,9 +312,12 @@ namespace k
 				return mDrawLightmaps;
 			}
 
+			bool isClusterVisible(int curr, int targ);
+			int findLeaf(const vector3& viewerPos);
+
 			void loadQ3Bsp(const std::string& filename);
 			void renderFace(int i);
-			void draw(const vector3& viewerPos);
+			void draw(const camera* viewer);
 	};
 }
 

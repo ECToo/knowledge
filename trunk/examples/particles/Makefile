@@ -40,6 +40,7 @@ am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
+CONFIG_HEADER = $(top_builddir)/include/config.h
 CONFIG_CLEAN_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
 am_particles_OBJECTS = particles.$(OBJEXT)
@@ -48,7 +49,7 @@ particles_DEPENDENCIES =
 particles_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(particles_LDFLAGS) $(LDFLAGS) -o $@
-DEFAULT_INCLUDES = -I.
+DEFAULT_INCLUDES = -I. -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -76,13 +77,13 @@ CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = 
 CPP = gcc -E
-CPPFLAGS = -Wall -O3 -g -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
+CPPFLAGS = -Wall -O2 -g -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -Wall -O3 -g -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -I/usr/local/include -DdSINGLE
+CXXFLAGS = -Wall -O2 -g -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -I/usr/local/include -DdSINGLE
 CYGPATH_W = echo
-DEFS = -DPACKAGE_NAME=\"\" -DPACKAGE_TARNAME=\"\" -DPACKAGE_VERSION=\"\" -DPACKAGE_STRING=\"\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE=\"libknowledge\" -DVERSION=\"0.1\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DLT_OBJDIR=\".libs/\" -DHAVE_LIBSDL=1 -DHAVE_SDL_H=1 -DHAVE_LIBGLEW=1 -DHAVE_LIBFREEIMAGE=1
+DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
 DSYMUTIL = 
 DUMPBIN = 

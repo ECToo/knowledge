@@ -32,6 +32,8 @@
 #include <map>
 #include <stack>
 #include <sys/time.h>
+
+#include "config.h"
 		
 #define DLL_EXPORT
 
@@ -42,6 +44,10 @@
 #define byteSwap4(Y) (((Y & 0xff)<<24)|((Y & 0xff00) << 8)|((Y & 0xff0000) >> 8)|((Y & 0xff000000) >> 24))
 
 #ifdef __WII__
+#define __BIG_ENDIAN__
+#endif
+
+#ifdef __BIG_ENDIAN__
 	#define readLEInt(Y) (byteSwap4(Y))
 	#define readBEInt(Y) (Y)
 	#define readBEFloat(Y) (Y)

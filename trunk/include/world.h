@@ -19,14 +19,14 @@
 #define _WORLD_H_
 
 #include "prerequisites.h"
-#include "vector3.h"
+#include "camera.h"
 
 namespace k 
 {
 	class DLL_EXPORT world
 	{
 		public:
-			virtual void draw(const vector3& viewerPos) = 0;
+			virtual void draw(const camera* viewer) = 0;
 	};
 }
 

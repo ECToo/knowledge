@@ -78,7 +78,7 @@ int main(int argc, char** argv)
 	// Setup Camera
 	k::camera* newCamera = new k::camera();
 	assert(newCamera != NULL);
-	newCamera->setPlanes(0.1f, 50000.0f);
+	newCamera->setPlanes(0.1f, 5000.0f);
 	newCamera->setPosition(k::vector3(0, 0, 0));
 	newCamera->lookAt(k::vector3(0, 0, -1));
 	mRenderer->setCamera(newCamera);
@@ -91,9 +91,11 @@ int main(int argc, char** argv)
 
 	assert(mGuiManager != NULL);
 	mGuiManager->setCursor("wiiCursor3", k::vector2(32, 32));
-	mGuiManager->setCursorPos(k::vector2(mRenderSystem->getScreenWidth()/2, mRenderSystem->getScreenHeight()/2));
+	mGuiManager->setCursorPos(k::vector2(mRenderSystem->getScreenWidth()/2, mRenderSystem->getScreenHeight()/2));	
 
 	bool L_Hold = false;
+	bool E_Hold = false;
+	bool wireframe = false;
 	bool running = true;
 
 	mInputManager->feed();
@@ -109,29 +111,6 @@ int main(int argc, char** argv)
 
 		// Feed Mouse
 		k::vector2 mousePos = mInputManager->getWiiMotePosition(0);
-		k::vector2 diffMousePos = mousePos - oldMousePos;
-		if (diffMousePos.x != 0 || diffMousePos.y != 0)
-		{
-			k::quaternion dir1Quat(-diffMousePos.x, newCamera->getUp());
-			k::quaternion dir2Quat(-diffMousePos.y, newCamera->getRight());
-
-			printf("Up\n");
-			newCamera->getUp().cout();
-			printf("Right\n");
-			newCamera->getRight().cout();
-			printf("Forward\n");
-			newCamera->getDirection().cout();
-
-			k::quaternion ori = newCamera->getOrientation();
-			k::quaternion finalRot = dir2Quat * dir1Quat;
-			finalRot.normalize();
-
-			// newCamera->setOrientation(finalRot * ori);
-			newCamera->setOrientation(dir1Quat * ori);
-			ori = newCamera->getOrientation();
-			newCamera->setOrientation(dir2Quat * ori);
-		}
-		oldMousePos = mousePos;
 
 		// Quit Application
 		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_HOME))
@@ -149,6 +128,21 @@ int main(int argc, char** argv)
 		{
 			L_Hold = false;
 			testeBsp.setLightmapsDrawing(testeBsp.isDrawingLightmaps() ^ 1);
+		}
+
+		// Wireframe
+		if (mInputManager->getKbdKeyDown(K_KBD_e))
+		{
+			E_Hold = true;
+		}
+		else
+		if (E_Hold)
+		{
+			E_Hold = false;
+
+			// Set Inverted wireframe
+			wireframe ^= 1;
+			mRenderSystem->setWireFrame(wireframe);
 		}
 
 		// Camera
@@ -170,6 +164,16 @@ int main(int argc, char** argv)
 				pos += look * 5;
 			}
 
+			k::particleSystem* ps = k::particleManager::getSingleton().getParticleSystem("rain");
+			if (ps)
+			{
+				k::vector3 psPos = ps->getPosition();
+				psPos.x = pos.x;
+				psPos.z = pos.z;
+
+				ps->setPosition(psPos);
+			}
+
 			newCamera->setPosition(pos);
 		}
 
@@ -186,6 +190,16 @@ int main(int argc, char** argv)
 			else
 			{
 				pos += up * 2;
+			}
+
+			k::particleSystem* ps = k::particleManager::getSingleton().getParticleSystem("rain");
+			if (ps)
+			{
+				k::vector3 psPos = ps->getPosition();
+				psPos.x = pos.x;
+				psPos.z = pos.z;
+
+				ps->setPosition(psPos);
 			}
 
 			newCamera->setPosition(pos);
@@ -209,6 +223,19 @@ int main(int argc, char** argv)
 			newCamera->setPosition(pos);
 		}
 
+		k::vector2 diffMousePos = mousePos - oldMousePos;
+		if (diffMousePos.x)
+		{
+			k::quaternion dir1Quat(-diffMousePos.x, newCamera->getUp());
+			k::quaternion dir2Quat(-diffMousePos.y, newCamera->getRight());
+
+			k::quaternion ori = newCamera->getOrientation();
+			k::quaternion finalRot = dir2Quat * dir1Quat;
+			finalRot.normalize();
+
+			newCamera->setOrientation(finalRot * ori);
+		}
+		oldMousePos = mousePos;
 
 		// TEMP
 		if ((mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_LEFT)) ||

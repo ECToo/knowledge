@@ -532,6 +532,20 @@ particleSystem::~particleSystem()
 void particleSystem::setPosition(const vector3& pos)
 {
 	mPosition = pos;
+
+	/*
+	std::map<std::string, particleAffector*>::iterator it;
+	for (it = mAffectors.begin(); it != mAffectors.end(); it++)
+	{
+		it->second->setPosition(pos);
+	}
+	*/
+
+	std::map<std::string, particleEmitter*>::iterator eIt;
+	for (eIt = mEmitters.begin(); eIt != mEmitters.end(); eIt++)
+	{
+		eIt->second->setPosition(pos);
+	}
 }
 			
 const vector3& particleSystem::getPosition()

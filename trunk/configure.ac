@@ -1,12 +1,13 @@
 AC_INIT(src/md5.cpp)
 AM_INIT_AUTOMAKE(libknowledge, 0.1)
+AC_CONFIG_HEADER(include/config.h)
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_LIBTOOL
 AC_CONFIG_MACRO_DIR([m4])
 AM_SANITY_CHECK
 CFLAGS=""
-CXXFLAGS="-Wall -O3 -g"
+CXXFLAGS="-Wall -O2 -g"
 AC_PATH_PROG(SDL_CONFIG, sdl-config)
 if test -n "$SDL_CONFIG"; then
     LIBS="$LIBS `$SDL_CONFIG --libs`"
@@ -27,6 +28,27 @@ AC_CHECK_LIB([GLEW], [glewInit], ,
 AC_MSG_ERROR([ *** Unable to find GLEW library (http://glew.sourceforge.net)]))
 AC_CHECK_LIB([freeimage], [FreeImage_DeInitialise], ,
 AC_MSG_ERROR([ *** Unable to find FreeImage library (http://freeimage.sourceforge.net)]))
+AC_MSG_CHECKING(Support for SSE3)
+AC_TRY_RUN([#include <stdio.h>
+int main()
+{
+	unsigned long op = 0;
+	unsigned int eax, ebx, ecx, edx;
+
+	__asm__ __volatile__ (
+	"cpuid" 
+	: "=a" (eax), 
+	"=b" (ebx), 
+	"=c" (ecx), 
+	"=d" (edx) : "0" (op));
+
+	if (ecx & 0x00000001)
+		exit(0);
+	else
+		exit(1);
+}], AC_DEFINE(__HAVE_SSE3__, 1)
+	 AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+
 AC_OUTPUT(Makefile src/Makefile \
 			 include/Makefile \
 			 examples/Makefile \

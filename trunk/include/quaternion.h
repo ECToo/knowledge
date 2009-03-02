@@ -160,13 +160,14 @@ namespace k
 				z = newQuat.z;
 			}
 
+			#define DEG_TO_RAD(T) ((T/180.0f) * M_PI)
+			#define RAD_TO_DEG(T) ((T/M_PI) * 180.0f)
+
 			inline quaternion(const vec_t angle, const vector3& axis)
 			{
 				vec_t r, s;
 
-				r = (angle/180.0f) * M_PI;
-				r *= 0.5f;
-
+				r = DEG_TO_RAD(angle) * 0.5f;
     			s = sin(r);
 
     			w = cos(r);

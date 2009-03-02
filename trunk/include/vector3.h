@@ -36,11 +36,19 @@ namespace k
 			// Allow us to access like packed data.
 			union
 			{
+				#ifdef __HAVE_SSE3__
+				struct 
+				{
+					vec_t x, y, z, w;
+				};
+				vec_t vec[4];
+				#else
 				struct 
 				{
 					vec_t x, y, z;
 				};
 				vec_t vec[3];
+				#endif
 			};
 
 			/**
@@ -84,8 +92,21 @@ namespace k
 
 			inline vector3 operator + (const vector3& newVec) const
 			{
+				#ifdef __HAVE_SSE3__
+				vector3 tempVec;
+				__asm__ __volatile__ (
+				"movups (%[in]), %%xmm0\n"
+				"movups (%[in2]), %%xmm1\n"
+				"addps %%xmm0, %%xmm1\n"
+				"movups %%xmm1, %[out]"
+				: [out] "=m" (tempVec.vec) 
+				: [in] "r" (vec), [in2] "r" (newVec.vec)
+				: "memory");
+				return tempVec;
+				#else
 				vector3 tempVec(newVec.x + x, newVec.y + y, newVec.z + z);
 				return tempVec;
+				#endif
 			}
 
 			inline vector3& operator += (const vector3& newVec)
@@ -239,7 +260,22 @@ namespace k
 	 		 */
 			inline const vec_t dotProduct(const vector3& newVec) const
 			{
+				#ifdef __HAVE_SSE3__
+				register float d = 0.0f;
+				__asm__ __volatile__( 
+				"movups (%[vec1]), %%xmm0\n"
+				"movups (%[vec2]), %%xmm1\n"
+				"mulps %%xmm0, %%xmm1\n"
+				"haddps %%xmm1, %%xmm1\n"
+				"haddps %%xmm1, %%xmm1\n"
+				"movss %%xmm1, %[output]"
+				: [output] "=m"(d)
+				: [vec1] "r" (vec), [vec2] "r" (newVec.vec)
+				: "memory");
+				return d;
+				#else
 				return ((x * newVec.x) + (y * newVec.y) + (z * newVec.z));
+				#endif
 			}
 
 			/**
