@@ -147,8 +147,8 @@ void camera::lookAt(vector3 pos)
 
 static inline vector3 getPlaneNormal(const vector3& a, const vector3& b, const vector3& c)
 {
-	vector3 dir1 = b - a;
-	vector3 dir2 = c - a;
+	const vector3 dir1 = b - a;
+	const vector3 dir2 = c - a;
 
 	vector3 result = dir1.crossProduct(dir2);
 	result.normalize();
@@ -158,50 +158,44 @@ static inline vector3 getPlaneNormal(const vector3& a, const vector3& b, const v
 
 void camera::setView()
 {
-	matrix4 mRotation = mOrientation.toMatrix();
-	mFinal = mRotation;
-
-	vector3 look(mFinal.m[0][2], mFinal.m[1][2], mFinal.m[2][2]);
-	vector3 up(mFinal.m[0][1], mFinal.m[1][1], mFinal.m[2][1]);
-	vector3 right(mFinal.m[0][0], mFinal.m[1][0], mFinal.m[2][0]);
-
-	mFinal.m[3][0] = -right.dotProduct(mPosition);
-	mFinal.m[3][1] = -up.dotProduct(mPosition);
-	mFinal.m[3][2] = -look.dotProduct(mPosition);
+	mFinal = mOrientation.toMatrix();
+	mFinal.m[3][0] = -getRight().dotProduct(mPosition);
+	mFinal.m[3][1] = -getUp().dotProduct(mPosition);
+	mFinal.m[3][2] = getDirection().dotProduct(mPosition);
 	mFinal.m[3][3] = 1.0f;
 
 	// We need the transpose
 	mFinalInverse = mFinal.transpose().inverse();
 
 	// View Frustum
-	vec_t tanFov = 2 * mTanFov;
-	vec_t hFar = tanFov * mFarPlane;
-	vec_t wFar = hFar * mAspectRatio;
+	const vec_t tanFov = 2 * mTanFov;
+	const vec_t hFar = tanFov * mFarPlane;
+	const vec_t wFar = hFar * mAspectRatio;
 
-	vec_t hNear = tanFov * mNearPlane;
-	vec_t wNear = hNear * mAspectRatio;
+	const vec_t hNear = tanFov * mNearPlane;
+	const vec_t wNear = hNear * mAspectRatio;
 
 	// Far Plane
-	vector3 farCenter = mPosition + getDirection() * mFarPlane;
+	const vector3 farCenter = mPosition + getDirection() * mFarPlane;
 
-	vector3 farTopBase = (getUp() * hFar/2);
-	vector3 farRightBase = (getRight() * wFar/2);
+	const vector3 farTopBase = (getUp() * hFar/2);
+	const vector3 farRightBase = (getRight() * wFar/2);
 
-	vector3 farTopLeft = farCenter + farTopBase - farRightBase;
-	vector3 farTopRight = farCenter + farTopBase + farRightBase;
-	vector3 farBottomRight = farCenter - farTopBase + farRightBase;
+	const vector3 farTopLeft = farCenter + farTopBase - farRightBase;
+	const vector3 farTopRight = farCenter + farTopBase + farRightBase;
+	const vector3 farBottomRight = farCenter - farTopBase + farRightBase;
 
 	// Near Plane
-	vector3 nearCenter = mPosition + getDirection() * mNearPlane;
+	const vector3 nearCenter = mPosition + getDirection() * mNearPlane;
 
-	vector3 nearTopBase = (getUp() * hNear/2);
-	vector3 nearRightBase = (getRight() * wNear/2);
+	const vector3 nearTopBase = (getUp() * hNear/2);
+	const vector3 nearRightBase = (getRight() * wNear/2);
 
-	vector3 nearTopLeft = nearCenter + nearTopBase - nearRightBase;
-	vector3 nearTopRight = nearCenter + nearTopBase + nearRightBase;
+	const vector3 nearTopLeft = nearCenter + nearTopBase - nearRightBase;
+	const vector3 nearTopRight = nearCenter + nearTopBase + nearRightBase;
 
-	vector3 nearBottomLeft = nearCenter - nearTopBase - nearRightBase;
-	vector3 nearBottomRight = nearCenter - nearTopBase + nearRightBase;
+	const vector3 nearBottomLeft = nearCenter - nearTopBase - nearRightBase;
+	const vector3 nearBottomRight = nearCenter - nearTopBase + nearRightBase;
 
 	// Ok lets define the frustum planes
 	mFrustumPlanes[PLANE_NEAR] = getDirection();

@@ -46,6 +46,10 @@ inputManager::inputManager()
 
 inputManager::~inputManager()
 {
+	#ifndef __WII__
+	SDL_WM_GrabInput(SDL_GRAB_OFF);
+	SDL_ShowCursor(1);
+	#endif
 }
 
 void inputManager::initWii(bool cube)
@@ -68,11 +72,14 @@ void inputManager::setPointerLock(bool lock)
 		renderSystem* rs = root::getSingleton().getRenderSystem();
 		kAssert(rs);
 
-		SDL_WarpMouse(rs->getScreenWidth()/2, rs->getScreenHeight()/2);
 		SDL_WM_GrabInput(SDL_GRAB_ON);
+		SDL_ShowCursor(0);
 	}
 	else
+	{
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
+		SDL_ShowCursor(1);
+	}
 }
 
 unsigned char inputManager::setupWiiMotes(unsigned char num)
