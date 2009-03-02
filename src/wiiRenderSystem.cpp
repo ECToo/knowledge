@@ -273,7 +273,9 @@ void wiiRenderSystem::configure()
 }
 
 void wiiRenderSystem::createWindow(const int w, const int h)
-{}
+{
+	configure();
+}
 			
 void wiiRenderSystem::setBlendMode(unsigned short src, unsigned short dst)
 {

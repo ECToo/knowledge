@@ -105,7 +105,6 @@ bool textureManager::allocateTextureData(const std::string& filename, int wrapBi
 		newTexture = loadTexture(fullPath, wrapBits);
 		if (newTexture)
 		{
-			S_LOG_INFO("Texture data for " + fullPath + " allocated.");
 			mTextures.push_back(newTexture);
 			return true;
 		}

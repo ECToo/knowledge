@@ -24,6 +24,36 @@ namespace k {
 
 template<> root* singleton<root>::singleton_instance = 0;
 
+/*
+#ifdef __GNUC__
+#ifndef __WII__
+static inline void setCPUCapabilities()
+{
+
+	#include <stdio.h>
+	unsigned long op = 0;
+	unsigned int eax, ebx, ecx, edx;
+
+	__asm__ __volatile__ (
+	"cpuid" 
+	: "=a" (eax), 
+	"=b" (ebx), 
+	"=c" (ecx), 
+	"=d" (edx) : "0" (op));
+
+	if (ecx & 0x00000001)
+		return 0;
+	else
+		return 1;
+}
+#endif
+#else
+static inline void setCPUCapabilities()
+{
+}
+#endif
+*/
+
 root& root::getSingleton()
 {  
 	kAssert(singleton_instance);
@@ -43,6 +73,10 @@ root::root()
 		DEBUG_Init(GDBSTUB_DEVICE_USB, 1);
 	#endif
 
+	#ifdef __WII__
+		fatInitDefault();
+	#endif
+
 	new logger(logPath);
 	logger::getSingleton().setLogMode(LOGMODE_BOTH);
 
@@ -54,19 +88,12 @@ root::root()
 	#endif
 
 	mActiveRS->initialize();
-	mActiveRS->configure();
-
-	#ifdef __WII__
-		fatInitDefault();
-	#endif
 
 	// Create the renderer
 	mRenderer = new renderer();
 
 	// Create a new Texture Manager
 	mTextureManager = new textureManager();
-
-	// new textureLoader();
 
 	// Create the Material manager
 	mMaterialManager = new materialManager();

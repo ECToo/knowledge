@@ -92,7 +92,7 @@ namespace k
 			// Copy the camera matrix to the current
 			// modelview matrix. Needs to be called
 			// before drawing each object.
-			void copyView();
+			void copyView() const;
 
 			// Apply the modelview matrix to the scene
 			void setView();
@@ -135,28 +135,29 @@ namespace k
 			 * Check if a point is inside the view
 			 * frustum
 			 */
-			bool isPointInsideFrustum(const vector3& point);
-			bool isSphereInsideFrustum(const vector3& center, vec_t radius);
+			bool isPointInsideFrustum(const vector3& point) const;
+			bool isSphereInsideFrustum(const vector3& center, vec_t radius) const;
+			bool isBoxInsideFrustum(const vector3& mins, const vector3& maxs) const;
 
 			// Look at the vector dest
 			void lookAt(vector3 dest);
-			vector3 getDirection();
-			vector3 getUp();
-			vector3 getRight();
+			const vector3 getDirection() const;
+			const vector3 getUp() const;
+			const vector3 getRight() const;
 
 			/**
 			 * Generate a unit vector from camera position
 			 * to where pointer coords are.
 			 */
-			vector3 projectRayFrom2D(const vector2& coords);
+			const vector3 projectRayFrom2D(const vector2& coords) const;
 
 			// Translations
 			void setPosition(vector3 pos);
-			vector3& getPosition();
+			const vector3& getPosition() const;
 
 			// Orientation
 			void setOrientation(quaternion ori);
-			quaternion& getOrientation();
+			const quaternion& getOrientation() const;
 	};
 }
 

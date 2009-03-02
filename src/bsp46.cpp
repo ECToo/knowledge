@@ -371,6 +371,7 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		free(mVertices);
 		free(mFaces);
 		free(mIndices);
+		free(mMaterials);
 		fclose(mBspFile);
 
 		return;
@@ -384,6 +385,7 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		free(mFaces);
 		free(mIndices);
 		free(bspLightmaps);
+		free(mMaterials);
 		fclose(mBspFile);
 
 		return;
@@ -397,6 +399,7 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		free(mFaces);
 		free(mIndices);
 		free(mMaterials);
+		free(bspLightmaps);
 		fclose(mBspFile);
 
 		return;
@@ -412,6 +415,270 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 
 	// Free read lightmaps
 	free(bspLightmaps);
+
+	// Nodes
+	mNodesCount = readLEInt(bspLumps[LUMP_NODES].length) / sizeof(q3BspNode);
+	mNodes = (q3BspNode*) malloc(mNodesCount * sizeof(q3BspNode));
+	if (!mNodes)
+	{
+		S_LOG_INFO("Failed to allocate nodes array for bsp.");
+		free(mVertices);
+		free(mFaces);
+		free(mIndices);
+		free(mMaterials);
+		free(bspLightmaps);
+		fclose(mBspFile);
+
+		return;
+	}
+	memset(mNodes, 0, sizeof(q3BspNode) * mNodesCount);
+
+	fseek(mBspFile, readLEInt(bspLumps[LUMP_NODES].offset), SEEK_SET);
+	for (int i = 0; i < mNodesCount; i++)
+	{
+		if (fread(&mNodes[i], sizeof(q3BspNode), 1, mBspFile) <= 0)
+		{
+			S_LOG_INFO("Failed to read node from bsp file.");
+
+			free(mVertices);
+			free(mFaces);
+			free(mIndices);
+			free(mMaterials);
+			free(mNodes);
+			free(bspLightmaps);
+			fclose(mBspFile);
+
+			return;
+		}
+
+		mNodes[i].plane = readLEInt(mNodes[i].plane);
+
+		mNodes[i].children[0] = readLEInt(mNodes[i].children[0]);
+		mNodes[i].children[1] = readLEInt(mNodes[i].children[1]);
+
+		mNodes[i].mins[0] = readLEFloat(mNodes[i].mins[0]);
+		mNodes[i].mins[1] = readLEFloat(mNodes[i].mins[1]);
+		mNodes[i].mins[2] = readLEFloat(mNodes[i].mins[2]);
+
+		mNodes[i].maxs[0] = readLEFloat(mNodes[i].maxs[0]);
+		mNodes[i].maxs[1] = readLEFloat(mNodes[i].maxs[1]);
+		mNodes[i].maxs[2] = readLEFloat(mNodes[i].maxs[2]);
+	}
+
+	// Leafs
+	mLeafsCount = readLEInt(bspLumps[LUMP_LEAFS].length) / sizeof(q3BspLeaf);
+	mLeafs = (q3BspLeaf*) malloc(mLeafsCount * sizeof(q3BspLeaf));
+	if (!mLeafs)
+	{
+		S_LOG_INFO("Failed to allocate leafs array for bsp.");
+		free(mVertices);
+		free(mFaces);
+		free(mIndices);
+		free(mMaterials);
+		free(bspLightmaps);
+		fclose(mBspFile);
+
+		return;
+	}
+	memset(mLeafs, 0, sizeof(q3BspLeaf) * mLeafsCount);
+
+	fseek(mBspFile, readLEInt(bspLumps[LUMP_LEAFS].offset), SEEK_SET);
+	for (int i = 0; i < mLeafsCount; i++)
+	{
+		if (fread(&mLeafs[i], sizeof(q3BspLeaf), 1, mBspFile) <= 0)
+		{
+			S_LOG_INFO("Failed to read leaf from bsp file.");
+
+			free(mVertices);
+			free(mFaces);
+			free(mIndices);
+			free(mMaterials);
+			free(mNodes);
+			free(mLeafs);
+			free(bspLightmaps);
+			fclose(mBspFile);
+
+			return;
+		}
+
+		mLeafs[i].cluster = readLEInt(mLeafs[i].cluster);
+		mLeafs[i].area = readLEInt(mLeafs[i].area);
+
+		mLeafs[i].firstLeafSurf = readLEInt(mLeafs[i].firstLeafSurf);
+		mLeafs[i].numLeafSurf = readLEInt(mLeafs[i].numLeafSurf);
+
+		mLeafs[i].firstLeafBrush = readLEInt(mLeafs[i].firstLeafBrush);
+		mLeafs[i].numLeafBrush = readLEInt(mLeafs[i].numLeafBrush);
+		
+		int temp = readLEInt(mLeafs[i].mins[1]);
+		mLeafs[i].mins[0] = readLEInt(mLeafs[i].mins[0]);
+		mLeafs[i].mins[1] = readLEInt(mLeafs[i].mins[2]);
+		mLeafs[i].mins[2] = -temp;
+
+		temp = readLEInt(mLeafs[i].maxs[1]);
+		mLeafs[i].maxs[0] = readLEInt(mLeafs[i].maxs[0]);
+		mLeafs[i].maxs[1] = readLEInt(mLeafs[i].maxs[2]);
+		mLeafs[i].maxs[2] = -temp;
+	}
+			
+	// Leaf Faces
+	mLeafFacesCount = readLEInt(bspLumps[LUMP_LEAF_FACES].length) / sizeof(int);
+	mLeafFaces = (int*) malloc(sizeof(int) * mLeafFacesCount);
+	if (!mLeafFaces)
+	{
+		S_LOG_INFO("Failed to allocate leafs faces array for bsp.");
+		free(mVertices);
+		free(mFaces);
+		free(mIndices);
+		free(mMaterials);
+		free(mLeafs);
+		free(bspLightmaps);
+		fclose(mBspFile);
+
+		return;
+	}
+	memset(mLeafFaces, 0, sizeof(int) * mLeafFacesCount);
+
+	fseek(mBspFile, readLEInt(bspLumps[LUMP_LEAF_FACES].offset), SEEK_SET);
+	for (int i = 0; i < mLeafFacesCount; i++)
+	{
+		if (fread(&mLeafFaces[i], sizeof(int), 1, mBspFile) <= 0)
+		{
+			S_LOG_INFO("Failed to allocate leaf face for bsp.");
+			free(mVertices);
+			free(mFaces);
+			free(mIndices);
+			free(mMaterials);
+			free(mLeafs);
+			free(mLeafFaces);
+			free(bspLightmaps);
+			fclose(mBspFile);
+
+			return;
+		}
+
+		mLeafFaces[i] = readLEInt(mLeafFaces[i]);
+	}
+
+	// Planes
+	mPlanesCount = readLEInt(bspLumps[LUMP_PLANES].length) / sizeof(q3BspPlane);
+	mPlanes = (q3BspPlane*) malloc(sizeof(q3BspPlane) * mPlanesCount);
+	if (!mPlanes)
+	{
+		S_LOG_INFO("Failed to allocate plane array for bsp.");
+		free(mVertices);
+		free(mFaces);
+		free(mIndices);
+		free(mMaterials);
+		free(mLeafs);
+		free(bspLightmaps);
+		fclose(mBspFile);
+
+		return;
+	}
+	memset(mPlanes, 0, sizeof(q3BspPlane) * mPlanesCount);
+
+	fseek(mBspFile, readLEInt(bspLumps[LUMP_PLANES].offset), SEEK_SET);
+	for (int i = 0; i < mPlanesCount; i++)
+	{
+		if (fread(&mPlanes[i], sizeof(q3BspPlane), 1, mBspFile) <= 0)
+		{
+			S_LOG_INFO("Failed to allocate plane for bsp.");
+			free(mVertices);
+			free(mFaces);
+			free(mIndices);
+			free(mMaterials);
+			free(mLeafs);
+			free(mLeafFaces);
+			free(mPlanes);
+			free(bspLightmaps);
+			fclose(mBspFile);
+
+			return;
+		}
+
+		mPlanes[i].dist = readLEFloat(mPlanes[i].dist);
+
+		float temp = readLEFloat(mPlanes[i].normal[1]);
+		mPlanes[i].normal[0] = readLEFloat(mPlanes[i].normal[0]);
+		mPlanes[i].normal[1] = readLEFloat(mPlanes[i].normal[2]);
+		mPlanes[i].normal[2] = -temp;
+	}
+
+	// Visibility Data
+	fseek(mBspFile, readLEInt(bspLumps[LUMP_VISDATA].offset), SEEK_SET);
+	if (readLEInt(bspLumps[LUMP_VISDATA].length))
+	{
+		if (fread(&mBspVisData.numOfVis, sizeof(int), 1, mBspFile) <= 0)
+		{
+			S_LOG_INFO("Failed to read number of vis in bsp file.");
+			free(mVertices);
+			free(mFaces);
+			free(mIndices);
+			free(mMaterials);
+			free(mLeafs);
+			free(mLeafFaces);
+			free(mPlanes);
+			free(bspLightmaps);
+			fclose(mBspFile);
+
+			return;
+		}
+
+		if (fread(&mBspVisData.bytesPerVis, sizeof(int), 1, mBspFile) <= 0)
+		{
+			S_LOG_INFO("Failed to read number bytes per vis in bsp file.");
+			free(mVertices);
+			free(mFaces);
+			free(mIndices);
+			free(mMaterials);
+			free(mLeafs);
+			free(mLeafFaces);
+			free(mPlanes);
+			free(bspLightmaps);
+			fclose(mBspFile);
+
+			return;
+		}
+
+		int size = mBspVisData.bytesPerVis * mBspVisData.numOfVis;
+		mBspVisData.bitSet = (unsigned char*) malloc(size);
+		if (!mBspVisData.bitSet)
+		{
+			S_LOG_INFO("Failed to allocate array of vis bitsets in bsp file.");
+			free(mVertices);
+			free(mFaces);
+			free(mIndices);
+			free(mMaterials);
+			free(mLeafs);
+			free(mLeafFaces);
+			free(mPlanes);
+			free(bspLightmaps);
+			fclose(mBspFile);
+
+			return;
+		}
+
+		if (fread(mBspVisData.bitSet, size, 1, mBspFile) <= 0)
+		{
+			S_LOG_INFO("Failed to read array of vis bitsets in bsp file.");
+			free(mVertices);
+			free(mFaces);
+			free(mIndices);
+			free(mMaterials);
+			free(mLeafs);
+			free(mLeafFaces);
+			free(mPlanes);
+			free(bspLightmaps);
+			free(mBspVisData.bitSet);
+			fclose(mBspFile);
+
+			return;
+		}
+	}
+
+	// We are done here
+	fclose(mBspFile);
 }
 			
 void q3Bsp::renderFace(int i)
@@ -429,6 +696,9 @@ void q3Bsp::renderFace(int i)
 	material* materialOfFace = mMaterials[faceToRender->textureId];
 	if (materialOfFace)
 		materialOfFace->prepare();
+
+	if (faceToRender->lmId < 0 && !materialOfFace)
+		return;
 
 	rs->clearArrayDesc();
 	rs->setVertexArray(mVertices[faceToRender->startVertIndex].pos, sizeof(q3BspVertex));
@@ -459,21 +729,85 @@ void q3Bsp::renderFace(int i)
 		materialOfFace->finish();
 }
 
-void q3Bsp::draw(const vector3& viewerPos)
+void q3Bsp::draw(const camera* viewer)
 {
 	mBitSet.clear();
 
-	for (int i = 0; i < mFacesCount; i++)
+	int leafIndex = findLeaf(viewer->getPosition());
+	int cluster = mLeafs[leafIndex].cluster;
+
+	int leafCount = mLeafsCount;
+	while (leafCount--)
 	{
-		if (mFaces[i].type != FACETYPE_POLYGON) 
+		q3BspLeaf* currLeaf = &mLeafs[leafCount];
+		if (!currLeaf)
+			break;
+
+		if (!isClusterVisible(cluster, currLeaf->cluster))
 			continue;
 
-		if(!mBitSet.isSet(i)) 
+		/*
+		const vector3 mins = vector3(currLeaf->mins[0], currLeaf->mins[1], currLeaf->mins[2]);
+		const vector3 maxs = vector3(currLeaf->maxs[0], currLeaf->maxs[1], currLeaf->maxs[2]);
+		if (!viewer->isBoxInsideFrustum(mins, maxs))
+			continue;
+		*/
+
+		int faceCount = currLeaf->numLeafSurf;
+		while (faceCount--)
 		{
-			mBitSet.set(i);
-			renderFace(i);
+			int index = mLeafFaces[currLeaf->firstLeafSurf + faceCount];
+			if (mFaces[index].type != FACETYPE_POLYGON) 
+				continue;
+
+			if(!mBitSet.isSet(index)) 
+			{
+				mBitSet.set(index);
+				renderFace(index);
+			}
 		}
 	}
+}
+			
+bool q3Bsp::isClusterVisible(int curr, int targ)
+{
+	if (!mBspVisData.bitSet || curr < 0)
+		return true;
+
+	unsigned char visSet = mBspVisData.bitSet[(curr * mBspVisData.bytesPerVis)+(targ/8)];
+	return (visSet & (1 << (targ & 7)));
+}
+
+int q3Bsp::findLeaf(const vector3& viewerPos)
+{
+	int i = 0;
+	while (i >= 0)
+	{
+		const q3BspNode* node = &mNodes[i];
+		const q3BspPlane* plane = &mPlanes[node->plane];
+
+		const vector3 planeNormal(plane->normal[0], plane->normal[1], plane->normal[2]);
+		const vec_t distance = viewerPos.dotProduct(planeNormal) - plane->dist;
+
+		/*
+		const vec_t distance = plane->normal[0] * viewerPos.x + 
+			plane->normal[1] * viewerPos.y +
+			plane->normal[2] * viewerPos.z - plane->dist;
+		*/
+
+		// Front
+		if (distance >= 0)
+		{
+			i = node->children[0];
+		}
+		// Back
+		else
+		{
+			i = node->children[1];
+		}
+	}
+
+	return ~i;
 }
 
 }
