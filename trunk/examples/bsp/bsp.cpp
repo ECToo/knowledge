@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 	mInputManager->setupWiiMotes(1);
 	mInputManager->setWiiMoteTimeout(60);
 	mInputManager->setWiiMoteEmulation(true);
-	// mInputManager->setPointerLock(true);
+	mInputManager->setPointerLock(true);
 
 	// Initialize resources
 	#ifdef __WII__
@@ -111,7 +111,6 @@ int main(int argc, char** argv)
 
 		// Feed Mouse
 		k::vector2 mousePos = mInputManager->getWiiMotePosition(0);
-		mGuiManager->setCursorPos(mousePos);
 
 		// Quit Application
 		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_HOME))
@@ -224,55 +223,22 @@ int main(int argc, char** argv)
 			newCamera->setPosition(pos);
 		}
 
-		/*
 		k::vector2 diffMousePos = mousePos - oldMousePos;
 		if (diffMousePos.x)
 		{
-			k::quaternion dir1Quat(-diffMousePos.x, newCamera->getUp());
-			k::quaternion dir2Quat(-diffMousePos.y, newCamera->getRight());
-
+			k::quaternion dirQuat(-diffMousePos.x, k::vector3(0, 1, 0));
 			k::quaternion ori = newCamera->getOrientation();
-			k::quaternion finalRot = dir2Quat * dir1Quat;
-			finalRot.normalize();
 
-			newCamera->setOrientation(finalRot * ori);
+			newCamera->setOrientation(dirQuat * ori);
+		}
+		if (diffMousePos.y)
+		{
+			k::quaternion dirQuat(-diffMousePos.y, newCamera->getRight());
+			k::quaternion ori = newCamera->getOrientation();
+
+			newCamera->setOrientation(dirQuat * ori);
 		}
 		oldMousePos = mousePos;
-		*/
-
-		// TEMP
-		if ((mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_LEFT)) ||
-			 mInputManager->getKbdKeyDown(K_KBD_LEFT))
-		{
-			k::quaternion dirQuat(1, k::vector3(0, 1, 0));
-			k::quaternion ori = newCamera->getOrientation();
-
-			newCamera->setOrientation(dirQuat * ori);
-		}
-
-		if ((mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_RIGHT)) ||
-			 mInputManager->getKbdKeyDown(K_KBD_RIGHT))
-		{
-			k::quaternion dirQuat(-1, k::vector3(0, 1, 0));
-			k::quaternion ori = newCamera->getOrientation();
-
-			newCamera->setOrientation(dirQuat * ori);
-		}
-
-		if (mInputManager->getKbdKeyDown(K_KBD_UP))
-		{
-			k::quaternion dirQuat(1, newCamera->getRight());
-			k::quaternion ori = newCamera->getOrientation();
-
-			newCamera->setOrientation(dirQuat * ori);
-		}
-		if (mInputManager->getKbdKeyDown(K_KBD_DOWN))
-		{
-			k::quaternion dirQuat(-1, newCamera->getRight());
-			k::quaternion ori = newCamera->getOrientation();
-
-			newCamera->setOrientation(dirQuat * ori);
-		}
 
 		// FPS Counter
 		std::stringstream fpsT;

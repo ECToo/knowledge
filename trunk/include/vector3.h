@@ -58,11 +58,19 @@ namespace k
 			vector3()
 			{ 
 				x = y = z = 0;
+
+				#ifdef __HAVE_SSE3__
+				w = 0;
+				#endif
 			}
 
 			vector3(const vector3& in)
 			{
 				*this = in;
+
+				#ifdef __HAVE_SSE3__
+				w = 0;
+				#endif
 			}
 			
 			/**
@@ -76,6 +84,10 @@ namespace k
 				x = xx;
 				y = yy;
 				z = zz;
+
+				#ifdef __HAVE_SSE3__
+				w = 0;
+				#endif
 			}
 
 			vector3 reflect(const vector3& normal)
@@ -101,7 +113,7 @@ namespace k
 				"movups %%xmm1, %[out]"
 				: [out] "=m" (tempVec.vec) 
 				: [in] "r" (vec), [in2] "r" (newVec.vec)
-				: "memory");
+				: "memory", "%xmm0", "%xmm1");
 				return tempVec;
 				#else
 				vector3 tempVec(newVec.x + x, newVec.y + y, newVec.z + z);
@@ -185,37 +197,92 @@ namespace k
 			
 			inline vector3 operator * (const vec_t scalar) const
 			{
+				#ifdef __HAVE_SSE3__
+				vector3 temp(scalar, scalar, scalar);
+				vector3 out;
+
+				__asm__ __volatile__(
+				"movups (%[in]), %%xmm0\n"
+				"movups (%[in2]), %%xmm1\n"
+				"mulps %%xmm0, %%xmm1\n"
+				"movups %%xmm1, %[out]"
+				: [out] "=m" (out.vec)
+				: [in] "r" (vec), [in2] "r" (temp.vec)
+				: "memory", "%xmm0", "%xmm1");
+				return out;
+				#else
 				vector3 tempVec(x * scalar, 
 						y * scalar,
 						z * scalar);
 
 				return tempVec;				
+				#endif
 			}
 			
 			inline vector3 operator * (const vector3& newVec) const
 			{
+				#ifdef __HAVE_SSE3__
+				vector3 out;
+				__asm__ __volatile__(
+				"movups (%[in]), %%xmm0\n"
+				"movups (%[in2]), %%xmm1\n"
+				"mulps %%xmm0, %%xmm1\n"
+				"movups %%xmm1, %[out]"
+				: [out] "=m" (out.vec)
+				: [in] "r" (vec), [in2] "r" (newVec.vec)
+				: "memory", "%xmm0", "%xmm1");
+				return out;
+				#else
 				vector3 tempVec(x * newVec.x, 
 						y * newVec.y,
 						z * newVec.z);
 
 				return tempVec;				
+				#endif
 			}
 			
 			inline vector3 operator / (const vec_t scalar) const
 			{
-				assert (scalar != 0.0);
+				assert(scalar != 0.0);
 				
+				#ifdef __HAVE_SSE3__
+				vector3 temp(scalar, scalar, scalar);
+				vector3 out;
+				__asm__ __volatile__(
+				"movups (%[in]), %%xmm0\n"
+				"movups (%[in2]), %%xmm1\n"
+				"divps %%xmm0, %%xmm1\n"
+				"movups %%xmm1, %[out]"
+				: [out] "=m" (out.vec)
+				: [in] "r" (vec), [in2] "r" (temp.vec)
+				: "memory", "%xmm0", "%xmm1");
+				return out;
+				#else
 				vector3 tempVec(x/scalar, y/scalar, z/scalar);
 				return tempVec;				
+				#endif
 			}
 			
 			inline vector3 operator / (const vector3& newVec) const
 			{
+				#ifdef __HAVE_SSE3__
+				vector3 out;
+				__asm__ __volatile__(
+				"movups (%[in]), %%xmm0\n"
+				"movups (%[in2]), %%xmm1\n"
+				"divps %%xmm0, %%xmm1\n"
+				"movups %%xmm1, %[out]"
+				: [out] "=m" (out.vec)
+				: [in] "r" (vec), [in2] "r" (newVec.vec)
+				: "memory", "%xmm0", "%xmm1");
+				return out;
+				#else
 				vector3 tempVec(x / newVec.x, 
 						y / newVec.y,
 						z / newVec.z);
 
 				return tempVec;				
+				#endif
 			}
 			
 			inline bool operator == (const vector3& newVec) const
@@ -252,7 +319,23 @@ namespace k
 			
 			inline const vec_t length() const
 			{
+				#ifdef __HAVE_SSE3__
+				float d = 0.0f;
+				__asm__ __volatile__ (
+				"movups (%[in]), %%xmm0\n"
+				"movups (%[in]), %%xmm1\n"
+				"mulps %%xmm0, %%xmm1\n"
+				"haddps %%xmm1, %%xmm1\n"
+				"haddps %%xmm1, %%xmm1\n"
+				"sqrtss %%xmm1, %%xmm1\n"
+				"movss %%xmm1, %[out]"
+				: [out] "=m" (d)
+				: [in] "r" (vec)
+				: "memory", "%xmm0", "%xmm1");
+				return d;
+				#else
 				return sqrt(x*x + y*y + z*z);
+				#endif
 			}
 			
 			/**
@@ -261,7 +344,7 @@ namespace k
 			inline const vec_t dotProduct(const vector3& newVec) const
 			{
 				#ifdef __HAVE_SSE3__
-				register float d = 0.0f;
+				float d = 0.0f;
 				__asm__ __volatile__( 
 				"movups (%[vec1]), %%xmm0\n"
 				"movups (%[vec2]), %%xmm1\n"
@@ -271,7 +354,7 @@ namespace k
 				"movss %%xmm1, %[output]"
 				: [output] "=m"(d)
 				: [vec1] "r" (vec), [vec2] "r" (newVec.vec)
-				: "memory");
+				: "memory", "%xmm0", "%xmm1");
 				return d;
 				#else
 				return ((x * newVec.x) + (y * newVec.y) + (z * newVec.z));
