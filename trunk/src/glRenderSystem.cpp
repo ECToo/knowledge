@@ -135,6 +135,8 @@ void glRenderSystem::createWindow(const int w, const int h)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+	SDL_SetGamma(1.2, 1.2, 1.2);
+
 	// Call Configure
 	configure();
 }

@@ -683,7 +683,7 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 			
 void q3Bsp::renderFace(int i)
 {
-	q3BspFace* faceToRender = &mFaces[i];
+	const q3BspFace* faceToRender = &mFaces[i];
 	if (!faceToRender)
 	{
 		S_LOG_INFO("Failed to fetch face from array.");
@@ -711,7 +711,7 @@ void q3Bsp::renderFace(int i)
 		if (mDrawLightmaps && faceToRender->lmId >= 0)
 		{
 			// Send Lightmap
-			int stages = materialOfFace->getNumberOfTextureStages();
+			const int stages = materialOfFace->getNumberOfTextureStages();
 			rs->bindTexture(mLightmaps[faceToRender->lmId]->getId(0), stages);
 			rs->setTexEnv("modulate", stages);
 			rs->setTexCoordArray(mVertices[faceToRender->startVertIndex].lmUv, 
@@ -733,30 +733,28 @@ void q3Bsp::draw(const camera* viewer)
 {
 	mBitSet.clear();
 
-	int leafIndex = findLeaf(viewer->getPosition());
-	int cluster = mLeafs[leafIndex].cluster;
+	const int leafIndex = findLeaf(viewer->getPosition());
+	const int cluster = mLeafs[leafIndex].cluster;
 
 	int leafCount = mLeafsCount;
 	while (leafCount--)
 	{
-		q3BspLeaf* currLeaf = &mLeafs[leafCount];
+		const q3BspLeaf* currLeaf = &mLeafs[leafCount];
 		if (!currLeaf)
 			break;
 
 		if (!isClusterVisible(cluster, currLeaf->cluster))
 			continue;
 
-		/*
 		const vector3 mins = vector3(currLeaf->mins[0], currLeaf->mins[1], currLeaf->mins[2]);
 		const vector3 maxs = vector3(currLeaf->maxs[0], currLeaf->maxs[1], currLeaf->maxs[2]);
 		if (!viewer->isBoxInsideFrustum(mins, maxs))
 			continue;
-		*/
 
 		int faceCount = currLeaf->numLeafSurf;
 		while (faceCount--)
 		{
-			int index = mLeafFaces[currLeaf->firstLeafSurf + faceCount];
+			const int index = mLeafFaces[currLeaf->firstLeafSurf + faceCount];
 			if (mFaces[index].type != FACETYPE_POLYGON) 
 				continue;
 
@@ -774,7 +772,7 @@ bool q3Bsp::isClusterVisible(int curr, int targ)
 	if (!mBspVisData.bitSet || curr < 0)
 		return true;
 
-	unsigned char visSet = mBspVisData.bitSet[(curr * mBspVisData.bytesPerVis)+(targ/8)];
+	const unsigned char visSet = mBspVisData.bitSet[(curr * mBspVisData.bytesPerVis)+(targ/8)];
 	return (visSet & (1 << (targ & 7)));
 }
 
@@ -788,12 +786,6 @@ int q3Bsp::findLeaf(const vector3& viewerPos)
 
 		const vector3 planeNormal(plane->normal[0], plane->normal[1], plane->normal[2]);
 		const vec_t distance = viewerPos.dotProduct(planeNormal) - plane->dist;
-
-		/*
-		const vec_t distance = plane->normal[0] * viewerPos.x + 
-			plane->normal[1] * viewerPos.y +
-			plane->normal[2] * viewerPos.z - plane->dist;
-		*/
 
 		// Front
 		if (distance >= 0)
