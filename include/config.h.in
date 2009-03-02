@@ -70,5 +70,5 @@
 /* Version number of package */
 #undef VERSION
 
-/* Processor offers support for SSE3 instructions. */
+/* Processor supports SSE3 */
 #undef __HAVE_SSE3__

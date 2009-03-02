@@ -73,7 +73,7 @@ int main(int argc, char** argv)
 
 	// Set Skyplane
 	// mRenderer->setSkyPlane("skyPlane");
-	mRenderer->setSkyPlane("q3tc_nightsky2_lf");
+	mRenderer->setSkyPlane("q3tc_nightsky_lf");
 
 	// Setup Camera
 	k::camera* newCamera = new k::camera();
@@ -111,6 +111,7 @@ int main(int argc, char** argv)
 
 		// Feed Mouse
 		k::vector2 mousePos = mInputManager->getWiiMotePosition(0);
+		mGuiManager->setCursorPos(mousePos);
 
 		// Quit Application
 		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_HOME))
@@ -223,6 +224,7 @@ int main(int argc, char** argv)
 			newCamera->setPosition(pos);
 		}
 
+		/*
 		k::vector2 diffMousePos = mousePos - oldMousePos;
 		if (diffMousePos.x)
 		{
@@ -236,6 +238,7 @@ int main(int argc, char** argv)
 			newCamera->setOrientation(finalRot * ori);
 		}
 		oldMousePos = mousePos;
+		*/
 
 		// TEMP
 		if ((mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_LEFT)) ||

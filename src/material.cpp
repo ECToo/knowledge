@@ -43,7 +43,9 @@ void material::prepare()
 	rs->matDiffuse(mDiffuse);
 	rs->matSpecular(mSpecular);
 	rs->setCulling(mCull);
-	rs->setDepthTest(mDepthTest);
+
+	if (!mDepthTest)
+		rs->setDepthTest(mDepthTest);
 
 	// Color/Light Only
 	if (!mTextureUnits)

@@ -29,25 +29,20 @@ AC_MSG_ERROR([ *** Unable to find GLEW library (http://glew.sourceforge.net)]))
 AC_CHECK_LIB([freeimage], [FreeImage_DeInitialise], ,
 AC_MSG_ERROR([ *** Unable to find FreeImage library (http://freeimage.sourceforge.net)]))
 AC_MSG_CHECKING(Support for SSE3)
-AC_TRY_RUN([#include <stdio.h>
+AC_DEFINE(__HAVE_SSE3__, [], [Processor supports SSE3])
+AC_TRY_RUN([#include <stdlib.h>
 int main()
 {
-	unsigned long op = 0;
-	unsigned int eax, ebx, ecx, edx;
+	unsigned long op = 1;
+	unsigned int ecx;
 
-	__asm__ __volatile__ (
-	"cpuid" 
-	: "=a" (eax), 
-	"=b" (ebx), 
-	"=c" (ecx), 
-	"=d" (edx) : "0" (op));
-
+	__asm__ __volatile__ ("cpuid" : "=c" (ecx) : "a" (op));
 	if (ecx & 0x00000001)
 		exit(0);
 	else
 		exit(1);
 }], AC_DEFINE(__HAVE_SSE3__, 1)
-	 AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 AC_OUTPUT(Makefile src/Makefile \
 			 include/Makefile \

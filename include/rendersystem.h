@@ -47,6 +47,13 @@ namespace k
 		VERTEXMODE_QUAD
 	};
 
+	enum GammaModes
+	{
+		GAMMA_1_0,
+		GAMMA_1_7,
+		GAMMA_2_2
+	};
+
 	class DLL_EXPORT renderSystem
 	{
 		protected:
