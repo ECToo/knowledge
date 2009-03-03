@@ -67,6 +67,7 @@ void inputManager::initWii(bool cube)
 			
 void inputManager::setPointerLock(bool lock)
 {
+	#ifndef __WII__
 	if (lock)
 	{
 		renderSystem* rs = root::getSingleton().getRenderSystem();
@@ -79,7 +80,8 @@ void inputManager::setPointerLock(bool lock)
 	{
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
 		SDL_ShowCursor(1);
-	}
+	}	
+	#endif
 }
 
 unsigned char inputManager::setupWiiMotes(unsigned char num)
