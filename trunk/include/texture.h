@@ -97,6 +97,7 @@ namespace k
 			/**
 			 * Amount to scroll per frame on x and y
 			 */
+			vector2 mScale;
 			vector2 mScroll;
 			vector2 mScrolled;
 
@@ -141,6 +142,7 @@ namespace k
 			void setTexCoordType(texCoordType type);
 			void setBlendMode(unsigned short src, unsigned short dst);
 			void setScroll(vector2 scroll);
+			void setScale(vector2 scale);
 			void setRotate(vec_t angle);
 			void setTexture(texture* tex);
 
