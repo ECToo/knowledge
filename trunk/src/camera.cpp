@@ -100,26 +100,11 @@ bool camera::isPointInsideFrustum(const vector3& point) const
 			
 bool camera::isBoxInsideFrustum(const vector3& mins, const vector3& maxs) const
 {
-	// Points
-	const vector3 points[] =
-	{
-		vector3(mins.x, maxs.y, mins.z),
-		vector3(mins.x, mins.y, maxs.z),
-		vector3(mins.x, maxs.y, maxs.z),
-		vector3(maxs.x, mins.y, mins.z),
-		vector3(maxs.x, maxs.y, mins.z),
-		vector3(maxs.x, mins.y, maxs.z),
-		mins,
-		maxs
-	};
+	// Do a bounding Sphere
+	const vector3 center = (maxs - mins) / 2.0f;
+	const vec_t radius = center.length();
 
-	for (int i = 0; i < 8; i++)
-	{
-		if (isPointInsideFrustum(points[i]))
-			return true;
-	}
-
-	return false;
+	return isSphereInsideFrustum(center, radius);
 }
 
 void camera::lookAt(vector3 pos)
