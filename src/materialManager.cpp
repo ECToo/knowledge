@@ -310,6 +310,24 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 			}
 		}
 		else
+		if (token == "scale")
+		{
+			if (activeTexture)
+			{
+				vector2 scale;
+				token = file->getNextToken();
+				scale.x = atof(token.c_str());
+				token = file->getNextToken();
+				scale.y = atof(token.c_str());
+				
+				activeTexture->setScale(scale);
+			}
+			else
+			{
+				S_LOG_INFO("Error in parsing material texture: You must define first the texture filename");
+			}
+		}
+		else
 		if (token == "scroll")
 		{
 			if (activeTexture)
@@ -644,6 +662,17 @@ void materialManager::parseQ3TextureSection(material* mat, parsingFile* file, un
 				scroll.y = atof(token.c_str());
 				
 				activeTexture->setScroll(scroll);
+			}
+			else
+			if (activeTexture && token == "scale")
+			{
+				vector2 scale;
+				token = file->getNextToken();
+				scale.x = atof(token.c_str());
+				token = file->getNextToken();
+				scale.y = atof(token.c_str());
+				
+				activeTexture->setScale(scale);
 			}
 			else
 			if (activeTexture && token == "rotate")

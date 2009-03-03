@@ -37,7 +37,7 @@ void wiiTexture::setTexCoordGen()
 		default:
 			S_LOG_INFO("Undefined texture coordinate type, fallbacking to UV.");
 		case TEXCOORD_UV:
-			if (mScroll.x || mScroll.y || mRotate)
+			if (mScroll.x || mScroll.y || mRotate || mScale.x || mScale.y)
 			{
 				kAssert(mIndex < 8);
 
@@ -48,12 +48,12 @@ void wiiTexture::setTexCoordGen()
 				mScrolled.x += mScroll.x;
 				mScrolled.y += mScroll.y;
 
-				mTransRotate[0][0] = cosAngle;
+				mTransRotate[0][0] = cosAngle * mScale.x;
 				mTransRotate[0][1] = -sinAngle;
 				mTransRotate[0][2] = 0;
 
 				mTransRotate[1][0] = sinAngle;
-				mTransRotate[1][1] = cosAngle;
+				mTransRotate[1][1] = cosAngle * mScale.y;
 				mTransRotate[1][2] = 0;
 
 				mTransRotate[2][0] = 0;

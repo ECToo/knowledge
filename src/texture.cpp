@@ -189,6 +189,11 @@ void textureStage::setScroll(vector2 scroll)
 {
 	mScroll = scroll;
 }
+			
+void textureStage::setScale(vector2 scale)
+{
+	mScale = scale;
+}
 
 void textureStage::setRotate(vec_t angle)
 {

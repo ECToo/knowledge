@@ -78,7 +78,7 @@ void glTexture::draw()
 		default:
 		case TEXCOORD_UV:
 			// Dont touch texture matrix
-			if (!mRotate || !mScroll.x || !mScroll.y)
+			if (!mRotate && !mScroll.x && !mScroll.y && !mScale.x && !mScale.y)
 				break;
 
 			glMatrixMode(GL_TEXTURE);
@@ -95,6 +95,11 @@ void glTexture::draw()
 				glTranslatef(mScrolled.x, mScrolled.y, 0);
 				mScrolled.x += mScroll.x;
 				mScrolled.y += mScroll.y;
+			}
+
+			if (mScale.x || mScale.y)
+			{
+				glScalef(mScale.x, mScale.y, 1);
 			}
 			break;
 		case TEXCOORD_SPHERE:
