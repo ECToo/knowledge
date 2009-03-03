@@ -44,7 +44,9 @@
 #define byteSwap4(Y) (((Y & 0xff)<<24)|((Y & 0xff00) << 8)|((Y & 0xff0000) >> 8)|((Y & 0xff000000) >> 24))
 
 #ifdef __WII__
+#ifndef __BIG_ENDIAN__
 #define __BIG_ENDIAN__
+#endif
 #endif
 
 #ifdef __BIG_ENDIAN__

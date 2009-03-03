@@ -95,11 +95,26 @@ namespace k
 				vector3 out;
 				vec_t dot = -2 * dotProduct(normal);
 
+				/*
+				#ifdef __HAVE_SSE3__
+				vector3 temp(dot, dot, dot);
+
+				__asm__ __volatile__(
+				"movups (%[in]), %%xmm0\n"
+				"movups (%[in2]), %%xmm1\n"
+				"movups (%[in]), %%xmm2\n"
+				"mulps %%xmm0, %%xmm1\n"
+				"haddps %%xmm1, %%xmm2\n"
+				: [out] "=m" (out)
+				: [in] "r" (vec), [in2] "r" (normal.vec));
+				#else
+				*/
 				out.x = x + dot * normal.x;
 				out.y = y + dot * normal.y;
 				out.z = z + dot * normal.z;
 						
 				return out;
+				// #ifdef __HAVE_SSE3__
 			}
 
 			inline vector3 operator + (const vector3& newVec) const

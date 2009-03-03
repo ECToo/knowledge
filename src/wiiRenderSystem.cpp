@@ -162,6 +162,7 @@ wiiRenderSystem::~wiiRenderSystem()
 void wiiRenderSystem::initialize()
 {
 	VIDEO_Init();
+	configure();
 }
 
 void wiiRenderSystem::deinitialize()
@@ -274,7 +275,6 @@ void wiiRenderSystem::configure()
 
 void wiiRenderSystem::createWindow(const int w, const int h)
 {
-	configure();
 }
 			
 void wiiRenderSystem::setBlendMode(unsigned short src, unsigned short dst)
@@ -316,6 +316,8 @@ void wiiRenderSystem::frameEnd()
 			kAssert(mRttTarget);
 		}
 
+		GX_DrawDone();
+		GX_Flush();
 		copyBufferToTexture();
 
 		// Clean Textures
