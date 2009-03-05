@@ -28,6 +28,7 @@ extern "C"
 
 #include "pngu.h"
 #include "root.h"
+#include "resourceManager.h"
 
 namespace k {
 
@@ -170,6 +171,8 @@ wiiKTexture* loadTextureJPEG(const std::string& file, unsigned short* w, unsigne
 		return NULL;
 	}
 
+	resourceManager::getSingleton().addMemoryUse(4 * width * height);
+
 	newWiiKtexture->tex = newKTexture;
 	newWiiKtexture->data = wiiTexture;
 
@@ -252,6 +255,8 @@ wiiKTexture* loadTexturePNG(const std::string& file, unsigned short* w, unsigned
 
 		return NULL;
 	}
+
+	resourceManager::getSingleton().addMemoryUse(4 * imgProperties.imgWidth * imgProperties.imgHeight);
 
 	newWiiKtexture->tex = newKTexture;
 	newWiiKtexture->data = textureData;

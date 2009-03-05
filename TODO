@@ -18,15 +18,15 @@ Features for first beta release:
 [x] Timers
 [x] Skyboxes and Skyplanes
 [x] Render to texture
+[x] Particle System
+[x] Frustrum culling (done for BSP - more world types to come)
 
-[.] Particle System
 [.] Logger Object (Pending XHTML/CSS output).
 [.] Network (Pending integration and test on the Wii)
 [.] Physics (ODE is behaving strangely on wii, need to recompile it)
-[.] Frustrum culling (code done, needs checking and ordering)
+[.] BSP (quake3 maps) support
 
 [t] Fake dynamic lights
-[t] BSP (quake3 maps) support
 [t] Stencil shadows
 
 [t] Sound

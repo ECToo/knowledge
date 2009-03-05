@@ -81,6 +81,7 @@ static inline texture* getNewTexture(const std::string& filename)
 	resourceManager* rscMgr = &resourceManager::getSingleton();
 	textureManager* texMgr = &textureManager::getSingleton();
 	kAssert(texMgr);
+	kAssert(rscMgr);
 
 	bool isJpeg = true;
 
@@ -166,7 +167,7 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 
 	// Allocate and read Vertex 
 	mVertexCount = readLEInt(bspLumps[LUMP_VERTICES].length) / sizeof(q3BspVertex);
-	mVertices = (q3BspVertex*) malloc(mVertexCount * sizeof(q3BspVertex));
+	mVertices = (q3BspVertex*) memalign(32, mVertexCount * sizeof(q3BspVertex));
 	if (!mVertices)
 	{
 		S_LOG_INFO("Failed to allocate vertex array.");
@@ -205,7 +206,7 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 
 	// Allocate Faces
 	mFacesCount = readLEInt(bspLumps[LUMP_FACES].length) / sizeof(q3BspFace);
-	mFaces = (q3BspFace*) malloc(mFacesCount * sizeof(q3BspFace));
+	mFaces = (q3BspFace*) memalign(32, mFacesCount * sizeof(q3BspFace));
 	if (!mFaces)
 	{
 		S_LOG_INFO("Failed to allocate face array.");
@@ -270,7 +271,7 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 
 	// Allocate Indices 
 	mIndicesCount = readLEInt(bspLumps[LUMP_INDICES].length) / sizeof(int);
-	mIndices = (index_t*) malloc(mIndicesCount * sizeof(index_t));
+	mIndices = (index_t*) memalign(32, mIndicesCount * sizeof(index_t));
 	if (!mIndices)
 	{
 		S_LOG_INFO("Failed to allocate index array.");
@@ -300,7 +301,7 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 	// Allocate Textures
 	q3BspTexture* bspTextures = NULL;
 	mTexturesCount = readLEInt(bspLumps[LUMP_TEXTURES].length) / sizeof(q3BspTexture);
-	bspTextures = (q3BspTexture*) malloc(mTexturesCount * sizeof(q3BspTexture));
+	bspTextures = (q3BspTexture*) memalign(32, mTexturesCount * sizeof(q3BspTexture));
 	if (!bspTextures)
 	{
 		S_LOG_INFO("Failed to allocate texture array.");
@@ -321,7 +322,7 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		return;
 	}
 
-	mMaterials = (material**) malloc(sizeof(material*) * mTexturesCount);
+	mMaterials = (material**) memalign(32, sizeof(material*) * mTexturesCount);
 	if (!mMaterials)
 	{
 		S_LOG_INFO("Failed to allocate materials array for bsp textures.");
@@ -364,7 +365,7 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 	// Allocate Lightmaps
 	q3BspLightmap128* bspLightmaps = NULL;
 	mLightmapCount = readLEInt(bspLumps[LUMP_LIGHTMAPS].length) / sizeof(q3BspLightmap128);
-	bspLightmaps = (q3BspLightmap128*) malloc(mLightmapCount * sizeof(q3BspLightmap128));
+	bspLightmaps = (q3BspLightmap128*) memalign(32, mLightmapCount * sizeof(q3BspLightmap128));
 	if (!bspLightmaps)
 	{
 		S_LOG_INFO("Failed to allocate lightmaps array.");
@@ -391,7 +392,7 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		return;
 	}
 
-	mLightmaps = (texture**) malloc(sizeof(texture*) * mLightmapCount);
+	mLightmaps = (texture**) memalign(32, sizeof(texture*) * mLightmapCount);
 	if (!mLightmaps)
 	{
 		S_LOG_INFO("Failed to allocate texture array for bsp lightmaps.");
@@ -418,7 +419,7 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 
 	// Nodes
 	mNodesCount = readLEInt(bspLumps[LUMP_NODES].length) / sizeof(q3BspNode);
-	mNodes = (q3BspNode*) malloc(mNodesCount * sizeof(q3BspNode));
+	mNodes = (q3BspNode*) memalign(32, mNodesCount * sizeof(q3BspNode));
 	if (!mNodes)
 	{
 		S_LOG_INFO("Failed to allocate nodes array for bsp.");
@@ -467,7 +468,7 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 
 	// Leafs
 	mLeafsCount = readLEInt(bspLumps[LUMP_LEAFS].length) / sizeof(q3BspLeaf);
-	mLeafs = (q3BspLeaf*) malloc(mLeafsCount * sizeof(q3BspLeaf));
+	mLeafs = (q3BspLeaf*) memalign(32, mLeafsCount * sizeof(q3BspLeaf));
 	if (!mLeafs)
 	{
 		S_LOG_INFO("Failed to allocate leafs array for bsp.");
@@ -523,7 +524,7 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 			
 	// Leaf Faces
 	mLeafFacesCount = readLEInt(bspLumps[LUMP_LEAF_FACES].length) / sizeof(int);
-	mLeafFaces = (int*) malloc(sizeof(int) * mLeafFacesCount);
+	mLeafFaces = (int*) memalign(32, sizeof(int) * mLeafFacesCount);
 	if (!mLeafFaces)
 	{
 		S_LOG_INFO("Failed to allocate leafs faces array for bsp.");
@@ -562,7 +563,7 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 
 	// Planes
 	mPlanesCount = readLEInt(bspLumps[LUMP_PLANES].length) / sizeof(q3BspPlane);
-	mPlanes = (q3BspPlane*) malloc(sizeof(q3BspPlane) * mPlanesCount);
+	mPlanes = (q3BspPlane*) memalign(32, sizeof(q3BspPlane) * mPlanesCount);
 	if (!mPlanes)
 	{
 		S_LOG_INFO("Failed to allocate plane array for bsp.");
@@ -642,7 +643,7 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		}
 
 		int size = mBspVisData.bytesPerVis * mBspVisData.numOfVis;
-		mBspVisData.bitSet = (unsigned char*) malloc(size);
+		mBspVisData.bitSet = (unsigned char*) memalign(32, size);
 		if (!mBspVisData.bitSet)
 		{
 			S_LOG_INFO("Failed to allocate array of vis bitsets in bsp file.");

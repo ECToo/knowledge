@@ -54,15 +54,9 @@ md5mesh::~md5mesh()
 
 void md5mesh::prepareVertices(unsigned int size)
 {
-	#ifdef __WII__
 	mVertices = (vert_t*) memalign(32, size * sizeof(vert_t));
 	mVertexList = (vec_t*) memalign(32, size * sizeof(vec_t) * 3);
 	mUvList = (vec_t*) memalign(32, size * sizeof(vec_t) * 2);
-	#else
-	mVertices = (vert_t*) malloc(size * sizeof(vert_t));
-	mVertexList = (vec_t*) malloc(size * sizeof(vec_t) * 3);
-	mUvList = (vec_t*) malloc(size * sizeof(vec_t) * 2);
-	#endif
 
 	if (!mVertices || !mVertexList || !mUvList)
 	{
@@ -79,11 +73,7 @@ void md5mesh::prepareVertices(unsigned int size)
 
 void md5mesh::prepareTriangles(unsigned int size)
 {
-	#ifdef __WII__
 	mTriangles = (triangle_t*) memalign(32, size * sizeof(triangle_t));
-	#else
-	mTriangles = (triangle_t*) malloc(size*sizeof(triangle_t));
-	#endif
 
 	if (!mTriangles)
 	{
@@ -98,11 +88,7 @@ void md5mesh::prepareTriangles(unsigned int size)
 
 void md5mesh::prepareWeights(unsigned int size)
 {
-	#ifdef __WII__
 	mWeights = (weight_t*) memalign(32, size * sizeof(weight_t));
-	#else
-	mWeights = (weight_t*) malloc(size*sizeof(weight_t));
-	#endif
 
 	if (!mWeights)
 	{
@@ -308,13 +294,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 
 	// Compute Final Static Positions
 	if (!mNormalList)
-	{
-		#ifdef __WII__
 		mNormalList = (vec_t*) memalign(32, sizeof(vec_t) * 3 * mVCount);
-		#else
-		mNormalList = (vec_t*) malloc(sizeof(vec_t) * 3 * mVCount);
-		#endif
-	}
 
 	// Double Check
 	if (!mNormalList)
@@ -336,12 +316,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 	unsigned int finalSize = 3 * mTCount;
 	if (!mIndexList)
 	{
-		#ifdef __WII__
-		mIndexList = (u16*) memalign(32, sizeof(u16) * finalSize);
-		#else
-		mIndexList = (unsigned int*) malloc(sizeof(unsigned int) * finalSize);
-		#endif
-
+		mIndexList = (index_t*) memalign(32, sizeof(index_t) * finalSize);
 		mIndexListSize = finalSize;
 	}
 
@@ -352,12 +327,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 		return;
 	}
 
-	#ifdef __WII__
-	memset(mIndexList, 0, sizeof(u16) * finalSize);
-	#else
-	memset(mIndexList, 0, sizeof(unsigned int) * finalSize);
-	#endif
-
+	memset(mIndexList, 0, sizeof(index_t) * finalSize);
 	for (unsigned int i = 0; i < mTCount; i++)
 	{
 		mIndexList[i*3] = mTriangles[i].index[0];

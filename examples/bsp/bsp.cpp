@@ -47,10 +47,10 @@ int main(int argc, char** argv)
 
 	// Initialize resources
 	#ifdef __WII__
-	k::resourceManager* resourceMgr = new k::resourceManager("/knowledge/resources.cfg");
-	#else
-	k::resourceManager* resourceMgr = new k::resourceManager("../resources.cfg");
+	chdir("sd:/knowledge/bsp/");
 	#endif
+
+	k::resourceManager* resourceMgr = new k::resourceManager("../resources.cfg");
 
 	// Loading Screen
 	k::imgLoadScreen* newLoadingScreen = new k::imgLoadScreen();
