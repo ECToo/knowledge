@@ -79,6 +79,11 @@ namespace k
 			 */
 			loadScreen* mLoadingScreen;
 
+			/**
+			 * Memory usage
+			 */
+			unsigned long mUsedMemory;
+
 		public:
 			resourceManager(const std::string& resourceCfg = "./resources.cfg");
 			~resourceManager();
@@ -87,6 +92,9 @@ namespace k
 
 			void loadGroup(const std::string& name);
 			void unloadGroup(const std::string& name);
+
+			void addMemoryUse(unsigned long m);
+			unsigned long getMemoryUsage();
 
 			loadScreen* getLoadingScreen();
 			void setLoadingScreen(loadScreen* scr);

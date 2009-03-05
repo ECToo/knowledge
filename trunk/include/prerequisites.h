@@ -33,6 +33,10 @@
 #include <stack>
 #include <sys/time.h>
 
+#ifndef memalign
+#include <malloc.h>
+#endif
+
 #include "config.h"
 		
 #define DLL_EXPORT

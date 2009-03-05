@@ -241,6 +241,16 @@ resourceGroup* resourceManager::findGroup(const std::string& name)
 		return NULL;
 }
 			
+void resourceManager::addMemoryUse(unsigned long m)
+{
+	mUsedMemory += m;
+}
+
+unsigned long resourceManager::getMemoryUsage()
+{
+	return mUsedMemory;
+}
+			
 void resourceManager::parseGroup(parsingFile* file, resourceGroup* group)
 {
 	kAssert(group != NULL);
@@ -316,6 +326,7 @@ void resourceManager::parseGroup(parsingFile* file, resourceGroup* group)
 
 resourceManager::resourceManager(const std::string& resourceCfg)
 {
+	mUsedMemory = 0;
 	mGroups.clear();
 
 	// Save the base path from the resource file full path
