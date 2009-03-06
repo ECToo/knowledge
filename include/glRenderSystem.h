@@ -107,6 +107,12 @@ namespace k
 			void drawArrays();
 			void screenshot(const char* filename);
 
+			bool getVBOSupport(); 
+			void genVBO(kVBO* target);
+			void bindVBO(kVBO* target, VBOArrayType type);
+			void setVBOData(VBOArrayType type, int size, void* data, VBOUsage use);
+			void delVBO(kVBO* target);
+
 			unsigned int getScreenWidth();
 			unsigned int getScreenHeight();
 	};

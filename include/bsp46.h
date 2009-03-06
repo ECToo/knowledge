@@ -31,6 +31,7 @@
 #include "material.h"
 #include "world.h"
 #include "camera.h"
+#include "logger.h"
 
 namespace k
 {
@@ -80,6 +81,7 @@ namespace k
 		int length;
 	} q3BspLump;
 
+	#pragma pack(push, 1)
 	typedef struct
 	{
 		vec_t pos[3]; // vertex pos (x,y,z)
@@ -88,6 +90,7 @@ namespace k
 		vec_t normal[3]; // normal (x,y,z)
 		char color[4]; // rgba
 	} q3BspVertex;
+	#pragma pack(pop)
 
 	typedef struct
 	{
@@ -172,6 +175,12 @@ namespace k
 		unsigned char* bitSet;
 	} q3BspVis;
 
+	typedef struct
+	{
+		index_t** mIndices;
+		int* mTrianglesPerRow;
+	} q3BspPatch;
+
 	class DLL_EXPORT q3BitSet
 	{
 		protected:
@@ -214,6 +223,9 @@ namespace k
 			int mLeafFacesCount;
 			int mPlanesCount;
 
+			int mPatchesCount;
+			int mPatchLevel;
+
 			index_t* mIndices;
 			q3BspVertex* mVertices;
 			q3BspFace* mFaces;
@@ -224,8 +236,10 @@ namespace k
 
 			q3BspVis mBspVisData;
 
-			// Only 128x128 lightmaps
-			// are supported on vanilla q3.
+			/*
+			 * Only 128x128 lightmaps
+			 * are supported on vanilla q3.
+			 */
 			texture** mLightmaps;
 
 			/**
@@ -245,6 +259,12 @@ namespace k
 			 */
 			bool mDrawLightmaps;
 
+			/**
+			 * Vertex Buffer Objects
+			 */
+			kVBO mVBOVertex;
+			kVBO mVBOIndex;
+
 		public:
 			q3Bsp()
 			{
@@ -256,6 +276,9 @@ namespace k
 				mLeafsCount = 0;
 				mLeafFacesCount = 0;
 				mPlanesCount = 0;
+
+				mPatchesCount = 0;
+				mPatchLevel = 6;
 
 				mMaterials = NULL;
 
@@ -273,6 +296,10 @@ namespace k
 				mBspVisData.bitSet = NULL;
 
 				mDrawLightmaps = true;
+
+				// VBOS
+			 	mVBOVertex = 0;
+				mVBOIndex = 0;
 			}
 
 			~q3Bsp()
@@ -310,6 +337,12 @@ namespace k
 			bool isDrawingLightmaps()
 			{
 				return mDrawLightmaps;
+			}
+
+			void setPatchLevel(int lvl)
+			{
+				kAssert(lvl);
+				mPatchLevel = lvl;
 			}
 
 			bool isClusterVisible(int curr, int targ);

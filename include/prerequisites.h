@@ -122,6 +122,7 @@
 #ifndef __WII__
 	typedef GLuint kTexture;
 	typedef GLfloat vec_t;
+	typedef GLuint kVBO;
 	typedef unsigned int index_t;
 
 	// Threads
@@ -133,6 +134,7 @@
 
 #else
 
+	typedef char kVBO;
 	typedef GXTexObj kTexture;
 	typedef f32 vec_t;
 	typedef u16 index_t;

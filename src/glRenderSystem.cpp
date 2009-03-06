@@ -499,16 +499,14 @@ void glRenderSystem::drawArrays()
 	if (mActiveMaterial && mActiveMaterial->getNoDraw())
 		return;
 
-	if (mVertexArray)
-	{
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glVertexPointer(3, GL_FLOAT, mVertexStride, mVertexArray);
-	}
-
-	if (mNormalArray)
+	if (mNormalArray || (mUsingVBO && mNormalOffset != -1))
 	{
 		glEnableClientState(GL_NORMAL_ARRAY);
-		glNormalPointer(GL_FLOAT, mNormalStride, mNormalArray);
+
+		if (mUsingVBO)
+			glNormalPointer(GL_FLOAT, mNormalStride, (char*)NULL + mNormalOffset);
+		else
+			glNormalPointer(GL_FLOAT, mNormalStride, mNormalArray);
 	}
 	else
 	{
@@ -516,32 +514,55 @@ void glRenderSystem::drawArrays()
 	}
 
 	unsigned int texUnits = 0;
-	for (int i = 0; i < 8; i++)
+	for (int i = 0; i < MAX_TEXCOORD; i++)
 	{
-		if (mTexCoordArray[i])
+		if (mTexCoordArray[i] || (mUsingVBO && mTexCoordOffset[i] != -1))
 			texUnits = i + 1;
 	}
-
+			
 	if (texUnits)
 	{
 		for (unsigned int i = 0; i < texUnits; i++)
 		{
-			if (!mTexCoordArray[i])
+			if (!mTexCoordArray[i] && !(mUsingVBO && mTexCoordOffset[i] != -1))
 				continue;
-
+			
 			glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
 			glActiveTextureARB(GL_TEXTURE0_ARB + i);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-			glTexCoordPointer(2, GL_FLOAT, mTexCoordStride[i], mTexCoordArray[i]);
+			if (mUsingVBO)
+				glTexCoordPointer(2, GL_FLOAT, mTexCoordStride[i], (char*)NULL + mTexCoordOffset[i]);
+			else
+				glTexCoordPointer(2, GL_FLOAT, mTexCoordStride[i], mTexCoordArray[i]);
 		}
 	}
 	else
 	{
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
+		
+	if (mVertexArray || (mUsingVBO && mVertexOffset != -1))
+	{
+		glEnableClientState(GL_VERTEX_ARRAY);
+		
+		if (mUsingVBO)
+			glVertexPointer(3, GL_FLOAT, mVertexStride, (char*)NULL + mVertexOffset);
+		else
+			glVertexPointer(3, GL_FLOAT, mVertexStride, mVertexArray);
+	}
 
-	glDrawRangeElements(GL_TRIANGLES, 0, mVertexCount, mIndexCount, GL_UNSIGNED_INT, mIndexArray);
+	GLuint drawMode = GL_TRIANGLES;
+	if (mIndexDrawMode == VERTEXMODE_QUAD)
+		drawMode = GL_QUADS;
+	else
+	if (mIndexDrawMode == VERTEXMODE_TRI_STRIP)
+		drawMode = GL_TRIANGLE_STRIP;
+
+	if (mUsingVBO)
+		glDrawRangeElements(drawMode, 0, mVertexCount, mIndexCount, GL_UNSIGNED_INT, (char*)NULL + mIndexOffset);
+	else
+		glDrawRangeElements(drawMode, 0, mVertexCount, mIndexCount, GL_UNSIGNED_INT, mIndexArray);
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
@@ -550,7 +571,7 @@ void glRenderSystem::drawArrays()
 	{
 		for (unsigned int i = 0; i < texUnits; i++)
 		{
-			if (!mTexCoordArray[i])
+			if (!mTexCoordArray[i] && !(mUsingVBO && mTexCoordOffset[i] != -1))
 				continue;
 
 			glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
@@ -619,6 +640,83 @@ void glRenderSystem::screenshot(const char* filename)
 	FreeImage_Save(FIF_JPEG, newImage, filename, JPEG_QUALITYSUPERB);
 	FreeImage_Unload(newImage);
 	free(imgData);
+}
+			
+bool glRenderSystem::getVBOSupport()
+{
+	return GLEW_ARB_vertex_buffer_object;
+}
+
+void glRenderSystem::genVBO(kVBO* target)
+{
+	kAssert(target);
+	glGenBuffers(1, target);
+}
+
+void glRenderSystem::bindVBO(kVBO* target, VBOArrayType type = VBO_ARRAY)
+{
+	if (type == VBO_ARRAY)
+	{
+		if (target)
+			glBindBuffer(GL_ARRAY_BUFFER, (*target));
+		else
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+	else
+	{
+		if (target)
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (*target));
+		else
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	}
+}
+			
+void glRenderSystem::setVBOData(VBOArrayType type, int size, void* data, VBOUsage usage)
+{
+	GLuint t = GL_ARRAY_BUFFER;
+	if (type == VBO_ELEMENT_ARRAY)
+		t = GL_ELEMENT_ARRAY_BUFFER;
+
+	GLuint use;
+	switch (usage)
+	{
+		default:
+		case VBO_STATIC_DRAW:
+			use = GL_STATIC_DRAW;
+			break;
+		case VBO_STATIC_READ:
+			use = GL_STATIC_READ;
+			break;
+		case VBO_STATIC_COPY:
+			use = GL_STATIC_COPY;
+			break;
+		case VBO_DYNAMIC_DRAW:
+			use = GL_DYNAMIC_DRAW;
+			break;
+		case VBO_DYNAMIC_READ:
+			use = GL_DYNAMIC_READ;
+			break;
+		case VBO_DYNAMIC_COPY:
+			use = GL_DYNAMIC_COPY;
+			break;
+		case VBO_STREAM_DRAW:
+			use = GL_STREAM_DRAW;
+			break;
+		case VBO_STREAM_READ:
+			use = GL_STREAM_READ;
+			break;
+		case VBO_STREAM_COPY:
+			use = GL_STREAM_COPY;
+			break;
+	};
+
+	glBufferData(t, size, data, use);
+}
+
+void glRenderSystem::delVBO(kVBO* target)
+{
+	kAssert(target);
+	glDeleteBuffers(1, target);
 }
 
 unsigned int glRenderSystem::getScreenWidth()

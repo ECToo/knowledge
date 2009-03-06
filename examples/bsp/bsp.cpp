@@ -99,8 +99,6 @@ int main(int argc, char** argv)
 	bool running = true;
 
 	mInputManager->feed();
-	k::vector2 oldMousePos = mInputManager->getWiiMotePosition(0);
-
 	while (running)
 	{
 		mInputManager->feed();
@@ -222,8 +220,8 @@ int main(int argc, char** argv)
 
 			newCamera->setPosition(pos);
 		}
-
-		k::vector2 diffMousePos = mousePos - oldMousePos;
+		
+		k::vector2 diffMousePos = mInputManager->getWiiMoteMotion(0);
 		if (diffMousePos.x)
 		{
 			k::quaternion dirQuat(-diffMousePos.x, k::vector3(0, 1, 0));
@@ -238,7 +236,6 @@ int main(int argc, char** argv)
 
 			newCamera->setOrientation(dirQuat * ori);
 		}
-		oldMousePos = mousePos;
 
 		// FPS Counter
 		std::stringstream fpsT;
