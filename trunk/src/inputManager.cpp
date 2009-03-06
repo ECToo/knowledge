@@ -148,6 +148,9 @@ vector2 inputManager::getWiiMotePosition(unsigned char num)
 
 void inputManager::feed()
 {
+	// Reset Mouse Motion
+	mLastMouseMotion.x = mLastMouseMotion.y = 0;
+
 	#ifdef __WII__
 	if (mUseCube)
 		PAD_ScanPads();
@@ -182,6 +185,10 @@ void inputManager::feed()
 			case SDL_QUIT:
 				mQuitEvent = true;
 				break;
+			case SDL_MOUSEMOTION:
+				mLastMouseMotion.x = events.motion.xrel;
+				mLastMouseMotion.y = events.motion.yrel;
+				break;
 		}
 	}
 
@@ -192,6 +199,11 @@ void inputManager::feed()
 	mLastMousePos.x = mx;
 	mLastMousePos.y = my;
 	#endif
+}
+			
+vector2 inputManager::getWiiMoteMotion(unsigned char num)
+{
+	return mLastMouseMotion;
 }
 			
 bool inputManager::getQuitEvent()

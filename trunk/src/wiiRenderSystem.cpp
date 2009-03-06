@@ -752,6 +752,9 @@ void wiiRenderSystem::endVertices()
 		case VERTEXMODE_QUAD:
 			GX_Begin(GX_QUADS, GX_VTXFMT0, mVertices.size());
 			break;
+		case VERTEXMODE_TRI_STRIP:
+			GX_Begin(GX_TRIANGLESTRIP, GX_VTXFMT0, mVertices.size());
+			break;
 	}
 
 	// Draw Vertices
@@ -892,9 +895,17 @@ void wiiRenderSystem::drawArrays()
 	GX_LoadNrmMtxImm(mInverseModelViewMatrix, GX_PNMTX0);
 	GX_SetCurrentMtx(GX_PNMTX0);
 
+	// Setup primitive
+	u8 drawMode = GX_TRIANGLES;
+	if (mIndexDrawMode == VERTEXMODE_QUAD)
+		drawMode = GX_QUADS;
+	else
+	if (mIndexDrawMode == VERTEXMODE_TRI_STRIP)
+		drawMode = GX_TRIANGLESTRIP;
+
 	for (unsigned int i = 0; i < mIndexCount; i += 3)
 	{
-		GX_Begin(GX_TRIANGLES, GX_VTXFMT0, 3);
+		GX_Begin(drawMode, GX_VTXFMT0, 3);
 
 		GX_Position1x16(mIndexArray[i]);
 		if (mTexCoordArray)

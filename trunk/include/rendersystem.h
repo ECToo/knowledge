@@ -54,6 +54,26 @@ namespace k
 		GAMMA_2_2
 	};
 
+	enum VBOArrayType
+	{
+		VBO_ARRAY,
+		VBO_ELEMENT_ARRAY
+	};
+
+	enum VBOUsage
+	{
+		VBO_STATIC_DRAW,
+		VBO_STATIC_READ,
+		VBO_STATIC_COPY,
+		VBO_DYNAMIC_DRAW,
+		VBO_DYNAMIC_READ,
+		VBO_DYNAMIC_COPY,
+		VBO_STREAM_DRAW,
+		VBO_STREAM_READ,
+		VBO_STREAM_COPY
+	};
+
+	#define MAX_TEXCOORD 8
 	class DLL_EXPORT renderSystem
 	{
 		protected:
@@ -63,14 +83,15 @@ namespace k
 			unsigned int mVertexCount;
 			const vec_t* mVertexArray;
 
-			const vec_t* mTexCoordArray[8];
+			const vec_t* mTexCoordArray[MAX_TEXCOORD];
 			const vec_t* mNormalArray;
 
+			VertexMode mIndexDrawMode;
 			unsigned int mIndexCount;
 			const index_t* mIndexArray;
 
 			unsigned int mVertexStride;
-			unsigned int mTexCoordStride[8];
+			unsigned int mTexCoordStride[MAX_TEXCOORD];
 			unsigned int mNormalStride;
 
 			material* mActiveMaterial;
@@ -79,6 +100,13 @@ namespace k
 			bool mRenderToTexture;
 			unsigned int mRttDimensions[2];
 			kTexture* mRttTarget;
+
+			// Vertex Buffer Object
+			bool mUsingVBO;
+			int mVertexOffset;
+			int mNormalOffset;
+			int mIndexOffset;
+			int mTexCoordOffset[MAX_TEXCOORD];
 
 		public:
 			
@@ -192,7 +220,7 @@ namespace k
 
 			virtual void copyToTexture(kTexture* tex) = 0;
 
-			virtual void clearArrayDesc()
+			virtual void clearArrayDesc(VertexMode drawMode = VERTEXMODE_TRIANGLES)
 			{
 				mVertexCount = 0;
 				mVertexArray = NULL;
@@ -200,9 +228,11 @@ namespace k
 				mVertexStride = 0;
 				mNormalStride = 0;
 
+				mIndexDrawMode = drawMode;
+
 				mNormalArray = NULL;
 
-				for (int i = 0; i < 8; i++)
+				for (int i = 0; i < MAX_TEXCOORD; i++)
 				{
 					mTexCoordArray[i] = NULL;
 					mTexCoordStride[i] = 0;
@@ -210,6 +240,28 @@ namespace k
 
 				mIndexCount = 0;
 				mIndexArray = NULL;
+				mUsingVBO = false;
+			}
+
+			virtual bool setVBO(bool enabled)
+			{
+				mUsingVBO = enabled;
+				if (enabled)
+				{
+					if (getVBOSupport())
+					{
+						mVertexOffset = -1;
+						mNormalOffset = -1;
+						mIndexOffset = -1;
+
+						for (int i = 0; i < MAX_TEXCOORD; i++)
+							mTexCoordOffset[i] = -1;
+					}
+
+					return getVBOSupport();
+				}
+				else
+					return false;
 			}
 
 			virtual void setVertexArray(const vec_t* vertices, unsigned int stride = 0)
@@ -221,6 +273,18 @@ namespace k
 
 				mVertexArray = vertices;
 				mVertexStride = stride;
+			}
+
+			virtual void setVertexArray(const unsigned int vertices, unsigned int stride = 0)
+			{
+				if (mActiveMaterial && mActiveMaterial->getNoDraw())
+					return;
+
+				if (mUsingVBO)
+				{
+					mVertexStride = stride;
+					mVertexOffset = vertices;
+				}
 			}
 
 			virtual void setVertexCount(unsigned int count)
@@ -239,7 +303,7 @@ namespace k
 
 				kAssert(coords);
 
-				if (slot > 8)
+				if (slot > MAX_TEXCOORD)
 				{
 					S_LOG_INFO("Texture coordinate array slot can't be greater than 8, fallbacking to 0.");
 					slot = 0;
@@ -247,6 +311,25 @@ namespace k
 
 				mTexCoordArray[slot] = coords;
 				mTexCoordStride[slot] = stride;
+			}
+
+			virtual void setTexCoordArray(const unsigned int coords, unsigned int stride = 0, int slot = 0)
+			{
+				if (mActiveMaterial && mActiveMaterial->getNoDraw())
+					return;
+
+				// coords is an offset in VBO
+				if (slot > MAX_TEXCOORD)
+				{
+					S_LOG_INFO("Texture coordinate array slot can't be greater than 8, fallbacking to 0.");
+					slot = 0;
+				}
+
+				if (mUsingVBO)
+				{
+					mTexCoordOffset[slot] = coords;
+					mTexCoordStride[slot] = stride;
+				}
 			}
 
 			virtual void setNormalArray(const vec_t* normals, unsigned int stride = 0)
@@ -260,13 +343,34 @@ namespace k
 				mNormalStride = stride;
 			}
 
+			virtual void setNormalArray(const unsigned int normals, unsigned int stride = 0)
+			{
+				if (mActiveMaterial && mActiveMaterial->getNoDraw())
+					return;
+
+				if (mUsingVBO)
+				{
+					mNormalOffset = normals;
+					mNormalStride = stride;
+				}
+			}
+
 			virtual void setVertexIndex(const index_t* indexes)
 			{
 				if (mActiveMaterial && mActiveMaterial->getNoDraw())
 					return;
 
-				assert(indexes != NULL);
+				kAssert(indexes);
 				mIndexArray = indexes;
+			}
+
+			virtual void setVertexIndex(const unsigned int indexes)
+			{
+				if (mActiveMaterial && mActiveMaterial->getNoDraw())
+					return;
+
+				if (mUsingVBO)
+					mIndexOffset = indexes;
 			}
 
 			virtual void setIndexCount(unsigned int count)
@@ -334,6 +438,32 @@ namespace k
 
 			virtual void drawArrays() = 0;
 			virtual void screenshot(const char* filename) = 0;
+
+			/**
+			 * See if the rendersystem supports
+			 * vertex buffer objects.
+			 */
+			virtual bool getVBOSupport() = 0; 
+
+			/**
+			 * Generate a VBO
+			 */
+			virtual void genVBO(kVBO* target) = 0;
+
+			/**
+			 * Bind a VBO to the array type
+			 */
+			virtual void bindVBO(kVBO* target, VBOArrayType type = VBO_ARRAY) = 0;
+
+			/**
+			 * Set memory area for VBO
+			 */
+			virtual void setVBOData(VBOArrayType type, int size, void* data, VBOUsage use) = 0;
+
+			/**
+			 * Remove VBO
+			 */
+			virtual void delVBO(kVBO* target) = 0;
 
 			virtual unsigned int getScreenWidth() = 0;
 			virtual unsigned int getScreenHeight() = 0;

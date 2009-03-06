@@ -16,11 +16,10 @@
 */
 
 #include "bsp46.h"
-#include "logger.h"
 #include "materialManager.h"
 #include "textureManager.h"
-#include "root.h"
 #include "resourceManager.h"
+#include "root.h"
 
 namespace k {
 			
@@ -126,6 +125,14 @@ static inline texture* getNewTexture(const std::string& filename)
 		
 	S_LOG_INFO("Texture " + filename + " not found.");
 	return NULL;
+}
+	
+static inline q3BspPatch* buildBspPatch(vec_t* mControlPoints, int numPoints, int L)
+{
+	vector3* mVertices;
+	index_t* mIndices;
+
+	const int L1 = L + 1;
 }
 
 void q3Bsp::loadQ3Bsp(const std::string& filename)
@@ -267,7 +274,15 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 
 		mFaces[i].patchSize[0] = readLEInt(mFaces[i].patchSize[0]);
 		mFaces[i].patchSize[1] = readLEInt(mFaces[i].patchSize[1]);
+
+		if (mFaces[i].type == FACETYPE_PATCH);
+		{
+			if (mFaces[i].patchSize[0] || mFaces[i].patchSize[1])
+				mPatchesCount += (mFaces[i].patchSize[0] * mFaces[i].patchSize[1]) / 9;
+		}
 	}
+
+	printf("Total number of patches %d\n", mPatchesCount);
 
 	// Allocate Indices 
 	mIndicesCount = readLEInt(bspLumps[LUMP_INDICES].length) / sizeof(int);
@@ -678,8 +693,23 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		}
 	}
 
-	// We are done here
+	// We are done parsing data.
 	fclose(mBspFile);
+
+	// Try to generate the Vertex Buffer Objects
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	if (rs && rs->getVBOSupport())
+	{
+		rs->genVBO(&mVBOVertex);
+		rs->bindVBO(&mVBOVertex, VBO_ARRAY);
+		rs->setVBOData(VBO_ARRAY, mVertexCount * sizeof(q3BspVertex), mVertices, VBO_STATIC_DRAW);
+		rs->bindVBO(0, VBO_ARRAY);
+
+		rs->genVBO(&mVBOIndex);
+		rs->bindVBO(&mVBOIndex, VBO_ELEMENT_ARRAY);
+		rs->setVBOData(VBO_ELEMENT_ARRAY, mIndicesCount * sizeof(index_t), mIndices, VBO_STATIC_DRAW);
+		rs->bindVBO(0, VBO_ARRAY);
+	}
 }
 			
 void q3Bsp::renderFace(int i)
@@ -701,30 +731,71 @@ void q3Bsp::renderFace(int i)
 	if (faceToRender->lmId < 0 && !materialOfFace)
 		return;
 
-	rs->clearArrayDesc();
-	rs->setVertexArray(mVertices[faceToRender->startVertIndex].pos, sizeof(q3BspVertex));
-	rs->setNormalArray(mVertices[faceToRender->startVertIndex].normal, sizeof(q3BspVertex));
-
-	if (materialOfFace)
+	// Test and use VBO
+	if (rs->getVBOSupport())
 	{
-		rs->setTexCoordArray(mVertices[faceToRender->startVertIndex].uv, sizeof(q3BspVertex));
+		const unsigned int vSize = sizeof(q3BspVertex);
+		const unsigned int vStart = faceToRender->startVertIndex * vSize;
+				
+		rs->clearArrayDesc();
 
-		if (mDrawLightmaps && faceToRender->lmId >= 0)
+		rs->setVBO(true);
+		rs->bindVBO(&mVBOVertex, VBO_ARRAY);
+		rs->bindVBO(&mVBOIndex, VBO_ELEMENT_ARRAY);
+
+		rs->setVertexArray(vStart, vSize);
+		rs->setNormalArray(vStart + sizeof(vec_t) * 7, vSize);
+
+		if (materialOfFace)
 		{
-			// Send Lightmap
-			const int stages = materialOfFace->getNumberOfTextureStages();
-			rs->bindTexture(mLightmaps[faceToRender->lmId]->getId(0), stages);
-			rs->setTexEnv("modulate", stages);
-			rs->setTexCoordArray(mVertices[faceToRender->startVertIndex].lmUv, 
-					sizeof(q3BspVertex), stages);
+			rs->setTexCoordArray(vStart + sizeof(vec_t) * 3, vSize);
+			if (mDrawLightmaps && faceToRender->lmId >= 0)
+			{
+				// Send Lightmap
+				const short stages = materialOfFace->getNumberOfTextureStages();
+				rs->bindTexture(mLightmaps[faceToRender->lmId]->getId(0), stages);
+				rs->setTexEnv("modulate", stages);
+				rs->setTexCoordArray(vStart + sizeof(vec_t) * 5, vSize, stages);
+			}
 		}
+
+		rs->setVertexCount(faceToRender->numVertices);
+		rs->setIndexCount(faceToRender->numIndices);
+		rs->setVertexIndex(faceToRender->startIndex * sizeof(index_t));
+
+		rs->drawArrays();
+
+		rs->bindVBO(0, VBO_ARRAY);
+		rs->bindVBO(0, VBO_ELEMENT_ARRAY);
+		rs->setVBO(false);
 	}
+	else
+	{
+		rs->clearArrayDesc();
+		rs->setVertexArray(mVertices[faceToRender->startVertIndex].pos, sizeof(q3BspVertex));
+		rs->setNormalArray(mVertices[faceToRender->startVertIndex].normal, sizeof(q3BspVertex));
 
-	rs->setVertexCount(faceToRender->numVertices);
-	rs->setIndexCount(faceToRender->numIndices);
-	rs->setVertexIndex(&mIndices[faceToRender->startIndex]);
+		if (materialOfFace)
+		{
+			rs->setTexCoordArray(mVertices[faceToRender->startVertIndex].uv, sizeof(q3BspVertex));
 
-	rs->drawArrays();
+			if (mDrawLightmaps && faceToRender->lmId >= 0)
+			{
+				// Send Lightmap
+				const int stages = materialOfFace->getNumberOfTextureStages();
+				rs->bindTexture(mLightmaps[faceToRender->lmId]->getId(0), stages);
+				rs->setTexEnv("modulate", stages);
+				rs->setTexCoordArray(mVertices[faceToRender->startVertIndex].lmUv, 
+						sizeof(q3BspVertex), stages);
+			}
+		}
+
+		rs->setVertexCount(faceToRender->numVertices);
+		rs->setIndexCount(faceToRender->numIndices);
+		rs->setVertexIndex(&mIndices[faceToRender->startIndex]);
+
+		rs->drawArrays();
+	}
 
 	if (materialOfFace)
 		materialOfFace->finish();

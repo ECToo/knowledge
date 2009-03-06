@@ -132,7 +132,7 @@ wiiKTexture* loadTextureJPEG(const std::string& file, unsigned short* w, unsigne
 	free(textureData);
 
 	// New GXTexObj
-	kTexture* newKTexture = (kTexture*) memalign(32, sizeof(kTexture));	
+	kTexture* newKTexture = (kTexture*) malloc(sizeof(kTexture));	
 	if (!newKTexture)
 	{
 		S_LOG_INFO("Failed to allocate GX texture object");
@@ -211,7 +211,7 @@ wiiKTexture* loadTexturePNG(const std::string& file, unsigned short* w, unsigned
 		return NULL;
 	}
 
-	kTexture* newKTexture = (kTexture*) memalign(32, sizeof(kTexture));	
+	kTexture* newKTexture = (kTexture*) malloc(sizeof(kTexture));	
 	if (!newKTexture)
 	{
 		S_LOG_INFO("Failed to allocate GX texture object");
@@ -410,6 +410,109 @@ texture* loadCubemap(const std::string& filename, int wrapBits)
 
 texture* createRawTexture(unsigned char* data, int w, int h, int flags)
 {
+	kAssert(data);
+
+	kTexture* gxImage = (kTexture*) malloc(sizeof(kTexture));
+	if (!gxImage)
+	{
+		S_LOG_INFO("Failed to allocate GXTexObj for texture.");
+		return NULL;
+	}
+
+	char* wiiData = (char*) memalign(32, 4 * w * h);
+	if (!wiiData)
+	{
+		S_LOG_INFO("Failed to allocate aligned memory to raw texture.");
+		free(gxImage);
+
+		return NULL;
+	}
+
+	char* finalWii = wiiData;
+	for (int y = 0; y < height; y += 4)
+	{
+		char* line = &data[y * height * colorSpace];
+		for (int x = 0; x < width; x += 4)
+		{
+			char* color = line + (x * colorSpace);
+			for (int ty = 0; ty < 4; ty++)
+			{
+				for (int tx = 0; tx < 4; tx++)
+				{
+					if ((flags & (1 << FLAG_RGB)) || (flags & (1 << FLAG_RGBA)))
+					{
+						if (flags & (1 << FLAG_RGBA))
+							finalWii[0] = *(color + 3);
+						else
+							finalWii[0] = 0xff;
+
+						finalWii[1] = *color;
+						finalWii[32] = *(color + 1);
+						finalWii[33] = *(color + 2);
+					}
+					else
+					if ((flags & (1 << FLAG_BGR)) || (flags & (1 << FLAG_BGRA)))
+					{
+						if (flags & (1 << FLAG_BGRA))
+							finalWii[0] = *(color + 3);
+						else
+							finalWii[0] = 0xff;
+
+						finalWii[1] = *(color + 2);
+						finalWii[32] = *(color + 1);
+						finalWii[33] = *color;
+					}
+
+
+					finalWii += 2;
+					color += colorSpace;
+				}
+				color += width * colorSpace - 16;
+			}
+			finalWii += 32;
+		}
+	}
+
+	// Wrapping S
+	int wrapS, wrapT;
+	if (flags & (1 << FLAG_CLAMP_EDGE_S))
+		wrapS = GX_CLAMP;
+	else
+	if (flags & (1 << FLAG_CLAMP_S))
+		wrapS = GX_CLAMP;
+	else
+		wrapS = GX_REPEAT;
+
+	// Wrapping T
+	if (flags & (1 << FLAG_CLAMP_EDGE_T))
+		wrapT = GX_CLAMP;
+	else
+	if (flags & (1 << FLAG_CLAMP_T))
+		wrapT = GX_CLAMP;
+	else
+		wrapT = GX_REPEAT;
+
+	GX_InitTexObj(gxImage, wiiData, w, h, GX_TF_RGBA8, wrapS, wrapT, GX_FALSE);
+	GX_InitTexObjLOD(gxImage, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
+
+	// Syncronization
+	GX_InvalidateTexAll();
+
+	texture* newTexture = new texture;
+	if (!newTexture)
+	{
+		S_LOG_INFO("Failed to allocate new texture.");
+		free(gxImage);
+
+		return NULL;
+	}
+
+	resourceManager::getSingleton().addMemoryUse(4 * w * h);
+
+	newTexture->push(gxImage, w, h);
+	newTexture->push(wiiData);
+
+	return newTexture;
 }
 
 }

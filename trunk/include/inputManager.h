@@ -52,6 +52,7 @@ namespace k
 			 */
 			Uint8 mSDLMouseSnapshot;
 			vector2 mLastMousePos;
+			vector2 mLastMouseMotion;
 
 			/**
 			 * If quit event was triggered
@@ -121,6 +122,11 @@ namespace k
 			 * @num The wiimote channel to query.
 			 */
 			vector2 getWiiMotePosition(unsigned char num);
+
+			/**
+			 * Returns wiimote / mouse motion
+			 */
+			vector2 getWiiMoteMotion(unsigned char num);
 
 			/**
 			 * Tells if a key is down
