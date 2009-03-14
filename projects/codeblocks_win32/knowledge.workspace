@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="Workspace">
-		<Project filename="knowledge.cbp" />
+		<Project filename="knowledge.cbp" active="1" />
 		<Project filename="demo_model\demo_model.cbp" />
 		<Project filename="demo_physics\demo_physics.cbp" />
 		<Project filename="demo_lightmap\demo_lightmap.cbp" />
 		<Project filename="demo_particles\demo_particles.cbp" />
-		<Project filename="demo_texture\demo_texture.cbp" active="1" />
+		<Project filename="demo_texture\demo_texture.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

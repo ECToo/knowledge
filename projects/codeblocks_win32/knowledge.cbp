@@ -133,7 +133,6 @@
 		<Unit filename="..\..\src\sticker.cpp" />
 		<Unit filename="..\..\src\tev.cpp" />
 		<Unit filename="..\..\src\texture.cpp" />
-		<Unit filename="..\..\src\textureLib.cpp" />
 		<Unit filename="..\..\src\textureManager.cpp" />
 		<Unit filename="..\..\src\timer.cpp" />
 		<Unit filename="..\..\src\vector3.cpp" />
