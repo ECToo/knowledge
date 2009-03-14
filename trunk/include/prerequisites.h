@@ -37,8 +37,10 @@
 #include <malloc.h>
 #endif
 
+#ifndef WIN32
 #include "config.h"
-		
+#endif
+
 #define DLL_EXPORT
 
 #ifndef ATTRIBUTE_ALIGN
@@ -82,6 +84,7 @@
 	#ifdef WIN32
 		#include <windows.h>
 		#define DLL_EXPORT __declspec(dllexport)
+		#define memalign __mingw_aligned_malloc
 	#endif
 
 	// OpenGL
@@ -94,7 +97,7 @@
 
 	// SDL
 	#include "SDL.h"
-	
+
 	// posix threads
 	#include <pthread.h>
 
@@ -130,7 +133,7 @@
 	typedef pthread_mutex_t kmutex;
 
 	#define _break(); ""
-	#define MAT_ROW_MAJOR 
+	#define MAT_ROW_MAJOR
 
 #else
 
@@ -143,7 +146,7 @@
 	typedef lwp_t kthread;
 	typedef mutex_t kmutex;
 
-	#define MAT_COLUMN_MAJOR 
+	#define MAT_COLUMN_MAJOR
 
 #endif
 
