@@ -128,7 +128,7 @@ void material::setCullMode(CullMode cull)
 	mCull = cull;
 }
 			
-unsigned int material::getNumberOfTextureStages()
+unsigned int material::getNumberOfTextureStages() const
 {
 	return mTextures.size();
 }

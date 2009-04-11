@@ -38,7 +38,8 @@ physicsManager::physicsManager(vec_t stepsize, stepType_t steptype)
 	mStepSize = stepsize;
 	mStepType = steptype;
 
-	dInitODE2(0);
+	dInitODE();
+	// dInitODE2(0);
 
 	// Set Default World and Space
 	setWorld("default");

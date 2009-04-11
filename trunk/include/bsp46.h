@@ -175,11 +175,111 @@ namespace k
 		unsigned char* bitSet;
 	} q3BspVis;
 
-	typedef struct
+	/**
+	 * This will be separated later
+	 */
+	class DLL_EXPORT bezierPatch
 	{
-		index_t** mIndices;
-		int* mTrianglesPerRow;
-	} q3BspPatch;
+		private:
+			/**
+			 * Final Vertices for bezier patch.
+			 */
+			q3BspVertex* mVertices;
+			
+			/**
+			 * Control points that defines the patch.
+			 */
+			q3BspVertex mControlPoints[9];
+
+			/**
+			 * Indices for drawing.
+			 */
+			index_t* mIndices;
+			index_t* mTrianglesPerRow;
+			index_t** mRowIndices;
+
+			unsigned int mSteps; // precision of the patch subdivisions
+			unsigned int mNumOfVertices;
+			unsigned int mNumOfIndices;
+			unsigned int mCurrCP; // the control point we are on the array
+
+		public:
+			bezierPatch();
+			~bezierPatch();
+
+			/**
+			 * Set the number of steps wich is
+			 * exactly the number of vertices
+			 * in each direction of the patch plane.
+			 */
+			void configure(unsigned int steps);
+			void pushCP(q3BspVertex* cp);
+
+			/**
+			 * Compile final vertices, from control points.
+			 */
+			void compile();
+
+			/**
+			 * Return number of vertices on this patch. This
+			 * number is equal of the number of control patches - 1 / 2 * steps
+			 */
+			const unsigned int getVertexCount() const;
+
+			/**
+			 * Return the number of indices in the
+			 * row.
+			 */
+			const unsigned int getRowIndicesCount(const short i) const;
+
+			/**
+			 * Return a row of indices.
+			 */
+			const index_t* getIndices(const short i) const;
+
+			/**
+			 * Return patch vertices
+			 */
+			const q3BspVertex* getVertices() const;
+
+			/**
+			 * Get patch level
+			 */
+			const unsigned int getLevel() const
+			{ return mSteps; }
+	};
+
+	class DLL_EXPORT bezierPatchSet
+	{
+		private:
+			bezierPatch** mPatches;
+			unsigned int mPatchNum;
+			unsigned int mPatchIndex;
+
+		public:
+			bezierPatchSet()
+			{
+				mPatches = NULL;
+				mPatchIndex = mPatchNum = 0;
+			}
+
+			~bezierPatchSet()
+			{
+				for (unsigned int i = 0; i < mPatchNum; i++)
+				{
+					if (mPatches[i])
+						free(mPatches[i]);
+				}
+
+				free(mPatches);
+			}
+
+			const bezierPatch* getPatch(const short i) const;
+			const unsigned int getPatchesCount() const;
+
+			void configure(const short i);
+			void pushPatch(bezierPatch* patch);
+	};
 
 	class DLL_EXPORT q3BitSet
 	{
@@ -205,7 +305,7 @@ namespace k
 			void set(int i);
 			void unSet(int i);
 
-			bool isSet(int i);
+			bool isSet(int i) const;
 			void clear();
 	};
 
@@ -224,7 +324,6 @@ namespace k
 			int mPlanesCount;
 
 			int mPatchesCount;
-			int mPatchLevel;
 
 			index_t* mIndices;
 			q3BspVertex* mVertices;
@@ -233,6 +332,11 @@ namespace k
 			q3BspLeaf* mLeafs;
 			q3BspPlane* mPlanes;
 			int* mLeafFaces;
+
+			/**
+			 * Array of bezier patches
+			 */
+			bezierPatchSet* mPatches;
 
 			q3BspVis mBspVisData;
 
@@ -264,6 +368,8 @@ namespace k
 			 */
 			kVBO mVBOVertex;
 			kVBO mVBOIndex;
+			
+			void _clean();
 
 		public:
 			q3Bsp()
@@ -278,8 +384,6 @@ namespace k
 				mPlanesCount = 0;
 
 				mPatchesCount = 0;
-				mPatchLevel = 6;
-
 				mMaterials = NULL;
 
 				mIndices = NULL;
@@ -290,6 +394,7 @@ namespace k
 				mLeafs = NULL;
 				mLeafFaces = NULL;
 				mPlanes = NULL;
+				mPatches = NULL;
 
 				mBspVisData.numOfVis = 0;
 				mBspVisData.bytesPerVis = 0;
@@ -304,29 +409,7 @@ namespace k
 
 			~q3Bsp()
 			{
-				if (mIndices)
-					free(mIndices);
-
-				if (mVertices)
-					free(mVertices);
-
-				if (mFaces)
-					free(mFaces);
-
-				if (mNodes)
-					free(mNodes);
-
-				if (mLeafs)
-					free(mLeafs);
-
-				if (mPlanes)
-					free(mPlanes);
-
-				if (mLeafFaces)
-					free(mLeafFaces);
-
-				if (mBspVisData.bitSet)
-					free(mBspVisData.bitSet);
+				_clean();
 			}
 
 			void setLightmapsDrawing(bool lm)
@@ -339,17 +422,24 @@ namespace k
 				return mDrawLightmaps;
 			}
 
-			void setPatchLevel(int lvl)
-			{
-				kAssert(lvl);
-				mPatchLevel = lvl;
-			}
-
-			bool isClusterVisible(int curr, int targ);
+			bool isClusterVisible(int curr, int targ) const;
 			int findLeaf(const vector3& viewerPos);
 
 			void loadQ3Bsp(const std::string& filename);
+
+			/**
+			 * Render a single BSP face
+			 */
 			void renderFace(int i);
+
+			/**
+			 * Render a bsp patch
+			 */
+			void renderPatch(int i);
+
+			/**
+			 * Draw world.
+			 */
 			void draw(const camera* viewer);
 	};
 }

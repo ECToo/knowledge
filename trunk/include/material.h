@@ -64,7 +64,7 @@ namespace k
 			void setSingleTexture(texture* tex);
 			void pushTexture(textureStage* tex);
 
-			unsigned int getNumberOfTextureStages();
+			unsigned int getNumberOfTextureStages() const;
 			textureStage* getTextureStage(unsigned short index);
 
 			bool containsTexture(const std::string& name);
