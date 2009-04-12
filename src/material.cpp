@@ -39,9 +39,16 @@ void material::prepare()
 		return;
 
 	rs->bindMaterial(this);
-	rs->matAmbient(mAmbient);
-	rs->matDiffuse(mDiffuse);
-	rs->matSpecular(mSpecular);
+
+	if (mAmbient != k::vector3::zero)
+		rs->matAmbient(mAmbient);
+
+	if (mDiffuse != k::vector3::zero)
+		rs->matDiffuse(mDiffuse);
+
+	if (mSpecular != k::vector3::zero)
+		rs->matSpecular(mSpecular);
+
 	rs->setCulling(mCull);
 
 	if (!mDepthTest)

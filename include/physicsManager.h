@@ -15,6 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef __WII__
+
 #ifndef _PHYSICS_MANAGER_H_
 #define _PHYSICS_MANAGER_H_
 
@@ -347,3 +349,4 @@ namespace k
 
 #endif
 
+#endif // wii

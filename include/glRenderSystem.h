@@ -63,6 +63,7 @@ namespace k
 			void identityMatrix();
 
 			void setTexEnv(const std::string& baseEnv, int stage);
+			void setTexEnv(texEnvMode mode, int stage);
 			void setTextureUnits(int i) {}
 			void setTextureGenerations(int i) {}
 			void setColorChannels(int i) {}

@@ -262,7 +262,14 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 	unsigned int openBraces = 1;
 
 	file->skipNextToken(); // { 
-	textureStage* activeTexture = NULL;
+
+	// Start texture stage
+	textureStage* activeTexture = textureManager::getSingleton().createStage(index);
+	if (!activeTexture)
+		return;
+
+	// insert into material
+	mat->pushTexture(activeTexture);
 
 	while (openBraces)
 	{
@@ -272,152 +279,94 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 		if (token == "filename")
 		{
 			token = file->getNextToken();
-			activeTexture = textureManager::getSingleton().createTexture(token, index);
-			if (!activeTexture)
-			{
-				S_LOG_INFO("Failed to allocate material texture " + token);
-			}
-			else
-			{
-				mat->pushTexture(activeTexture);
-			}
+			textureManager::getSingleton().setStageTexture(activeTexture, token);
 		}
 		else
 		if (token == "cubename")
 		{
 			token = file->getNextToken();
-			activeTexture = textureManager::getSingleton().createCubicTexture(token, index, FLAG_CLAMP_EDGE_S | FLAG_CLAMP_EDGE_T);
-			if (!activeTexture)
-			{
-				S_LOG_INFO("Failed to allocate material cubic texture " + token);
-			}
-			else
-			{
-				mat->pushTexture(activeTexture);
-			}
+			textureManager::getSingleton().setStageCubicTexture(activeTexture, token, FLAG_CLAMP_EDGE_S | FLAG_CLAMP_EDGE_T);
 		}
 		else
 		if (token == "program")
 		{
 			token = file->getNextToken();
-			if (!activeTexture)
-			{
-				S_LOG_INFO("Error in parsing material texture: You must define first the texture filename");
-			}
-			else
-			{
-				activeTexture->setProgram(token);
-			}
+			activeTexture->setProgram(token);
 		}
 		else
 		if (token == "scale")
 		{
-			if (activeTexture)
-			{
-				vector2 scale;
-				token = file->getNextToken();
-				scale.x = atof(token.c_str());
-				token = file->getNextToken();
-				scale.y = atof(token.c_str());
+			vector2 scale;
+			token = file->getNextToken();
+			scale.x = atof(token.c_str());
+			token = file->getNextToken();
+			scale.y = atof(token.c_str());
 				
-				activeTexture->setScale(scale);
-			}
-			else
-			{
-				S_LOG_INFO("Error in parsing material texture: You must define first the texture filename");
-			}
+			activeTexture->setScale(scale);
 		}
 		else
 		if (token == "scroll")
 		{
-			if (activeTexture)
-			{
-				vector2 scroll;
-				token = file->getNextToken();
-				scroll.x = atof(token.c_str());
-				token = file->getNextToken();
-				scroll.y = atof(token.c_str());
+			vector2 scroll;
+			token = file->getNextToken();
+			scroll.x = atof(token.c_str());
+			token = file->getNextToken();
+			scroll.y = atof(token.c_str());
 				
-				activeTexture->setScroll(scroll);
-			}
-			else
-			{
-				S_LOG_INFO("Error in parsing material texture: You must define first the texture filename");
-			}
+			activeTexture->setScroll(scroll);
 		}
 		else
 		if (token == "rotate")
 		{
-			if (activeTexture)
-			{
-				vec_t angle;
-				token = file->getNextToken();
-				angle = atof(token.c_str());
+			vec_t angle;
+			token = file->getNextToken();
+			angle = atof(token.c_str());
 
-				activeTexture->setRotate(angle);
-			}
-			else
-			{
-				S_LOG_INFO("Error in parsing material texture: You must define first the texture filename");
-			}
+			activeTexture->setRotate(angle);
 		}
 		else
 		if (token == "texcoord")
 		{
-			if (activeTexture)
-			{
-				token = file->getNextToken();
+			token = file->getNextToken();
 
-				texCoordType type = TEXCOORD_NONE;
-				if (token == "uv")
-					type = TEXCOORD_UV;
-				else
-				if (token == "pos")
-					type = TEXCOORD_POS;
-				else
-				if (token == "sphere")
-					type = TEXCOORD_SPHERE;
-				else
-				if (token == "cubemap")
-					type = TEXCOORD_CUBEMAP;
-				else
-				if (token == "eyeLinear")
-					type = TEXCOORD_EYE_LINEAR;
-				else
-				if (token == "normal")
-					type = TEXCOORD_NORMAL;
-				else
-				if (token == "binormal")
-					type = TEXCOORD_BINORMAL;
-				else
-				if (token == "tangent")
-					type = TEXCOORD_TANGENT;
-
-				activeTexture->setTexCoordType(type);
-			}
+			texCoordType type = TEXCOORD_NONE;
+			if (token == "uv")
+				type = TEXCOORD_UV;
 			else
-			{
-				S_LOG_INFO("Error in parsing material texture: You must define first the texture filename");
-			}
+			if (token == "pos")
+				type = TEXCOORD_POS;
+			else
+			if (token == "sphere")
+				type = TEXCOORD_SPHERE;
+			else
+			if (token == "cubemap")
+				type = TEXCOORD_CUBEMAP;
+			else
+			if (token == "eyeLinear")
+				type = TEXCOORD_EYE_LINEAR;
+			else
+			if (token == "normal")
+				type = TEXCOORD_NORMAL;
+			else
+			if (token == "binormal")
+				type = TEXCOORD_BINORMAL;
+			else
+			if (token == "tangent")
+				type = TEXCOORD_TANGENT;
+
+			activeTexture->setTexCoordType(type);
 		}
 		else
 		if (token == "blendfunc")
 		{
-			if (activeTexture)
-			{
-				unsigned short src = 0, dst = 0;
+			unsigned short src = 0, dst = 0;
 
-				token = file->getNextToken();
-				src = getBlendMode(token);
-				token = file->getNextToken();
-				dst = getBlendMode(token);
+			token = file->getNextToken();
+			src = getBlendMode(token);
+			token = file->getNextToken();
+			dst = getBlendMode(token);
 
-				activeTexture->setBlendMode(src, dst);
-			}
-			else
-			{
-				S_LOG_INFO("Error in parsing material texture: You must define first the texture filename");
-			}
+			activeTexture->setBlendMode(src, dst);
 		}
 
 		token = file->getNextToken();
@@ -616,7 +565,13 @@ void materialManager::parseQ3TextureSection(material* mat, parsingFile* file, un
 	std::string token;
 	unsigned int openBraces = 1;
 
-	textureStage* activeTexture = NULL;
+	textureStage* activeTexture = textureManager::getSingleton().createStage(index);
+	if (!activeTexture)
+		return;
+
+	// insert into material
+	mat->pushTexture(activeTexture);
+
 	while (openBraces)
 	{
 		if (file->eof())
@@ -625,29 +580,13 @@ void materialManager::parseQ3TextureSection(material* mat, parsingFile* file, un
 		if (token == "map")
 		{
 			token = file->getNextToken();
-			activeTexture = textureManager::getSingleton().createTexture(token, index, FLAG_REPEAT_S | FLAG_REPEAT_T | FLAG_REPEAT_R);
-			if (!activeTexture)
-			{
-				S_LOG_INFO("Failed to allocate material texture " + token);
-			}
-			else
-			{
-				mat->pushTexture(activeTexture);
-			}
+			textureManager::getSingleton().setStageTexture(activeTexture, token, FLAG_REPEAT_S | FLAG_REPEAT_T | FLAG_REPEAT_R);
 		}
 		else
 		if (token == "clampmap")
 		{
 			token = file->getNextToken();
-			activeTexture = textureManager::getSingleton().createTexture(token, index);
-			if (!activeTexture)
-			{
-				S_LOG_INFO("Failed to allocate material texture " + token);
-			}
-			else
-			{
-				mat->pushTexture(activeTexture);
-			}
+			textureManager::getSingleton().setStageTexture(activeTexture, token);
 		}
 		else
 		if (token == "tcMod")
@@ -683,10 +622,6 @@ void materialManager::parseQ3TextureSection(material* mat, parsingFile* file, un
 
 				activeTexture->setRotate(angle);
 			}
-			else
-			{
-				S_LOG_INFO("Error in parsing material texture: You must define first the texture filename");
-			}
 		}
 		else
 		if (token == "blendfunc")
@@ -716,10 +651,6 @@ void materialManager::parseQ3TextureSection(material* mat, parsingFile* file, un
 				dst = getBlendMode(translateQ3Blend(token));
 
 				activeTexture->setBlendMode(src, dst);
-			}
-			else
-			{
-				S_LOG_INFO("Error in parsing material texture: You must define first the texture filename");
 			}
 		}
 

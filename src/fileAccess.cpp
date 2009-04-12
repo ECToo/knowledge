@@ -53,10 +53,25 @@ parsingFile::parsingFile(const std::string& filename)
 		index = 0;
 	}
 }
+		
+parsingFile::parsingFile(char* str)
+{
+	if (!str)
+	{
+		S_LOG_INFO("Invalid pointer to string in file");
+		return;
+	}
+
+	mFilename = "__FromString__";
+
+	string = str;
+	feof = strlen(str);
+	index = 0;
+}
 
 parsingFile::~parsingFile()
 {
-	if (string)
+	if (string && mFilename != "__FromString__")
 		delete [] string;
 }
 

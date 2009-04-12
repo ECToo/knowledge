@@ -136,10 +136,7 @@ unsigned short textureStage::getImagesCount()
 	if (mTexture)
 		return mTexture->getSize();
 	else
-	{
-		S_LOG_INFO("Texture pointer not defined.");
 		return 0;
-	}
 }
 
 unsigned short textureStage::getWidth()
@@ -147,10 +144,7 @@ unsigned short textureStage::getWidth()
 	if (mTexture)
 		return mTexture->getWidth();
 	else
-	{
-		S_LOG_INFO("Texture pointer not defined.");
 		return 0;
-	}
 }
 
 unsigned short textureStage::getHeight()
@@ -158,10 +152,7 @@ unsigned short textureStage::getHeight()
 	if (mTexture)
 		return mTexture->getHeight();
 	else
-	{
-		S_LOG_INFO("Texture pointer not defined.");
 		return 0;
-	}
 }
 			
 kTexture* textureStage::getTexture(int i)
@@ -169,10 +160,7 @@ kTexture* textureStage::getTexture(int i)
 	if (mTexture)
 		return mTexture->getId(i);
 	else
-	{
-		S_LOG_INFO("Texture pointer not defined.");
 		return NULL;
-	}
 }
 
 void textureStage::setProgram(const std::string& name)
@@ -210,10 +198,7 @@ bool textureStage::containsTexture(const std::string& name)
 	if (mTexture)
 		return mTexture->containsFilename(name);
 	else
-	{
-		S_LOG_INFO("Texture pointer not defined.");
 		return false;
-	}
 }
 			
 }

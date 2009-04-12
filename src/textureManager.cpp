@@ -208,6 +208,84 @@ textureStage* textureManager::createTexture(const std::string& filename, unsigne
 	newStage->setTexture(rawTex);
 	return newStage;
 }
+			
+textureStage* textureManager::createStage(unsigned short index)
+{
+	platTextureStage* newStage = new platTextureStage(index);
+	if (!newStage)
+	{
+		S_LOG_INFO("Failed to allocate texture stage.");
+		return NULL;
+	}
+
+	return newStage;
+}
+
+void textureManager::setStageTexture(textureStage* newStage, const std::string& filename, int wrapBits)
+{
+	if (!newStage)
+	{
+		S_LOG_INFO("Invalid pointer to textureStage.");
+		return;
+	}
+
+	std::string fullPath = filename;
+
+	// Get Path from resource manager (if any)
+	resourceManager* rsc = &resourceManager::getSingleton();
+	if (rsc)
+	{
+		fullPath = rsc->getRoot() + filename;
+	}
+
+	texture* rawTex = getTexture(fullPath);
+	if (!rawTex)
+	{
+		rawTex = loadTexture(fullPath, wrapBits);
+		if (!rawTex)
+		{
+			S_LOG_INFO("Failed to allocate texture " + fullPath);
+			return;
+		}
+
+		mTextures.push_back(rawTex);
+	}
+
+	newStage->setTexture(rawTex);
+}
+
+void textureManager::setStageCubicTexture(textureStage* newStage, const std::string& filename, int wrapBits)
+{
+	if (!newStage)
+	{
+		S_LOG_INFO("Invalid pointer to textureStage.");
+		return;
+	}
+
+	std::string fullPath = filename;
+
+	// Get Path from resource manager (if any)
+	resourceManager* rsc = &resourceManager::getSingleton();
+	if (rsc)
+	{
+		fullPath = rsc->getRoot() + filename;
+	}
+
+	texture* rawTex = getTexture(fullPath);
+	if (!rawTex)
+	{
+		rawTex = loadCubemap(fullPath, wrapBits);
+		if (!rawTex)
+		{
+			S_LOG_INFO("Failed to allocate cubemap texture " + fullPath);
+			return;
+		}
+
+		mTextures.push_back(rawTex);
+	}
+
+	newStage->setTexture(rawTex);
+}
 
 }
 

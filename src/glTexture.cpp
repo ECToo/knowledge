@@ -29,6 +29,9 @@ glTexture::glTexture(unsigned short index) : textureStage(index)
 
 void glTexture::draw()
 {
+	if (!mTexture)
+		return;
+
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	kAssert(rs != NULL);
 
@@ -113,6 +116,9 @@ void glTexture::draw()
 
 void glTexture::finish()
 {
+	if (!mTexture)
+		return;
+
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	kAssert(rs != NULL);
 

@@ -408,9 +408,12 @@ texture* loadCubemap(const std::string& filename, int wrapBits)
 	return newTexture;
 }
 
-texture* createRawTexture(unsigned char* data, int w, int h, int flags)
+texture* createRawTexture(unsigned char* data, int width, int height, int flags)
 {
 	kAssert(data);
+
+	// RGBA
+	const unsigned int colorSpace = 4;
 
 	kTexture* gxImage = (kTexture*) malloc(sizeof(kTexture));
 	if (!gxImage)
@@ -419,7 +422,7 @@ texture* createRawTexture(unsigned char* data, int w, int h, int flags)
 		return NULL;
 	}
 
-	char* wiiData = (char*) memalign(32, 4 * w * h);
+	char* wiiData = (char*) memalign(32, 4 * width * height);
 	if (!wiiData)
 	{
 		S_LOG_INFO("Failed to allocate aligned memory to raw texture.");
@@ -431,7 +434,7 @@ texture* createRawTexture(unsigned char* data, int w, int h, int flags)
 	char* finalWii = wiiData;
 	for (int y = 0; y < height; y += 4)
 	{
-		char* line = &data[y * height * colorSpace];
+		char* line = (char*)&data[y * height * colorSpace];
 		for (int x = 0; x < width; x += 4)
 		{
 			char* color = line + (x * colorSpace);
@@ -492,7 +495,7 @@ texture* createRawTexture(unsigned char* data, int w, int h, int flags)
 	else
 		wrapT = GX_REPEAT;
 
-	GX_InitTexObj(gxImage, wiiData, w, h, GX_TF_RGBA8, wrapS, wrapT, GX_FALSE);
+	GX_InitTexObj(gxImage, wiiData, width, height, GX_TF_RGBA8, wrapS, wrapT, GX_FALSE);
 	GX_InitTexObjLOD(gxImage, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
 
 	// Syncronization
@@ -507,9 +510,9 @@ texture* createRawTexture(unsigned char* data, int w, int h, int flags)
 		return NULL;
 	}
 
-	resourceManager::getSingleton().addMemoryUse(4 * w * h);
+	resourceManager::getSingleton().addMemoryUse(4 * width * height);
 
-	newTexture->push(gxImage, w, h);
+	newTexture->push(gxImage, width, height);
 	newTexture->push(wiiData);
 
 	return newTexture;

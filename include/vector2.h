@@ -65,6 +65,18 @@ namespace k
 				y = yy;
 			}
 
+			/**
+			 * Creates a vector from a formated string,
+			 * where values are separated by white space.
+			 */
+			vector2(const std::string& str)
+			{
+				x = y = 0;
+
+				if (str.length())
+					sscanf(str.c_str(), "%f %f", &x, &y);
+			}
+
 			vector2 reflect(const vector2& normal)
 			{
 				vector2 out;

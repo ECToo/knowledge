@@ -32,6 +32,7 @@
 #include "world.h"
 #include "camera.h"
 #include "logger.h"
+#include "fileAccess.h"
 
 namespace k
 {
@@ -309,6 +310,35 @@ namespace k
 			void clear();
 	};
 
+	class DLL_EXPORT q3Entity
+	{
+		private:
+			std::map<std::string, std::string> mKeys;
+
+		public:
+
+			void printKeys() const
+			{
+				std::map<std::string, std::string>::const_iterator it;
+				for (it = mKeys.begin(); it != mKeys.end(); it++)
+					S_LOG_INFO("Key: " + it->first + " -> " + it->second);
+			}
+
+			void pushKey(std::string name, std::string value)
+			{
+				mKeys[name] = value;
+			}
+
+			std::string getValue(std::string name) const
+			{
+				std::map<std::string, std::string>::const_iterator it = mKeys.find(name);
+				if (it != mKeys.end())
+					return it->second;
+				else
+					return std::string("null");
+			}
+	};
+
 	class DLL_EXPORT q3Bsp : public world
 	{
 		private:
@@ -322,7 +352,6 @@ namespace k
 			int mLeafsCount;
 			int mLeafFacesCount;
 			int mPlanesCount;
-
 			int mPatchesCount;
 
 			index_t* mIndices;
@@ -332,6 +361,11 @@ namespace k
 			q3BspLeaf* mLeafs;
 			q3BspPlane* mPlanes;
 			int* mLeafFaces;
+
+			/**
+			 * Game entities
+			 */
+			std::list<q3Entity> mEntities;
 
 			/**
 			 * Array of bezier patches
@@ -369,7 +403,20 @@ namespace k
 			kVBO mVBOVertex;
 			kVBO mVBOIndex;
 			
+			/**
+			 * Free allocated memory
+			 */
 			void _clean();
+
+			/**
+			 * Parse a single entity
+			 */
+			void _parseEntity(parsingFile& file);
+
+			/**
+			 * Parse entities string
+			 */
+			void _parseEntities(char* str);
 
 		public:
 			q3Bsp()
@@ -417,13 +464,18 @@ namespace k
 				mDrawLightmaps = lm;
 			}
 
-			bool isDrawingLightmaps()
+			bool isDrawingLightmaps() const
 			{
 				return mDrawLightmaps;
 			}
+			
+			const std::list<q3Entity>& getEntities() const
+			{
+				return mEntities;
+			}
 
 			bool isClusterVisible(int curr, int targ) const;
-			int findLeaf(const vector3& viewerPos);
+			int findLeaf(const vector3& viewerPos) const;
 
 			void loadQ3Bsp(const std::string& filename);
 

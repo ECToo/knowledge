@@ -33,6 +33,8 @@ class DLL_EXPORT parsingFile
 	
 	public:
 		parsingFile(const std::string& filename);
+		parsingFile(char* string);
+
 		~parsingFile();
 
 		bool eof();

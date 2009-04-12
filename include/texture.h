@@ -164,7 +164,6 @@ namespace k
 			 * Unset texture set params.
 			 */
 			virtual void finish() = 0;
-
 	};
 
 	#ifdef __WII__
