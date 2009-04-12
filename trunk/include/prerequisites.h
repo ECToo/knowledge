@@ -38,7 +38,9 @@
 #endif
 
 #ifndef WIN32
+#ifndef __WII__
 #include "config.h"
+#endif
 #endif
 
 #define DLL_EXPORT

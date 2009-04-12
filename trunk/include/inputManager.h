@@ -41,6 +41,13 @@ namespace k
 
 			u32 mWiiMoteHeld[4];
 			WPADData* mWiiData[4];
+
+			/**
+			 * How much the pointer "walked" since
+			 * last feed.
+			 */
+			vector2 mLastMouseMotion[4];
+
 			#else
 			/**
 			 * A keyboard snapshot saved from each frame.
@@ -52,6 +59,11 @@ namespace k
 			 */
 			Uint8 mSDLMouseSnapshot;
 			vector2 mLastMousePos;
+
+			/**
+			 * How much the mouse "walked" since
+			 * last feed.
+			 */
 			vector2 mLastMouseMotion;
 
 			/**

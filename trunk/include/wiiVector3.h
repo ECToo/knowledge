@@ -58,6 +58,18 @@ namespace k
 				z = zz;
 			}
 
+			/**
+			 * Creates a vector from a formated string,
+			 * where values are separated by white space.
+			 */
+			vector3(const std::string& str, const std::string& del = " ")
+			{
+				x = y = z = 0;
+
+				if (str.length())
+					sscanf(str.c_str(), "%f %f %f", &x, &y, &z);
+			}
+
 			vector3 reflect(const vector3& normal)
 			{
 				vector3 out;

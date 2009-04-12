@@ -66,6 +66,7 @@ int main(int argc, char** argv)
 
 	k::q3Bsp testeBsp;
 	testeBsp.loadQ3Bsp("tc_closecombat.bsp");
+	// testeBsp.loadQ3Bsp("q3dm1.bsp");
 
 	mRenderer->setWorld(&testeBsp);
 
@@ -82,6 +83,29 @@ int main(int argc, char** argv)
 	newCamera->setPosition(k::vector3(0, 0, 0));
 	newCamera->lookAt(k::vector3(0, 0, -1));
 	mRenderer->setCamera(newCamera);
+
+	// Find a random spawn point on the map
+	std::vector<k::vector3> spawnPoints;
+
+	const std::list<k::q3Entity> mapEntities = testeBsp.getEntities();
+	std::list<k::q3Entity>::const_iterator it = mapEntities.begin();
+	for (; it != mapEntities.end(); it++)
+	{
+		if ((*it).getValue("classname") == std::string("info_player_deathmatch"))
+		{
+			float temp;
+			k::vector3 origin((*it).getValue("origin"));
+			temp = -origin.y;
+			origin.y = origin.z;
+			origin.z = temp;
+
+			spawnPoints.push_back(origin);
+		}
+	}
+
+	srand(time(NULL));
+	unsigned int choosen = rand() % spawnPoints.size();
+	newCamera->setPosition(spawnPoints[choosen]);
 
 	// Fps Counter
 	k::bitmapText* fpsText = new k::bitmapText("fonts/cube_14.dat", "cube_14");

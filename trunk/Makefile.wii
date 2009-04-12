@@ -113,7 +113,7 @@ run:
 
 #---------------------------------------------------------------------------------
 install:
-	cp $(CURDIR)/build/libknowledge.a $(DEVKITPPC)/lib/wii/libknowledge.a
+	cp $(CURDIR)/build/libknowledge.a $(DEVKITPPC)/libogc/lib/wii/libknowledge.a
 
 #---------------------------------------------------------------------------------
 else

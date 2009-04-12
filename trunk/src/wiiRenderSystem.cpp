@@ -1113,6 +1113,30 @@ void wiiRenderSystem::copyToTexture(kTexture* tex)
 	copyBufferToTexture();
 }
 			
+void wiiRenderSystem::setTexEnv(texEnvMode mode, int stage)
+{
+	unsigned int mod = GX_REPLACE;
+
+	switch (mode)
+	{
+		case TEX_ENV_BLEND:
+			mod = GX_BLEND;
+			break;
+		case TEX_ENV_ADD:
+			break;
+		case TEX_ENV_DECAL:
+			mod = GX_DECAL;
+			break;
+		case TEX_ENV_MODULATE:
+			mod = GX_MODULATE;
+			break;
+		case TEX_ENV_REPLACE:
+			break;
+	}
+
+	GX_SetTevOp(GX_TEVSTAGE0 + stage, mod);
+}
+
 void wiiRenderSystem::setTexEnv(const std::string& baseEnv, int stage)
 {
 	unsigned int mod = GX_REPLACE;

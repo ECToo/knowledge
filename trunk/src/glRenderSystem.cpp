@@ -48,6 +48,31 @@ void glRenderSystem::setWireFrame(bool wire)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 			
+void glRenderSystem::setTexEnv(texEnvMode mode, int stage)
+{
+	GLuint mod = GL_REPLACE;
+
+	switch (mode)
+	{
+		case TEX_ENV_BLEND:
+			mod = GL_BLEND;
+			break;
+		case TEX_ENV_ADD:
+			mod = GL_ADD;
+			break;
+		case TEX_ENV_DECAL:
+			mod = GL_DECAL;
+			break;
+		case TEX_ENV_MODULATE:
+			mod = GL_MODULATE;
+			break;
+		case TEX_ENV_REPLACE:
+			break;
+	}
+
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, mod);
+}
+			
 void glRenderSystem::setTexEnv(const std::string& baseEnv, int stage) 
 {
 	GLuint mod = GL_REPLACE;
@@ -506,7 +531,10 @@ void glRenderSystem::drawArrays()
 		if (mUsingVBO)
 			glNormalPointer(GL_FLOAT, mNormalStride, (char*)NULL + mNormalOffset);
 		else
+		{
+			kAssert(mNormalArray);
 			glNormalPointer(GL_FLOAT, mNormalStride, mNormalArray);
+		}
 	}
 	else
 	{
@@ -534,7 +562,10 @@ void glRenderSystem::drawArrays()
 			if (mUsingVBO)
 				glTexCoordPointer(2, GL_FLOAT, mTexCoordStride[i], (char*)NULL + mTexCoordOffset[i]);
 			else
+			{
+				kAssert(mTexCoordArray[i]);
 				glTexCoordPointer(2, GL_FLOAT, mTexCoordStride[i], mTexCoordArray[i]);
+			}
 		}
 	}
 	else
@@ -549,7 +580,12 @@ void glRenderSystem::drawArrays()
 		if (mUsingVBO)
 			glVertexPointer(3, GL_FLOAT, mVertexStride, (char*)NULL + mVertexOffset);
 		else
+		{
+			kAssert(mVertexCount);
+			kAssert(mIndexCount);
+			kAssert(mVertexArray);
 			glVertexPointer(3, GL_FLOAT, mVertexStride, mVertexArray);
+		}
 	}
 
 	GLuint drawMode = GL_TRIANGLES;

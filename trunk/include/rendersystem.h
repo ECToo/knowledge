@@ -73,6 +73,15 @@ namespace k
 		VBO_STREAM_COPY
 	};
 
+	enum texEnvMode
+	{
+		TEX_ENV_MODULATE,
+		TEX_ENV_REPLACE,
+		TEX_ENV_DECAL,
+		TEX_ENV_BLEND,
+		TEX_ENV_ADD
+	};
+
 	#define MAX_TEXCOORD 8
 	class DLL_EXPORT renderSystem
 	{
@@ -159,6 +168,11 @@ namespace k
 			 * on the following texture unit/tev stage
 			 */
 			virtual void setTexEnv(const std::string& baseEnv, int stage) = 0;
+
+			/**
+			 * Set base texture environment modes.
+			 */
+			virtual void setTexEnv(texEnvMode mode, int stage) = 0;
 			
 			/**
 			 * Only required on wii, to set the number of tev stages.

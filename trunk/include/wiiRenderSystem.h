@@ -168,6 +168,7 @@ namespace k
 			void identityMatrix();
 
 			void setTexEnv(const std::string& baseEnv, int stage);
+			void setTexEnv(texEnvMode mode, int stage);
 			void setTextureUnits(int i);
 			void setTextureGenerations(int i);
 			void setColorChannels(int i);
@@ -214,6 +215,12 @@ namespace k
 			void setBlend(bool state);
 			void drawArrays();
 			void screenshot(const char* filename);
+
+			bool getVBOSupport() { return false; }
+			void genVBO(kVBO* target) {}
+			void bindVBO(kVBO* target, VBOArrayType type = VBO_ARRAY) {}
+			void setVBOData(VBOArrayType type, int size, void* data, VBOUsage use) {}
+			void delVBO(kVBO* target) {}
 
 			unsigned int getScreenWidth();
 			unsigned int getScreenHeight();

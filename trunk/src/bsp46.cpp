@@ -686,11 +686,39 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		}
 	}
 
+	// Entities
+	unsigned int mEntSize = readLEInt(bspLumps[LUMP_ENTITIES].length);
+	char* mRawEnt = (char*) memalign(32, mEntSize);
+	if (!mRawEnt)
+	{
+		S_LOG_INFO("Failed to allocate entities memory for bsp.");
+		_clean();
+
+		fclose(mBspFile);
+		return;
+	}
+	memset(mRawEnt, 0, mEntSize);
+
+	fseek(mBspFile, readLEInt(bspLumps[LUMP_ENTITIES].offset), SEEK_SET);
+	if (fread(mRawEnt, mEntSize, 1, mBspFile) <= 0)
+	{
+		S_LOG_INFO("Failed to read entities from bsp.");
+		_clean();
+
+		fclose(mBspFile);
+		return;
+	}
+
+	_parseEntities(mRawEnt);
+	free(mRawEnt);
+
 	// We are done parsing data.
 	fclose(mBspFile);
 
+	/* TODO - remake VBO support
 	// Try to generate the Vertex Buffer Objects
 	renderSystem* rs = root::getSingleton().getRenderSystem();
+
 	if (rs && rs->getVBOSupport())
 	{
 		rs->genVBO(&mVBOVertex);
@@ -702,6 +730,58 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		rs->bindVBO(&mVBOIndex, VBO_ELEMENT_ARRAY);
 		rs->setVBOData(VBO_ELEMENT_ARRAY, mIndicesCount * sizeof(index_t), mIndices, VBO_STATIC_DRAW);
 		rs->bindVBO(0, VBO_ARRAY);
+	}
+	*/
+}
+			
+void q3Bsp::_parseEntity(parsingFile& file)
+{
+	q3Entity newEnt;
+
+	while (!file.eof())
+	{
+		std::string token = file.getNextToken();
+		if (token == "}")
+		{
+			break;
+		}
+		else
+		{
+			std::string key = token;
+			token = file.getNextToken();
+
+			newEnt.pushKey(key, token);
+		}
+	}
+
+	mEntities.push_back(newEnt);
+}
+
+void q3Bsp::_parseEntities(char* str)
+{
+	if (!str)
+	{
+		S_LOG_INFO("Invalid pointer to entities string.");
+		return;
+	}
+
+	mEntities.clear();
+
+	// start parsing the list
+	parsingFile file(str);
+	if (!file.isReady())
+		return;
+
+	std::string token = file.getNextToken();
+	while (!file.eof())
+	{
+		// A new entity starts here ;)
+		if (token == "{")
+		{
+			_parseEntity(file);
+		}
+
+		token = file.getNextToken();
 	}
 }
 			
@@ -731,7 +811,11 @@ void q3Bsp::renderPatch(int i)
 	for (unsigned int i = 0; i < patchSet->getPatchesCount(); i++)
 	{
 		const bezierPatch* thisPatch = patchSet->getPatch(i);
+		kAssert(thisPatch);
+
 		const q3BspVertex* patchVertices = thisPatch->getVertices();
+		kAssert(patchVertices);
+
 		const unsigned int patchVertexCount = thisPatch->getVertexCount();
 
 		for (unsigned int j = 0; j < thisPatch->getLevel(); j++)
@@ -751,7 +835,7 @@ void q3Bsp::renderPatch(int i)
 					// Send Lightmap
 					const int stages = materialOfFace->getNumberOfTextureStages();
 					rs->bindTexture(mLightmaps[patchFace->lmId]->getId(0), stages);
-					rs->setTexEnv("modulate", stages);
+					rs->setTexEnv(TEX_ENV_MODULATE, stages);
 					rs->setTexCoordArray(patchVertices[0].lmUv, sizeof(q3BspVertex), stages);
 				}
 			}
@@ -788,8 +872,9 @@ void q3Bsp::renderFace(int i)
 	if (faceToRender->lmId < 0 && !materialOfFace)
 		return;
 
-	// Test and use VBO
-	if (rs->getVBOSupport())
+	// TODO: redo VBO support
+	// if (rs->getVBOSupport())
+	if (0)
 	{
 		const unsigned int vSize = sizeof(q3BspVertex);
 		const unsigned int vStart = faceToRender->startVertIndex * vSize;
@@ -811,7 +896,7 @@ void q3Bsp::renderFace(int i)
 				// Send Lightmap
 				const short stages = materialOfFace->getNumberOfTextureStages();
 				rs->bindTexture(mLightmaps[faceToRender->lmId]->getId(0), stages);
-				rs->setTexEnv("modulate", stages);
+				rs->setTexEnv(TEX_ENV_MODULATE, stages);
 				rs->setTexCoordArray(vStart + sizeof(vec_t) * 5, vSize, stages);
 			}
 		}
@@ -841,7 +926,7 @@ void q3Bsp::renderFace(int i)
 				// Send Lightmap
 				const int stages = materialOfFace->getNumberOfTextureStages();
 				rs->bindTexture(mLightmaps[faceToRender->lmId]->getId(0), stages);
-				rs->setTexEnv("modulate", stages);
+				rs->setTexEnv(TEX_ENV_MODULATE, stages);
 				rs->setTexCoordArray(mVertices[faceToRender->startVertIndex].lmUv, 
 						sizeof(q3BspVertex), stages);
 			}
@@ -887,11 +972,11 @@ void q3Bsp::draw(const camera* viewer)
 
 			switch (mFaces[index].type)
 			{
-				case FACETYPE_MESH:
 				case FACETYPE_NONE:
 				case FACETYPE_BILLBOARD:
 					break;
 
+				case FACETYPE_MESH:
 				case FACETYPE_POLYGON:
 					if (!mBitSet.isSet(index)) 
 					{
@@ -899,6 +984,7 @@ void q3Bsp::draw(const camera* viewer)
 						renderFace(index);
 					}
 					break;
+
 				case FACETYPE_PATCH:
 					if (!mBitSet.isSet(index) && mFaces[index].effect != -1) 
 					{
@@ -920,7 +1006,7 @@ bool q3Bsp::isClusterVisible(int curr, int targ) const
 	return (visSet & (1 << (targ & 7)));
 }
 
-int q3Bsp::findLeaf(const vector3& viewerPos)
+int q3Bsp::findLeaf(const vector3& viewerPos) const
 {
 	int i = 0;
 	while (i >= 0)
