@@ -90,7 +90,7 @@ int main(int argc, char** argv)
 	#endif
 	*/
 
-	k::md3model* newModel = new k::md3model("./models/weapons2/railgun.md3");
+	k::md3model* newModel = new k::md3model("./models/weapons2/railgun/railgun.md3");
 
 	delete newLoadingScreen;
 

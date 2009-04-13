@@ -78,11 +78,55 @@ void md3model::_clean()
  */
 static inline texture* getNewTexture(const std::string& filename)
 {
+	resourceManager* rscMgr = &resourceManager::getSingleton();
 	textureManager* texMgr = &textureManager::getSingleton();
 	kAssert(texMgr);
+	kAssert(rscMgr);
 
-	texMgr->allocateTextureData(filename);
-	return texMgr->getTexture(filename);
+	std::string fullPath = filename;
+	if (rscMgr) fullPath = rscMgr->getRoot() + filename;
+
+	// First, lets test if default filename exists.
+	FILE* testFile = fopen(fullPath.c_str(), "rb");
+	if (testFile)
+	{
+		fclose(testFile);
+
+		texMgr->allocateTextureData(fullPath);
+		return texMgr->getTexture(fullPath);
+	}
+
+	// Ok, file doesnt exist, lets check the extension:
+	std::string extension = getExtension(filename);
+	std::string newFile = filename.substr(0, filename.size() - extension.size());
+
+	if (extension == ".jpg" || extension == ".JPG" || extension == ".jpeg" || extension == ".JPEG")
+	{
+		// Test TGA
+		newFile += ".tga";
+	}
+	else
+	{
+		// Test JPEG
+		newFile += ".jpg";
+	}
+	
+	fullPath = newFile;
+	if (rscMgr) fullPath = rscMgr->getRoot() + newFile;
+
+	testFile = fopen(fullPath.c_str(), "rb");
+	if (testFile)
+	{
+		fclose(testFile);
+
+		texMgr->allocateTextureData(newFile);
+		return texMgr->getTexture(newFile);
+	}
+	else
+	{
+		S_LOG_INFO("Texture " + filename + " not found.");
+		return NULL;
+	}
 }
 		
 md3model::md3model(const std::string& filename)
