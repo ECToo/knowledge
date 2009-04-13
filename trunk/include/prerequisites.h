@@ -50,6 +50,7 @@
 #endif
 
 #define byteSwap4(Y) (((Y & 0xff)<<24)|((Y & 0xff00) << 8)|((Y & 0xff0000) >> 8)|((Y & 0xff000000) >> 24))
+#define byteSwap2(Y) (((Y & 0xff) << 8)|((Y & 0xff00) >> 8))
 
 #ifdef __WII__
 #ifndef __BIG_ENDIAN__
@@ -58,6 +59,8 @@
 #endif
 
 #ifdef __BIG_ENDIAN__
+	#define readLEShort(Y) (byteSwap2(Y))
+	#define readBEShort(Y) (Y)
 	#define readLEInt(Y) (byteSwap4(Y))
 	#define readBEInt(Y) (Y)
 	#define readBEFloat(Y) (Y)
@@ -68,6 +71,8 @@
 		return data.f;
 	}
 #else
+	#define readLEShort(Y) (Y)
+	#define readBEShort(Y) (byteSwap2(Y))
 	#define readLEInt(Y) (Y)
 	#define readBEInt(Y) (byteSwap4(Y))
 	#define readLEFloat(Y) (Y)

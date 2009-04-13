@@ -52,6 +52,8 @@ namespace k
 		public:
 			material();
 
+			// TODO: free material memory
+
 			void setAmbient(const vector3& color);
 			void setDiffuse(const vector3& color);
 			void setSpecular(const vector3& color);
