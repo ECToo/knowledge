@@ -67,17 +67,11 @@ int main(int argc, char** argv)
 	k::vector3 modelPosition;
 	modelPosition.z = -100;
 
-	/*
 	#ifdef __WII__
 	k::md5model* newModel = new k::md5model("sd:/knowledge/model/goku.md5mesh");
-	//k::md5model* newModel = new k::md5model("sd:/knowledge/model/torus.md5mesh");
 	#else
 	k::md5model* newModel = new k::md5model("goku.md5mesh");
-	//	k::md5model* newModel = new k::md5model("torus.md5mesh");
 	#endif
-
-	kAssert(newModel);
-	//newModel->getMesh(0)->setMaterial("donutMetal");
 
 	#ifdef __WII__
 	newModel->attachAnimation("sd:/knowledge/model/idle.md5anim", "idle");
@@ -88,9 +82,6 @@ int main(int argc, char** argv)
 	newModel->attachAnimation("fly_f.md5anim", "runf");
 	newModel->attachAnimation("fly_b.md5anim", "runb");
 	#endif
-	*/
-
-	k::md3model* newModel = new k::md3model("./models/weapons2/railgun/railgun.md3");
 
 	delete newLoadingScreen;
 
@@ -104,10 +95,8 @@ int main(int argc, char** argv)
 	mRenderer->push2D(fpsText);
 
 	// Set Model animations
-	/*
 	newModel->setAnimation("idle");
 	newModel->setAnimationFrame(10);
-	*/
 	
 	mRenderer->push3D(newModel);
 
@@ -165,7 +154,6 @@ int main(int argc, char** argv)
 			mRenderSystem->setWireFrame(wireframe);
 		}
 
-		/*
 		if (mInputManager->getKbdKeyDown(K_KBD_UP))
 		{
 			if (!runf)
@@ -194,7 +182,6 @@ int main(int argc, char** argv)
 				runf = runb = false;
 			}
 		}
-		*/
 
 		if (mInputManager->getKbdKeyDown(K_KBD_a) || mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_PLUS))
 		{
@@ -283,9 +270,6 @@ int main(int argc, char** argv)
 
 		mRenderer->draw();
 	}
-
-	// Clean up
-	// _break();
 	
 	delete newModel;
 	delete fpsText;
