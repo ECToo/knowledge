@@ -2,6 +2,7 @@ lib_LTLIBRARIES = libknowledge.la
 
 libknowledge_la_SOURCES = drawable.cpp\
 								  vector3.cpp\
+								  md3.cpp\
 								  md5.cpp\
 								  fileAccess.cpp\
 								  camera.cpp\
@@ -71,5 +72,6 @@ pkginclude_HEADERS = @top_srcdir@/include/prerequisites.h \
 							@top_srcdir@/include/glRenderSystem.h \
 							@top_srcdir@/include/root.h \
 							@top_srcdir@/include/sprite.h \
+							@top_srcdir@/include/md3.h \
 							@top_srcdir@/include/md5.h
 

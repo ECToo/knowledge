@@ -32,6 +32,7 @@
 #include "materialManager.h"
 #include "matrix3.h"
 #include "matrix4.h"
+#include "md3.h"
 #include "md5.h"
 #include "particle.h"
 #include "physicsManager.h"

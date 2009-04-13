@@ -67,6 +67,7 @@ int main(int argc, char** argv)
 	k::vector3 modelPosition;
 	modelPosition.z = -100;
 
+	/*
 	#ifdef __WII__
 	k::md5model* newModel = new k::md5model("sd:/knowledge/model/goku.md5mesh");
 	//k::md5model* newModel = new k::md5model("sd:/knowledge/model/torus.md5mesh");
@@ -87,6 +88,9 @@ int main(int argc, char** argv)
 	newModel->attachAnimation("fly_f.md5anim", "runf");
 	newModel->attachAnimation("fly_b.md5anim", "runb");
 	#endif
+	*/
+
+	k::md3model* newModel = new k::md3model("./models/weapons2/railgun.md3");
 
 	delete newLoadingScreen;
 
@@ -100,8 +104,10 @@ int main(int argc, char** argv)
 	mRenderer->push2D(fpsText);
 
 	// Set Model animations
+	/*
 	newModel->setAnimation("idle");
 	newModel->setAnimationFrame(10);
+	*/
 	
 	mRenderer->push3D(newModel);
 
@@ -119,6 +125,10 @@ int main(int argc, char** argv)
 	// Screenshot
 	bool oneHold = false;
 	int scrCont = 0;
+
+	// Wire
+	bool E_Hold = false;
+	bool wireframe = false;
 
 	// Anims
 	bool runf = false;
@@ -140,6 +150,22 @@ int main(int argc, char** argv)
 		if (mInputManager->getKbdKeyDown(K_KBD_RIGHT))
 			modelPosition.x--;
 
+		// Wireframe
+		if (mInputManager->getKbdKeyDown(K_KBD_e))
+		{
+			E_Hold = true;
+		}
+		else
+		if (E_Hold)
+		{
+			E_Hold = false;
+
+			// Set Inverted wireframe
+			wireframe ^= 1;
+			mRenderSystem->setWireFrame(wireframe);
+		}
+
+		/*
 		if (mInputManager->getKbdKeyDown(K_KBD_UP))
 		{
 			if (!runf)
@@ -168,6 +194,7 @@ int main(int argc, char** argv)
 				runf = runb = false;
 			}
 		}
+		*/
 
 		if (mInputManager->getKbdKeyDown(K_KBD_a) || mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_PLUS))
 		{
