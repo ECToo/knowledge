@@ -54,6 +54,13 @@ namespace k
 		CONTENTS_FOG = 64
 	};
 
+	enum Q3_TRACE_TYPE
+	{
+		TRACE_TYPE_RAY,
+		TRACE_TYPE_SPHERE,
+		TRACE_TYPE_BOX
+	};
+
 	enum Q3_BSP_LUMPS
 	{
 		LUMP_ENTITIES = 0,
@@ -200,6 +207,9 @@ namespace k
 		// Point of collision
 		vector3 end;
 
+		// Normal of the collision plane
+		vector3 planeNormal;
+
 		// if the segment starts
 		// outside a surface.
 		bool startsOut;
@@ -215,7 +225,7 @@ namespace k
 	 */
 	class DLL_EXPORT bezierPatch
 	{
-		private:
+		protected:
 			/**
 			 * Final Vertices for bezier patch.
 			 */
@@ -286,7 +296,7 @@ namespace k
 
 	class DLL_EXPORT bezierPatchSet
 	{
-		private:
+		protected:
 			bezierPatch** mPatches;
 			unsigned int mPatchNum;
 			unsigned int mPatchIndex;
@@ -346,7 +356,7 @@ namespace k
 
 	class DLL_EXPORT q3Entity
 	{
-		private:
+		protected:
 			std::map<std::string, std::string> mKeys;
 
 		public:
@@ -375,7 +385,7 @@ namespace k
 
 	class DLL_EXPORT q3Bsp : public world
 	{
-		private:
+		protected:
 			int mLightmapCount;
 			int mTexturesCount;
 
@@ -409,7 +419,8 @@ namespace k
 			 */
 			q3BspTrace mTempTrace;
 			vector3 mTraceStart, mTraceEnd;
-			int mTraceFlags;
+			float mTraceRadius;
+			int mTraceType, mTraceFlags;
 
 			/**
 			 * Game entities
@@ -528,13 +539,15 @@ namespace k
 
 			/**
 			 * Collision check. Based on devmaster
-			 * article of Nathan Ostgard, many thanks to him.
+			 * article of Nathan Ostgard, iD quake 3
+			 * and my own toughs.
 			 */
 			void checkBrush(const q3BspBrush* brush);
 			void checkNode(int index, const float startFraction, const float endFraction,
 					const vector3& start, const vector3& end);
 
 			q3BspTrace trace(const vector3& start, const vector3& end, int flags = 0);
+			q3BspTrace traceSphere(const vector3& start, const vector3& end, float radius, int flags = 0);
 
 			/**
 			 * Rendering awesomeness

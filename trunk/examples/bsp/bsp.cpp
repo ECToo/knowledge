@@ -17,6 +17,30 @@
 
 #include "knowledge.h"
 
+class speedmd3 : public k::md3model
+{
+	private:
+		k::vector3 mSpeed;
+		vec_t mRadius;
+
+	public:
+		speedmd3(const std::string& filename)
+		: k::md3model(filename) 
+		{}
+
+		void setRadius(vec_t rad)
+		{ mRadius = rad; }
+
+		void setSpeed(const k::vector3 speed)
+		{ mSpeed = speed; }
+
+		k::vector3 getSpeed() const
+		{ return mSpeed; }
+
+		vec_t getRadius() const
+		{ return mRadius;	}
+};
+
 #ifdef WIN32
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 #else
@@ -65,21 +89,24 @@ int main(int argc, char** argv)
 	k::resourceManager::getSingleton().loadGroup("bsp");
 
 	// Test model
-	k::md3model* sphere = new k::md3model("space_models/sphere.md3");
+	speedmd3* sphere = new speedmd3("space_models/sphere.md3");
 	kAssert(sphere);
 
 	mRenderer->push3D(sphere);
 
+	k::boundingBox sphereBB = sphere->getBoundingBox();
+	sphere->setRadius((sphereBB.getMaxs() - sphereBB.getMins() / 2.0f).length());
+
 	k::q3Bsp testeBsp;
-	// testeBsp.loadQ3Bsp("the_cell.bsp");
-	testeBsp.loadQ3Bsp("tc_closecombat.bsp");
+	testeBsp.loadQ3Bsp("the_cell.bsp");
+	// testeBsp.loadQ3Bsp("tc_closecombat.bsp");
 	mRenderer->setWorld(&testeBsp);
 
 	delete newLoadingScreen;
 
 	// Set Skyplane
-	// mRenderer->setSkyPlane("skyPlane");
-	mRenderer->setSkyPlane("q3tc_nightsky_lf");
+	// mRenderer->setSkyBox("nightzSky");
+	// mRenderer->setSkyPlane("q3tc_nightsky_lf");
 
 	// Setup Camera
 	k::camera* newCamera = new k::camera();
@@ -90,8 +117,8 @@ int main(int argc, char** argv)
 	mRenderer->setCamera(newCamera);
 
 	// Find a random spawn point on the map
-	/*
 	std::vector<k::vector3> spawnPoints;
+	bool foundSpawn = false;
 
 	const std::list<k::q3Entity> mapEntities = testeBsp.getEntities();
 	std::list<k::q3Entity>::const_iterator it = mapEntities.begin();
@@ -106,13 +133,16 @@ int main(int argc, char** argv)
 			origin.z = temp;
 
 			spawnPoints.push_back(origin);
+			foundSpawn = true;
 		}
 	}
 
-	srand(time(NULL));
-	unsigned int choosen = rand() % spawnPoints.size();
-	newCamera->setPosition(spawnPoints[choosen]);
-	*/
+	if (foundSpawn)
+	{
+		srand(time(NULL));
+		unsigned int choosen = rand() % spawnPoints.size();
+		newCamera->setPosition(spawnPoints[choosen]);
+	}
 
 	// Fps Counter
 	k::bitmapText* fpsText = new k::bitmapText("fonts/cube_14.dat", "cube_14");
@@ -190,7 +220,13 @@ int main(int argc, char** argv)
 			}
 			else
 			{
-				pos += look * 5;
+				if (mInputManager->getKbdKeyDown(K_KBD_w))
+					pos += look * 5;
+				else
+				{
+					sphere->setPosition(newCamera->getPosition());
+					sphere->setSpeed(newCamera->getDirection() * 2);
+				}
 			}
 
 			k::particleSystem* ps = k::particleManager::getSingleton().getParticleSystem("rain");
@@ -268,10 +304,17 @@ int main(int argc, char** argv)
 			newCamera->setOrientation(dirQuat * ori);
 		}
 
-		// Position sphere
-		k::q3BspTrace newTrace = testeBsp.trace(newCamera->getPosition(), newCamera->getPosition() + newCamera->getDirection() * 5000); 
-		if (newTrace.fraction != 1.0f)
-			sphere->setPosition(newTrace.end);
+		// Gravity
+		sphere->setSpeed(sphere->getSpeed() + k::vector3(0, -0.05, 0));
+
+		// Feed sphere speed
+		k::q3BspTrace newTrace = testeBsp.traceSphere(sphere->getPosition(), sphere->getPosition() + sphere->getSpeed() * 2, sphere->getRadius()); 
+		if (newTrace.fraction == 1.0f && newTrace.startsOut)
+			sphere->setPosition(sphere->getPosition() + sphere->getSpeed());
+		else
+		{
+			sphere->setSpeed(sphere->getSpeed().reflect(newTrace.planeNormal) * 0.95);
+		}
 
 		// FPS Counter
 		std::stringstream fpsT;

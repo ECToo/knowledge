@@ -491,14 +491,29 @@ void md3model::draw()
 		mSurfaces[i].draw(mCurrentFrame);
 }
 
-const boundingBox& md3model::getAABoundingBox()
+boundingBox md3model::getAABoundingBox()
 {
-	return boundingBox(vector3::zero, vector3::zero);
+	vector3 mins = vector3(mFrames[mCurrentFrame].mins[0],
+			mFrames[mCurrentFrame].mins[1],
+			mFrames[mCurrentFrame].mins[2]);
+	vector3 maxs = vector3(mFrames[mCurrentFrame].maxs[0],
+			mFrames[mCurrentFrame].maxs[1],
+			mFrames[mCurrentFrame].maxs[2]);
+
+	return boundingBox(mOrientation.rotateVector(mins), 
+			mOrientation.rotateVector(maxs));
 }
 
-const boundingBox& md3model::getBoundingBox()
+boundingBox md3model::getBoundingBox()
 {
-	return boundingBox(vector3::zero, vector3::zero);
+	vector3 mins = vector3(mFrames[mCurrentFrame].mins[0],
+			mFrames[mCurrentFrame].mins[1],
+			mFrames[mCurrentFrame].mins[2]);
+	vector3 maxs = vector3(mFrames[mCurrentFrame].maxs[0],
+			mFrames[mCurrentFrame].maxs[1],
+			mFrames[mCurrentFrame].maxs[2]);
+
+	return boundingBox(mins, maxs);
 }
 
 }

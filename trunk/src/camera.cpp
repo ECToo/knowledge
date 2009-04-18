@@ -144,6 +144,8 @@ static inline vector3 getPlaneNormal(const vector3& a, const vector3& b, const v
 void camera::setView()
 {
 	mFinal = mOrientation.toMatrix();
+	mOrientationInverse = mFinal.transpose().inverse();
+
 	mFinal.m[3][0] = -getRight().dotProduct(mPosition);
 	mFinal.m[3][1] = -getUp().dotProduct(mPosition);
 	mFinal.m[3][2] = getDirection().dotProduct(mPosition);
@@ -231,6 +233,16 @@ void camera::copyView() const
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 	rs->copyMatrix(mFinal);
 	rs->setInverseTransposeModelview(mFinalInverse);
+}
+			
+const matrix4& camera::getInverseTranspose() const
+{
+	return mFinalInverse;
+}
+			
+const matrix4& camera::getRotInverseTranspose() const
+{
+	return mOrientationInverse;
 }
 
 void camera::setPosition(vector3 pos)
