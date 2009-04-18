@@ -43,6 +43,9 @@ namespace k
 			matrix4 mFinal;
 			matrix4 mFinalInverse;
 
+			// Inverse transpose of the rotation only
+			matrix4 mOrientationInverse;
+
 			vector3 mPosition;
 			quaternion mOrientation;
 
@@ -158,6 +161,10 @@ namespace k
 			// Orientation
 			void setOrientation(quaternion ori);
 			const quaternion& getOrientation() const;
+
+			// Get the inverse transpose matrix
+			const matrix4& getRotInverseTranspose() const;
+			const matrix4& getInverseTranspose() const;
 	};
 }
 

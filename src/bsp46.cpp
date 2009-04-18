@@ -897,6 +897,9 @@ void q3Bsp::renderPatch(int i)
 	}
 
 	material* materialOfFace = mMaterials[patchFace->textureId];
+	if (materialOfFace && materialOfFace->getNoDraw())
+		return;
+
 	if (patchFace->lmId < 0 && !materialOfFace)
 		return;
 
@@ -922,7 +925,7 @@ void q3Bsp::renderPatch(int i)
 			rs->setVertexArray(patchVertices[0].pos, sizeof(q3BspVertex));
 			rs->setNormalArray(patchVertices[0].normal, sizeof(q3BspVertex));
 
-			if (materialOfFace)
+			if (materialOfFace) 
 			{
 				rs->setTexCoordArray(patchVertices[0].uv, sizeof(q3BspVertex));
 				if (mDrawLightmaps && patchFace->lmId >= 0)
@@ -957,10 +960,13 @@ void q3Bsp::renderFace(int i)
 		return;
 	}
 
+	material* materialOfFace = mMaterials[faceToRender->textureId];
+	if (materialOfFace && materialOfFace->getNoDraw())
+		return;
+
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	kAssert(rs);
 
-	material* materialOfFace = mMaterials[faceToRender->textureId];
 	if (materialOfFace)
 		materialOfFace->prepare();
 
@@ -1166,7 +1172,13 @@ void q3Bsp::checkBrush(const q3BspBrush* brush)
 		{
 			float fraction = (startDist - Q3_EPSILON) / (startDist - endDist);
 			if (fraction > startFraction)
+			{
 				startFraction = fraction;
+
+				// Copy plane normal
+				mTempTrace.planeNormal = k::vector3(thisPlane->normal[0],
+						thisPlane->normal[1], thisPlane->normal[2]);
+			}
 		}
 		else
 		// line is leaving the brush
@@ -1228,15 +1240,30 @@ void q3Bsp::checkNode(int index, const float startFraction, const float endFract
 
 	float startDist = q3DotProduct(start, thisPlane->normal) - thisPlane->dist;
 	float endDist = q3DotProduct(end, thisPlane->normal) - thisPlane->dist;
+	float offset = 0;
+
+	switch (mTraceType)
+	{
+		default:
+		case TRACE_TYPE_RAY:
+			offset = 0;
+			break;
+		case TRACE_TYPE_SPHERE:
+			offset = mTraceRadius;
+			break;
+		case TRACE_TYPE_BOX:
+			// TODO
+			break;
+	};
 
 	// In front of plane
-	if (startDist >= 0 && endDist >= 0)
+	if (startDist >= offset && endDist >= offset)
 	{
 		checkNode(thisNode->children[0], startFraction, endFraction, start, end);
 	}
 	else
 	// Behind the plane
-	if (startDist < 0 && endDist < 0)
+	if (startDist < -offset && endDist < -offset)
 	{
 		checkNode(thisNode->children[1], startFraction, endFraction, start, end);
 	}
@@ -1254,8 +1281,8 @@ void q3Bsp::checkNode(int index, const float startFraction, const float endFract
 			side = 1;
 			float invDist = 1.0f / (startDist - endDist);
 	
-			fraction1 = (startDist + Q3_EPSILON) * invDist;
-			fraction2 = fraction1;
+			fraction1 = (startDist - offset + Q3_EPSILON) * invDist;
+			fraction2 = (startDist + offset + Q3_EPSILON) * invDist;
 		}
 		else
 		// front
@@ -1264,8 +1291,8 @@ void q3Bsp::checkNode(int index, const float startFraction, const float endFract
 			side = 0;
 			float invDist = 1.0f / (startDist - endDist);
 	
-			fraction1 = (startDist + Q3_EPSILON) * invDist;
-			fraction2 = (startDist - Q3_EPSILON) * invDist;
+			fraction1 = (startDist + offset + Q3_EPSILON) * invDist;
+			fraction2 = (startDist - offset - Q3_EPSILON) * invDist;
 		}
 		// choose front
 		else
@@ -1309,6 +1336,32 @@ q3BspTrace q3Bsp::trace(const vector3& start, const vector3& end, int flags)
 	mTraceStart = start;
 	mTraceEnd = end;
 	mTraceFlags = flags;
+	mTraceType = TRACE_TYPE_RAY;
+
+	checkNode(0, 0, 1.0f, start, end);
+	if (mTempTrace.fraction == 1.0f)
+	{
+		mTempTrace.end = end;
+	}
+	else
+	{
+		mTempTrace.end = mTraceStart + (mTraceEnd - mTraceStart) * mTempTrace.fraction;
+	}
+
+	return mTempTrace;
+}
+			
+q3BspTrace q3Bsp::traceSphere(const vector3& start, const vector3& end, float radius, int flags)
+{
+	mTempTrace.startsOut = true;
+	mTempTrace.enclosedInSolid = false;
+	mTempTrace.fraction = 1.0f;
+
+	mTraceStart = start;
+	mTraceEnd = end;
+	mTraceFlags = flags;
+	mTraceType = TRACE_TYPE_SPHERE;
+	mTraceRadius = radius;
 
 	checkNode(0, 0, 1.0f, start, end);
 	if (mTempTrace.fraction == 1.0f)

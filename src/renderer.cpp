@@ -286,7 +286,7 @@ void renderer::_drawSkybox()
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 	if (mActiveCamera)
 	{
-		matrix4 cameraRot = mActiveCamera->getOrientation().toMatrix().transpose();
+		matrix4 cameraRot = mActiveCamera->getRotInverseTranspose();
 		rs->copyMatrix(cameraRot);
 	}
 	else

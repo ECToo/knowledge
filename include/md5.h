@@ -279,17 +279,16 @@ class DLL_EXPORT md5model : public drawable3D
 		 */
 		void draw();
 
-
 		/**
 		 * Return model Bounding box, rotated
 		 * like model orientation.
 		 */
-		const boundingBox& getAABoundingBox();
+		boundingBox getAABoundingBox();
 
 		/**
 		 * Return model bounding box, untransformed
 		 */
-		const boundingBox& getBoundingBox();
+		boundingBox getBoundingBox();
 };
 
 }

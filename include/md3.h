@@ -145,7 +145,7 @@ class DLL_EXPORT md3Surface
 
 class DLL_EXPORT md3model : public drawable3D
 {
-	private:
+	protected:
 		int mFramesCount;
 		md3Frame_t* mFrames;
 
@@ -168,10 +168,9 @@ class DLL_EXPORT md3model : public drawable3D
 		void setFrame(short i);
 		int getFramesCount() const;
 
-		// TODO
 		void draw();
-		const boundingBox& getAABoundingBox();
-		const boundingBox& getBoundingBox();
+		boundingBox getAABoundingBox();
+		boundingBox getBoundingBox();
 };
 
 }

@@ -22,6 +22,8 @@
 #include "singleton.h"
 #include "texture.h"
 
+#define DEFAULT_WRAP (FLAG_CLAMP_EDGE_S | FLAG_CLAMP_EDGE_T | FLAG_CLAMP_EDGE_R)
+
 namespace k
 {
 	/**
@@ -63,18 +65,18 @@ namespace k
 
 			static textureManager& getSingleton();
 
-			bool allocateTextureData(const std::string& filename, int wrapBits = 0x7);
+			bool allocateTextureData(const std::string& filename, int wrapBits = DEFAULT_WRAP);
 			void deallocateTextureData(const std::string& filename);
 
 			texture* getTexture(const std::string& filename);
 			texture* createEmptyTexture();
 
 			textureStage* createStage(unsigned short index);
-			void setStageTexture(textureStage* newStage, const std::string& filename, int wrapBits = 0x7);
-			void setStageCubicTexture(textureStage* newStage, const std::string& filename, int wrapBits = 0x7);
+			void setStageTexture(textureStage* newStage, const std::string& filename, int wrapBits = DEFAULT_WRAP);
+			void setStageCubicTexture(textureStage* newStage, const std::string& filename, int wrapBits = DEFAULT_WRAP);
 
-			textureStage* createCubicTexture(const std::string& filename, unsigned short index, int wrapBits = 0x7);
-			textureStage* createTexture(const std::string& filename, unsigned short index, int wrapBits = 0x7);
+			textureStage* createCubicTexture(const std::string& filename, unsigned short index, int wrapBits = DEFAULT_WRAP);
+			textureStage* createTexture(const std::string& filename, unsigned short index, int wrapBits = DEFAULT_WRAP);
 	};
 }
 

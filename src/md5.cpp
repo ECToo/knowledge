@@ -1113,12 +1113,14 @@ bool md5model::getAutoFeed()
 	return mAutoFeedAnims;
 }
 		
-const boundingBox& md5model::getBoundingBox()
+boundingBox md5model::getBoundingBox()
 {
+	return boundingBox(vector3::zero, vector3::zero);
 }
 
-const boundingBox& md5model::getAABoundingBox()
+boundingBox md5model::getAABoundingBox()
 {
+	return boundingBox(vector3::zero, vector3::zero);
 }
 
 }

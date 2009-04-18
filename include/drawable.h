@@ -123,8 +123,8 @@ namespace k
 			virtual ~drawable3D();
 			virtual void draw() = 0;
 
-			virtual const boundingBox& getAABoundingBox() = 0;
-			virtual const boundingBox& getBoundingBox() = 0;
+			virtual boundingBox getAABoundingBox() = 0;
+			virtual boundingBox getBoundingBox() = 0;
 	};
 }
 
