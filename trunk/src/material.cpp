@@ -109,6 +109,26 @@ void material::setNoDraw(bool nd)
 {
 	mNoDraw = nd;
 }
+			
+void material::setContentFlags(int flags)
+{
+	mContentFlags = flags;
+}
+
+void material::setEffectFlags(int flags)
+{
+	mEffectFlags = flags;
+}
+
+int material::getContentFlags()
+{
+	return mContentFlags;
+}
+
+int material::getEffectFlags()
+{
+	return mEffectFlags;
+}
 
 void material::setTextureUnits(unsigned int tex)
 {

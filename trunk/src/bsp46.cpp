@@ -22,6 +22,8 @@
 #include "root.h"
 
 namespace k {
+
+#define Q3_EPSILON 1.0f/8.0f
 			
 void q3BitSet::configure(int i)
 {
@@ -150,8 +152,17 @@ void q3Bsp::_clean()
 	if (mLeafFaces)
 		free(mLeafFaces);
 
+	if (mLeafBrushes)
+		free(mLeafBrushes);
+
 	if (mBspVisData.bitSet)
 		free(mBspVisData.bitSet);
+
+	if (mBrushes)
+		free(mBrushes);
+
+	if (mBrushSides)
+		free(mBrushSides);
 }
 	
 void q3Bsp::loadQ3Bsp(const std::string& filename)
@@ -226,9 +237,10 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		mVertices[i].lmUv[0] = readLEFloat(mVertices[i].lmUv[0]);
 		mVertices[i].lmUv[1] = readLEFloat(mVertices[i].lmUv[1]);
 
+		tmp = readLEFloat(mVertices[i].normal[1]);
 		mVertices[i].normal[0] = readLEFloat(mVertices[i].normal[0]);
-		mVertices[i].normal[1] = readLEFloat(mVertices[i].normal[1]);
-		mVertices[i].normal[2] = readLEFloat(mVertices[i].normal[2]);
+		mVertices[i].normal[1] = readLEFloat(mVertices[i].normal[2]);
+		mVertices[i].normal[2] = -tmp;
 	}
 
 	// Allocate Faces
@@ -240,12 +252,11 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		_clean();
 
 		fclose(mBspFile);
-
 		return;
 	}
 
 	// Configure Bitset
-	mBitSet.configure(mFacesCount);
+	mFaceSet.configure(mFacesCount);
 
 	// Count number of patches needed
 	unsigned int mPatchesCount = 0;
@@ -280,9 +291,10 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		mFaces[i].lmSize[0] = readLEInt(mFaces[i].lmSize[0]);
 		mFaces[i].lmSize[1] = readLEInt(mFaces[i].lmSize[1]);
 
+		float temp = readLEFloat(mFaces[i].lmPos[1]);
 		mFaces[i].lmPos[0] = readLEFloat(mFaces[i].lmPos[0]);
-		mFaces[i].lmPos[1] = readLEFloat(mFaces[i].lmPos[1]);
-		mFaces[i].lmPos[2] = readLEFloat(mFaces[i].lmPos[2]);
+		mFaces[i].lmPos[1] = readLEFloat(mFaces[i].lmPos[2]);
+		mFaces[i].lmPos[2] = -temp;
 
 		mFaces[i].lmUv[0][0] = readLEFloat(mFaces[i].lmUv[0][0]);
 		mFaces[i].lmUv[0][1] = readLEFloat(mFaces[i].lmUv[0][1]);
@@ -292,9 +304,10 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		mFaces[i].lmUv[1][1] = readLEFloat(mFaces[i].lmUv[1][1]);
 		mFaces[i].lmUv[1][2] = readLEFloat(mFaces[i].lmUv[1][2]);
 
+		temp = readLEFloat(mFaces[i].normal[1]);
 		mFaces[i].normal[0] = readLEFloat(mFaces[i].normal[0]);
-		mFaces[i].normal[1] = readLEFloat(mFaces[i].normal[1]);
-		mFaces[i].normal[2] = readLEFloat(mFaces[i].normal[2]);
+		mFaces[i].normal[1] = readLEFloat(mFaces[i].normal[2]);
+		mFaces[i].normal[2] = -temp;
 
 		mFaces[i].patchSize[0] = readLEInt(mFaces[i].patchSize[0]);
 		mFaces[i].patchSize[1] = readLEInt(mFaces[i].patchSize[1]);
@@ -407,6 +420,7 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		return;
 	}
 
+	mMaterialsCount = mTexturesCount;
 	mMaterials = (material**) memalign(32, sizeof(material*) * mTexturesCount);
 	if (!mMaterials)
 	{
@@ -433,12 +447,13 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		// a simple material with this texture on it only.
 		if (!mMaterials[i])
 		{
+			mMaterials[i] = matMgr->createMaterial(bspTextures[i].name);
+			mMaterials[i]->setContentFlags(readLEInt(bspTextures[i].contents));
 			texture* newTexture = getNewTexture(std::string(bspTextures[i].name));
 			if (newTexture)
-			{
-				mMaterials[i] = matMgr->createMaterial(bspTextures[i].name);
 				mMaterials[i]->setSingleTexture(newTexture);
-			}
+			else
+				mMaterials[i]->setNoDraw(true);
 		}
 	}
 
@@ -521,13 +536,15 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		mNodes[i].children[0] = readLEInt(mNodes[i].children[0]);
 		mNodes[i].children[1] = readLEInt(mNodes[i].children[1]);
 
+		float temp = readLEFloat(mNodes[i].mins[1]);
 		mNodes[i].mins[0] = readLEFloat(mNodes[i].mins[0]);
-		mNodes[i].mins[1] = readLEFloat(mNodes[i].mins[1]);
-		mNodes[i].mins[2] = readLEFloat(mNodes[i].mins[2]);
+		mNodes[i].mins[1] = readLEFloat(mNodes[i].mins[2]);
+		mNodes[i].mins[2] = -temp;
 
+		temp = readLEFloat(mNodes[i].maxs[1]);
 		mNodes[i].maxs[0] = readLEFloat(mNodes[i].maxs[0]);
-		mNodes[i].maxs[1] = readLEFloat(mNodes[i].maxs[1]);
-		mNodes[i].maxs[2] = readLEFloat(mNodes[i].maxs[2]);
+		mNodes[i].maxs[1] = readLEFloat(mNodes[i].maxs[2]);
+		mNodes[i].maxs[2] = -temp;
 	}
 
 	// Leafs
@@ -594,20 +611,40 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		if (fread(&mLeafFaces[i], sizeof(int), 1, mBspFile) <= 0)
 		{
 			S_LOG_INFO("Failed to allocate leaf face for bsp.");
-			free(mVertices);
-			free(mFaces);
-			free(mIndices);
-			free(mMaterials);
-			free(mLeafs);
-			free(mLeafFaces);
-			free(bspLightmaps);
-			free(mPatches);
-			fclose(mBspFile);
+			_clean();
 
+			fclose(mBspFile);
 			return;
 		}
 
 		mLeafFaces[i] = readLEInt(mLeafFaces[i]);
+	}
+
+	// Leaf Brushes 
+	mLeafBrushesCount = readLEInt(bspLumps[LUMP_LEAF_BRUSHES].length) / sizeof(int);
+	mLeafBrushes = (int*) memalign(32, sizeof(int) * mLeafBrushesCount);
+	if (!mLeafBrushes)
+	{
+		S_LOG_INFO("Failed to allocate leafs brushes array for bsp.");
+		_clean();
+
+		fclose(mBspFile);
+		return;
+	}
+
+	fseek(mBspFile, readLEInt(bspLumps[LUMP_LEAF_BRUSHES].offset), SEEK_SET);
+	for (int i = 0; i < mLeafBrushesCount; i++)
+	{
+		if (fread(&mLeafBrushes[i], sizeof(int), 1, mBspFile) <= 0)
+		{
+			S_LOG_INFO("Failed to allocate leaf brush for bsp.");
+			_clean();
+
+			fclose(mBspFile);
+			return;
+		}
+
+		mLeafBrushes[i] = readLEInt(mLeafBrushes[i]);
 	}
 
 	// Planes
@@ -621,7 +658,6 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		fclose(mBspFile);
 		return;
 	}
-	memset(mPlanes, 0, sizeof(q3BspPlane) * mPlanesCount);
 
 	fseek(mBspFile, readLEInt(bspLumps[LUMP_PLANES].offset), SEEK_SET);
 	for (int i = 0; i < mPlanesCount; i++)
@@ -684,6 +720,65 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 			fclose(mBspFile);
 			return;
 		}
+	}
+
+	// Brushes
+	mBrushesCount = readLEInt(bspLumps[LUMP_BRUSHES].length);
+	mBrushes = (q3BspBrush*) memalign(32, sizeof(q3BspBrush) * mBrushesCount);
+	if (!mBrushes)
+	{
+		S_LOG_INFO("Failed to allocate brushes for bsp.");
+		_clean();
+
+		fclose(mBspFile);
+		return;
+	}
+
+	fseek(mBspFile, readLEInt(bspLumps[LUMP_BRUSHES].offset), SEEK_SET);
+	for (int i = 0; i < mBrushesCount; i++)
+	{
+		q3BspBrush tempBrush;
+		if (fread(&tempBrush, sizeof(q3BspBrush), 1, mBspFile) <= 0)
+		{
+			S_LOG_INFO("Failed to read brush from bsp.");
+			_clean();
+
+			fclose(mBspFile);
+			return;
+		}
+		
+		mBrushes[i].firstSide = readLEInt(tempBrush.firstSide);
+		mBrushes[i].numSides = readLEInt(tempBrush.numSides);
+		mBrushes[i].shaderNum = readLEInt(tempBrush.shaderNum);
+	}
+
+	// Brush Sides
+	mBrushSidesCount = readLEInt(bspLumps[LUMP_BRUSHES_SIDES].length);
+	mBrushSides = (q3BspBrushSide*) memalign(32, sizeof(q3BspBrushSide) * mBrushSidesCount);
+	if (!mBrushSides)
+	{
+		S_LOG_INFO("Failed to allocate brush sides for bsp.");
+		_clean();
+
+		fclose(mBspFile);
+		return;
+	}
+
+	fseek(mBspFile, readLEInt(bspLumps[LUMP_BRUSHES_SIDES].offset), SEEK_SET);
+	for (int i = 0; i < mBrushSidesCount; i++)
+	{
+		q3BspBrushSide tempBrush;
+		if (fread(&tempBrush, sizeof(q3BspBrushSide), 1, mBspFile) <= 0)
+		{
+			S_LOG_INFO("Failed to read brush side from bsp.");
+			_clean();
+
+			fclose(mBspFile);
+			return;
+		}
+		
+		mBrushSides[i].planeIndex = readLEInt(tempBrush.planeIndex);
+		mBrushSides[i].textureIndex = readLEInt(tempBrush.textureIndex);
 	}
 
 	// Entities
@@ -945,7 +1040,7 @@ void q3Bsp::renderFace(int i)
 
 void q3Bsp::draw(const camera* viewer)
 {
-	mBitSet.clear();
+	mFaceSet.clear();
 
 	const int leafIndex = findLeaf(viewer->getPosition());
 	const int cluster = mLeafs[leafIndex].cluster;
@@ -978,17 +1073,17 @@ void q3Bsp::draw(const camera* viewer)
 
 				case FACETYPE_MESH:
 				case FACETYPE_POLYGON:
-					if (!mBitSet.isSet(index)) 
+					if (!mFaceSet.isSet(index)) 
 					{
-						mBitSet.set(index);
+						mFaceSet.set(index);
 						renderFace(index);
 					}
 					break;
 
 				case FACETYPE_PATCH:
-					if (!mBitSet.isSet(index) && mFaces[index].effect != -1) 
+					if (!mFaceSet.isSet(index) && mFaces[index].effect != -1) 
 					{
-						mBitSet.set(index);
+						mFaceSet.set(index);
 						renderPatch(index);
 					}
 					break;
@@ -1031,6 +1126,202 @@ int q3Bsp::findLeaf(const vector3& viewerPos) const
 
 	return ~i;
 }
+
+static inline float q3DotProduct(const vector3& a, const vec_t* b)
+{
+	return (a.x * b[0] + a.y * b[1] + a.z * b[2]);
+}
+
+			
+void q3Bsp::checkBrush(const q3BspBrush* brush)
+{
+	float startFraction = -1.0f;
+	float endFraction = 1.0f;
+	bool startsOut = false;
+	bool endsOut = false;
+
+	for (int i = 0; i < brush->numSides; i++)
+	{
+		q3BspBrushSide* thisSide = &mBrushSides[brush->firstSide + i];
+		q3BspPlane* thisPlane = &mPlanes[thisSide->planeIndex];
+
+		float startDist = q3DotProduct(mTraceStart, thisPlane->normal) - thisPlane->dist;	
+		float endDist = q3DotProduct(mTraceEnd, thisPlane->normal) - thisPlane->dist;	
+
+		if (startDist > 0)
+			startsOut = true;
+		if (endDist > 0)
+			endsOut = true;
+
+		// Completely in front of plane
+		if (startDist > 0 && (endDist >= Q3_EPSILON || endDist >= startDist))
+			return;
+
+		// Doesnt cross the plane
+		if (startDist <= 0 && endDist <= 0)
+			continue;
+
+		// Line is entering the brush
+		if (startDist > endDist)
+		{
+			float fraction = (startDist - Q3_EPSILON) / (startDist - endDist);
+			if (fraction > startFraction)
+				startFraction = fraction;
+		}
+		else
+		// line is leaving the brush
+		{
+			float fraction = (startDist + Q3_EPSILON) / (startDist - endDist);
+			if (fraction < endFraction)
+				endFraction = fraction;
+		}
+	}
+
+	if (!startsOut)
+	{
+		mTempTrace.startsOut = false;
+		if (!endsOut)
+			mTempTrace.enclosedInSolid = true;
+
+		return;
+	}
+
+	if (startFraction < endFraction)
+	{
+		if (startFraction > -1 && startFraction < mTempTrace.fraction)
+		{
+			if (startFraction < 0)
+				startFraction = 0;
+
+			mTempTrace.fraction = startFraction;
+		}
+	}
+}
+
+void q3Bsp::checkNode(int index, const float startFraction, const float endFraction,
+					const vector3& start, const vector3& end)
+{
+	// we hit a leaf, go through it =]
+	if (index < 0)
+	{
+		q3BspLeaf* thisLeaf = &mLeafs[~index];
+		for (int i = 0; i < thisLeaf->numLeafBrush; i++)
+		{
+			unsigned int realIndex = mLeafBrushes[thisLeaf->firstLeafBrush + i];
+		
+			// Go go brushes!
+			q3BspBrush* thisBrush = &mBrushes[realIndex];
+
+			if ((thisBrush->numSides > 0) &&
+				(!mTraceFlags || (mMaterials[thisBrush->shaderNum]->getContentFlags() & mTraceFlags)))
+			{
+				checkBrush(thisBrush);
+			}
+		}
+
+		return;
+	}
+
+	// Lets walk through the tree to find the leaf
+	q3BspNode* thisNode = &mNodes[index];
+	q3BspPlane* thisPlane = &mPlanes[thisNode->plane];
+
+	float startDist = q3DotProduct(start, thisPlane->normal) - thisPlane->dist;
+	float endDist = q3DotProduct(end, thisPlane->normal) - thisPlane->dist;
+
+	// In front of plane
+	if (startDist >= 0 && endDist >= 0)
+	{
+		checkNode(thisNode->children[0], startFraction, endFraction, start, end);
+	}
+	else
+	// Behind the plane
+	if (startDist < 0 && endDist < 0)
+	{
+		checkNode(thisNode->children[1], startFraction, endFraction, start, end);
+	}
+	else
+	{
+		// the line is "cutting" the planes
+		vector3 endStartDiff = end - start;
+		vector3 middle;
+		int side;
+		float fraction1, fraction2, middleFraction;
+
+		// back
+		if (startDist < endDist)
+		{
+			side = 1;
+			float invDist = 1.0f / (startDist - endDist);
+	
+			fraction1 = (startDist + Q3_EPSILON) * invDist;
+			fraction2 = fraction1;
+		}
+		else
+		// front
+		if (startDist > endDist)
+		{
+			side = 0;
+			float invDist = 1.0f / (startDist - endDist);
+	
+			fraction1 = (startDist + Q3_EPSILON) * invDist;
+			fraction2 = (startDist - Q3_EPSILON) * invDist;
+		}
+		// choose front
+		else
+		{
+			side = 0;
+			fraction1 = 1.0f;
+			fraction2 = 0.0f;
+		}
+	
+		// check out fraction 1 and 2
+		if (fraction1 < 0.0f)
+			fraction1 = 0.0f;
+		else
+		if (fraction1 > 1.0f)
+			fraction1 = 1.0f;
+
+		if (fraction2 < 0.0f)
+			fraction2 = 0.0f;
+		else
+		if (fraction2 > 1.0f)
+			fraction2 = 1.0f;
+	
+		// middle point for the first side
+		middleFraction = startFraction + (endFraction - startFraction) * fraction1;
+		middle = start + endStartDiff * fraction1;
+		checkNode(thisNode->children[side], startFraction, middleFraction, start, middle);
+		
+		// middle point for the second side
+		middleFraction = startFraction + (endFraction - startFraction) * fraction2;
+		middle = start + endStartDiff * fraction2;
+		checkNode(thisNode->children[side ^ 1], middleFraction, endFraction, middle, end);
+	}
+}
+				
+q3BspTrace q3Bsp::trace(const vector3& start, const vector3& end, int flags)
+{
+	mTempTrace.startsOut = true;
+	mTempTrace.enclosedInSolid = false;
+	mTempTrace.fraction = 1.0f;
+
+	mTraceStart = start;
+	mTraceEnd = end;
+	mTraceFlags = flags;
+
+	checkNode(0, 0, 1.0f, start, end);
+	if (mTempTrace.fraction == 1.0f)
+	{
+		mTempTrace.end = end;
+	}
+	else
+	{
+		mTempTrace.end = mTraceStart + (mTraceEnd - mTraceStart) * mTempTrace.fraction;
+	}
+
+	return mTempTrace;
+}
 			
 bezierPatch::bezierPatch()
 {
@@ -1065,7 +1356,7 @@ void bezierPatch::configure(unsigned int steps)
 	mCurrCP = 0;
 	
 	mNumOfVertices = pow(mSteps + 1, 2);
-	mVertices = (q3BspVertex*) malloc(mNumOfVertices * sizeof(q3BspVertex));
+	mVertices = (q3BspVertex*) memalign(32, mNumOfVertices * sizeof(q3BspVertex));
 	if (!mVertices)
 	{
 		S_LOG_INFO("Failed to allocate bezier surface vertices.");
@@ -1073,7 +1364,7 @@ void bezierPatch::configure(unsigned int steps)
 	}
 
 	mNumOfIndices = mSteps * (mSteps + 1) * 2;
-	mIndices = (index_t*) malloc(mNumOfIndices * sizeof(index_t));
+	mIndices = (index_t*) memalign(32, mNumOfIndices * sizeof(index_t));
 	if (!mIndices)
 	{
 		S_LOG_INFO("Failed to allocate bezier surface indices.");
@@ -1082,7 +1373,7 @@ void bezierPatch::configure(unsigned int steps)
 		return;
 	}
 
-	mTrianglesPerRow = (index_t*) malloc(mSteps * sizeof(index_t));
+	mTrianglesPerRow = (index_t*) memalign(32, mSteps * sizeof(index_t));
 	if (!mTrianglesPerRow)
 	{	
 		S_LOG_INFO("Failed to allocate bezier surface trianglesPerRow.");
@@ -1092,7 +1383,7 @@ void bezierPatch::configure(unsigned int steps)
 		return;
 	}
 
-	mRowIndices = (index_t**) malloc(mSteps * sizeof(index_t*));
+	mRowIndices = (index_t**) memalign(32, mSteps * sizeof(index_t*));
 	if (!mRowIndices)
 	{	
 		S_LOG_INFO("Failed to allocate bezier surface row indices.");
@@ -1270,7 +1561,7 @@ const unsigned int bezierPatchSet::getPatchesCount() const
 			
 void bezierPatchSet::configure(const short i)
 {
-	mPatches = (bezierPatch**) malloc(sizeof(bezierPatch*) * i);
+	mPatches = (bezierPatch**) memalign(32, sizeof(bezierPatch*) * i);
 	if (!mPatches)
 		S_LOG_INFO("Failed to allocate patch arrays for set.");
 
@@ -1286,6 +1577,6 @@ void bezierPatchSet::pushPatch(bezierPatch* patch)
 	kAssert(patch);
 	mPatches[mPatchIndex++] = patch;
 }
-
+			
 }
 

@@ -45,6 +45,15 @@ namespace k
 		FACETYPE_BILLBOARD
 	};
 
+	enum Q3_BSP_CONTENTS
+	{
+		CONTENTS_SOLID = 1,
+		CONTENTS_LAVA = 8,
+		CONTENTS_SLIME = 16,
+		CONTENTS_WATER = 32,
+		CONTENTS_FOG = 64
+	};
+
 	enum Q3_BSP_LUMPS
 	{
 		LUMP_ENTITIES = 0,
@@ -161,6 +170,12 @@ namespace k
 		int firstSide;
 		int numSides;
 		int shaderNum; // for content flags
+	} q3BspBrush;
+
+	typedef struct
+	{
+		int planeIndex;
+		int textureIndex;
 	} q3BspBrushSide;
 
 	typedef struct
@@ -175,6 +190,25 @@ namespace k
 		int bytesPerVis;
 		unsigned char* bitSet;
 	} q3BspVis;
+
+	typedef struct
+	{
+		// How far along the line
+		// we got before collision.
+		float fraction;
+
+		// Point of collision
+		vector3 end;
+
+		// if the segment starts
+		// outside a surface.
+		bool startsOut;
+
+		// true if line segment
+		// is completely enclosed
+		// in a solid volume.
+		bool enclosedInSolid;
+	} q3BspTrace;
 
 	/**
 	 * This will be separated later
@@ -351,8 +385,13 @@ namespace k
 			int mNodesCount;
 			int mLeafsCount;
 			int mLeafFacesCount;
+			int mLeafBrushesCount;
 			int mPlanesCount;
 			int mPatchesCount;
+			int mMaterialsCount;
+
+			int mBrushesCount;
+			int mBrushSidesCount;
 
 			index_t* mIndices;
 			q3BspVertex* mVertices;
@@ -360,7 +399,17 @@ namespace k
 			q3BspNode* mNodes;
 			q3BspLeaf* mLeafs;
 			q3BspPlane* mPlanes;
+			q3BspBrush* mBrushes;
+			q3BspBrushSide* mBrushSides;
 			int* mLeafFaces;
+			int* mLeafBrushes;
+
+			/**
+			 * For collision checking
+			 */
+			q3BspTrace mTempTrace;
+			vector3 mTraceStart, mTraceEnd;
+			int mTraceFlags;
 
 			/**
 			 * Game entities
@@ -372,6 +421,9 @@ namespace k
 			 */
 			bezierPatchSet* mPatches;
 
+			/** 
+			 * Vis data
+			 */
 			q3BspVis mBspVisData;
 
 			/*
@@ -390,7 +442,7 @@ namespace k
 			/**
 			 * See wich faces we already rendered.
 			 */
-			q3BitSet mBitSet;
+			q3BitSet mFaceSet;
 
 			/**
 			 * Are we drawing lightmaps?
@@ -473,6 +525,20 @@ namespace k
 			{
 				return mEntities;
 			}
+
+			/**
+			 * Collision check. Based on devmaster
+			 * article of Nathan Ostgard, many thanks to him.
+			 */
+			void checkBrush(const q3BspBrush* brush);
+			void checkNode(int index, const float startFraction, const float endFraction,
+					const vector3& start, const vector3& end);
+
+			q3BspTrace trace(const vector3& start, const vector3& end, int flags = 0);
+
+			/**
+			 * Rendering awesomeness
+			 */
 
 			bool isClusterVisible(int curr, int targ) const;
 			int findLeaf(const vector3& viewerPos) const;

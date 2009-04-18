@@ -66,7 +66,9 @@ namespace k
 
 			vector3(const vector3& in)
 			{
-				*this = in;
+				x = in.x;
+				y = in.y;
+				z = in.z;
 
 				#ifdef __HAVE_SSE3__
 				w = 0;
@@ -94,9 +96,13 @@ namespace k
 			 * Creates a vector from a formated string,
 			 * where values are separated by white space.
 			 */
-			vector3(const std::string& str, const std::string& del = " ")
+			vector3(const std::string& str)
 			{
 				x = y = z = 0;
+
+				#ifdef __HAVE_SSE3__
+				w = 0;
+				#endif
 
 				if (str.length())
 					sscanf(str.c_str(), "%f %f %f", &x, &y, &z);
@@ -104,48 +110,17 @@ namespace k
 
 			vector3 reflect(const vector3& normal)
 			{
-				vector3 out;
 				vec_t dot = -2 * dotProduct(normal);
 
-				/*
-				#ifdef __HAVE_SSE3__
-				vector3 temp(dot, dot, dot);
-
-				__asm__ __volatile__(
-				"movups (%[in]), %%xmm0\n"
-				"movups (%[in2]), %%xmm1\n"
-				"movups (%[in]), %%xmm2\n"
-				"mulps %%xmm0, %%xmm1\n"
-				"haddps %%xmm1, %%xmm2\n"
-				: [out] "=m" (out)
-				: [in] "r" (vec), [in2] "r" (normal.vec));
-				#else
-				*/
-				out.x = x + dot * normal.x;
-				out.y = y + dot * normal.y;
-				out.z = z + dot * normal.z;
-						
-				return out;
-				// #ifdef __HAVE_SSE3__
+				return vector3(
+						x + dot * normal.x,
+						y + dot * normal.y,
+						z + dot * normal.z);
 			}
 
 			inline vector3 operator + (const vector3& newVec) const
 			{
-				#ifdef __HAVE_SSE3__
-				vector3 tempVec;
-				__asm__ __volatile__ (
-				"movups (%[in]), %%xmm0\n"
-				"movups (%[in2]), %%xmm1\n"
-				"addps %%xmm0, %%xmm1\n"
-				"movups %%xmm1, %[out]"
-				: [out] "=m" (tempVec.vec) 
-				: [in] "r" (vec), [in2] "r" (newVec.vec)
-				: "memory", "%xmm0", "%xmm1");
-				return tempVec;
-				#else
-				vector3 tempVec(newVec.x + x, newVec.y + y, newVec.z + z);
-				return tempVec;
-				#endif
+				return vector3(newVec.x + x, newVec.y + y, newVec.z + z);
 			}
 
 			inline vector3& operator += (const vector3& newVec)
@@ -224,92 +199,23 @@ namespace k
 			
 			inline vector3 operator * (const vec_t scalar) const
 			{
-				#ifdef __HAVE_SSE3__
-				vector3 temp(scalar, scalar, scalar);
-				vector3 out;
-
-				__asm__ __volatile__(
-				"movups (%[in]), %%xmm0\n"
-				"movups (%[in2]), %%xmm1\n"
-				"mulps %%xmm0, %%xmm1\n"
-				"movups %%xmm1, %[out]"
-				: [out] "=m" (out.vec)
-				: [in] "r" (vec), [in2] "r" (temp.vec)
-				: "memory", "%xmm0", "%xmm1");
-				return out;
-				#else
-				vector3 tempVec(x * scalar, 
-						y * scalar,
-						z * scalar);
-
-				return tempVec;				
-				#endif
+				return vector3(x * scalar, y * scalar, z * scalar);
 			}
 			
 			inline vector3 operator * (const vector3& newVec) const
 			{
-				#ifdef __HAVE_SSE3__
-				vector3 out;
-				__asm__ __volatile__(
-				"movups (%[in]), %%xmm0\n"
-				"movups (%[in2]), %%xmm1\n"
-				"mulps %%xmm0, %%xmm1\n"
-				"movups %%xmm1, %[out]"
-				: [out] "=m" (out.vec)
-				: [in] "r" (vec), [in2] "r" (newVec.vec)
-				: "memory", "%xmm0", "%xmm1");
-				return out;
-				#else
-				vector3 tempVec(x * newVec.x, 
-						y * newVec.y,
-						z * newVec.z);
-
-				return tempVec;				
-				#endif
+				return vector3(x * newVec.x, y * newVec.y, z * newVec.z);
 			}
 			
 			inline vector3 operator / (const vec_t scalar) const
 			{
-				assert(scalar != 0.0);
-				
-				#ifdef __HAVE_SSE3__
-				vector3 temp(scalar, scalar, scalar);
-				vector3 out;
-				__asm__ __volatile__(
-				"movups (%[in]), %%xmm0\n"
-				"movups (%[in2]), %%xmm1\n"
-				"divps %%xmm0, %%xmm1\n"
-				"movups %%xmm1, %[out]"
-				: [out] "=m" (out.vec)
-				: [in] "r" (vec), [in2] "r" (temp.vec)
-				: "memory", "%xmm0", "%xmm1");
-				return out;
-				#else
-				vector3 tempVec(x/scalar, y/scalar, z/scalar);
-				return tempVec;				
-				#endif
+				assert(scalar);
+				return vector3(x/scalar, y/scalar, z/scalar);
 			}
 			
 			inline vector3 operator / (const vector3& newVec) const
 			{
-				#ifdef __HAVE_SSE3__
-				vector3 out;
-				__asm__ __volatile__(
-				"movups (%[in]), %%xmm0\n"
-				"movups (%[in2]), %%xmm1\n"
-				"divps %%xmm0, %%xmm1\n"
-				"movups %%xmm1, %[out]"
-				: [out] "=m" (out.vec)
-				: [in] "r" (vec), [in2] "r" (newVec.vec)
-				: "memory", "%xmm0", "%xmm1");
-				return out;
-				#else
-				vector3 tempVec(x / newVec.x, 
-						y / newVec.y,
-						z / newVec.z);
-
-				return tempVec;				
-				#endif
+				return vector3(x / newVec.x, y / newVec.y, z / newVec.z);
 			}
 			
 			inline bool operator == (const vector3& newVec) const
@@ -346,23 +252,7 @@ namespace k
 			
 			inline const vec_t length() const
 			{
-				#ifdef __HAVE_SSE3__
-				float d = 0.0f;
-				__asm__ __volatile__ (
-				"movups (%[in]), %%xmm0\n"
-				"movups (%[in]), %%xmm1\n"
-				"mulps %%xmm0, %%xmm1\n"
-				"haddps %%xmm1, %%xmm1\n"
-				"haddps %%xmm1, %%xmm1\n"
-				"sqrtss %%xmm1, %%xmm1\n"
-				"movss %%xmm1, %[out]"
-				: [out] "=m" (d)
-				: [in] "r" (vec)
-				: "memory", "%xmm0", "%xmm1");
-				return d;
-				#else
 				return sqrt(x*x + y*y + z*z);
-				#endif
 			}
 			
 			/**

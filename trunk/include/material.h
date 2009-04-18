@@ -36,7 +36,7 @@ namespace k
 
 	class DLL_EXPORT material
 	{
-		private:
+		protected:
 			vector3 mAmbient;
 			vector3 mDiffuse;
 			vector3 mSpecular;
@@ -46,6 +46,9 @@ namespace k
 			bool mNoDraw;
 
 			unsigned int mTextureUnits;
+
+			int mContentFlags;
+			int mEffectFlags;
 
 			std::list<textureStage*> mTextures;
 
@@ -60,6 +63,12 @@ namespace k
 			void setCullMode(CullMode cull);
 			void setDepthTest(bool test);
 			void setNoDraw(bool nd);
+
+			void setContentFlags(int flags);
+			void setEffectFlags(int flags);
+
+			int getContentFlags(); 
+			int getEffectFlags(); 
 
 			void setTextureUnits(unsigned int tex);
 			void setSingleTexture(unsigned int w, unsigned int h, kTexture* tex);
