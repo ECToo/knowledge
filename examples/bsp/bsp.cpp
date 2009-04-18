@@ -64,10 +64,15 @@ int main(int argc, char** argv)
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("bsp");
 
-	k::q3Bsp testeBsp;
-	testeBsp.loadQ3Bsp("tc_closecombat.bsp");
-	// testeBsp.loadQ3Bsp("q3dm1.bsp");
+	// Test model
+	k::md3model* sphere = new k::md3model("space_models/sphere.md3");
+	kAssert(sphere);
 
+	mRenderer->push3D(sphere);
+
+	k::q3Bsp testeBsp;
+	// testeBsp.loadQ3Bsp("the_cell.bsp");
+	testeBsp.loadQ3Bsp("tc_closecombat.bsp");
 	mRenderer->setWorld(&testeBsp);
 
 	delete newLoadingScreen;
@@ -85,6 +90,7 @@ int main(int argc, char** argv)
 	mRenderer->setCamera(newCamera);
 
 	// Find a random spawn point on the map
+	/*
 	std::vector<k::vector3> spawnPoints;
 
 	const std::list<k::q3Entity> mapEntities = testeBsp.getEntities();
@@ -106,6 +112,7 @@ int main(int argc, char** argv)
 	srand(time(NULL));
 	unsigned int choosen = rand() % spawnPoints.size();
 	newCamera->setPosition(spawnPoints[choosen]);
+	*/
 
 	// Fps Counter
 	k::bitmapText* fpsText = new k::bitmapText("fonts/cube_14.dat", "cube_14");
@@ -260,6 +267,11 @@ int main(int argc, char** argv)
 
 			newCamera->setOrientation(dirQuat * ori);
 		}
+
+		// Position sphere
+		k::q3BspTrace newTrace = testeBsp.trace(newCamera->getPosition(), newCamera->getPosition() + newCamera->getDirection() * 5000); 
+		if (newTrace.fraction != 1.0f)
+			sphere->setPosition(newTrace.end);
 
 		// FPS Counter
 		std::stringstream fpsT;
