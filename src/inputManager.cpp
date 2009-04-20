@@ -71,7 +71,6 @@ void inputManager::setPointerLock(bool lock)
 	if (lock)
 	{
 		renderSystem* rs = root::getSingleton().getRenderSystem();
-		kAssert(rs);
 
 		SDL_WM_GrabInput(SDL_GRAB_ON);
 		SDL_ShowCursor(0);
@@ -96,7 +95,6 @@ unsigned char inputManager::setupWiiMotes(unsigned char num)
 	u32 wResX, wResY;
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs);
 	wResX = rs->getScreenWidth();
 	wResY = rs->getScreenHeight();
 

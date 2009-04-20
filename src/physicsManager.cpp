@@ -157,7 +157,6 @@ void physicsManager::setJointGroup(const std::string& name)
 void DLL_EXPORT defaultCollision(void* data, dGeomID id1, dGeomID id2)
 {
 	physicsManager* pMgr = &physicsManager::getSingleton();
-	kAssert(pMgr != NULL);
 
 	dSurfaceParameters params = pMgr->getParams();
 	dWorldID worldId = pMgr->getActiveWorld();

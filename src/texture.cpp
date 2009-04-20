@@ -36,7 +36,7 @@ texture::~texture()
 	for (it = mTextureData.begin(); it != mTextureData.end(); it++)
 	{
 		char* temp = *it;
-		free(temp);
+		free(temp); // memaligned data
 	}
 
 	std::vector<kTexture*>::iterator kit;
@@ -95,7 +95,7 @@ kTexture* texture::getId(int i)
 
 bool texture::containsFilename(const std::string& name)
 {
-	std::vector<std::string>::iterator it;
+	std::vector<std::string>::const_iterator it;
 	for (it = mFilenames.begin(); it != mFilenames.end(); it++)
 	{
 		if ((*it).find(name) != std::string::npos)
@@ -117,12 +117,18 @@ textureStage::textureStage(unsigned short index)
 
 	mTexCoordType = TEXCOORD_UV;
 	mTexture = NULL;
+	mReplaceByLightmap = false;
 }
 			
 void textureStage::setBlendMode(unsigned short src, unsigned short dst)
 {
 	mBlendSrc = src;
 	mBlendDst = dst;
+}
+			
+void textureStage::setLightmapReplace(bool lm)
+{
+	mReplaceByLightmap = lm;
 }
 
 void textureStage::setTexture(texture* tex)
@@ -153,6 +159,11 @@ unsigned short textureStage::getHeight()
 		return mTexture->getHeight();
 	else
 		return 0;
+}
+
+bool textureStage::getReplaceByLightmap()
+{
+	return mReplaceByLightmap;
 }
 			
 kTexture* textureStage::getTexture(int i)

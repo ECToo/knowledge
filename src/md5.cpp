@@ -140,10 +140,13 @@ void md5mesh::setMaterial(material* mat)
 void md5mesh::setMaterial(const std::string& matName)
 {
 	materialManager* matMgr = &materialManager::getSingleton();
-	kAssert(matMgr != NULL);
-
 	material* mat = matMgr->getMaterial(matName);
-	kAssert(mat != NULL);
+
+	if (!mat)
+	{
+		S_LOG_INFO("Invalid pointer to material in md5mesh.");
+		return;
+	}
 
 	mMaterial = mat;
 }
@@ -339,8 +342,6 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 void md5mesh::draw()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs);
-
 	mMaterial->prepare();
 
 	rs->clearArrayDesc();
@@ -628,7 +629,6 @@ void md5model::compileBase()
 void md5model::draw()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs);
 
 	// Feed animations =]
 	feedAnims();
@@ -1022,7 +1022,7 @@ void md5model::setAnimationFrame(unsigned int frameNum)
 		anim_t* currentAnim = thisBone->currentAnim;
 
 		unsigned int realFrameNum;
-		if (frameNum >= currentAnim->numFrames)
+		if (frameNum >= currentAnim->numFrames && currentAnim->numFrames)
 			realFrameNum = frameNum % currentAnim->numFrames;
 		else
 			realFrameNum = frameNum;

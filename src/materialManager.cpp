@@ -580,13 +580,27 @@ void materialManager::parseQ3TextureSection(material* mat, parsingFile* file, un
 		if (token == "map")
 		{
 			token = file->getNextToken();
-			textureManager::getSingleton().setStageTexture(activeTexture, token, FLAG_REPEAT_S | FLAG_REPEAT_T | FLAG_REPEAT_R);
+			if (token  == "$lightmap")
+			{
+				activeTexture->setLightmapReplace(true);
+			}
+			else
+			{
+				textureManager::getSingleton().setStageTexture(activeTexture, token, FLAG_REPEAT_S | FLAG_REPEAT_T | FLAG_REPEAT_R);
+			}
 		}
 		else
 		if (token == "clampmap")
 		{
 			token = file->getNextToken();
-			textureManager::getSingleton().setStageTexture(activeTexture, token);
+			if (token  == "$lightmap")
+			{
+				activeTexture->setLightmapReplace(true);
+			}
+			else
+			{
+				textureManager::getSingleton().setStageTexture(activeTexture, token);
+			}
 		}
 		else
 		if (token == "tcMod")

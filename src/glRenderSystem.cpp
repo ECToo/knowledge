@@ -641,15 +641,18 @@ void glRenderSystem::screenshot(const char* filename)
 	FIBITMAP* newImage = FreeImage_Allocate(mScreenSize[0], mScreenSize[1], 24);
 	if (!newImage)
 	{
-		lowMemory:
-
 		S_LOG_INFO("Failed to allocate memory for screenshot.");
 		return;
 	}
 
-	char* imgData = (char*)malloc(mScreenSize[0] * mScreenSize[1] * 3);
+	char* imgData = new char[mScreenSize[0] * mScreenSize[1] * 3];
 	if (!imgData)
-		goto lowMemory;
+	{
+		S_LOG_INFO("Failed to allocate memory for screenshot.");
+		FreeImage_Unload(newImage);
+
+		return;
+	}
 
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, imgData);
 
@@ -675,7 +678,7 @@ void glRenderSystem::screenshot(const char* filename)
 
 	FreeImage_Save(FIF_JPEG, newImage, filename, JPEG_QUALITYSUPERB);
 	FreeImage_Unload(newImage);
-	free(imgData);
+	delete [] imgData;
 }
 			
 bool glRenderSystem::getVBOSupport()

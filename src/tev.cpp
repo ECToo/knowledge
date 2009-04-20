@@ -565,8 +565,6 @@ void tevManager::parseTevScript(parsingFile* file)
 			tev* newTev = getTev(token);
 			if (newTev)
 			{
-				S_LOG_INFO("tev " + token + " already exists.");
-
 				file->skipNextToken(); // {
 				unsigned int openBraces = 1;
 

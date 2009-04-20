@@ -40,7 +40,6 @@ guiManager::~guiManager()
 	if (mCursor)
 	{
 		renderer* rs = root::getSingleton().getRenderer();
-		kAssert(rs != NULL);
 
 		rs->pop2D(mCursor);
 		delete mCursor;
@@ -60,7 +59,6 @@ void guiManager::setCursor(std::string mat, vector2 scale)
 	#endif
 
 	renderer* rs = root::getSingleton().getRenderer();
-	kAssert(rs != NULL);
 
 	rs->push2D(mCursor);
 

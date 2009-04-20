@@ -638,6 +638,9 @@ void wiiRenderSystem::setCulling(CullMode culling)
 
 void wiiRenderSystem::startVertices(VertexMode mode)
 {
+	if (mActiveMaterial && mActiveMaterial->getNoDraw())
+		return;
+
 	mRenderingMode = mode;
 
 	mVertices.clear();
@@ -648,26 +651,41 @@ void wiiRenderSystem::startVertices(VertexMode mode)
 
 void wiiRenderSystem::vertex(const vector3& vert)
 {
+	if (mActiveMaterial && mActiveMaterial->getNoDraw())
+		return;
+
 	mVertices.push_back(vert);
 }
 
 void wiiRenderSystem::normal(const vector3& norm)
 {
+	if (mActiveMaterial && mActiveMaterial->getNoDraw())
+		return;
+
 	mNormals.push_back(norm);
 }
 
 void wiiRenderSystem::color(const vector3& col)
 {
+	if (mActiveMaterial && mActiveMaterial->getNoDraw())
+		return;
+
 	mColors.push_back(col);
 }
 
 void wiiRenderSystem::texCoord(const vector2& coord)
 {
+	if (mActiveMaterial && mActiveMaterial->getNoDraw())
+		return;
+
 	mTexCoords.push_back(coord);
 }
 
 void wiiRenderSystem::endVertices()
 {
+	if (mActiveMaterial && mActiveMaterial->getNoDraw())
+		return;
+
 	unsigned int mVertexSize = mVertices.size();
 
 	GX_ClearVtxDesc();
@@ -808,6 +826,8 @@ void wiiRenderSystem::matSpecular(const vector3& color)
 void wiiRenderSystem::bindTexture(GXTexObj* tex, int chan)
 {
 	kAssert(chan < 8);
+	kAssert(tex);
+
 	mActiveTextures[chan] = tex;
 }
 			
@@ -819,6 +839,9 @@ void wiiRenderSystem::unBindTexture(int chan)
 
 void wiiRenderSystem::drawArrays()
 {
+	if (mActiveMaterial && mActiveMaterial->getNoDraw())
+		return;
+
 	GX_ClearVtxDesc();
 
 	GX_SetVtxDesc(GX_VA_POS, GX_INDEX16);
@@ -973,7 +996,7 @@ void wiiRenderSystem::screenshot(const char* filename)
 	GX_PixModeSync();
 
 	// Write to file
-	char* rgbTex = (char*) malloc(w * h * 3);
+	char* rgbTex = new char[w * h * 3];
 	if (!rgbTex)
 	{
 		free(textureData);
@@ -1079,7 +1102,9 @@ void wiiRenderSystem::screenshot(const char* filename)
 
 	// Free Texture
 	jpeg_destroy_compress(&jInfo);
-	free(rgbTex);
+	delete [] rgbTex;
+
+	// memalign'ed
 	free(textureData);
 }
 
@@ -1109,14 +1134,17 @@ void wiiRenderSystem::copyBufferToTexture()
 
 void wiiRenderSystem::copyToTexture(kTexture* tex)
 {
+	kAssert(tex);
+
 	tex = mRttTarget;
 	copyBufferToTexture();
 }
 			
 void wiiRenderSystem::setTexEnv(texEnvMode mode, int stage)
 {
-	unsigned int mod = GX_REPLACE;
+	kAssert(stage < 16);
 
+	unsigned int mod = GX_REPLACE;
 	switch (mode)
 	{
 		case TEX_ENV_BLEND:

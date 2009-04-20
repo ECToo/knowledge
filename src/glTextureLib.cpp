@@ -56,7 +56,7 @@ kTexture* loadWithFreeImage(const std::string& filename, unsigned short* w, unsi
 		image = tmp;
 	}
 
-	unsigned char* imgData = (unsigned char*) malloc(width * height * 4);
+	unsigned char* imgData = new unsigned char[width * height * 4];
 	if (!imgData)
 	{
 		S_LOG_INFO("Could not allocate memory for image data.");
@@ -84,11 +84,11 @@ kTexture* loadWithFreeImage(const std::string& filename, unsigned short* w, unsi
 
 	FreeImage_Unload(image);
 
-	kTexture* glImage = (kTexture*) malloc(sizeof(kTexture));
+	kTexture* glImage = new kTexture;
 	if (!glImage)
 	{
 		S_LOG_INFO("Failed to allocate GLuint for image.");
-		free(imgData);
+		delete [] imgData;
 
 		return NULL;
 	}
@@ -129,7 +129,7 @@ kTexture* loadWithFreeImage(const std::string& filename, unsigned short* w, unsi
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	free(imgData);
+	delete [] imgData;
 
 	if (w && h)
 	{
@@ -269,7 +269,7 @@ texture* createRawTexture(unsigned char* data, int w, int h, int flags)
 {
 	kAssert(data);
 
-	kTexture* glImage = (kTexture*) malloc(sizeof(kTexture));
+	kTexture* glImage = new kTexture;
 	if (!glImage)
 	{
 		S_LOG_INFO("Failed to allocate GLuint for texture.");
@@ -331,7 +331,7 @@ texture* createRawTexture(unsigned char* data, int w, int h, int flags)
 	if (!newTexture)
 	{
 		S_LOG_INFO("Failed to allocate new texture.");
-		free(glImage);
+		delete glImage;
 
 		return NULL;
 	}

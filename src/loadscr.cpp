@@ -24,15 +24,13 @@
 namespace k {
 
 // Static for full screen =]
-vec_t mVertices[] = { 0.0f, 1.0f };
-vec_t mTexCoords[] = { 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f };
-index_t mIndices[] = { 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0 };
+const vec_t mVertices[] ATTRIBUTE_ALIGN(32) = { 0.0f, 1.0f };
+const vec_t mTexCoords[] ATTRIBUTE_ALIGN(32) = { 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f };
+const index_t mIndices[] ATTRIBUTE_ALIGN(32) = { 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0 };
 
 void bgLoadScreen::loadBg(const std::string& filename)
 {
 	k::textureManager* texMgr = &k::textureManager::getSingleton();
-	kAssert(texMgr);
-
 	texMgr->allocateTextureData(filename);
 
 	k::texture* newTexture = texMgr->getTexture(filename);
@@ -56,7 +54,6 @@ void bgLoadScreen::loadBg(const std::string& filename)
 void bgLoadScreen::update(const std::string& filename)
 {
 	k::renderSystem* rs = k::root::getSingleton().getRenderSystem();
-	kAssert(rs);
 	kAssert(mBackground);
 
 	rs->frameStart();
@@ -96,8 +93,6 @@ void bgLoadScreen::update(const std::string& filename)
 void imgLoadScreen::loadBg(const std::string& filename)
 {
 	k::textureManager* texMgr = &k::textureManager::getSingleton();
-	kAssert(texMgr);
-
 	texMgr->allocateTextureData(filename);
 
 	k::texture* newTexture = texMgr->getTexture(filename);
@@ -131,8 +126,9 @@ void imgLoadScreen::setImgDimension(const vector2& dimension)
 void imgLoadScreen::update(const std::string& filename)
 {
 	k::renderSystem* rs = k::root::getSingleton().getRenderSystem();
-	kAssert(rs);
-	kAssert(mImgMaterial);
+
+	if (!mImgMaterial)
+		return;
 
 	uint32_t rsWidth = rs->getScreenWidth();
 	uint32_t rsHeight = rs->getScreenHeight();
