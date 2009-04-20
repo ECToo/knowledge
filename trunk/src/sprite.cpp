@@ -24,7 +24,7 @@ namespace k {
 
 sprite::sprite(material* mat, vec_t radi)
 {
-	kAssert(mat != NULL);
+	kAssert(mat);
 
 	mRadius = radi;
 	mMaterial = mat;	
@@ -50,21 +50,19 @@ sprite::~sprite()
 
 void sprite::calculateTransPos()
 {
+	/*
 	#ifndef __WII__
 	if (GLEW_ARB_point_sprite)
 		return;
 	#endif
+	*/
 
 	// Render must be valid
-	renderer* mRenderer = root::getSingleton().getRenderer();
-	kAssert(mRenderer != NULL);
-
-	camera* mCam = mRenderer->getCamera();
+	camera* mCam = root::getSingleton().getRenderer()->getCamera();
 	if (!mCam)
 	{
 		// Camera is not valid - yet
 		invalidate();
-
 		return;
 	}
 
@@ -117,7 +115,7 @@ vec_t sprite::getRadius()
 
 void sprite::setMaterial(material* mat)
 {
-	kAssert(mat != NULL);
+	kAssert(mat);
 	mMaterial = mat;
 }
 
@@ -128,6 +126,7 @@ void sprite::setMaterial(const std::string& mat)
 
 void sprite::setRadius(vec_t rad)
 {
+	/*
 	#ifndef __WII__
 	if (GLEW_ARB_point_sprite)
 	{
@@ -137,6 +136,7 @@ void sprite::setRadius(vec_t rad)
 			S_LOG_INFO("Radius is greater than supported sprite point size.");
 	}
 	#endif
+	*/
 
 	mRadius = rad;
 }
@@ -146,18 +146,20 @@ void sprite::invalidate()
 	mInvalidTransPos = true;
 }
 
+/*
 #ifndef __WII__
 static GLfloat distanceAtt[] = {1, 0, 0.5f};
 #endif
+*/
 
 void sprite::draw()
 {
-	if (mRadius == 0)
+	if (!mRadius)
 		return;
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs != NULL);
 
+	/*
 	#ifndef __WII__
 	if (GLEW_ARB_point_sprite)
 	{
@@ -188,6 +190,7 @@ void sprite::draw()
 		return;
 	}
 	#endif
+	*/
 
 	if (mInvalidTransPos)
 		calculateTransPos();
@@ -201,12 +204,12 @@ void sprite::draw()
 	kAssert(mMaterial != NULL);
 	mMaterial->prepare();
 
-	vec_t uv[] ATTRIBUTE_ALIGN(32) = {0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0};
-	vec_t vertex[] ATTRIBUTE_ALIGN(32) = {-mRadius, -mRadius, 0, mRadius, -mRadius, 0,
+	const vec_t uv[] ATTRIBUTE_ALIGN(32) = {0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0};
+	const vec_t vertex[] ATTRIBUTE_ALIGN(32) = {-mRadius, -mRadius, 0, mRadius, -mRadius, 0,
 		mRadius, mRadius, 0, mRadius, mRadius, 0, -mRadius, mRadius, 0,
 		-mRadius, -mRadius, 0 };
 
-	index_t index[] ATTRIBUTE_ALIGN(32) = {0, 1, 2, 3, 4, 5}; 
+	const index_t index[] ATTRIBUTE_ALIGN(32) = {0, 1, 2, 3, 4, 5}; 
 
 	rs->clearArrayDesc();
 	rs->setVertexArray(vertex);
@@ -225,12 +228,12 @@ void sprite::draw()
 			
 void sprite::rawDraw()
 {
-	if (mRadius == 0)
+	if (!mRadius)
 		return;
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs != NULL);
 
+	/*
 	#ifndef __WII__
 	if (GLEW_ARB_point_sprite)
 	{
@@ -254,6 +257,7 @@ void sprite::rawDraw()
 		return;
 	}
 	#endif
+	*/
 
 	if (mInvalidTransPos)
 		calculateTransPos();
@@ -261,12 +265,12 @@ void sprite::rawDraw()
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 	rs->multMatrix(mTransPos);
 
-	vec_t uv[] ATTRIBUTE_ALIGN(32) = {0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0};
-	vec_t vertex[] ATTRIBUTE_ALIGN(32) = {-mRadius, -mRadius, 0, mRadius, -mRadius, 0,
+	const vec_t uv[] ATTRIBUTE_ALIGN(32) = {0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0};
+	const vec_t vertex[] ATTRIBUTE_ALIGN(32) = {-mRadius, -mRadius, 0, mRadius, -mRadius, 0,
 		mRadius, mRadius, 0, mRadius, mRadius, 0, -mRadius, mRadius, 0,
 		-mRadius, -mRadius, 0 };
 
-	index_t index[] ATTRIBUTE_ALIGN(32) = {0, 1, 2, 3, 4, 5}; 
+	const index_t index[] ATTRIBUTE_ALIGN(32) = {0, 1, 2, 3, 4, 5}; 
 
 	rs->clearArrayDesc();
 	rs->setVertexArray(vertex);

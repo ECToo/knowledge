@@ -23,10 +23,9 @@ namespace k {
 			
 sticker::sticker(const std::string& matName)
 {
-	materialManager* mm = root::getSingleton().getMaterialManager();
-	mMaterial = mm->createMaterial(matName);
-
-	kAssert(mMaterial != NULL);
+	mMaterial = root::getSingleton().getMaterialManager()->createMaterial(matName);
+	if (!mMaterial)
+		S_LOG_INFO("Failed to create sticker material.");
 }
 
 sticker::~sticker()
@@ -41,7 +40,6 @@ material* sticker::getMaterial()
 void sticker::draw()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs != NULL);
 
 	// Prepare the material
 	mMaterial->prepare();

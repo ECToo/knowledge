@@ -33,7 +33,6 @@ void material::prepare()
 {
 	// Material Properties
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs != NULL);
 
 	if (mNoDraw)
 		return;

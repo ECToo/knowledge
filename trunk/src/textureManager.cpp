@@ -70,7 +70,7 @@ texture* textureManager::getTexture(const std::string& filename)
 
 texture* textureManager::createEmptyTexture()
 {
-	texture* newTexture = new texture;
+	texture* newTexture = (texture*) memalign(32, sizeof(texture));
 	if (newTexture)
 	{
 		mTextures.push_back(newTexture);
@@ -131,7 +131,7 @@ void textureManager::deallocateTextureData(const std::string& filename)
 		texture* tex = (*it);
 		mTextures.erase(it);
 
-		delete tex;
+		free(tex);
 		break;
 	}
 }

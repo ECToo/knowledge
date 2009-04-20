@@ -100,7 +100,6 @@ void wiiTexture::setTexCoordGen()
 		case TEXCOORD_SPHERE:
 			{
 				renderSystem* rs = root::getSingleton().getRenderSystem();
-				kAssert(rs != NULL);
 
 				Mtx s, t, destMtx;
 				Mtx postMtx;
@@ -130,7 +129,6 @@ void wiiTexture::draw()
 		return;
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs != NULL);
 
 	// Texture Coordinate
 	setTexCoordGen();

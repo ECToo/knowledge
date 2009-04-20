@@ -69,7 +69,6 @@ void camera::setPerspective(unsigned int fov, vec_t ar, vec_t nearP, vec_t farP)
 void camera::setPerspective()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs != NULL);
 
 	rs->setMatrixMode(MATRIXMODE_PROJECTION);
 	rs->identityMatrix();
@@ -228,7 +227,6 @@ const vector3 camera::projectRayFrom2D(const vector2& coords) const
 void camera::copyView() const
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs != NULL);
 
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 	rs->copyMatrix(mFinal);

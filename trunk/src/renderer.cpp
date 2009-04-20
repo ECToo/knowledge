@@ -140,7 +140,12 @@ void renderer::setSkyBox(const std::string& matName)
 {
 	materialManager* matMgr = &materialManager::getSingleton();
 	material* mat = matMgr->getMaterial(matName);
-	kAssert(mat);
+
+	if (!mat)
+	{
+		S_LOG_INFO("Invalid pointer to skybox material");
+		return;
+	}
 
 	mSkybox = mat;
 	mSkyPlane = NULL;
@@ -149,6 +154,7 @@ void renderer::setSkyBox(const std::string& matName)
 void renderer::setSkyBox(material* mat)
 {
 	kAssert(mat);
+
 	mSkybox = mat;
 	mSkyPlane = NULL;
 }
@@ -157,7 +163,12 @@ void renderer::setSkyPlane(const std::string& matName)
 {
 	materialManager* matMgr = &materialManager::getSingleton();
 	material* mat = matMgr->getMaterial(matName);
-	kAssert(mat);
+
+	if (!mat)
+	{
+		S_LOG_INFO("Invalid pointer to skybox material");
+		return;
+	}
 
 	mSkyPlane = mat;
 	mSkybox = NULL;
@@ -219,7 +230,6 @@ void renderer::_drawSkyPlane()
 
 	// Rendersystem
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs);
 
 	// Disable depth test drawing on orthogonal way
 	rs->setMatrixMode(MATRIXMODE_PROJECTION);
@@ -280,7 +290,6 @@ void renderer::_drawSkybox()
 
 	// Rendersystem
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs);
 
 	// Draw
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
@@ -376,7 +385,6 @@ void renderer::_drawSkybox()
 void renderer::draw()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs);
 
 	if (mRenderToTexture)
 		rs->setViewPort(0, 0, mRTTSize[0], mRTTSize[1]);
@@ -547,7 +555,6 @@ long renderer::getTimeNow()
 void renderer::prepareRTT(unsigned int w, unsigned int h, kTexture* tex)
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs != NULL);
 
 	rs->setRttSize(w, h);
 	rs->setRttTarget(tex);

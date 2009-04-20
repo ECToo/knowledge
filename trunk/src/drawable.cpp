@@ -35,9 +35,7 @@ void drawable2D::setZ(vec_t z)
 	mZ = z;
 
 	// Resort 2D objects =]
-	renderer* mRenderer = &renderer::getSingleton();
-	if (mRenderer)
-		mRenderer->sort2D();
+	renderer::getSingleton().sort2D();
 }
 
 const vec_t drawable2D::getZ()

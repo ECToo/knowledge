@@ -39,7 +39,7 @@ int readEndianSafeInt(FILE* f)
 	int value;
 	kAssert(f != NULL);
 
-	if (fread(&value, 4, 1, f) > 0)
+	if (fread(&value, sizeof(int), 1, f) > 0)
 		return readLEInt(value);
 	else
 		return 0;
@@ -50,7 +50,7 @@ float readEndianSafeFloat(FILE* f)
 	kAssert(f != NULL);
 
 	float data;
-	if (fread(&data, 4, 1, f) > 0)
+	if (fread(&data, sizeof(float), 1, f) > 0)
 	{
 		return readLEFloat(data);
 	}
@@ -71,10 +71,7 @@ bitmapText::bitmapText(const std::string& datName, const std::string& matName)
 
 	std::string fullPath = datName;
 	resourceManager* rsc = &resourceManager::getSingleton();
-	if (rsc)
-	{
-		fullPath = rsc->getRoot() + datName;
-	}
+	if (rsc) fullPath = rsc->getRoot() + datName;
 
 	FILE* datFile = fopen(fullPath.c_str(), "rb");
 	if (!datFile)
@@ -128,7 +125,6 @@ vec_t bitmapText::_drawChar(vec_t posX, vec_t y, char c)
 	}
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs != NULL);
 
 	rs->texCoord(vector2(activeGlyph->s, activeGlyph->t));
 	rs->vertex(vector3(posX, y, -0.5));
@@ -156,7 +152,6 @@ void bitmapText::draw()
 		return;
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs != NULL);
 
 	// Material setup
 	mMaterial->prepare();

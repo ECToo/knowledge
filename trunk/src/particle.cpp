@@ -339,7 +339,6 @@ void pointEmitter::draw(camera* c)
 		return;
 				
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs);
 
 	rs->setDepthMask(false);
 	mMaterialPtr->prepare();
@@ -486,7 +485,6 @@ void planeEmitter::draw(camera* c)
 		return;
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	kAssert(rs);
 
 	rs->setDepthMask(false);
 	mMaterialPtr->prepare();
@@ -560,7 +558,7 @@ void particleSystem::setMaterial(const std::string& mat)
 
 void particleSystem::setMaterial(material* mat)
 {
-	kAssert(mat != NULL);
+	kAssert(mat);
 	mMaterial = mat;
 }
 
@@ -571,7 +569,7 @@ void particleSystem::setMass(vec_t mass)
 
 void particleSystem::pushEmitter(const std::string& name, particleEmitter* em)
 {
-	kAssert(em != NULL);
+	kAssert(em);
 	mEmitters[name] = em;
 
 	em->setPosition(mPosition);
@@ -615,7 +613,7 @@ particleManager::~particleManager()
 
 particleSystem* particleManager::getParticleSystem(const std::string& name)
 {
-	std::map<std::string, particleSystem*>::iterator it = mSystems.find(name);
+	std::map<std::string, particleSystem*>::const_iterator it = mSystems.find(name);
 	if (it != mSystems.end())
 		return it->second;
 	else
@@ -639,16 +637,16 @@ particleSystem* particleManager::allocatePS(const std::string& name)
 
 static inline vector3 readVector(parsingFile* file)
 {
-	vector3 vec;
+	float x, y, z;
 
 	std::string token = file->getNextToken();
-	vec.x = atof(token.c_str());
+	x = atof(token.c_str());
 	token = file->getNextToken();
-	vec.y = atof(token.c_str());
+	y = atof(token.c_str());
 	token = file->getNextToken();
-	vec.z = atof(token.c_str());
+	z = atof(token.c_str());
 
-	return vec;
+	return vector3(x, y, z);
 }
 
 static inline std::string parseEmitterGenericToken(parsingFile* file, const std::string& parsedToken, particleEmitter* system)
@@ -844,11 +842,11 @@ void particleManager::parseParticleSystem(parsingFile* file, const std::string& 
 void particleManager::parseParticleScript(const std::string& filename)
 {
 	parsingFile* newFile = new parsingFile(filename);
-
-	kAssert(newFile);
-	parseParticleScript(newFile);
-
-	delete newFile;
+	if (newFile)
+	{
+		parseParticleScript(newFile);
+		delete newFile;
+	}
 }
 
 void particleManager::parseParticleScript(parsingFile* file)

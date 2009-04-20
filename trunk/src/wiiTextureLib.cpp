@@ -37,7 +37,7 @@ void unloadTexture(kTexture* tex) {}
 typedef struct
 {
 	kTexture* tex;
-	char* data;
+	char* data; // must be aligned(32)
 } wiiKTexture;
 
 wiiKTexture* loadTextureJPEG(const std::string& file, unsigned short* w, unsigned short* h, int wrapBits)
@@ -68,7 +68,7 @@ wiiKTexture* loadTextureJPEG(const std::string& file, unsigned short* w, unsigne
 		*h = jInfo.image_height;
 	}
 
-	char* textureData = (char*) malloc(colorSpace * width * height);
+	char* textureData = new char[colorSpace * width * height];
 	if (!textureData)
 	{
 		fclose(texFile);
@@ -96,7 +96,7 @@ wiiKTexture* loadTextureJPEG(const std::string& file, unsigned short* w, unsigne
 	char* wiiTexture = (char*) memalign(32, 4 * width * height);
 	if (!wiiTexture)
 	{
-		free(textureData);
+		delete [] textureData;
 		S_LOG_INFO("Failed to allocate aligned memory for " + file);
 
 		return NULL;
@@ -129,10 +129,10 @@ wiiKTexture* loadTextureJPEG(const std::string& file, unsigned short* w, unsigne
 	}
 
 	// We dont need raw jpeg data anymore
-	free(textureData);
+	delete [] textureData;
 
 	// New GXTexObj
-	kTexture* newKTexture = (kTexture*) malloc(sizeof(kTexture));	
+	kTexture* newKTexture = new kTexture;	
 	if (!newKTexture)
 	{
 		S_LOG_INFO("Failed to allocate GX texture object");
@@ -161,17 +161,19 @@ wiiKTexture* loadTextureJPEG(const std::string& file, unsigned short* w, unsigne
 	// Syncronization
 	GX_InvalidateTexAll();
 
-	wiiKTexture* newWiiKtexture = (wiiKTexture*)malloc(sizeof(wiiKTexture));
+	wiiKTexture* newWiiKtexture = (wiiKTexture*) memalign(32, sizeof(wiiKTexture));
 	if (!newWiiKtexture)
 	{
 		S_LOG_INFO("Failed to allocate wiikTexture.");
+
 		free(wiiTexture);
-		free(newKTexture);
+		delete [] newKTexture;
 
 		return NULL;
 	}
 
-	resourceManager::getSingleton().addMemoryUse(4 * width * height);
+	resourceManager* rsc = &resourceManager::getSingleton();
+	if (rsc) rsc->addMemoryUse(4 * width * height);
 
 	newWiiKtexture->tex = newKTexture;
 	newWiiKtexture->data = wiiTexture;
@@ -211,7 +213,7 @@ wiiKTexture* loadTexturePNG(const std::string& file, unsigned short* w, unsigned
 		return NULL;
 	}
 
-	kTexture* newKTexture = (kTexture*) malloc(sizeof(kTexture));	
+	kTexture* newKTexture = new kTexture;	
 	if (!newKTexture)
 	{
 		S_LOG_INFO("Failed to allocate GX texture object");
@@ -223,8 +225,6 @@ wiiKTexture* loadTexturePNG(const std::string& file, unsigned short* w, unsigned
 	}
 				
 	PNGU_DecodeTo4x4RGBA8(textureCtx, imgProperties.imgWidth, imgProperties.imgHeight, textureData, 0xff);
-	PNGU_ReleaseImageContext(textureCtx);
-
 	DCFlushRange(textureData, imgProperties.imgWidth * imgProperties.imgHeight * 4);
 
 	int envS, envT;
@@ -244,19 +244,22 @@ wiiKTexture* loadTexturePNG(const std::string& file, unsigned short* w, unsigned
 	GX_InitTexObjLOD(newKTexture, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
 
 	// Syncronization
+	PNGU_ReleaseImageContext(textureCtx);
 	GX_InvalidateTexAll();
 
-	wiiKTexture* newWiiKtexture = (wiiKTexture*)malloc(sizeof(wiiKTexture));
+	wiiKTexture* newWiiKtexture = new wiiKTexture;
 	if (!newWiiKtexture)
 	{
 		S_LOG_INFO("Failed to allocate wiikTexture.");
+
+		delete newKTexture;
 		free(textureData);
-		free(newKTexture);
 
 		return NULL;
 	}
 
-	resourceManager::getSingleton().addMemoryUse(4 * imgProperties.imgWidth * imgProperties.imgHeight);
+	resourceManager* rsc = &resourceManager::getSingleton();
+	if (rsc) rsc->addMemoryUse(4 * imgProperties.imgWidth * imgProperties.imgHeight);
 
 	newWiiKtexture->tex = newKTexture;
 	newWiiKtexture->data = textureData;
@@ -278,7 +281,8 @@ wiiKTexture* loadWiiTexture(const std::string& file, unsigned short* w, unsigned
 
 texture* loadTexture(const std::string& filename, int wrapBits)
 {
-	unsigned short width, height;
+	unsigned short width = 0;
+	unsigned short height = 0;
 	wiiKTexture* tex = loadWiiTexture(filename, &width, &height, wrapBits);
 	if (!tex)
 	{
@@ -296,6 +300,19 @@ texture* loadTexture(const std::string& filename, int wrapBits)
 	newTexture->push(tex->tex, width, height);
 	newTexture->push(tex->data);
 	newTexture->push(filename);
+
+	// We dont need the structure anymore
+	delete tex;
+
+	if (!isPowerOfTwo(width) || !isPowerOfTwo(height))
+	{
+		std::stringstream warn;
+		warn << "WARNING! The texture " << filename << " dimensions(";
+		warn << width << "," << height;
+		warn << ") are not power of 2";
+
+		S_LOG_INFO(warn.str());
+	}
 
 	return newTexture;
 }
@@ -329,6 +346,8 @@ texture* loadCubemap(const std::string& filename, int wrapBits)
 	if (!tempTex)
 	{
 		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
+		delete newTexture;
+
 		return NULL;
 	}
 	newTexture->push(tempTex->tex, 0, 0);
@@ -340,6 +359,8 @@ texture* loadCubemap(const std::string& filename, int wrapBits)
 	if (!tempTex)
 	{
 		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
+		delete newTexture;
+
 		return NULL;
 	}
 	newTexture->push(tempTex->tex, 0, 0);
@@ -351,6 +372,8 @@ texture* loadCubemap(const std::string& filename, int wrapBits)
 	if (!tempTex)
 	{
 		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
+		delete newTexture;
+
 		return NULL;
 	}
 	newTexture->push(tempTex->tex, 0, 0);
@@ -362,6 +385,8 @@ texture* loadCubemap(const std::string& filename, int wrapBits)
 	if (!tempTex)
 	{
 		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
+		delete newTexture;
+
 		return NULL;
 	}
 	newTexture->push(tempTex->tex, 0, 0);
@@ -373,6 +398,8 @@ texture* loadCubemap(const std::string& filename, int wrapBits)
 	if (!tempTex)
 	{
 		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
+		delete newTexture;
+
 		return NULL;
 	}
 	newTexture->push(tempTex->tex, 0, 0);
@@ -388,6 +415,8 @@ texture* loadCubemap(const std::string& filename, int wrapBits)
 	if (!tempTex)
 	{
 		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
+		delete newTexture;
+
 		return NULL;
 	}
 
@@ -415,7 +444,7 @@ texture* createRawTexture(unsigned char* data, int width, int height, int flags)
 	// RGBA
 	const unsigned int colorSpace = 4;
 
-	kTexture* gxImage = (kTexture*) malloc(sizeof(kTexture));
+	kTexture* gxImage = new kTexture;
 	if (!gxImage)
 	{
 		S_LOG_INFO("Failed to allocate GXTexObj for texture.");
@@ -426,7 +455,7 @@ texture* createRawTexture(unsigned char* data, int width, int height, int flags)
 	if (!wiiData)
 	{
 		S_LOG_INFO("Failed to allocate aligned memory to raw texture.");
-		free(gxImage);
+		delete gxImage;
 
 		return NULL;
 	}
@@ -501,16 +530,17 @@ texture* createRawTexture(unsigned char* data, int width, int height, int flags)
 	// Syncronization
 	GX_InvalidateTexAll();
 
-	texture* newTexture = new texture;
+	texture* newTexture = (texture*) memalign(32, sizeof(texture));
 	if (!newTexture)
 	{
 		S_LOG_INFO("Failed to allocate new texture.");
-		free(gxImage);
+		delete gxImage;
 
 		return NULL;
 	}
 
-	resourceManager::getSingleton().addMemoryUse(4 * width * height);
+	resourceManager* rsc = &resourceManager::getSingleton();
+	if (rsc) rsc->addMemoryUse(4 * width * height);
 
 	newTexture->push(gxImage, width, height);
 	newTexture->push(wiiData);
