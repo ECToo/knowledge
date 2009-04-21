@@ -94,12 +94,11 @@ bool textureManager::allocateTextureData(const std::string& filename, int wrapBi
 		fullPath = rsc->getRoot() + filename;
 	}
 
+	printf("fullpath: %s\n", fullPath.c_str());
+
 	texture* newTexture = getTexture(fullPath);
 	if (newTexture)
-	{
-		S_LOG_INFO("Texture data for " + fullPath + " is already allocated.");
 		return true;
-	}
 	else
 	{
 		newTexture = loadTexture(fullPath, wrapBits);

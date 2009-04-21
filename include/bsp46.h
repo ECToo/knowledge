@@ -313,10 +313,10 @@ namespace k
 				for (unsigned int i = 0; i < mPatchNum; i++)
 				{
 					if (mPatches[i])
-						free(mPatches[i]);
+						delete [] mPatches[i];
 				}
 
-				free(mPatches);
+				delete [] mPatches;
 			}
 
 			const bezierPatch* getPatch(const short i) const;
@@ -481,9 +481,21 @@ namespace k
 			 */
 			void _parseEntities(char* str);
 
+			/**
+			 * Correctly loaded.
+			 */
+			bool mSuccessfullyLoaded;
+
+			/**
+			 * Default steps for bezier curves
+			 */
+			unsigned int mBezierSteps;
+
 		public:
-			q3Bsp()
+			q3Bsp(unsigned int drawSteps = 4)
 			{
+				mBezierSteps = drawSteps;
+
 				mLightmapCount = 0;
 				mIndicesCount = 0;
 				mVertexCount = 0;
@@ -515,6 +527,9 @@ namespace k
 				// VBOS
 			 	mVBOVertex = 0;
 				mVBOIndex = 0;
+
+				// Loading
+				mSuccessfullyLoaded = false;
 			}
 
 			~q3Bsp()
@@ -556,7 +571,15 @@ namespace k
 			bool isClusterVisible(int curr, int targ) const;
 			int findLeaf(const vector3& viewerPos) const;
 
+			/**
+			 * Load a bsp file
+			 */
 			void loadQ3Bsp(const std::string& filename);
+
+			/**
+			 * Did the bsp loaded ok?
+			 */
+			bool getLoadSuccess();
 
 			/**
 			 * Render a single BSP face

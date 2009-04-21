@@ -15,9 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
 #ifdef __WII__
 #include "wiiVector3.h"
 #else
+*/
 
 #ifndef _VECTOR3D_H_ 
 #define _VECTOR3D_H_ 
@@ -347,5 +349,5 @@ namespace k
 }
 
 #endif
-#endif
+// #endif
 

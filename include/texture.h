@@ -135,6 +135,11 @@ namespace k
 			 */
 			texture* mTexture;
 
+			/**
+			 * Replace by lightmap
+			 */
+			bool mReplaceByLightmap;
+
 		public:
 			textureStage(unsigned short index);
 
@@ -145,8 +150,10 @@ namespace k
 			void setScale(vector2 scale);
 			void setRotate(vec_t angle);
 			void setTexture(texture* tex);
+			void setLightmapReplace(bool lm);
 
 			bool containsTexture(const std::string& name);
+			bool getReplaceByLightmap();
 
 			unsigned short getWidth();
 			unsigned short getHeight();

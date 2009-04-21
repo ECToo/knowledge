@@ -43,6 +43,7 @@ int main(int argc, char** argv)
 	mInputManager->setupWiiMotes(1);
 	mInputManager->setWiiMoteTimeout(60);
 	mInputManager->setWiiMoteEmulation(true);
+	mInputManager->setPointerLock(false);
 
 	// Initialize resources
 	#ifdef __WII__
@@ -51,13 +52,18 @@ int main(int argc, char** argv)
 	k::resourceManager* resourceMgr = new k::resourceManager("../resources.cfg");
 	#endif
 
+	_break();
+
 	// Loading Screen
 	k::imgLoadScreen* newLoadingScreen = new k::imgLoadScreen();
 	assert(newLoadingScreen);
 
 	resourceMgr->setLoadingScreen(newLoadingScreen);
-	newLoadingScreen->loadBg("loading.png");
+	_break();
+	newLoadingScreen->loadBg("loading.jpg");
+	_break();
 	newLoadingScreen->setImgDimension(k::vector2(256, 256));
+	_break();
 	newLoadingScreen->update("");
 
 	k::resourceManager::getSingleton().loadGroup("model");
@@ -71,6 +77,7 @@ int main(int argc, char** argv)
 	k::md5model* newModel = new k::md5model("sd:/knowledge/model/goku.md5mesh");
 	#else
 	k::md5model* newModel = new k::md5model("goku.md5mesh");
+	// k::md5model* newModel = new k::md5model("marvin/marvin.md5mesh");
 	#endif
 
 	#ifdef __WII__
@@ -82,6 +89,11 @@ int main(int argc, char** argv)
 	newModel->attachAnimation("fly_f.md5anim", "runf");
 	newModel->attachAnimation("fly_b.md5anim", "runb");
 	#endif
+
+	/*
+	newModel->attachAnimation("marvin/idle.md5anim", "idle");
+	newModel->attachAnimation("marvin/walk.md5anim", "runf");
+	*/
 
 	delete newLoadingScreen;
 

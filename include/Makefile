@@ -71,7 +71,7 @@ CPPFLAGS = -Wall -O2 -g -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -Wall -O2 -g -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -I/usr/include -msse -msse2 -msse3
+CXXFLAGS = -Wall -O2 -g -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -I/usr/include -msse -msse2 -msse3 -ffast-math
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
