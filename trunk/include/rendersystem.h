@@ -283,6 +283,10 @@ namespace k
 				if (mActiveMaterial && mActiveMaterial->getNoDraw())
 					return;
 
+				#ifdef _FORCE_32_ALIGNMENT_
+				kAssert(!(reinterpret_cast<uintptr_t>(vertices) & 0x1F));
+				#endif
+
 				kAssert(vertices);
 
 				mVertexArray = vertices;
@@ -314,6 +318,10 @@ namespace k
 			{
 				if (mActiveMaterial && mActiveMaterial->getNoDraw())
 					return;
+
+				#ifdef _FORCE_32_ALIGNMENT_
+				kAssert(!(reinterpret_cast<uintptr_t>(coords) & 0x1F));
+				#endif
 
 				kAssert(coords);
 
@@ -351,6 +359,10 @@ namespace k
 				if (mActiveMaterial && mActiveMaterial->getNoDraw())
 					return;
 
+				#ifdef _FORCE_32_ALIGNMENT_
+				kAssert(!(reinterpret_cast<uintptr_t>(normals) & 0x1F));
+				#endif
+
 				kAssert(normals);
 
 				mNormalArray = normals;
@@ -374,7 +386,12 @@ namespace k
 				if (mActiveMaterial && mActiveMaterial->getNoDraw())
 					return;
 
+				#ifdef _FORCE_32_ALIGNMENT_
+				kAssert(!(reinterpret_cast<uintptr_t>(indexes) & 0x1F));
+				#endif
+
 				kAssert(indexes);
+
 				mIndexArray = indexes;
 			}
 

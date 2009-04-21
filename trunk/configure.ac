@@ -43,7 +43,7 @@ int main()
 		exit(1);
 }]
 , AC_DEFINE(__HAVE_SSE3__, 1)
-CXXFLAGS="$CXXFLAGS -msse -msse2 -msse3"
+CXXFLAGS="$CXXFLAGS -msse -msse2 -msse3 -ffast-math"
 AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 AC_OUTPUT(Makefile src/Makefile \

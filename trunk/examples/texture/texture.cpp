@@ -149,7 +149,7 @@ int main(int argc, char** argv)
 	kAssert(newLoadingScreen);
 
 	resourceMgr->setLoadingScreen(newLoadingScreen);
-	newLoadingScreen->loadBg("loading.png");
+	newLoadingScreen->loadBg("loading.jpg");
 	newLoadingScreen->setImgDimension(k::vector2(256, 256));
 	newLoadingScreen->update("");
 
@@ -211,7 +211,7 @@ int main(int argc, char** argv)
 
 		mRenderSystem->setViewPort(0, 0, mRenderSystem->getScreenWidth(), mRenderSystem->getScreenHeight());
 		drawScene(false);
-
+	
 		// Update Rotations
 		#ifndef __WII__
 		rquad += 0.08f;

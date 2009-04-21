@@ -90,16 +90,21 @@ int main(int argc, char** argv)
 
 	// Test model
 	speedmd3* sphere = new speedmd3("space_models/sphere.md3");
+	k::md3model* box = new k::md3model("space_models/playerBox.md3");
 	kAssert(sphere);
+	kAssert(box);
 
 	mRenderer->push3D(sphere);
+	mRenderer->push3D(box);
 
 	k::boundingBox sphereBB = sphere->getBoundingBox();
 	sphere->setRadius((sphereBB.getMaxs() - sphereBB.getMins() / 2.0f).length());
 
 	k::q3Bsp testeBsp;
-	testeBsp.loadQ3Bsp("the_cell.bsp");
-	// testeBsp.loadQ3Bsp("tc_closecombat.bsp");
+	// testeBsp.loadQ3Bsp("the_cell.bsp");
+	testeBsp.loadQ3Bsp("tc_closecombat.bsp");
+	
+	kAssert(testeBsp.getLoadSuccess());
 	mRenderer->setWorld(&testeBsp);
 
 	delete newLoadingScreen;
@@ -216,7 +221,12 @@ int main(int argc, char** argv)
 			if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_B) ||
 				 mInputManager->getKbdKeyDown(K_KBD_s))
 			{
-				pos -= look * 5;
+				if (mInputManager->getKbdKeyDown(K_KBD_s))
+					pos -= look * 5;
+				else
+				{
+					box->setPosition(newCamera->getPosition() + newCamera->getDirection() * 100);
+				}
 			}
 			else
 			{
@@ -331,5 +341,5 @@ int main(int argc, char** argv)
 	delete appRoot;
 
 	return 0;
-}
+}	
 

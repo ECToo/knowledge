@@ -37,10 +37,10 @@ void unloadTexture(kTexture* tex) {}
 typedef struct
 {
 	kTexture* tex;
-	char* data; // must be aligned(32)
+	char* data; // must be aligned to 32 bytes
 } wiiKTexture;
 
-wiiKTexture* loadTextureJPEG(const std::string& file, unsigned short* w, unsigned short* h, int wrapBits)
+static inline wiiKTexture* loadTextureJPEG(const std::string& file, unsigned short* w, unsigned short* h, int wrapBits)
 {
 	struct jpeg_decompress_struct jInfo;
 	struct jpeg_error_mgr jError;
@@ -145,12 +145,12 @@ wiiKTexture* loadTextureJPEG(const std::string& file, unsigned short* w, unsigne
 	DCFlushRange(wiiTexture, width * height * 4);
 
 	int envS, envT;
-	if (wrapBits & (1 << FLAG_CLAMP_S))
+	if (wrapBits & (1 << FLAG_CLAMP_S) || wrapBits & (1 << FLAG_CLAMP_EDGE_S))
 		envS = GX_CLAMP;
 	else
 		envS = GX_REPEAT;
 
-	if (wrapBits & (1 << FLAG_CLAMP_T))
+	if (wrapBits & (1 << FLAG_CLAMP_T) || wrapBits & (1 << FLAG_CLAMP_EDGE_T))
 		envT = GX_CLAMP;
 	else
 		envT = GX_REPEAT;
@@ -181,7 +181,7 @@ wiiKTexture* loadTextureJPEG(const std::string& file, unsigned short* w, unsigne
 	return newWiiKtexture;
 }
 
-wiiKTexture* loadTexturePNG(const std::string& file, unsigned short* w, unsigned short* h, int wrapBits)
+static inline wiiKTexture* loadTexturePNG(const std::string& file, unsigned short* w, unsigned short* h, int wrapBits)
 {
 	IMGCTX textureCtx = PNGU_SelectImageFromDevice(file.c_str());
 	if (!textureCtx)
@@ -228,19 +228,18 @@ wiiKTexture* loadTexturePNG(const std::string& file, unsigned short* w, unsigned
 	DCFlushRange(textureData, imgProperties.imgWidth * imgProperties.imgHeight * 4);
 
 	int envS, envT;
-	if (wrapBits & (1 << FLAG_CLAMP_S))
+	if (wrapBits & (1 << FLAG_CLAMP_S) || wrapBits & (1 << FLAG_CLAMP_EDGE_S))
 		envS = GX_CLAMP;
 	else
 		envS = GX_REPEAT;
 
-	if (wrapBits & (1 << FLAG_CLAMP_T))
+	if (wrapBits & (1 << FLAG_CLAMP_T) || wrapBits & (1 << FLAG_CLAMP_EDGE_T))
 		envT = GX_CLAMP;
 	else
 		envT = GX_REPEAT;
 
 	GX_InitTexObj(newKTexture, textureData, imgProperties.imgWidth, 
 			imgProperties.imgHeight, GX_TF_RGBA8, envS, envT, GX_FALSE);
-
 	GX_InitTexObjLOD(newKTexture, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
 
 	// Syncronization
@@ -257,6 +256,10 @@ wiiKTexture* loadTexturePNG(const std::string& file, unsigned short* w, unsigned
 
 		return NULL;
 	}
+		
+	delete newKTexture;
+	free(textureData);
+	return NULL;
 
 	resourceManager* rsc = &resourceManager::getSingleton();
 	if (rsc) rsc->addMemoryUse(4 * imgProperties.imgWidth * imgProperties.imgHeight);
@@ -269,18 +272,23 @@ wiiKTexture* loadTexturePNG(const std::string& file, unsigned short* w, unsigned
 
 wiiKTexture* loadWiiTexture(const std::string& file, unsigned short* w, unsigned short* h, int wrapBits)
 {
-	std::string extension = getExtension(std::string(file));
+	std::string extension = getExtension(file);
 	if (extension == ".png" || extension == ".PNG")
 		return loadTexturePNG(file, w, h, wrapBits);
 	else
 	if (extension == ".jpg" || extension == ".JPG" || extension == ".jpeg" || extension == ".JPEG")
 		return loadTextureJPEG(file, w, h, wrapBits);
 	else
+	{
+		S_LOG_INFO("Uknown texture format for file " + file);
 		return NULL;
+	}
 }
 
 texture* loadTexture(const std::string& filename, int wrapBits)
 {
+	printf("wii filename: %s\n", filename.c_str());
+
 	unsigned short width = 0;
 	unsigned short height = 0;
 	wiiKTexture* tex = loadWiiTexture(filename, &width, &height, wrapBits);
@@ -302,7 +310,7 @@ texture* loadTexture(const std::string& filename, int wrapBits)
 	newTexture->push(filename);
 
 	// We dont need the structure anymore
-	delete tex;
+	// delete tex;
 
 	if (!isPowerOfTwo(width) || !isPowerOfTwo(height))
 	{

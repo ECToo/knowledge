@@ -38,9 +38,9 @@
 #endif
 
 #ifndef WIN32
-#ifndef __WII__
-#include "config.h"
-#endif
+	#ifndef __WII__
+		#include "config.h"
+	#endif
 #endif
 
 #define DLL_EXPORT
@@ -53,10 +53,17 @@
 #define byteSwap2(Y) (((Y & 0xff) << 8)|((Y & 0xff00) >> 8))
 
 #ifdef __WII__
-#ifndef __BIG_ENDIAN__
-#define __BIG_ENDIAN__
+
+	#ifndef __BIG_ENDIAN__
+		#define __BIG_ENDIAN__
+	#endif
+
+	#ifdef __HAVE_SSE3__
+		#undef __HAVE_SSE3__
+	#endif
+
 #endif
-#endif
+
 
 #ifdef __BIG_ENDIAN__
 	#define readLEShort(Y) (byteSwap2(Y))
@@ -79,7 +86,7 @@
 	static inline float readBEFloat(float f)
 	{
 		union { float f; int i; } data;
-		data.i = readLEInt(data.i);
+		data.i = readBEInt(data.i);
 		return data.f;
 	}
 #endif
