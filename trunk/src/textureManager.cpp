@@ -110,28 +110,6 @@ bool textureManager::allocateTextureData(const std::string& filename, int wrapBi
 	return false;
 }
 
-void textureManager::deallocateTextureData(const std::string& filename)
-{
-	std::string fullPath = filename;
-
-	// Get Path from resource manager (if any)
-	resourceManager* rsc = &resourceManager::getSingleton();
-	if (rsc)
-	{
-		fullPath = rsc->getRoot() + filename;
-	}
-
-	std::list<texture*>::iterator it;
-	for (it = mTextures.begin(); it != mTextures.end(); ) 
-	{
-		texture* tex = (*it);
-		it = mTextures.erase(it++);
-		free(tex);
-
-		break;
-	}
-}
-
 textureStage* textureManager::createCubicTexture(const std::string& filename, unsigned short index, int wrapBits)
 {
 	// 

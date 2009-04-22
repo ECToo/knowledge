@@ -102,15 +102,15 @@ void renderer::fullRemoveSprite(sprite* spr)
 void renderer::removeSprite(sprite* spr)
 {
 	kAssert(spr);
+
 	std::list<sprite*>::iterator it;
-	for (it = mSprites.begin(); it != mSprites.end(); )
+	for (it = mSprites.begin(); it != mSprites.end(); it++)
 	{
 		if (spr == (*it))
 		{
-			it = mSprites.erase(it++);
+			mSprites.erase(it);
 			return;
 		}
-		else ++it;
 	}
 
 	S_LOG_INFO("Failed to remove sprite.");
@@ -127,16 +127,12 @@ void renderer::pop3D(drawable3D* object)
 	kAssert(object);
 
 	std::list<drawable3D*>::iterator it;
-	for (it = m3DObjects.begin(); it != m3DObjects.end(); )
+	for (it = m3DObjects.begin(); it != m3DObjects.end(); it++)
 	{
-		drawable3D* obj = (*it);
-		if (obj == object)
+		if (object == (*it))
 		{
-			it = m3DObjects.erase(it++);
-		}
-		else
-		{
-			++it;
+			m3DObjects.erase(it);
+			return;
 		}
 	}
 }
@@ -213,17 +209,14 @@ void renderer::push2D(drawable2D* object)
 void renderer::pop2D(drawable2D* object)
 {
 	kAssert(object);
+
 	std::list<drawable2D*>::iterator it;
 	for (it = m2DObjects.begin(); it != m2DObjects.end(); )
 	{
-		drawable2D* obj = (*it);
-		if (obj == object)
+		if (object == (*it))
 		{
-			it = m2DObjects.erase(it);
-		}
-		else
-		{
-			++it;
+			m2DObjects.erase(it);
+			return;
 		}
 	}
 }

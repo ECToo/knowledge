@@ -32,13 +32,10 @@ material::material()
 material::~material()
 {
 	std::list<textureStage*>::iterator it;
-	for (it = mTextures.begin(); it != mTextures.end(); )
-	{
-		textureStage* tmp = (*it);
-		
-		it = mTextures.erase(it++);
-		delete tmp;
-	}
+	for (it = mTextures.begin(); it != mTextures.end(); it++)
+		delete (*it);
+
+	mTextures.clear();
 }
 
 void material::prepare()

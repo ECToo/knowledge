@@ -53,14 +53,10 @@ namespace k
 					delete mGeneralStage;
 
 				std::map<int, tevStage*>::iterator it;
-				for (it = mCustomStages.begin(); it != mCustomStages.end();)
-				{
-					tevStage* thisStage = it->second;
+				for (it = mCustomStages.begin(); it != mCustomStages.end(); it++)
+					delete it->second;
 
-					mCustomStages.erase(it++);
-
-					delete thisStage;
-				}
+				mCustomStages.clear();
 			}
 
 			void setOp(u8 o, u8 b, u8 scl, u8 cla, u8 claM, u8 ou);

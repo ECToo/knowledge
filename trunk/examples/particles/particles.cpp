@@ -49,15 +49,14 @@ int main(int argc, char** argv)
 
 	// Loading Screen
 	k::imgLoadScreen* newLoadingScreen = new k::imgLoadScreen();
-	assert(newLoadingScreen);
-
 	resourceMgr->setLoadingScreen(newLoadingScreen);
-	newLoadingScreen->loadBg("loading.png");
+	newLoadingScreen->loadBg("loading.jpg");
 	newLoadingScreen->setImgDimension(k::vector2(256, 256));
 	newLoadingScreen->update("");
 
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("particles");
+	k::resourceManager::getSingleton().loadGroup("skies");
 
 	delete newLoadingScreen;
 
@@ -79,15 +78,12 @@ int main(int argc, char** argv)
 
 	// Setup Camera
 	k::camera* newCamera = new k::camera();
-	assert(newCamera != NULL);
 	newCamera->setPosition(k::vector3(0, 0, 0));
 	newCamera->lookAt(k::vector3(0, 0, -1));
 	mRenderer->setCamera(newCamera);
 
 	// Font for frustum culling
 	k::bitmapText* fpsText = new k::bitmapText("fonts/cube_14.dat", "cube_14");
-	assert(fpsText != NULL);
-
 	fpsText->setPosition(k::vector2(10, 10));
 	mRenderer->push2D(fpsText);
 

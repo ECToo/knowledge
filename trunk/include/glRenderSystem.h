@@ -61,7 +61,7 @@ namespace k
 			void pushMatrix();
 			void popMatrix();
 			void identityMatrix();
-
+			
 			void setTexEnv(const std::string& baseEnv, int stage);
 			void setTexEnv(texEnvMode mode, int stage);
 			void setTextureUnits(int i) {}

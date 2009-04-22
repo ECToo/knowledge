@@ -200,8 +200,6 @@ void sprite::draw()
 
 	// We dont need depth masking on this case
 	rs->setDepthMask(false);
-
-	kAssert(mMaterial != NULL);
 	mMaterial->prepare();
 
 	const vec_t uv[] ATTRIBUTE_ALIGN(32) = {0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0};

@@ -86,13 +86,10 @@ tevManager::tevManager()
 tevManager::~tevManager()
 {
 	std::map<std::string, tev*>::iterator it;
-	for (it = mTevs.begin(); it != mTevs.end();)
-	{
-		tev* thisTev = it->second;
-		it = mTevs.erase(it++);
+	for (it = mTevs.begin(); it != mTevs.end(); it++)
+		delete it->second;
 
-		delete thisTev;
-	}
+	mTevs.clear();
 }
 
 tev* tevManager::createTev(const std::string& name)
@@ -132,24 +129,14 @@ tev* tevManager::getTev(const std::string& name)
 void tevManager::destroyTev(const std::string& name)
 {
 	tev* thisTev = getTev(name);
-	if (thisTev)
-	{
-		std::map<std::string, tev*>::iterator it;
-		for(it = mTevs.begin(); it != mTevs.end(); )
-		{
-			if (it->first == name)
-			{
-				thisTev = it->second;
-				it = mTevs.erase(it++);
-				delete thisTev;
+	if (!thisTev)
+		return;
 
-				return;
-			}
-			else
-			{
-				++it;
-			}
-		}
+	std::map<std::string, tev*>::iterator it = mTevs.find(name);
+	if (it != mTevs.end())
+	{
+		delete it->second;
+		mTevs.erase(it);
 	}
 }
 
