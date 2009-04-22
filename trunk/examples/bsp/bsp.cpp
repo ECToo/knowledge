@@ -74,11 +74,28 @@ int main(int argc, char** argv)
 	chdir("sd:/knowledge/bsp/");
 	#endif
 
-	k::resourceManager* resourceMgr = new k::resourceManager("../resources.cfg");
+	k::resourceManager* resourceMgr;
+	try
+	{
+		resourceMgr = new k::resourceManager("../resources.cfg");
+	}
+	catch (...)
+	{
+		K_LOG_INFO("Failed to allocate resourceManager.");
+		return 1;
+	}
 
 	// Loading Screen
-	k::imgLoadScreen* newLoadingScreen = new k::imgLoadScreen();
-	assert(newLoadingScreen);
+	k::imgLoadScreen* newLoadingScreen;
+	try
+	{
+		newLoadingScreen = new k::imgLoadScreen();
+	}
+	catch (...)
+	{
+		K_LOG_INFO("Failed to allocate load screen.");
+		return 1;
+	}
 
 	resourceMgr->setLoadingScreen(newLoadingScreen);
 	newLoadingScreen->loadBg("loading.png");
@@ -87,39 +104,65 @@ int main(int argc, char** argv)
 
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("bsp");
+	k::resourceManager::getSingleton().loadGroup("skies");
 
 	// Test model
-	speedmd3* sphere = new speedmd3("space_models/sphere.md3");
-	k::md3model* box = new k::md3model("space_models/playerBox.md3");
-	kAssert(sphere);
-	kAssert(box);
+	speedmd3* sphere;
+	try
+	{
+		sphere = new speedmd3("space_models/sphere.md3");
 
-	mRenderer->push3D(sphere);
-	mRenderer->push3D(box);
+		k::boundingBox sphereBB = sphere->getBoundingBox();
+		sphere->setRadius((sphereBB.getMaxs() - sphereBB.getMins() / 2.0f).length());
+		
+		mRenderer->push3D(sphere);
+	}
+	catch (...)
+	{
+		K_LOG_INFO("Failed to allocate sphere.");
+		return 1;
+	}
 
-	k::boundingBox sphereBB = sphere->getBoundingBox();
-	sphere->setRadius((sphereBB.getMaxs() - sphereBB.getMins() / 2.0f).length());
+	/*
+	 * We dont need the box *right* now
+	 *
+	k::md3model* box;
+	try
+	{
+		box = new k::md3model("space_models/playerBox.md3");
+		mRenderer->push3D(box);
+	}
+	catch (...)
+	{
+		K_LOG_INFO("Failed to allocate box.");
+		return 1;
+	}
+	*/
 
 	k::q3Bsp testeBsp;
-	// testeBsp.loadQ3Bsp("the_cell.bsp");
 	testeBsp.loadQ3Bsp("tc_closecombat.bsp");
-	
 	kAssert(testeBsp.getLoadSuccess());
+
 	mRenderer->setWorld(&testeBsp);
+	mRenderer->setSkyBox("graveyard");
 
 	delete newLoadingScreen;
 
-	// Set Skyplane
-	// mRenderer->setSkyBox("nightzSky");
-	// mRenderer->setSkyPlane("q3tc_nightsky_lf");
-
 	// Setup Camera
-	k::camera* newCamera = new k::camera();
-	assert(newCamera != NULL);
-	newCamera->setPlanes(0.1f, 5000.0f);
-	newCamera->setPosition(k::vector3(0, 0, 0));
-	newCamera->lookAt(k::vector3(0, 0, -1));
-	mRenderer->setCamera(newCamera);
+	k::camera* newCamera;
+	try
+	{
+		newCamera = new k::camera();
+		newCamera->setPlanes(0.1f, 5000.0f);
+		newCamera->setPosition(k::vector3(0, 0, 0));
+		newCamera->lookAt(k::vector3(0, 0, -1));
+		mRenderer->setCamera(newCamera);
+	}
+	catch (...)
+	{
+		K_LOG_INFO("Failed to allocate new camera.");
+		return 1;
+	}
 
 	// Find a random spawn point on the map
 	std::vector<k::vector3> spawnPoints;
@@ -150,12 +193,20 @@ int main(int argc, char** argv)
 	}
 
 	// Fps Counter
-	k::bitmapText* fpsText = new k::bitmapText("fonts/cube_14.dat", "cube_14");
-	assert(fpsText != NULL);
-	fpsText->setPosition(k::vector2(4, 10));
-	mRenderer->push2D(fpsText);
+	k::bitmapText* fpsText;
+	try
+	{
+		fpsText = new k::bitmapText("fonts/cube_14.dat", "cube_14");
+		fpsText->setPosition(k::vector2(4, 10));
+	
+		mRenderer->push2D(fpsText);
+	}
+	catch (...)
+	{
+		K_LOG_INFO("Failed to allocate fps text.");
+		return 1;
+	}
 
-	assert(mGuiManager != NULL);
 	mGuiManager->setCursor("wiiCursor3", k::vector2(32, 32));
 	mGuiManager->setCursorPos(k::vector2(mRenderSystem->getScreenWidth()/2, mRenderSystem->getScreenHeight()/2));	
 
@@ -164,7 +215,6 @@ int main(int argc, char** argv)
 	bool wireframe = false;
 	bool running = true;
 
-	mInputManager->feed();
 	while (running)
 	{
 		mInputManager->feed();
@@ -225,7 +275,7 @@ int main(int argc, char** argv)
 					pos -= look * 5;
 				else
 				{
-					box->setPosition(newCamera->getPosition() + newCamera->getDirection() * 100);
+					// box->setPosition(newCamera->getPosition() + newCamera->getDirection() * 100);
 				}
 			}
 			else
@@ -335,6 +385,7 @@ int main(int argc, char** argv)
 		mRenderer->draw();
 	}
 
+	delete mInputManager;
 	delete newCamera;
 	delete fpsText;
 	delete resourceMgr;

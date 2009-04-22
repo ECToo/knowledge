@@ -42,21 +42,4 @@ material wiiCursor3
 	}
 }
 
-material nightzSky
-{
-	texture
-	{
-		cubename nightz_sky/nightz.png
-		texcoord uv
-	}
-}
-
-material skyPlane
-{
-	texture
-	{
-		filename skyPlane.png
-		texcoord uv
-	}
-}
 

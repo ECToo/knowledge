@@ -85,8 +85,8 @@ namespace k
 			unsigned short getHeight();
 			unsigned short getSize();
 
-			char* getData(int i);
-			kTexture* getId(int i);
+			char* getData(unsigned int i);
+			kTexture* getId(unsigned int i);
 
 			bool containsFilename(const std::string& name);
 	};

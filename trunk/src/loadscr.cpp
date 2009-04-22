@@ -23,11 +23,6 @@
 
 namespace k {
 
-// Static for full screen =]
-const vec_t mVertices[] ATTRIBUTE_ALIGN(32) = { 0.0f, 1.0f };
-const vec_t mTexCoords[] ATTRIBUTE_ALIGN(32) = { 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f };
-const index_t mIndices[] ATTRIBUTE_ALIGN(32) = { 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0 };
-
 void bgLoadScreen::loadBg(const std::string& filename)
 {
 	k::textureManager* texMgr = &k::textureManager::getSingleton();
@@ -40,15 +35,18 @@ void bgLoadScreen::loadBg(const std::string& filename)
 		return;
 	}
 
-	mBackground = new k::material();
-	if (!mBackground)
+	try
 	{
-		S_LOG_INFO("Failed to create material for loading screen.");
-		return;
+		mBackground = new k::material();
+		mBackground->setSingleTexture(newTexture);
+		mBackground->setCullMode(CULLMODE_NONE);
 	}
 
-	mBackground->setSingleTexture(newTexture);
-	mBackground->setCullMode(CULLMODE_NONE);
+	catch (...)
+	{
+		S_LOG_INFO("Failed to create material for loading screen.");
+	}
+
 }
 
 void bgLoadScreen::update(const std::string& filename)
@@ -102,15 +100,18 @@ void imgLoadScreen::loadBg(const std::string& filename)
 		return;
 	}
 
-	mImgMaterial = new k::material();
-	if (!mImgMaterial)
+	try
 	{
-		S_LOG_INFO("Failed to create material for loading screen.");
-		return;
+		mImgMaterial = new k::material();
+		mImgMaterial->setSingleTexture(newTexture->getWidth(), newTexture->getHeight(), newTexture->getId(0));
+		mImgMaterial->setCullMode(CULLMODE_NONE);
 	}
 
-	mImgMaterial->setSingleTexture(newTexture->getWidth(), newTexture->getHeight(), newTexture->getId(0));
-	mImgMaterial->setCullMode(CULLMODE_NONE);
+	catch (...)
+	{
+		S_LOG_INFO("Failed to create material for loading screen.");
+	}
+
 }
 
 void imgLoadScreen::setBgColor(const vector3& color)

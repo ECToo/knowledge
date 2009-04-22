@@ -996,8 +996,13 @@ void wiiRenderSystem::screenshot(const char* filename)
 	GX_PixModeSync();
 
 	// Write to file
-	char* rgbTex = new char[w * h * 3];
-	if (!rgbTex)
+	char* rgbTex;
+	try
+	{
+		rgbTex = new char[w * h * 3];
+	}
+
+	catch (...)
 	{
 		free(textureData);
 		fclose(texFile);

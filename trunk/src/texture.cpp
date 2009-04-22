@@ -36,16 +36,20 @@ texture::~texture()
 	for (it = mTextureData.begin(); it != mTextureData.end(); it++)
 	{
 		char* temp = *it;
-		free(temp); // memaligned data
+		if (temp)
+		{
+			// free texture data if it was saved.
+			// we used free here because of memalign
+			free(temp);
+		}
 	}
+	mTextureData.clear();
 
 	std::vector<kTexture*>::iterator kit;
-	for (kit = mId.begin(); kit != mId.end(); )
-	{
-		kTexture* temp = *kit;
-		kit = mId.erase(kit);
-		unloadTexture(temp);
-	}
+	for (kit = mId.begin(); kit != mId.end(); kit++)
+		unloadTexture(*kit);
+
+	mId.clear();
 }
 			
 void texture::push(kTexture* tex, unsigned short w, unsigned short h)
@@ -83,19 +87,22 @@ unsigned short texture::getHeight()
 	return mHeight;
 }
 
-char* texture::getData(int i)
+char* texture::getData(unsigned int i)
 {
 	return mTextureData[i];
 }
 
-kTexture* texture::getId(int i)
+kTexture* texture::getId(unsigned int i)
 {
-	return mId[i];
+	if (mId.size() < i)
+		return NULL;
+	else
+		return mId[i];
 }
 
 bool texture::containsFilename(const std::string& name)
 {
-	std::vector<std::string>::const_iterator it;
+	std::vector<std::string>::iterator it;
 	for (it = mFilenames.begin(); it != mFilenames.end(); it++)
 	{
 		if ((*it).find(name) != std::string::npos)

@@ -46,28 +46,32 @@ guiManager::~guiManager()
 	}
 }
 
-void guiManager::setCursor(std::string mat, vector2 scale)
+void guiManager::setCursor(const std::string& mat, const vector2& scale)
 {
-	mCursor = new sticker(mat);
-	kAssert(mCursor != NULL);
+	try
+	{
+		mCursor = new sticker(mat);
+		mCursor->setScale(scale);
+		mCursor->setZ(-1.0f);
 
-	mCursor->setScale(scale);
-	mCursor->setZ(-1.0f);
+		#ifndef __WII__
+		mCursorSize = scale.x;
+		#endif
 
-	#ifndef __WII__
-	mCursorSize = scale.x;
-	#endif
+		root::getSingleton().getRenderer()->push2D(mCursor);
 
-	renderer* rs = root::getSingleton().getRenderer();
-
-	rs->push2D(mCursor);
-
-	#ifndef __WII__
-	SDL_ShowCursor(false);
-	#endif
+		#ifndef __WII__
+		SDL_ShowCursor(false);
+		#endif
+	}
+	
+	catch (...)
+	{
+		S_LOG_INFO("Failed to create cursor sticker.");
+	}
 }
 
-void guiManager::setCursorPos(vector2 pos)
+void guiManager::setCursorPos(const vector2& pos)
 {
 	if (mCursor)
 	{

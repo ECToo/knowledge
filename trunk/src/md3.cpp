@@ -178,8 +178,13 @@ md3model::md3model(const std::string& filename)
 
 	// Allocate the frames
 	mFramesCount = readLEInt(modelHeader.numFrames);
-	mFrames = new md3Frame_t[mFramesCount];
-	if (!mFrames)
+
+	try
+	{
+		mFrames = new md3Frame_t[mFramesCount];
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to read md3 frames.");
 		return;
@@ -220,8 +225,13 @@ md3model::md3model(const std::string& filename)
 
 	// Allocate the tags
 	mTagsCount = readLEInt(modelHeader.numTags);
-	mTags = new md3Tag_t[mTagsCount];
-	if (!mTags)
+
+	try
+	{
+		mTags = new md3Tag_t[mTagsCount];
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate md3 tags.");
 		_clean();
@@ -264,8 +274,13 @@ md3model::md3model(const std::string& filename)
 
 	// Surfaces
 	mSurfacesCount = readLEInt(modelHeader.numSurfaces);
-	mSurfaces = new md3Surface[mSurfacesCount];
-	if (!mSurfaces)
+
+	try 
+	{
+		mSurfaces = new md3Surface[mSurfacesCount];
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate md3 surfaces.");
 		_clean();
@@ -290,8 +305,13 @@ md3model::md3model(const std::string& filename)
 
 		// Read Shaders
 		int numShaders = readLEInt(tempSurface.numShaders);
-		md3Shader_t* mShaders = new md3Shader_t[numShaders];
-		if (!mShaders)
+		md3Shader_t* mShaders;
+		try
+		{
+			mShaders = new md3Shader_t[numShaders];
+		}
+
+		catch (...)
 		{
 			S_LOG_INFO("Failed to allocate surface shaders.");
 			_clean();
@@ -337,8 +357,13 @@ md3model::md3model(const std::string& filename)
 
 		// Read Triangles
 		mSurfaces[i].mIndicesCount = readLEInt(tempSurface.numTris);
-		mSurfaces[i].mIndices = new md3Triangle_t[mSurfaces[i].mIndicesCount];
-		if (!mSurfaces[i].mIndices)
+
+		try
+		{
+			mSurfaces[i].mIndices = new md3Triangle_t[mSurfaces[i].mIndicesCount];
+		}
+
+		catch (...)
 		{
 			S_LOG_INFO("Failed to allocate surface indices.");
 			_clean();
@@ -368,8 +393,13 @@ md3model::md3model(const std::string& filename)
 
 		// allocate uv's
 		mSurfaces[i].mUVCount = readLEInt(tempSurface.numVerts);
-		mSurfaces[i].mUVs = new md3TexCoord_t[mSurfaces[i].mUVCount];
-		if (!mSurfaces[i].mUVs)
+		
+		try
+		{
+			mSurfaces[i].mUVs = new md3TexCoord_t[mSurfaces[i].mUVCount];
+		}
+
+		catch (...)
 		{
 			S_LOG_INFO("Failed to allocate surface uvs.");
 			_clean();
@@ -397,8 +427,13 @@ md3model::md3model(const std::string& filename)
 		// allocate vertices
 		int tempVertexCount = readLEInt(tempSurface.numVerts) * readLEInt(tempSurface.numFrames);
 		mSurfaces[i].mVerticesCount = readLEInt(tempSurface.numVerts);
-		mSurfaces[i].mVertices = new md3RealVertex_t[tempVertexCount];
-		if (!mSurfaces[i].mVertices)
+
+		try
+		{
+			mSurfaces[i].mVertices = new md3RealVertex_t[tempVertexCount];
+		}
+
+		catch (...)
 		{
 			S_LOG_INFO("Failed to allocate surface vertices.");
 			_clean();
@@ -407,8 +442,13 @@ md3model::md3model(const std::string& filename)
 		}
 
 		// allocate temp vertices
-		md3Vertex_t* tempVertices = new md3Vertex_t[tempVertexCount];
-		if (!tempVertices)
+		md3Vertex_t* tempVertices;
+		try
+		{
+			tempVertices = new md3Vertex_t[tempVertexCount];
+		}
+
+		catch (...)
 		{
 			S_LOG_INFO("Failed to allocate surface temporary vertices.");
 			_clean();

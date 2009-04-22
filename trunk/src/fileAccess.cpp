@@ -37,20 +37,23 @@ parsingFile::parsingFile(const std::string& filename)
 		length = input.tellg();
 		input.seekg(0, std::ios::beg);
 
-		string = new char[length + 1];
-		if (!string)
+		try
+		{
+			string = new char[length + 1];
+			memset(string, 0, length);
+			input.read(string, length);
+			input.close();
+
+			feof = length;
+			index = 0;
+		}
+
+		catch (...)
 		{
 			S_LOG_INFO("Failed to allocate file string.");
 			input.close();
 			return;
 		}
-
-		memset(string, 0, length);
-		input.read(string, length);
-		input.close();
-
-		feof = length;
-		index = 0;
 	}
 }
 		
@@ -111,6 +114,9 @@ void parsingFile::skipNextToken()
 			{
 				actualChar = string[++index];
 				charWritten = true;
+			
+				if (index >= feof)
+					return;
 			}
 
 			if (index >= feof)
@@ -125,7 +131,11 @@ void parsingFile::skipNextToken()
 		{
 			actualChar = string[++index];
 			while (actualChar == '\n' || actualChar == ' ' || actualChar == '\t' || actualChar == 0xd)
+			{
 				actualChar = string[++index];
+				if (index >= feof)
+					return;
+			}
 
 			if (index >= feof)
 				return;
@@ -194,6 +204,9 @@ std::string parsingFile::getNextToken()
 		if (actualChar == '\"')
 		{
 			actualChar = string[++index];
+			if (index >= feof)
+				return std::string(buffer);
+
 			while (actualChar != '\"')
 			{
 				// Maximum string size, if you got 
@@ -221,6 +234,9 @@ std::string parsingFile::getNextToken()
 		if (actualChar == ' ' || actualChar == '\t' || actualChar == '\n' || actualChar == 0xd)
 		{
 			actualChar = string[++index];
+			if (index >= feof)
+				return std::string(buffer);
+
 			while (actualChar == '\n' || actualChar == ' ' || actualChar == '\t' || actualChar == 0xd)
 			{
 				actualChar = string[++index];

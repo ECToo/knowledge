@@ -42,13 +42,10 @@ textureManager::textureManager()
 
 textureManager::~textureManager()
 {
-	std::list<texture*>::iterator it;
-	for (it = mTextures.begin(); it != mTextures.end();)
-	{
-		texture* tex = (*it);
-		it = mTextures.erase(it);
-		delete tex;
-	}
+	for (std::list<texture*>::iterator it = mTextures.begin(); it != mTextures.end(); it++)
+		delete *it;
+
+	mTextures.clear();
 
 	// Deinitialize freeimage
 	#ifndef __WII__
@@ -70,13 +67,15 @@ texture* textureManager::getTexture(const std::string& filename)
 
 texture* textureManager::createEmptyTexture()
 {
-	texture* newTexture = (texture*) memalign(32, sizeof(texture));
-	if (newTexture)
+	try
 	{
+		texture* newTexture = new texture;
+
 		mTextures.push_back(newTexture);
 		return newTexture;
 	}
-	else
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate new texture.");
 		return NULL;
@@ -93,8 +92,6 @@ bool textureManager::allocateTextureData(const std::string& filename, int wrapBi
 	{
 		fullPath = rsc->getRoot() + filename;
 	}
-
-	printf("fullpath: %s\n", fullPath.c_str());
 
 	texture* newTexture = getTexture(fullPath);
 	if (newTexture)
@@ -125,12 +122,12 @@ void textureManager::deallocateTextureData(const std::string& filename)
 	}
 
 	std::list<texture*>::iterator it;
-	for (it = mTextures.begin(); it != mTextures.end(); it++)
+	for (it = mTextures.begin(); it != mTextures.end(); ) 
 	{
 		texture* tex = (*it);
-		mTextures.erase(it);
-
+		it = mTextures.erase(it++);
 		free(tex);
+
 		break;
 	}
 }
@@ -161,15 +158,18 @@ textureStage* textureManager::createCubicTexture(const std::string& filename, un
 	}
 
 	// Ok our texture is valid, create the real thing now
-	platTextureStage* newStage = new platTextureStage(index);
-	if (!newStage)
+	try
+	{
+		platTextureStage* newStage = new platTextureStage(index);
+		newStage->setTexture(rawTex);
+		return newStage;
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate texture stage.");
 		return NULL;
 	}
-
-	newStage->setTexture(rawTex);
-	return newStage;
 }
 
 textureStage* textureManager::createTexture(const std::string& filename, unsigned short index, int wrapBits)
@@ -197,27 +197,32 @@ textureStage* textureManager::createTexture(const std::string& filename, unsigne
 	}
 
 	// Ok our texture is valid, create the real thing now
-	platTextureStage* newStage = new platTextureStage(index);
-	if (!newStage)
+	try 
+	{
+		platTextureStage* newStage = new platTextureStage(index);
+		newStage->setTexture(rawTex);
+		return newStage;
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate texture stage.");
 		return NULL;
 	}
-
-	newStage->setTexture(rawTex);
-	return newStage;
 }
 			
 textureStage* textureManager::createStage(unsigned short index)
 {
-	platTextureStage* newStage = new platTextureStage(index);
-	if (!newStage)
+	try
+	{
+		platTextureStage* newStage = new platTextureStage(index);
+		return newStage;
+	}
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate texture stage.");
 		return NULL;
 	}
-
-	return newStage;
 }
 
 void textureManager::setStageTexture(textureStage* newStage, const std::string& filename, int wrapBits)
@@ -228,14 +233,12 @@ void textureManager::setStageTexture(textureStage* newStage, const std::string& 
 		return;
 	}
 
+	// Copy filename
 	std::string fullPath = filename;
 
 	// Get Path from resource manager (if any)
 	resourceManager* rsc = &resourceManager::getSingleton();
-	if (rsc)
-	{
-		fullPath = rsc->getRoot() + filename;
-	}
+	if (rsc) fullPath = rsc->getRoot() + filename;
 
 	texture* rawTex = getTexture(fullPath);
 	if (!rawTex)

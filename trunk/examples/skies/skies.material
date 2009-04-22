@@ -1,0 +1,27 @@
+material nightzSky
+{
+	texture
+	{
+		cubename skies/nightz_sky/nightz.jpg
+		texcoord uv
+	}
+}
+
+material graveyard
+{
+	texture
+	{
+		cubename skies/sb_graveyard/grave.jpg
+		texcoord uv
+	}
+}
+
+material skyPlane
+{
+	texture
+	{
+		filename skies/skyPlane.jpg
+		texcoord uv
+	}
+}
+	

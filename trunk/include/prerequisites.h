@@ -31,17 +31,21 @@
 #include <vector>
 #include <map>
 #include <stack>
-#include <sys/time.h>
 
-#ifndef memalign
-#include <malloc.h>
-#endif
+extern "C" 
+{
+	#include <sys/time.h>
 
-#ifndef WIN32
-	#ifndef __WII__
-		#include "config.h"
+	#ifndef memalign
+		#include <malloc.h>
 	#endif
-#endif
+
+	#ifndef WIN32
+		#ifndef __WII__
+			#include "config.h"
+		#endif
+	#endif
+}
 
 #define DLL_EXPORT
 
@@ -91,49 +95,52 @@
 	}
 #endif
 
-// Platform dependent includes
-#ifndef __WII__
+extern "C" 
+{
+	// Platform dependent includes
+	#ifndef __WII__
+	
+		// Must be included before anything else
+		#ifdef WIN32
+			#include <windows.h>
+			#define DLL_EXPORT __declspec(dllexport)
+			#define memalign __mingw_aligned_malloc
+		#endif
 
-	// Must be included before anything else
-	#ifdef WIN32
-		#include <windows.h>
-		#define DLL_EXPORT __declspec(dllexport)
-		#define memalign __mingw_aligned_malloc
+		// OpenGL
+		#include <GL/glew.h>
+		#include <GL/gl.h>
+		#include <GL/glu.h>
+	
+		// FreeImage
+		#include <FreeImage.h>
+
+		// SDL
+		#include "SDL.h"
+
+		// posix threads
+		#include <pthread.h>
+
+	#else
+
+		#include <ogc/video.h>
+		#include <ogc/system.h>
+		#include <ogc/gx.h>
+		#include <ogc/gu.h>
+		#include <ogc/cache.h>
+		#include <ogc/pad.h>
+		#include <fat.h>
+		#include <sys/unistd.h>
+		#include <sys/dir.h>
+		#include <ogc/lwp.h>
+		#include <ogc/mutex.h>
+		#include <ogc/lwp_watchdog.h>
+		#include <malloc.h>
+		#include <wiiuse/wpad.h>
+		#include <debug.h>
+
 	#endif
-
-	// OpenGL
-	#include <GL/glew.h>
-	#include <GL/gl.h>
-	#include <GL/glu.h>
-
-	// FreeImage
-	#include <FreeImage.h>
-
-	// SDL
-	#include "SDL.h"
-
-	// posix threads
-	#include <pthread.h>
-
-#else
-
-	#include <ogc/video.h>
-	#include <ogc/system.h>
-	#include <ogc/gx.h>
-	#include <ogc/gu.h>
-	#include <ogc/cache.h>
-	#include <ogc/pad.h>
-	#include <fat.h>
-	#include <sys/unistd.h>
-	#include <sys/dir.h>
-	#include <ogc/lwp.h>
-	#include <ogc/mutex.h>
-	#include <ogc/lwp_watchdog.h>
-	#include <malloc.h>
-	#include <wiiuse/wpad.h>
-	#include <debug.h>
-
-#endif
+}
 
 // Platform independent definitions
 #ifndef __WII__

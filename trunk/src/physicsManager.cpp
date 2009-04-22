@@ -241,20 +241,34 @@ dJointGroupID physicsManager::getActiveJointGroup()
 			
 physicSphere* physicsManager::createSphere(vec_t radius)
 {
-	physicSphere* newSphere = new physicSphere(mActiveWorld, mActiveSpace, radius);
-	if (newSphere)
+	try
+	{
+		physicSphere* newSphere = new physicSphere(mActiveWorld, mActiveSpace, radius);
 		mPhysicObjects.push_back(newSphere);
-
-	return newSphere;
+		return newSphere;
+	}
+	
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate sphere.");
+		return NULL;
+	}
 }
 
 physicBox* physicsManager::createBox(vector3 length)
 {
-	physicBox* newBox = new physicBox(mActiveWorld, mActiveSpace, length);
-	if (newBox)
+	try
+	{
+		physicBox* newBox = new physicBox(mActiveWorld, mActiveSpace, length);
 		mPhysicObjects.push_back(newBox);
+		return newBox;
+	}
 
-	return newBox;
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate new box.");
+		return NULL;
+	}
 }
 
 physicTriMesh* physicsManager::createTriMesh(drawable3D* mesh)
@@ -265,13 +279,20 @@ physicTriMesh* physicsManager::createTriMesh(drawable3D* mesh)
 physicTriMesh* physicsManager::createTriMesh(const void* vertices, unsigned int numVertices, 
 					const void* indices, unsigned int numIndices, const void* normals)
 {
-	physicTriMesh* newTriMesh = new physicTriMesh(mActiveSpace, vertices, numVertices, 
-			indices, numIndices, normals);
+	try
+	{
+		physicTriMesh* newTriMesh = new physicTriMesh(mActiveSpace, vertices, numVertices, 
+				indices, numIndices, normals);
 
-	if (newTriMesh)
 		mPhysicObjects.push_back(newTriMesh);
+		return newTriMesh;
+	}
 
-	return newTriMesh;
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate trimesh.");
+		return NULL;
+	}
 }
 
 physicSphere::physicSphere(dWorldID wId, dSpaceID sId, vec_t radius)

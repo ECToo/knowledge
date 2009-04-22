@@ -34,27 +34,26 @@ materialManager::materialManager()
 	mMaterials.clear();
 
 	#ifdef __WII__
-	mTev = new tevManager();
-	kAssert (mTev);
+	try
+	{
+		mTev = new tevManager();
+	}
+	catch (...)
+	{
+		S_LOG_INFO("Failed to create tevManager.");
+	}
 	#endif
 }
 
 materialManager::~materialManager()
 {
 	#ifdef __WII__
-	if (mTev)
-		delete mTev;
+	delete mTev;
 	#endif
 
 	std::map<std::string, material*>::iterator it;
-	for (it = mMaterials.begin(); it != mMaterials.end(); )
-	{
-		material* tmp = it->second;
-
-		mMaterials.erase(it++);
-
-		delete tmp;
-	}
+	for (it = mMaterials.begin(); it != mMaterials.end(); it++)
+		delete it->second;
 }
 			
 material* materialManager::createMaterial(const std::string& name)
@@ -65,20 +64,21 @@ material* materialManager::createMaterial(const std::string& name)
 		// Material already exists
 		return newMaterial;
 	}
-	else
+		
+	// Allocate a new material
+	try
 	{
-		// Allocate a new material
 		newMaterial = new material();
-		if (newMaterial)
-		{
-			S_LOG_INFO("Material " + name + " created.");
-			mMaterials[name] = newMaterial;
-			return newMaterial;
-		}
+		S_LOG_INFO("Material " + name + " created.");
+		mMaterials[name] = newMaterial;
+		return newMaterial;
 	}
 
-	S_LOG_INFO("Failed to create material " + name + ".");
-	return NULL;
+	catch (...)
+	{
+		S_LOG_INFO("Failed to create material " + name + ".");
+		return NULL;
+	}
 }
 
 material* materialManager::getMaterial(const std::string& name)
@@ -488,12 +488,18 @@ void materialManager::parseMaterial(material* mat, parsingFile* file)
 
 void materialManager::parseMaterialScript(const std::string& filename, materialList* map)
 {
-	parsingFile* newFile = new parsingFile(filename);
+	try
+	{
+		parsingFile* newFile = new parsingFile(filename);
+		parseMaterialScript(newFile, map);
 
-	kAssert(newFile != NULL);
-	parseMaterialScript(newFile, map);
+		delete newFile;
+	}
 
-	delete newFile;
+	catch (...)
+	{
+		S_LOG_INFO("Failed to create new parsing file for " + filename);
+	}
 }
 
 void materialManager::parseMaterialScript(parsingFile* file, materialList* map)
@@ -727,12 +733,18 @@ void materialManager::parseQ3Material(material* mat, parsingFile* file)
 
 void materialManager::parseQ3MaterialScript(const std::string& filename, materialList* map)
 {
-	parsingFile* newFile = new parsingFile(filename);
+	try
+	{
+		parsingFile* newFile = new parsingFile(filename);
+		parseQ3MaterialScript(newFile, map);
 
-	kAssert(newFile != NULL);
-	parseQ3MaterialScript(newFile, map);
+		delete newFile;
+	}
 
-	delete newFile;
+	catch (...)
+	{
+		S_LOG_INFO("Failed to create parsing file for " + filename);
+	}
 }
 
 void materialManager::parseQ3MaterialScript(parsingFile* file, materialList* map)
