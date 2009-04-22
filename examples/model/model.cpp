@@ -52,22 +52,17 @@ int main(int argc, char** argv)
 	k::resourceManager* resourceMgr = new k::resourceManager("../resources.cfg");
 	#endif
 
-	_break();
-
 	// Loading Screen
 	k::imgLoadScreen* newLoadingScreen = new k::imgLoadScreen();
-	assert(newLoadingScreen);
 
 	resourceMgr->setLoadingScreen(newLoadingScreen);
-	_break();
 	newLoadingScreen->loadBg("loading.jpg");
-	_break();
 	newLoadingScreen->setImgDimension(k::vector2(256, 256));
-	_break();
 	newLoadingScreen->update("");
 
 	k::resourceManager::getSingleton().loadGroup("model");
 	k::resourceManager::getSingleton().loadGroup("common");
+	k::resourceManager::getSingleton().loadGroup("skies");
 
 	// Load the Model
 	k::vector3 modelPosition;

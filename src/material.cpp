@@ -28,6 +28,18 @@ material::material()
 	mDepthTest = true;
 	mNoDraw = false;
 }
+			
+material::~material()
+{
+	std::list<textureStage*>::iterator it;
+	for (it = mTextures.begin(); it != mTextures.end(); )
+	{
+		textureStage* tmp = (*it);
+		
+		it = mTextures.erase(it++);
+		delete tmp;
+	}
+}
 
 void material::prepare()
 {
@@ -200,13 +212,14 @@ void material::setSingleTexture(texture* tex)
 {
 	kAssert(tex);
 
-	platTextureStage* newTexStage = new platTextureStage(0);
-	if (newTexStage)
+	try 
 	{
+		platTextureStage* newTexStage = new platTextureStage(0);
 		newTexStage->setTexture(tex);
 		pushTexture(newTexStage);
 	}
-	else 
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate texture stage.");
 	}
@@ -216,17 +229,26 @@ void material::setSingleTexture(unsigned int w, unsigned int h, kTexture* tex)
 {
 	kAssert(tex);
 
-	texture* newTexture = textureManager::getSingleton().createEmptyTexture();
-	platTextureStage* newTexStage = new platTextureStage(0);
-
-	if (newTexture && newTexStage)
+	try
 	{
+		// Set texture on new Stage
+		platTextureStage* newTexStage = new platTextureStage(0);
+
+		texture* newTexture = textureManager::getSingleton().createEmptyTexture();
+		if (!newTexture)
+		{
+			delete newTexStage;
+			return;
+		}
+		
+		// Push 
 		newTexture->push(tex, w, h);
 		newTexStage->setTexture(newTexture);
 
 		pushTexture(newTexStage);
 	}
-	else 
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate texture stage.");
 	}

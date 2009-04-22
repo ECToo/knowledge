@@ -43,13 +43,26 @@ md5mesh::md5mesh()
 
 md5mesh::~md5mesh()
 {
-	free(mNormalList);
-	free(mIndexList);
-	free(mVertices);
-	free(mVertexList);
-	free(mUvList);
-	free(mWeights);
-	free(mTriangles);
+	if (mNormalList)
+		free(mNormalList);
+
+	if (mIndexList)
+		free(mIndexList);
+	
+	if (mVertices)
+		free(mVertices);
+
+	if (mVertexList)
+		free(mVertexList);
+
+	if (mUvList)
+		free(mUvList);
+
+	if (mWeights)
+		free(mWeights);
+	
+	if (mTriangles)
+		free(mTriangles);
 }
 
 void md5mesh::prepareVertices(unsigned int size)
@@ -61,6 +74,15 @@ void md5mesh::prepareVertices(unsigned int size)
 	if (!mVertices || !mVertexList || !mUvList)
 	{
 		S_LOG_INFO("Failed to prepare vertices array on md5 model.");
+
+		if (!mVertices)
+			free(mVertices);
+
+		if (!mVertexList)
+			free(mVertexList);
+
+		if (!mUvList)
+			free(mUvList);
 	}
 	else
 	{
@@ -104,7 +126,7 @@ void md5mesh::prepareWeights(unsigned int size)
 void md5mesh::pushVertex(const vector2& uv, const vector2& weight)
 {
 	vert_t* newVertex = &mVertices[mVIndex++];
-	kAssert(newVertex != NULL);
+	kAssert(newVertex);
 
 	newVertex->uv[0] = uv.x;
 	newVertex->uv[1] = uv.y;
@@ -114,7 +136,7 @@ void md5mesh::pushVertex(const vector2& uv, const vector2& weight)
 void md5mesh::pushTriangle(const vector3& triangle)
 {
 	triangle_t* newTri = &mTriangles[mTIndex++];
-	kAssert(newTri != NULL);
+	kAssert(newTri);
 		
 	newTri->index[0] = triangle.x;
 	newTri->index[1] = triangle.y;
@@ -124,7 +146,7 @@ void md5mesh::pushTriangle(const vector3& triangle)
 void md5mesh::pushWeight(const vector2& joint, const vector3& pos)
 {
 	weight_t* newWeight = &mWeights[mWIndex++];
-	kAssert(newWeight != NULL);
+	kAssert(newWeight);
 
 	newWeight->jointIndex = joint.x;
 	newWeight->value = joint.y;
@@ -133,7 +155,7 @@ void md5mesh::pushWeight(const vector2& joint, const vector3& pos)
 		
 void md5mesh::setMaterial(material* mat)
 {
-	kAssert(mat != NULL);
+	kAssert(mat);
 	mMaterial = mat;
 }
 
@@ -156,7 +178,7 @@ void md5mesh::compileVertices(std::vector<bone_t*>* boneList)
 	for (unsigned int vIt = 0; vIt < mVCount; vIt++)
 	{
 		vert_t* vertex = &mVertices[vIt];
-		kAssert(vertex != NULL);
+		kAssert(vertex);
 
 		vertex->renderPos[0] = vertex->renderPos[1] = vertex->renderPos[2] = 0;
 		vertex->renderNormal = vector3(0, 0, 0);
@@ -165,10 +187,10 @@ void md5mesh::compileVertices(std::vector<bone_t*>* boneList)
 			vector3 tempPos;
 
 			weight_t* weight = &mWeights[w];
-			kAssert(weight != NULL);
+			kAssert(weight);
 				
 			bone_t* bone = (*boneList)[weight->jointIndex];
-			kAssert(bone != NULL);
+			kAssert(bone);
 
 			tempPos = bone->orientation.rotateVector(weight->pos);
 			vertex->renderPos[0] += (tempPos.x + bone->pos.x) * weight->value;
@@ -201,7 +223,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 	for (unsigned int vIt = 0; vIt < mVCount; vIt++)
 	{
 		vert_t* vertex = &mVertices[vIt];
-		kAssert(vertex != NULL);
+		kAssert(vertex);
 
 		vertex->basePos = vector3(0, 0, 0);
 		for (int w = vertex->weight.x; w < vertex->weight.x+vertex->weight.y; w++)
@@ -209,10 +231,10 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 			vector3 tempPos;
 
 			weight_t* weight = &mWeights[w];
-			kAssert(weight != NULL);
+			kAssert(weight);
 				
 			bone_t* bone = (*boneList)[weight->jointIndex];
-			kAssert(bone != NULL);
+			kAssert(bone);
 
 			tempPos = bone->orientation.rotateVector(weight->pos);
 			vertex->basePos += (tempPos + bone->pos) * weight->value;
@@ -237,7 +259,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 	for (unsigned int tIt = 0; tIt < mTCount; tIt++)
 	{
 		triangle_t* tri = &mTriangles[tIt];
-		kAssert(tri != NULL);
+		kAssert(tri);
 
 		vector3 v1, v2, v3;
 		vector3 edge1, edge2;
@@ -262,7 +284,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 	for (unsigned int vIt = 0; vIt < mVCount; vIt++)
 	{
 		vert_t* vertex = &mVertices[vIt];
-		kAssert(vertex != NULL);
+		kAssert(vertex);
 
 		vertex->baseNormal.normalize();
 		vertex->renderNormal = vertex->baseNormal;
@@ -274,7 +296,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 	for (unsigned int vIt = 0; vIt < mVCount; vIt++)
 	{
 		vert_t* vertex = &mVertices[vIt];
-		kAssert(vertex != NULL);
+		kAssert(vertex);
 
 		vector3 normal;
 		for (int w = 0; w < vertex->weight.x + vertex->weight.y; w++)
@@ -282,10 +304,10 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 			vector3 tempPos;
 
 			weight_t* weight = &mWeights[w];
-			kAssert(weight != NULL);
+			kAssert(weight);
 
 			bone_t* bone = (*boneList)[weight->jointIndex];
-			kAssert(bone != NULL);
+			kAssert(bone);
 
 			tempPos = bone->orientation.inverseVector(vertex->baseNormal);
 			normal += tempPos;
@@ -383,146 +405,151 @@ md5model::md5model(const std::string& filename)
 	{
 		if (token == "mesh")
 		{
-			md5mesh* thisMesh = new md5mesh();
-			if (!thisMesh)
-				return;
-
-			file.skipNextToken(); // {
-
-			// Shader Comes here with the name
-			file.skipNextToken(); // "shader"
-			token = file.getNextToken(); // "shader" param
-			thisMesh->setMaterial(materialManager::getSingleton().getMaterial(token));
-
-			file.skipNextToken(); // numverts
-			token = file.getNextToken(); // numverts param
-
-			unsigned int numberOfVertices = atoi(token.c_str());
-			thisMesh->prepareVertices(numberOfVertices);
-
-			for (unsigned int i = 0; i < numberOfVertices; i++)
+			try 
 			{
-				// vertices are like: vert 0 ( 0.539093 0.217694 ) 0 3
-				token = file.getNextToken(); // vert
-				if (token != "vert")
+				md5mesh* thisMesh = new md5mesh();
+				file.skipNextToken(); // {
+	
+				// Shader Comes here with the name
+				file.skipNextToken(); // "shader"
+				token = file.getNextToken(); // "shader" param
+				thisMesh->setMaterial(materialManager::getSingleton().getMaterial(token));
+	
+				file.skipNextToken(); // numverts
+				token = file.getNextToken(); // numverts param
+	
+				unsigned int numberOfVertices = atoi(token.c_str());
+				thisMesh->prepareVertices(numberOfVertices);
+	
+				for (unsigned int i = 0; i < numberOfVertices; i++)
 				{
-					S_LOG_INFO("Unexpected input received (" + token + ") expected vert");
-					break;
+					// vertices are like: vert 0 ( 0.539093 0.217694 ) 0 3
+					token = file.getNextToken(); // vert
+					if (token != "vert")
+					{
+						S_LOG_INFO("Unexpected input received (" + token + ") expected vert");
+						break;
+					}
+	
+					vector2 uv;
+					vector2 weight;
+	
+					// Should Get Index
+					file.skipNextToken();
+	
+					// UV DATA
+					file.skipNextToken(); // (
+	
+					token = file.getNextToken(); // First uv value
+					uv.x = atof(token.c_str());
+	
+					token = file.getNextToken(); // Second uv value
+					uv.y = atof(token.c_str());
+	
+					file.skipNextToken(); // )
+	
+					// Weight Data
+					token = file.getNextToken(); // First weight
+					weight.x = atoi(token.c_str());
+	
+					token = file.getNextToken(); // Second weight
+					weight.y = atoi(token.c_str());
+	
+					// Push data
+					thisMesh->pushVertex(uv, weight);
 				}
+	
+				token = file.getNextToken(); // numtris
+				if (token != "numtris")
+				{
+					S_LOG_INFO("Unexpected input received (" + token + ") expected numtris");
+					delete thisMesh;
+					return;
+				}
+	
+				unsigned int numberOfTris = atoi(file.getNextToken().c_str());
+				thisMesh->prepareTriangles(numberOfTris);
+	
+				for (unsigned int i = 0; i < numberOfTris; i++)
+				{
+					// Tris are described like: tri 0 0 2 1
+					token = file.getNextToken();
+					if (token != "tri")
+					{
+						S_LOG_INFO("Unexpected input received (" + token + ") expected tri");
+						break;
+					}
+	
+					vector3 triangle;
+	
+					file.skipNextToken(); // index
+	
+					token = file.getNextToken();
+					triangle.x = atoi(token.c_str());
+	
+					token = file.getNextToken();
+					triangle.y = atoi(token.c_str());
+	
+					token = file.getNextToken();
+					triangle.z = atoi(token.c_str());
+	
+					thisMesh->pushTriangle(triangle);
+				}
+	
+				// Read Weight Data
+				token = file.getNextToken(); // numweights
+				if (token != "numweights")
+				{
+					S_LOG_INFO("Unexpected input received (" + token + ") expected numweights");
+					delete thisMesh;
+					return;
+				}
+	
+				unsigned int numberOfWeights = atoi(file.getNextToken().c_str());
+				thisMesh->prepareWeights(numberOfWeights);
+	
+				for (unsigned int i = 0; i < numberOfWeights; i++)
+				{
+					// weights are described like that: weight 0 4 0.000000 ( 13.718612 -2.371034 0.006163 )
+					token = file.getNextToken();
+					if (token != "weight")
+					{
+						S_LOG_INFO("Unexpected input received (" + token + ") expected weight");
+						break;
+					}
+	
+					file.skipNextToken(); // index
+	
+					vector2 joint;
+					vector3 pos;
+	
+					token = file.getNextToken(); // join index
+					joint.x = atoi(token.c_str());
+	
+					token = file.getNextToken(); // join value
+					joint.y = atof(token.c_str());
+	
+					file.skipNextToken(); // (
 
-				vector2 uv;
-				vector2 weight;
+					// Weight positions
+					token = file.getNextToken();
+					pos.x = atof(token.c_str());
+					token = file.getNextToken();
+					pos.y = atof(token.c_str());
+					token = file.getNextToken();
+					pos.z = atof(token.c_str());
+	
+					file.skipNextToken(); // )
 
-				// Should Get Index
-				file.skipNextToken();
-
-				// UV DATA
-				file.skipNextToken(); // (
-
-				token = file.getNextToken(); // First uv value
-				uv.x = atof(token.c_str());
-
-				token = file.getNextToken(); // Second uv value
-				uv.y = atof(token.c_str());
-
-				file.skipNextToken(); // )
-
-				// Weight Data
-				token = file.getNextToken(); // First weight
-				weight.x = atoi(token.c_str());
-
-				token = file.getNextToken(); // Second weight
-				weight.y = atoi(token.c_str());
-
-				// Push data
-				thisMesh->pushVertex(uv, weight);
-			}
-
-			token = file.getNextToken(); // numtris
-			if (token != "numtris")
+					thisMesh->pushWeight(joint, pos);
+				}
+				mMeshes.push_back(thisMesh);
+			} 
+			catch (...)
 			{
-				S_LOG_INFO("Unexpected input received (" + token + ") expected numtris");
-				delete thisMesh;
+				S_LOG_INFO("Failed to allocate md5mesh.");
 				return;
 			}
-
-			unsigned int numberOfTris = atoi(file.getNextToken().c_str());
-			thisMesh->prepareTriangles(numberOfTris);
-
-			for (unsigned int i = 0; i < numberOfTris; i++)
-			{
-				// Tris are described like: tri 0 0 2 1
-				token = file.getNextToken();
-				if (token != "tri")
-				{
-					S_LOG_INFO("Unexpected input received (" + token + ") expected tri");
-					break;
-				}
-
-				vector3 triangle;
-
-				file.skipNextToken(); // index
-
-				token = file.getNextToken();
-				triangle.x = atoi(token.c_str());
-
-				token = file.getNextToken();
-				triangle.y = atoi(token.c_str());
-
-				token = file.getNextToken();
-				triangle.z = atoi(token.c_str());
-
-				thisMesh->pushTriangle(triangle);
-			}
-
-			// Read Weight Data
-			token = file.getNextToken(); // numweights
-			if (token != "numweights")
-			{
-				S_LOG_INFO("Unexpected input received (" + token + ") expected numweights");
-				delete thisMesh;
-				return;
-			}
-
-			unsigned int numberOfWeights = atoi(file.getNextToken().c_str());
-			thisMesh->prepareWeights(numberOfWeights);
-
-			for (unsigned int i = 0; i < numberOfWeights; i++)
-			{
-				// weights are described like that: weight 0 4 0.000000 ( 13.718612 -2.371034 0.006163 )
-				token = file.getNextToken();
-				if (token != "weight")
-				{
-					S_LOG_INFO("Unexpected input received (" + token + ") expected weight");
-					break;
-				}
-
-				file.skipNextToken(); // index
-
-				vector2 joint;
-				vector3 pos;
-
-				token = file.getNextToken(); // join index
-				joint.x = atoi(token.c_str());
-
-				token = file.getNextToken(); // join value
-				joint.y = atof(token.c_str());
-
-				file.skipNextToken(); // (
-
-				// Weight positions
-				token = file.getNextToken();
-				pos.x = atof(token.c_str());
-				token = file.getNextToken();
-				pos.y = atof(token.c_str());
-				token = file.getNextToken();
-				pos.z = atof(token.c_str());
-
-				file.skipNextToken(); // )
-
-				thisMesh->pushWeight(joint, pos);
-			}
-			mMeshes.push_back(thisMesh);
 		} 
 		// if (token == "mesh")
 		else
@@ -567,19 +594,26 @@ md5model::md5model(const std::string& filename)
 				orientation.z = atof(token.c_str());
 				file.skipNextToken(); // )
 
-				bone_t* newBone = new bone_t;
-				kAssert(newBone != NULL);
+				try
+				{
+					bone_t* newBone = new bone_t;
 					
-				newBone->parentIndex = parentIndex;
-				newBone->index = i;
-				newBone->pos = pos;
-				newBone->orientation = quaternion(orientation);
-				newBone->orientation.computeW();
+					newBone->parentIndex = parentIndex;
+					newBone->index = i;
+					newBone->pos = pos;
+					newBone->orientation = quaternion(orientation);
+					newBone->orientation.computeW();
 
-				newBone->basePos = newBone->pos;
-				newBone->baseOrientation = newBone->orientation;
+					newBone->basePos = newBone->pos;
+					newBone->baseOrientation = newBone->orientation;
 
-				mBones.push_back(newBone);
+					mBones.push_back(newBone);
+				}
+				catch (...)
+				{
+					S_LOG_INFO("Failed to allocate new bone.");
+					return;
+				}
 			}
 		} 
 		// if (token == "joints")
@@ -599,7 +633,40 @@ md5model::md5model(const md5model& source)
 
 md5model::~md5model()
 {
-	//TODO
+	std::map<std::string, anim_t*>::iterator animIt;
+	for (animIt = mAnimations.begin(); animIt != mAnimations.end(); )
+	{
+		anim_t* tmpAnim = animIt->second;
+		mAnimations.erase(animIt++);
+
+		delete [] tmpAnim->hierarchy;
+		delete [] tmpAnim->baseFrame;
+		delete [] tmpAnim->bounds;
+
+		for (unsigned int i = 0; i < tmpAnim->numFrames; i++)
+			delete [] tmpAnim->frames[i];
+
+		delete [] tmpAnim->frames;
+		delete tmpAnim;
+	}
+
+	std::list<md5mesh*>::iterator meshIt;
+	for (meshIt = mMeshes.begin(); meshIt != mMeshes.end();)
+	{
+		md5mesh* tmpMesh = (*meshIt);
+		meshIt = mMeshes.erase(meshIt++);
+
+		delete tmpMesh;
+	}
+
+	std::vector<bone_t*>::iterator boneIt;
+	for (boneIt = mBones.begin(); boneIt != mBones.end();)
+	{
+		bone_t* tmpBone = (*boneIt);
+		boneIt = mBones.erase(boneIt++);
+
+		delete tmpBone;
+	}
 }
 
 void md5model::compileVertices()
@@ -608,7 +675,7 @@ void md5model::compileVertices()
 	for (it = mMeshes.begin(); it != mMeshes.end(); it++)
 	{
 		md5mesh* mesh = (*it);
-		kAssert(mesh != NULL);
+		kAssert(mesh);
 	
 		mesh->compileVertices(&mBones);
 	}
@@ -620,7 +687,7 @@ void md5model::compileBase()
 	for (it = mMeshes.begin(); it != mMeshes.end(); it++)
 	{
 		md5mesh* mesh = (*it);
-		kAssert(mesh != NULL);
+		kAssert(mesh);
 	
 		mesh->compileBase(&mBones);
 	}
@@ -651,7 +718,7 @@ void md5model::draw()
 	for (it = mMeshes.begin(); it != mMeshes.end(); it++)
 	{
 		md5mesh* mesh = (*it);
-		kAssert(mesh != NULL);
+		kAssert(mesh);
 	
 		mesh->draw();
 	}
@@ -667,13 +734,18 @@ void md5model::attachAnimation(const std::string& filename, const std::string& n
 	}
 
 	// Great, the file is found, allocate an animation slot
-	anim_t* newAnimation = new anim_t;
-	if (!newAnimation)
+	anim_t* newAnimation;
+	try
+	{
+		newAnimation = new anim_t;
+		memset(newAnimation, 0, sizeof(anim_t));
+	}
+	
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate memory for a new animation.");
 		return;
 	}
-	memset(newAnimation, 0, sizeof(anim_t));
 
 	// Parse it
 	std::string token = file.getNextToken();
@@ -700,18 +772,26 @@ void md5model::attachAnimation(const std::string& filename, const std::string& n
 		{
 			token = file.getNextToken(); // number of frames
 			newAnimation->numFrames = atoi(token.c_str());
-			newAnimation->bounds = new bound_t[newAnimation->numFrames];
-			if (!newAnimation->bounds)
+			try
+			{
+				newAnimation->bounds = new bound_t[newAnimation->numFrames];
+				memset(newAnimation->bounds, 0, sizeof(bound_t)*newAnimation->numFrames);
+			}
+
+			catch (...)
 			{
 				S_LOG_INFO("Failed to allocate bounding boxes array.");
 				delete newAnimation;
 
 				return;
 			}
-			memset(newAnimation->bounds, 0, sizeof(bound_t)*newAnimation->numFrames);
 
-			newAnimation->frames = new vec_t*[newAnimation->numFrames];
-			if (!newAnimation->frames)
+			try
+			{
+				newAnimation->frames = new vec_t*[newAnimation->numFrames];
+			}
+
+			catch (...)
 			{
 				S_LOG_INFO("Failed to allocate array of frames.");
 				delete newAnimation;
@@ -726,26 +806,34 @@ void md5model::attachAnimation(const std::string& filename, const std::string& n
 			newAnimation->numBones = atoi(token.c_str());
 
 			// A base position for each frame
-			newAnimation->baseFrame = new baseBone_t[newAnimation->numBones];
-			if (!newAnimation->baseFrame)
+			try
+			{
+				newAnimation->baseFrame = new baseBone_t[newAnimation->numBones];
+				memset(newAnimation->baseFrame, 0, sizeof(baseBone_t)*newAnimation->numBones);
+			}
+
+			catch (...)
 			{
 				S_LOG_INFO("Failed to allocate base bone positions for each frame.");
 				delete newAnimation;
 
 				return;
 			}
-			memset(newAnimation->baseFrame, 0, sizeof(baseBone_t)*newAnimation->numBones);
 
 			// The Complete hierarchy for animation
-			newAnimation->hierarchy = new boneFrame_t[newAnimation->numBones];
-			if (!newAnimation->hierarchy)
+			try 
+			{
+				newAnimation->hierarchy = new boneFrame_t[newAnimation->numBones];
+				memset(newAnimation->hierarchy, 0, sizeof(boneFrame_t)*newAnimation->numBones);
+			}
+
+			catch (...)
 			{
 				S_LOG_INFO("Failed to allocate animation hierarchy.");
 				delete newAnimation;
 
 				return;
 			}
-			memset(newAnimation->hierarchy, 0, sizeof(boneFrame_t)*newAnimation->numBones);
 		} // numJoints
 		else
 		if (token == "frameRate")
@@ -760,15 +848,19 @@ void md5model::attachAnimation(const std::string& filename, const std::string& n
 			newAnimation->animatedComponents = atoi(token.c_str()); 
 			for (unsigned int i = 0; i < newAnimation->numFrames; i++)
 			{
-				newAnimation->frames[i] = new vec_t[newAnimation->animatedComponents];
-				if (!newAnimation->frames[i])
+				try
+				{
+					newAnimation->frames[i] = new vec_t[newAnimation->animatedComponents];
+					memset(newAnimation->frames[i], 0, sizeof(vec_t)*newAnimation->animatedComponents);
+				}
+
+				catch (...)
 				{
 					S_LOG_INFO("Failed to allocate frame animated components.");
 					delete newAnimation;
 					
 					return;
 				}
-				memset(newAnimation->frames[i], 0, sizeof(vec_t)*newAnimation->animatedComponents);
 			}
 		} // numAnimatedComponents
 		else
@@ -778,7 +870,7 @@ void md5model::attachAnimation(const std::string& filename, const std::string& n
 			for (unsigned int i = 0; i < newAnimation->numBones; i++)
 			{
 				boneFrame_t* thisBone = &newAnimation->hierarchy[i];
-				kAssert(thisBone != NULL);
+				kAssert(thisBone);
 
 				// Set Index
 				thisBone->index = i;
@@ -807,7 +899,7 @@ void md5model::attachAnimation(const std::string& filename, const std::string& n
 			for (unsigned int i = 0; i < newAnimation->numFrames; i++)
 			{
 				bound_t* thisBound = &newAnimation->bounds[i];
-				kAssert(thisBound != NULL);
+				kAssert(thisBound);
 
 				file.skipNextToken(); // (
 				token = file.getNextToken(); // X
@@ -839,7 +931,7 @@ void md5model::attachAnimation(const std::string& filename, const std::string& n
 				quaternion q;
 
 				baseBone_t* thisBone = &newAnimation->baseFrame[i];
-				kAssert(thisBone != NULL);
+				kAssert(thisBone);
 
 				file.skipNextToken(); // (
 				token = file.getNextToken(); // X
@@ -871,7 +963,7 @@ void md5model::attachAnimation(const std::string& filename, const std::string& n
 
 			token = file.getNextToken(); // frame index
 			activeFrame = newAnimation->frames[atoi(token.c_str())];
-			kAssert(activeFrame != NULL);
+			kAssert(activeFrame);
 
 			file.skipNextToken(); // {
 			for (unsigned int i = 0; i < newAnimation->animatedComponents; i++)
@@ -916,7 +1008,7 @@ void md5model::setAnimation(const std::string& name)
 	for (unsigned int i = 0; i < mBones.size(); i++)
 	{
 		bone_t* thisBone = mBones[i];
-		kAssert(thisBone != NULL);
+		kAssert(thisBone);
 
 		thisBone->currentAnim = destAnimation;
 	}
@@ -934,7 +1026,7 @@ void md5model::feedAnims()
 	for (unsigned int i = 0; i < mBones.size(); i++)
 	{
 		bone_t* thisBone = mBones[i];
-		kAssert(thisBone != NULL);
+		kAssert(thisBone);
 
 		if (!thisBone->currentAnim)
 			continue;
@@ -993,7 +1085,7 @@ void md5model::feedAnims()
 		if (boneOnFrame->parentIndex > -1)
 		{
 			bone_t* parentBone = mBones[thisBone->parentIndex];
-			kAssert(parentBone != NULL);
+			kAssert(parentBone);
 
 			quaternion oriQuat = thisBone->orientation;
 			vector3 oriPos = thisBone->pos;
@@ -1014,7 +1106,7 @@ void md5model::setAnimationFrame(unsigned int frameNum)
 	for (unsigned int i = 0; i < mBones.size(); i++)
 	{
 		bone_t* thisBone = mBones[i];
-		kAssert(thisBone != NULL);
+		kAssert(thisBone);
 
 		if (!thisBone->currentAnim)
 			continue;
@@ -1072,7 +1164,7 @@ void md5model::setAnimationFrame(unsigned int frameNum)
 		if (boneOnFrame->parentIndex > -1)
 		{
 			bone_t* parentBone = mBones[thisBone->parentIndex];
-			kAssert(parentBone != NULL);
+			kAssert(parentBone);
 
 			quaternion oriQuat = thisBone->orientation;
 			vector3 oriPos = thisBone->pos;

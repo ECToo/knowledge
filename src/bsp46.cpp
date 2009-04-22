@@ -32,14 +32,18 @@ void q3BitSet::configure(int i)
 	if (mBits)
 		delete [] mBits;
 
-	mBits = new int[mBitsCount];
-	if (!mBits)
+	try
+	{
+		mBits = new int[mBitsCount];
+		memset(mBits, 0, sizeof(int) * mBitsCount);
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate bitset array.");
 		return;
 	}
 
-	memset(mBits, 0, sizeof(int) * mBitsCount);
 }
 
 void q3BitSet::set(int i)
@@ -218,8 +222,24 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 	unsigned int fileSize = ftell(mBspFile);
 	fseek(mBspFile, 0, SEEK_SET);
 
-	char* fileBuffer = new char[fileSize];
-	if (!fileBuffer)
+	char* fileBuffer;
+	try
+	{
+
+		fileBuffer = new char[fileSize];
+		if (fread(fileBuffer, 1, fileSize, mBspFile) < fileSize)
+		{
+			S_LOG_INFO("Failed to read bsp file.");
+			fclose(mBspFile);
+
+			return;
+		}
+
+		// We dont need the file anymore
+		fclose(mBspFile);
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate bsp read buffer.");
 		fclose(mBspFile);
@@ -227,16 +247,6 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		return;
 	}
 
-	if (fread(fileBuffer, 1, fileSize, mBspFile) < fileSize)
-	{
-		S_LOG_INFO("Failed to read bsp file.");
-		fclose(mBspFile);
-
-		return;
-	}
-
-	// We dont need the file anymore
-	fclose(mBspFile);
 
 	q3BspHeader bspHeader;
 	memcpy(&bspHeader, fileBuffer, sizeof(q3BspHeader));
@@ -354,8 +364,12 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 	}
 
 	// Allocate and configure patches
-	mPatches = new bezierPatchSet[mPatchesCount];
-	if (!mPatches)
+	try
+	{
+		mPatches = new bezierPatchSet[mPatchesCount];
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate index array.");
 		_clean();
@@ -382,23 +396,30 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 
 		for (unsigned int i = 0; i < curvesCount; i++)
 		{
-			bezierPatch* thisPatch = new bezierPatch;
-			kAssert(thisPatch);
-
-			thisPatch->configure(mBezierSteps);
-
-			// we are building lots of 3x3 patches
-			for (unsigned int h = 0; h < 3; h++)
+			try
 			{
-				for (unsigned int w = 0; w < 3; w++)
-				{
-					int column = i * 2 + h * thisFace->patchSize[0];
-					thisPatch->pushCP(&mVertices[thisFace->startVertIndex + column + w]);
-				}
-			}
+				bezierPatch* thisPatch = new bezierPatch();
+				thisPatch->configure(mBezierSteps);
 
-			thisPatch->compile();
-			mPatches[activePatch].pushPatch(thisPatch);
+				// we are building lots of 3x3 patches
+				for (unsigned int h = 0; h < 3; h++)
+				{
+					for (unsigned int w = 0; w < 3; w++)
+					{
+						int column = i * 2 + h * thisFace->patchSize[0];
+						thisPatch->pushCP(&mVertices[thisFace->startVertIndex + column + w]);
+					}
+				}
+
+				thisPatch->compile();
+				mPatches[activePatch].pushPatch(thisPatch);
+			}
+			catch (...)
+			{
+				S_LOG_INFO("Failed to allocate new bezierPatch.");
+				_clean();
+				return;
+			}
 		}
 			
 		// Increase counter and reference patch set on the face
@@ -425,8 +446,14 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 
 	// Allocate Textures
 	mTexturesCount = readLEInt(bspLumps[LUMP_TEXTURES].length) / sizeof(q3BspTexture);
-	q3BspTexture* bspTextures = new q3BspTexture[mTexturesCount];
-	if (!bspTextures)
+
+	q3BspTexture* bspTextures;
+	try
+	{
+		bspTextures = new q3BspTexture[mTexturesCount];
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate texture array.");
 		_clean();
@@ -435,7 +462,8 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		return;
 	}
 
-	memcpy(bspTextures, fileBuffer + readLEInt(bspLumps[LUMP_TEXTURES].offset), sizeof(q3BspTexture) * mTexturesCount);
+	memcpy(bspTextures, fileBuffer + readLEInt(bspLumps[LUMP_TEXTURES].offset), 
+			sizeof(q3BspTexture) * mTexturesCount);
 
 	mMaterialsCount = mTexturesCount;
 	mMaterials = new material*[mTexturesCount];
@@ -478,8 +506,13 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 
 	// Allocate Lightmaps
 	mLightmapCount = readLEInt(bspLumps[LUMP_LIGHTMAPS].length) / sizeof(q3BspLightmap128);
-	q3BspLightmap128* bspLightmaps = new q3BspLightmap128[mLightmapCount];
-	if (!bspLightmaps)
+	q3BspLightmap128* bspLightmaps;
+	try
+	{
+		bspLightmaps = new q3BspLightmap128[mLightmapCount];
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate lightmaps array.");
 		_clean();
@@ -488,9 +521,15 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		return;
 	}
 
-	memcpy(bspLightmaps, fileBuffer + readLEInt(bspLumps[LUMP_LIGHTMAPS].offset), sizeof(q3BspLightmap128) * mLightmapCount);
-	mLightmaps = new texture*[mLightmapCount];
-	if (!mLightmaps)
+	memcpy(bspLightmaps, fileBuffer + readLEInt(bspLumps[LUMP_LIGHTMAPS].offset), 
+			sizeof(q3BspLightmap128) * mLightmapCount);
+
+	try
+	{
+		mLightmaps = new texture*[mLightmapCount];
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate texture array for bsp lightmaps.");
 		_clean();
@@ -514,8 +553,13 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 
 	// Nodes
 	mNodesCount = readLEInt(bspLumps[LUMP_NODES].length) / sizeof(q3BspNode);
-	mNodes = new q3BspNode[mNodesCount];
-	if (!mNodes)
+
+	try
+	{
+		mNodes = new q3BspNode[mNodesCount];
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate nodes array for bsp.");
 		_clean();
@@ -545,8 +589,13 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 
 	// Leafs
 	mLeafsCount = readLEInt(bspLumps[LUMP_LEAFS].length) / sizeof(q3BspLeaf);
-	mLeafs = new q3BspLeaf[mLeafsCount];
-	if (!mLeafs)
+
+	try
+	{
+		mLeafs = new q3BspLeaf[mLeafsCount];
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate leafs array for bsp.");
 		_clean();
@@ -580,8 +629,13 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 			
 	// Leaf Faces
 	mLeafFacesCount = readLEInt(bspLumps[LUMP_LEAF_FACES].length) / sizeof(int);
-	mLeafFaces = new int[mLeafFacesCount];
-	if (!mLeafFaces)
+
+	try
+	{
+		mLeafFaces = new int[mLeafFacesCount];
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate leafs faces array for bsp.");
 		_clean();
@@ -598,8 +652,13 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 
 	// Leaf Brushes 
 	mLeafBrushesCount = readLEInt(bspLumps[LUMP_LEAF_BRUSHES].length) / sizeof(int);
-	mLeafBrushes = new int[mLeafBrushesCount];
-	if (!mLeafBrushes)
+	
+	try
+	{
+		mLeafBrushes = new int[mLeafBrushesCount];
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate leafs brushes array for bsp.");
 		_clean();
@@ -616,8 +675,13 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 
 	// Planes
 	mPlanesCount = readLEInt(bspLumps[LUMP_PLANES].length) / sizeof(q3BspPlane);
-	mPlanes = new q3BspPlane[mPlanesCount];
-	if (!mPlanes)
+
+	try
+	{
+		mPlanes = new q3BspPlane[mPlanesCount];
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate plane array for bsp.");
 		_clean();
@@ -644,8 +708,16 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		memcpy(&mBspVisData, fileBuffer + readLEInt(bspLumps[LUMP_VISDATA].offset), sizeof(int) * 2);
 
 		int visAllocSize = readLEInt(mBspVisData.bytesPerVis) * readLEInt(mBspVisData.numOfVis);
-		mBspVisData.bitSet = new unsigned char[visAllocSize];
-		if (!mBspVisData.bitSet)
+
+		try
+		{
+			mBspVisData.bitSet = new unsigned char[visAllocSize];
+			memcpy(mBspVisData.bitSet, 
+					fileBuffer + readLEInt(bspLumps[LUMP_VISDATA].offset) + sizeof(int) * 2, 
+					visAllocSize);
+		}
+
+		catch (...)
 		{
 			S_LOG_INFO("Failed to allocate array of vis bitsets in bsp file.");
 			_clean();
@@ -654,13 +726,17 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 			return;
 		}
 
-		memcpy(mBspVisData.bitSet, fileBuffer + readLEInt(bspLumps[LUMP_VISDATA].offset) + sizeof(int) * 2, visAllocSize);
 	}
 
 	// Brushes
 	mBrushesCount = readLEInt(bspLumps[LUMP_BRUSHES].length);
-	mBrushes = new q3BspBrush[mBrushesCount];
-	if (!mBrushes)
+
+	try
+	{
+		mBrushes = new q3BspBrush[mBrushesCount];
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate brushes for bsp.");
 		_clean();
@@ -681,8 +757,13 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 
 	// Brush Sides
 	mBrushSidesCount = readLEInt(bspLumps[LUMP_BRUSHES_SIDES].length);
-	mBrushSides = new q3BspBrushSide[mBrushSidesCount];
-	if (!mBrushSides)
+	
+	try
+	{
+		mBrushSides = new q3BspBrushSide[mBrushSidesCount];
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate brush sides for bsp.");
 		_clean();
@@ -702,8 +783,17 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 
 	// Entities
 	unsigned int mEntSize = readLEInt(bspLumps[LUMP_ENTITIES].length);
-	char* mRawEnt = new char[mEntSize];
-	if (!mRawEnt)
+	
+	try
+	{
+		char* mRawEnt = new char[mEntSize];
+		memcpy(mRawEnt, fileBuffer + readLEInt(bspLumps[LUMP_ENTITIES].offset), mEntSize);
+
+		_parseEntities(mRawEnt);
+		delete [] mRawEnt;
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate entities memory for bsp.");
 		_clean();
@@ -711,11 +801,6 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		delete [] fileBuffer;
 		return;
 	}
-
-	memcpy(mRawEnt, fileBuffer + readLEInt(bspLumps[LUMP_ENTITIES].offset), mEntSize);
-
-	_parseEntities(mRawEnt);
-	delete [] mRawEnt;
 
 	/* TODO - remake VBO support
 	// Try to generate the Vertex Buffer Objects
@@ -997,7 +1082,7 @@ void q3Bsp::draw(const camera* viewer)
 					if (!mFaceSet.isSet(index) && mFaces[index].effect != -1) 
 					{
 						mFaceSet.set(index);
-						//renderPatch(index);
+						renderPatch(index);
 					}
 					break;
 			};
@@ -1314,6 +1399,8 @@ bezierPatch::~bezierPatch()
 			
 void bezierPatch::configure(unsigned int steps)
 {
+	kAssert(steps);
+
 	mSteps = steps;
 	mCurrCP = 0;
 	

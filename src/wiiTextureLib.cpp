@@ -24,21 +24,27 @@ extern "C"
 {
 	#include <jpeglib.h>
 	#include <jerror.h>
+	#include "pngu.h"
 }
 
-#include "pngu.h"
 #include "root.h"
 #include "resourceManager.h"
 
 namespace k {
 
-void unloadTexture(kTexture* tex) {}
+void unloadTexture(const kTexture* tex) {}
 
 typedef struct
 {
 	kTexture* tex;
 	char* data; // must be aligned to 32 bytes
 } wiiKTexture;
+
+static inline wiiKTexture* loadTextureTPL(const std::string& file, unsigned short* w, unsigned short* h, int wrapBits)
+{
+	TPLFile* tpl;
+	TPL_OpenTPLFromFile(tpl, file.c_str());
+}
 
 static inline wiiKTexture* loadTextureJPEG(const std::string& file, unsigned short* w, unsigned short* h, int wrapBits)
 {
@@ -68,8 +74,13 @@ static inline wiiKTexture* loadTextureJPEG(const std::string& file, unsigned sho
 		*h = jInfo.image_height;
 	}
 
-	char* textureData = new char[colorSpace * width * height];
-	if (!textureData)
+	char* textureData;
+	try
+	{
+		textureData = new char[colorSpace * width * height];
+	}
+
+	catch (...)
 	{
 		fclose(texFile);
 
@@ -132,8 +143,13 @@ static inline wiiKTexture* loadTextureJPEG(const std::string& file, unsigned sho
 	delete [] textureData;
 
 	// New GXTexObj
-	kTexture* newKTexture = new kTexture;	
-	if (!newKTexture)
+	kTexture* newKTexture;
+	try
+	{
+		newKTexture = new kTexture;	
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate GX texture object");
 		free(wiiTexture);
@@ -213,8 +229,13 @@ static inline wiiKTexture* loadTexturePNG(const std::string& file, unsigned shor
 		return NULL;
 	}
 
-	kTexture* newKTexture = new kTexture;	
-	if (!newKTexture)
+	kTexture* newKTexture;
+	try
+	{
+		newKTexture = new kTexture;	
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate GX texture object");
 
@@ -246,8 +267,13 @@ static inline wiiKTexture* loadTexturePNG(const std::string& file, unsigned shor
 	PNGU_ReleaseImageContext(textureCtx);
 	GX_InvalidateTexAll();
 
-	wiiKTexture* newWiiKtexture = new wiiKTexture;
-	if (!newWiiKtexture)
+	wiiKTexture* newWiiKtexture;
+	try
+	{
+		newWiiKtexture = new wiiKTexture;
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate wiikTexture.");
 
@@ -273,6 +299,9 @@ static inline wiiKTexture* loadTexturePNG(const std::string& file, unsigned shor
 wiiKTexture* loadWiiTexture(const std::string& file, unsigned short* w, unsigned short* h, int wrapBits)
 {
 	std::string extension = getExtension(file);
+	if (extension == ".tpl" || extension == ".TPL")
+		return loadTextureTPL(file, w, h, wrapBits);
+	else
 	if (extension == ".png" || extension == ".PNG")
 		return loadTexturePNG(file, w, h, wrapBits);
 	else
@@ -298,8 +327,13 @@ texture* loadTexture(const std::string& filename, int wrapBits)
 		return NULL;
 	}
 
-	texture* newTexture = new texture;
-	if (!newTexture)
+	texture* newTexture;
+	try
+	{
+		newTexture = new texture;
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate memory for texture.");
 		return NULL;
@@ -310,7 +344,7 @@ texture* loadTexture(const std::string& filename, int wrapBits)
 	newTexture->push(filename);
 
 	// We dont need the structure anymore
-	// delete tex;
+	delete tex;
 
 	if (!isPowerOfTwo(width) || !isPowerOfTwo(height))
 	{
@@ -327,8 +361,14 @@ texture* loadTexture(const std::string& filename, int wrapBits)
 
 texture* loadCubemap(const std::string& filename, int wrapBits)
 {
-	texture* newTexture = new texture;
-	if (!newTexture)
+	texture* newTexture;
+
+	try
+	{
+		newTexture = new texture;
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate texture for cubemap.");
 		return NULL;
@@ -452,8 +492,13 @@ texture* createRawTexture(unsigned char* data, int width, int height, int flags)
 	// RGBA
 	const unsigned int colorSpace = 4;
 
-	kTexture* gxImage = new kTexture;
-	if (!gxImage)
+	kTexture* gxImage;
+	try
+	{
+		gxImage = new kTexture;
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate GXTexObj for texture.");
 		return NULL;

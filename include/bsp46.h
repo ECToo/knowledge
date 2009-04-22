@@ -492,7 +492,7 @@ namespace k
 			unsigned int mBezierSteps;
 
 		public:
-			q3Bsp(unsigned int drawSteps = 4)
+			q3Bsp(unsigned int drawSteps = 6)
 			{
 				mBezierSteps = drawSteps;
 

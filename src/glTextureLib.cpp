@@ -23,60 +23,117 @@
 
 namespace k {
 
-void unloadTexture(kTexture* tex)
+void unloadTexture(const kTexture* tex)
 {
 	kAssert(tex);
 	glDeleteTextures(1, tex);
 }
 
-kTexture* loadWithFreeImage(const std::string& filename, unsigned short* w, unsigned short* h, int wrapBits)
+typedef struct
 {
+	kTexture* texture;
+	unsigned int width;
+	unsigned int height;
+} freeImageTex_t;
+
+freeImageTex_t* loadWithFreeImage(const std::string& filename, int wrapBits)
+{
+	freeImageTex_t* fiTexture;
+	try
+	{
+		fiTexture = new freeImageTex_t;
+	}
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate freeimage return structure.");
+		return NULL;
+	}
+
+	// Check if file exists
+	FILE* fileExist = fopen(filename.c_str(), "rb");
+	if (!fileExist)
+	{
+		S_LOG_INFO("Failed to open file " + filename + ", it doesnt exist or you dont have permissions to access it.");
+
+		delete fiTexture;
+
+		return NULL;
+	}
+	fclose(fileExist);
+
 	FREE_IMAGE_FORMAT imgFormat = FreeImage_GetFileType(filename.c_str(), 0);
 	if (imgFormat == FIF_UNKNOWN)
 	{
 		S_LOG_INFO("Unable to load texture " + filename);
+
+		delete fiTexture;
+
 		return NULL;
 	}
 
-	FIBITMAP* image = FreeImage_Load(imgFormat, filename.c_str(), 0);
+	int imgFlags = 0;
+	if (imgFormat == FIF_JPEG)
+		imgFlags = JPEG_ACCURATE;
+
+	FIBITMAP* image = FreeImage_Load(imgFormat, filename.c_str(), imgFlags);
 	if (!image)
 	{
 		S_LOG_INFO("Failed to load file with FreeImage.");
+
+		delete fiTexture;
+
 		return NULL;
 	}
 
-	unsigned short width = FreeImage_GetWidth(image);
-	unsigned short height = FreeImage_GetHeight(image);
+	fiTexture->width = FreeImage_GetWidth(image);
+	fiTexture->height = FreeImage_GetHeight(image);
 	unsigned short bpp = FreeImage_GetBPP(image);
 
-	if (bpp != 32)
+	if (!fiTexture->width || !fiTexture->height)
+	{
+		std::stringstream tempStr;
+		tempStr << "Invalid texture size (" << filename;
+		tempStr << ", " << fiTexture->width << "x" << fiTexture->height << ")";
+
+		S_LOG_INFO(tempStr.str());
+		return NULL;
+	}
+
+	if (bpp != 32 && bpp != 24)
 	{
 		FIBITMAP* tmp = FreeImage_ConvertTo32Bits(image);
 		FreeImage_Unload(image);
 		image = tmp;
 	}
 
-	unsigned char* imgData = new unsigned char[width * height * 4];
-	if (!imgData)
+	unsigned char* imgData;
+	try 
+	{
+		imgData = new unsigned char[fiTexture->width * fiTexture->height * 4];
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Could not allocate memory for image data.");
 		FreeImage_Unload(image);
+
+		delete fiTexture;
 
 		return NULL;
 	}
 
 	// Copy Pixel data
 	unsigned char* copyImgData = imgData;
-	for (int j = (height - 1); j >= 0; j--)
+	for (int j = (fiTexture->height - 1); j >= 0; j--)
 	{
-		for (unsigned int i = 0; i < width; i++)
+		for (unsigned int i = 0; i < fiTexture->width; i++)
 		{
 			RGBQUAD pixelColor;
 			FreeImage_GetPixelColor(image, i, j, &pixelColor);
 
-			copyImgData[0] = pixelColor.rgbRed;
+			copyImgData[2] = pixelColor.rgbRed;
 			copyImgData[1] = pixelColor.rgbGreen;
-			copyImgData[2] = pixelColor.rgbBlue;
+			copyImgData[0] = pixelColor.rgbBlue;
 			copyImgData[3] = pixelColor.rgbReserved;
 			copyImgData += 4;
 		}
@@ -84,18 +141,25 @@ kTexture* loadWithFreeImage(const std::string& filename, unsigned short* w, unsi
 
 	FreeImage_Unload(image);
 
-	kTexture* glImage = new kTexture;
-	if (!glImage)
+	kTexture* glImage;
+	
+	try
+	{
+		glImage = new kTexture;
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate GLuint for image.");
 		delete [] imgData;
+		delete fiTexture;
 
 		return NULL;
 	}
 		
 	glGenTextures(1, glImage);
 	glBindTexture(GL_TEXTURE_2D, *glImage);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgData);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fiTexture->width, fiTexture->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, imgData);
 
 	// Wrapping S
 	if (wrapBits & (1 << FLAG_CLAMP_EDGE_S))
@@ -131,42 +195,50 @@ kTexture* loadWithFreeImage(const std::string& filename, unsigned short* w, unsi
 
 	delete [] imgData;
 
-	if (w && h)
-	{
-		*w = width;
-		*h = height;
-	}
-
-	return glImage;
+	fiTexture->texture = glImage;
+	return fiTexture;
 }
 
 texture* loadTexture(const std::string& filename, int wrapBits)
 {
-	unsigned short width, height;
-	kTexture* tex = loadWithFreeImage(filename, &width, &height, wrapBits);
+	freeImageTex_t* tex = loadWithFreeImage(filename, wrapBits);
 	if (!tex)
 	{
 		S_LOG_INFO("Failed to load texture " + filename);
 		return NULL;
 	}
 
-	texture* newTexture = new texture;
-	if (!newTexture)
+	texture* newTexture;
+	try 
+	{
+		newTexture = new texture;
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate memory for texture.");
 		return NULL;
 	}
 
-	newTexture->push(tex, width, height);
+	newTexture->push(tex->texture, tex->width, tex->height);
 	newTexture->push(filename);
+
+	// We dont need freeimage temp struct anymore
+	delete tex;
 
 	return newTexture;
 }
 
 texture* loadCubemap(const std::string& filename, int wrapBits)
 {
-	texture* newTexture = new texture;
-	if (!newTexture)
+	texture* newTexture;
+	
+	try
+	{
+		newTexture = new texture;
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate texture for cubemap.");
 		return NULL;
@@ -184,93 +256,106 @@ texture* loadCubemap(const std::string& filename, int wrapBits)
 	std::string tempName;	
 
 	// Raw Textures
-	kTexture* tempTex = NULL;
+	freeImageTex_t* tempTex = NULL;
 		
 	// Front
 	tempName = newName + "_front" + extension;	
-	tempTex = loadWithFreeImage(tempName, NULL, NULL, wrapBits);
+	tempTex = loadWithFreeImage(tempName, wrapBits);
 	if (!tempTex)
 	{
 		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
 		return NULL;
 	}
-	newTexture->push(tempTex, 0, 0);
+	newTexture->push(tempTex->texture, 0, 0);
+
+	delete tempTex;
 
 	// Back
 	tempName = newName + "_back" + extension;	
-	tempTex = loadWithFreeImage(tempName, NULL, NULL, wrapBits);
+	tempTex = loadWithFreeImage(tempName, wrapBits);
 	if (!tempTex)
 	{
 		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
 		return NULL;
 	}
-	newTexture->push(tempTex, 0, 0);
+	newTexture->push(tempTex->texture, 0, 0);
+
+	delete tempTex;
 
 	// Left 
 	tempName = newName + "_left" + extension;	
-	tempTex = loadWithFreeImage(tempName, NULL, NULL, wrapBits);
+	tempTex = loadWithFreeImage(tempName, wrapBits);
 	if (!tempTex)
 	{
 		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
 		return NULL;
 	}
-	newTexture->push(tempTex, 0, 0);
+	newTexture->push(tempTex->texture, 0, 0);
+
+	delete tempTex;
 
 	// Right
 	tempName = newName + "_right" + extension;	
-	tempTex = loadWithFreeImage(tempName, NULL, NULL, wrapBits);
+	tempTex = loadWithFreeImage(tempName, wrapBits);
 	if (!tempTex)
 	{
 		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
 		return NULL;
 	}
-	newTexture->push(tempTex, 0, 0);
+	newTexture->push(tempTex->texture, 0, 0);
+
+	delete tempTex;
 
 	// Up
 	tempName = newName + "_up" + extension;	
-	tempTex = loadWithFreeImage(tempName, NULL, NULL, wrapBits);
+	tempTex = loadWithFreeImage(tempName, wrapBits);
 	if (!tempTex)
 	{
 		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
 		return NULL;
 	}
-	newTexture->push(tempTex, 0, 0);
+	newTexture->push(tempTex->texture, 0, 0);
 
-	// Final Size
-	unsigned short width = 0;
-	unsigned short height = 0;
+	delete tempTex;
 
 	// Down 
 	tempName = newName + "_down" + extension;	
-	tempTex = loadWithFreeImage(tempName, &width, &height, wrapBits);
+	tempTex = loadWithFreeImage(tempName, wrapBits);
 	if (!tempTex)
 	{
 		S_LOG_INFO("Failed to read " + tempName + ", does it exist?");
 		return NULL;
 	}
 
-	newTexture->push(tempTex, width, height);
+	newTexture->push(tempTex->texture, tempTex->width, tempTex->height);
 	newTexture->push(filename);
 
-	if (!isPowerOfTwo(width) || !isPowerOfTwo(height))
+	if (!isPowerOfTwo(tempTex->width) || !isPowerOfTwo(tempTex->height))
 	{
 		std::stringstream warn;
 		warn << "WARNING! The texture " << filename << " dimensions(";
-		warn << width << "," << height;
+		warn << tempTex->width << "," << tempTex->height;
 		warn << ") are not power of 2";
 
 		S_LOG_INFO(warn.str());
 	}
 
+	delete tempTex;
 	return newTexture;
 }
 
 texture* createRawTexture(unsigned char* data, int w, int h, int flags)
 {
 	kAssert(data);
+	kTexture* glImage;
+	texture* newTexture;
 
-	kTexture* glImage = new kTexture;
-	if (!glImage)
+	try
+	{
+		glImage = new kTexture;
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate GLuint for texture.");
 		return NULL;
@@ -327,8 +412,12 @@ texture* createRawTexture(unsigned char* data, int w, int h, int flags)
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	texture* newTexture = new texture;
-	if (!newTexture)
+	try
+	{
+		newTexture = new texture;
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate new texture.");
 		delete glImage;

@@ -123,36 +123,57 @@ particleEmitter::particleEmitter()
 
 particleEmitter::particleEmitter(unsigned int numParticles, material* mat)
 {
-	kAssert(numParticles != 0);
-	kAssert(mat != NULL);
+	kAssert(mat);
 
-	mParticles = new std::vector<particle>(numParticles);
-	kAssert(mParticles != NULL);
+	if (!numParticles)
+	{
+		S_LOG_INFO("The number of particles for the emitter cant be 0.");
+		kAssert(numParticles);
+	}
 
-	mTimer.reset();
+	try
+	{
+		mParticles = new std::vector<particle>(numParticles);
+		mTimer.reset();
 
-	mSprite = new sprite(mat, 0);
-	kAssert(mSprite != NULL);
+		mSprite = new sprite(mat, 0);
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate particle emitter.");
+		return;
+	}
 
 	mFreeParticles = numParticles;
 }
 
 particleEmitter::particleEmitter(unsigned int numParticles, const std::string& mat)
 {
-	kAssert(numParticles != 0);
+	if (!numParticles)
+	{
+		S_LOG_INFO("The number of particles for the emitter cant be 0.");
+		kAssert(numParticles);
+	}
 
-	mParticles = new std::vector<particle>(numParticles);
-	mTimer.reset();
+	try
+	{
+		mParticles = new std::vector<particle>(numParticles);
+		mSprite = new sprite(mat, 0);
+	}
 
-	mSprite = new sprite(mat, 0);
-	kAssert(mSprite);
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate particle emitter.");
+		return;
+	}
 
 	mFreeParticles = numParticles;
 }
 
 void particleEmitter::killParticle(particle* p)
 {
-	kAssert(p != NULL);
+	kAssert(p);
 	p->setVisibility(false);
 
 	mFreeParticles++;
@@ -170,8 +191,8 @@ void particleEmitter::setRadius(vec_t radi)
 			
 void particleEmitter::spawnParticle(particle* p)
 {
-	kAssert(p != NULL);
-	kAssert(mFreeParticles > 0);
+	kAssert(p);
+	kAssert(mFreeParticles);
 
 	p->setVisibility(true);
 	p->resetLife(mTimer.getMilliSeconds());
@@ -200,8 +221,16 @@ void particleEmitter::setNumParticles(unsigned int amount)
 	if (mParticles)
 		delete mParticles;
 
-	mParticles = new std::vector<particle>(amount);
-	kAssert(mParticles);
+	try
+	{
+		mParticles = new std::vector<particle>(amount);
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate particle emitter particles.");
+		return;
+	}
 
 	mFreeParticles = amount;
 }
@@ -212,13 +241,17 @@ void particleEmitter::setMaterial(const std::string& mat)
 	mMaterialPtr = materialManager::getSingleton().getMaterial(mat);
 
 	if (mSprite)
-	{
 		mSprite->setMaterial(mat);
-	}
 	else
 	{
-		mSprite = new sprite(mat, 0);
-		kAssert(mSprite);
+		try 
+		{
+			mSprite = new sprite(mat, 0);
+		}
+		catch (...)
+		{
+			S_LOG_INFO("Failed to allocate sprite for particle emitter.");
+		}
 	}
 }
 			
@@ -625,10 +658,15 @@ particleSystem* particleManager::allocatePS(const std::string& name)
 	particleSystem* newSystem = getParticleSystem(name);
 	if (!newSystem)
 	{
-		newSystem = new particleSystem();
-		if (newSystem)
+		try 
 		{
+			newSystem = new particleSystem();
 			mSystems[name] = newSystem;
+		}
+		catch (...)
+		{
+			S_LOG_INFO("Failed to allocate a new particle system.");
+			return NULL;
 		}
 	}
 
@@ -719,8 +757,18 @@ void particleManager::parsePlaneEmitter(parsingFile* file, particleSystem* syste
 	std::string token = file->getNextToken(); // {
 	unsigned int openBraces = 1;
 
-	planeEmitter* emitter = new planeEmitter();
-	kAssert(emitter);
+	planeEmitter* emitter;
+
+	try
+	{
+		emitter = new planeEmitter();
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate plane particle emitter.");
+		return;
+	}
 
 	while (openBraces)
 	{
@@ -761,8 +809,18 @@ void particleManager::parsePointEmitter(parsingFile* file, particleSystem* syste
 	std::string token = file->getNextToken(); // {
 	unsigned int openBraces = 1;
 
-	planeEmitter* emitter = new planeEmitter();
-	kAssert(emitter);
+	planeEmitter* emitter;
+
+	try
+	{
+		emitter = new planeEmitter();
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate plane particle emitter.");
+		return;
+	}
 
 	while (openBraces)
 	{
@@ -788,8 +846,14 @@ void particleManager::parseParticleSystem(parsingFile* file, const std::string& 
 {
 	kAssert(file);
 
-	particleSystem* newSystem = allocatePS(psName);
-	if (!newSystem)
+	particleSystem* newSystem;
+
+	try 
+	{
+		newSystem = allocatePS(psName);
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate new particle system.");
 		return;

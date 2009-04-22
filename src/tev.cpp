@@ -89,7 +89,7 @@ tevManager::~tevManager()
 	for (it = mTevs.begin(); it != mTevs.end();)
 	{
 		tev* thisTev = it->second;
-		mTevs.erase(it++);
+		it = mTevs.erase(it++);
 
 		delete thisTev;
 	}
@@ -99,17 +99,21 @@ tev* tevManager::createTev(const std::string& name)
 {
 	tev* newTev = getTev(name);
 	if (newTev)
-	{
 		return newTev;
-	}
-	else
+		
+	try
 	{
 		newTev = new tev();
-		kAssert(newTev != NULL);
-
 		mTevs[name] = newTev;
 		return newTev;
 	}
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate new tev.");
+		return NULL;
+	}
+
+	return NULL;
 }
 
 tev* tevManager::getTev(const std::string& name)
@@ -136,7 +140,7 @@ void tevManager::destroyTev(const std::string& name)
 			if (it->first == name)
 			{
 				thisTev = it->second;
-				mTevs.erase(it++);
+				it = mTevs.erase(it++);
 				delete thisTev;
 
 				return;
@@ -483,9 +487,17 @@ void tevManager::parseStage(tev* t, parsingFile* file, int index)
 	}
 
 	// Ok read the stages correctly
-	tevStage* newStage = new tevStage;
-	kAssert(newStage != NULL);
-	memset(newStage, 0, sizeof(tevStage));
+	tevStage* newStage;
+	try
+	{
+		newStage = new tevStage;
+		memset(newStage, 0, sizeof(tevStage));
+	}
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate new tev stage.");
+		return;
+	}
 
 	// Set Index
 	newStage->index = index;

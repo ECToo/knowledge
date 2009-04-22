@@ -43,6 +43,8 @@ renderer::renderer()
 	// mRenderToTexture = false;
 	mCalculateFps = true;
 	mRenderToTexture = false;
+	mFpsCount = 0;
+	mLastFps = 1;
 }
 
 renderer::~renderer()
@@ -77,15 +79,18 @@ sprite* renderer::createSprite(vec_t radi, material* mat)
 {
 	kAssert(mat);
 
-	sprite* newSpr = new sprite(mat, radi);
-	if (newSpr)
+	try
 	{
+		sprite* newSpr = new sprite(mat, radi);
 		mSprites.push_back(newSpr);
 		return newSpr;
 	}
-		
-	S_LOG_INFO("Failed to allocate sprite.");
-	return NULL;
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate sprite.");
+		return NULL;
+	}
 }
 
 void renderer::fullRemoveSprite(sprite* spr)
@@ -102,7 +107,7 @@ void renderer::removeSprite(sprite* spr)
 	{
 		if (spr == (*it))
 		{
-			mSprites.erase(it);
+			it = mSprites.erase(it++);
 			return;
 		}
 		else ++it;
@@ -127,7 +132,7 @@ void renderer::pop3D(drawable3D* object)
 		drawable3D* obj = (*it);
 		if (obj == object)
 		{
-			it = m3DObjects.erase(it);
+			it = m3DObjects.erase(it++);
 		}
 		else
 		{

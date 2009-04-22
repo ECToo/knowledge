@@ -32,7 +32,6 @@ glRenderSystem::~glRenderSystem()
 void glRenderSystem::initialize()
 {
 	SDL_Init(SDL_INIT_VIDEO);
-	atexit(SDL_Quit);
 }
 
 void glRenderSystem::deinitialize()
@@ -596,9 +595,9 @@ void glRenderSystem::drawArrays()
 		drawMode = GL_TRIANGLE_STRIP;
 
 	if (mUsingVBO)
-		glDrawRangeElements(drawMode, 0, mVertexCount, mIndexCount, GL_UNSIGNED_INT, (char*)NULL + mIndexOffset);
+		glDrawRangeElements(drawMode, 0, mVertexCount - 1, mIndexCount, GL_UNSIGNED_INT, (char*)NULL + mIndexOffset);
 	else
-		glDrawRangeElements(drawMode, 0, mVertexCount, mIndexCount, GL_UNSIGNED_INT, mIndexArray);
+		glDrawRangeElements(drawMode, 0, mVertexCount - 1, mIndexCount, GL_UNSIGNED_INT, mIndexArray);
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
@@ -645,8 +644,13 @@ void glRenderSystem::screenshot(const char* filename)
 		return;
 	}
 
-	char* imgData = new char[mScreenSize[0] * mScreenSize[1] * 3];
-	if (!imgData)
+	char* imgData;
+	try
+	{
+		imgData = new char[mScreenSize[0] * mScreenSize[1] * 3];
+	}
+
+	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate memory for screenshot.");
 		FreeImage_Unload(newImage);

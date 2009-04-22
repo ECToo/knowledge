@@ -63,7 +63,7 @@ resourceGroup::~resourceGroup()
 		for (it = mMaterials.begin(); it != mMaterials.end(); )
 		{
 			materialManager::getSingleton().destroyMaterial(*it);
-			it = mMaterials.erase(it);
+			it = mMaterials.erase(it++);
 		}
 	}
 
@@ -330,11 +330,22 @@ resourceManager::resourceManager(const std::string& resourceCfg)
 	mGroups.clear();
 
 	// Save the base path from the resource file full path
-	parsingFile* script = new parsingFile(resourceCfg);	
-	kAssert(script != NULL);
+	parsingFile* script;
+	try
+	{
+		script = new parsingFile(resourceCfg);	
+		if (!script->isReady())
+		{
+			delete script;
+			return;
+		}
+	}
 
-	if (!script->isReady())
+	catch (...)
+	{
+		S_LOG_INFO("Failed to create parsing file for " + resourceCfg);
 		return;
+	}
 
 	mBasePath = getDirectory(resourceCfg);
 
@@ -373,12 +384,19 @@ resourceManager::resourceManager(const std::string& resourceCfg)
 			}
 			else
 			{
-				resourceGroup* newGroup = new resourceGroup();
-				kAssert(newGroup != NULL);
+				try
+				{
+					resourceGroup* newGroup = new resourceGroup();
+					parseGroup(script, newGroup);
+					mGroups[mLastGroupName] = newGroup;
+					S_LOG_INFO("Resource group " + mLastGroupName + " loaded.");
+				}
 
-				parseGroup(script, newGroup);
-				mGroups[mLastGroupName] = newGroup;
-				S_LOG_INFO("Resource group " + mLastGroupName + " loaded.");
+				catch (...)
+				{
+					S_LOG_INFO("Failed to create new resource group.");
+					return;
+				}
 			}
 		}
 

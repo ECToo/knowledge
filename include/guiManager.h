@@ -51,8 +51,8 @@ namespace k
 			 * to work automatically. If you dont want to use a renderer
 			 * get the cursor sticker and draw it by yourself in your render loop.
 			 */
-			void setCursor(std::string mat, vector2 scale);
-			void setCursorPos(vector2 pos);
+			void setCursor(const std::string& mat, const vector2& scale);
+			void setCursorPos(const vector2& pos);
 			sticker* getCursor();
 	};
 }
