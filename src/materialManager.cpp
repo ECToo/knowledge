@@ -111,10 +111,8 @@ void materialManager::destroyMaterial(const std::string& name)
 	std::map<std::string, material*>::iterator it = mMaterials.find(name);
 	if (it != mMaterials.end())
 	{
-		material* mat = it->second;
-
-		mMaterials.erase(it++);
-		delete mat;
+		delete it->second;
+		mMaterials.erase(it);
 	}
 }
 		

@@ -60,13 +60,11 @@ resourceGroup::~resourceGroup()
 	if (mLoadOptions & (1 << LOAD_MATERIALS))
 	{
 		std::list<std::string>::iterator it;
-		for (it = mMaterials.begin(); it != mMaterials.end(); )
-		{
+		for (it = mMaterials.begin(); it != mMaterials.end(); it++)
 			materialManager::getSingleton().destroyMaterial(*it);
-			it = mMaterials.erase(it++);
-		}
-	}
 
+		mMaterials.clear();
+	}
 }
 
 template<> resourceManager* singleton<resourceManager>::singleton_instance = 0;
@@ -410,11 +408,10 @@ resourceManager::resourceManager(const std::string& resourceCfg)
 resourceManager::~resourceManager()
 {
 	std::map<std::string, resourceGroup*>::iterator it;
-	for (it = mGroups.begin(); it != mGroups.end(); )
+	for (it = mGroups.begin(); it != mGroups.end(); it++)
 	{
-		resourceGroup* rsc = it->second;
-		mGroups.erase(it++);
-		delete rsc;
+		delete it->second;
+		mGroups.erase(it);
 	}
 }
 			

@@ -545,6 +545,13 @@ void glRenderSystem::drawArrays()
 	{
 		if (mTexCoordArray[i] || (mUsingVBO && mTexCoordOffset[i] != -1))
 			texUnits = i + 1;
+		else
+		{
+			glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
+			glActiveTextureARB(GL_TEXTURE0_ARB + i);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			glDisable(GL_TEXTURE_2D);
+		}
 	}
 			
 	if (texUnits)
@@ -601,27 +608,6 @@ void glRenderSystem::drawArrays()
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
-
-	if (texUnits)
-	{
-		for (unsigned int i = 0; i < texUnits; i++)
-		{
-			if (!mTexCoordArray[i] && !(mUsingVBO && mTexCoordOffset[i] != -1))
-				continue;
-
-			glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
-			glActiveTextureARB(GL_TEXTURE0_ARB + i);
-			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-			glDisable(GL_TEXTURE_2D);
-		}
-	}
-	else
-	{
-		glClientActiveTextureARB(GL_TEXTURE0_ARB);
-		glActiveTextureARB(GL_TEXTURE0_ARB);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisable(GL_TEXTURE_2D);
-	}
 }
 			
 void glRenderSystem::copyToTexture(kTexture* tex)

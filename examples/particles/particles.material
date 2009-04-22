@@ -14,7 +14,6 @@ material bubble
 	{
 		filename ./particles/bubble.png
 		texcoord uv
-		rotate 1
 		blendfunc srcalpha invsrcalpha
 	}
 }

@@ -634,10 +634,9 @@ md5model::md5model(const md5model& source)
 md5model::~md5model()
 {
 	std::map<std::string, anim_t*>::iterator animIt;
-	for (animIt = mAnimations.begin(); animIt != mAnimations.end(); )
+	for (animIt = mAnimations.begin(); animIt != mAnimations.end(); animIt++)
 	{
 		anim_t* tmpAnim = animIt->second;
-		mAnimations.erase(animIt++);
 
 		delete [] tmpAnim->hierarchy;
 		delete [] tmpAnim->baseFrame;
@@ -651,22 +650,17 @@ md5model::~md5model()
 	}
 
 	std::list<md5mesh*>::iterator meshIt;
-	for (meshIt = mMeshes.begin(); meshIt != mMeshes.end();)
-	{
-		md5mesh* tmpMesh = (*meshIt);
-		meshIt = mMeshes.erase(meshIt++);
+	for (meshIt = mMeshes.begin(); meshIt != mMeshes.end(); meshIt++)
+		delete (*meshIt);
 
-		delete tmpMesh;
-	}
 
 	std::vector<bone_t*>::iterator boneIt;
-	for (boneIt = mBones.begin(); boneIt != mBones.end();)
-	{
-		bone_t* tmpBone = (*boneIt);
-		boneIt = mBones.erase(boneIt++);
+	for (boneIt = mBones.begin(); boneIt != mBones.end(); boneIt++)
+		delete (*boneIt);
 
-		delete tmpBone;
-	}
+	mAnimations.clear();
+	mMeshes.clear();
+	mBones.clear();
 }
 
 void md5model::compileVertices()
