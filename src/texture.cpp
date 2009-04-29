@@ -102,8 +102,8 @@ kTexture* texture::getId(unsigned int i)
 
 bool texture::containsFilename(const std::string& name)
 {
-	std::vector<std::string>::iterator it;
-	for (it = mFilenames.begin(); it != mFilenames.end(); it++)
+	std::vector<std::string>::const_iterator it = mFilenames.begin();
+	for (; it != mFilenames.end(); it++)
 	{
 		if ((*it).find(name) != std::string::npos)
 			return true;

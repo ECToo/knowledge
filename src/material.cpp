@@ -203,6 +203,8 @@ void material::pushTexture(textureStage* tex)
 {
 	kAssert(tex);
 	mTextures.push_back(tex);
+		
+	mTextureUnits++;
 }
 			
 void material::setSingleTexture(texture* tex)

@@ -1,0 +1,19 @@
+material marvinMetal
+{
+	texture
+	{
+		filename model/marvin/robot_metal.jpg
+		texcoord sphere
+	}
+}
+
+material marvinTirepart
+{
+	texture
+	{
+		filename model/marvin/tirepart.png
+		texcoord uv
+	}
+}
+
+

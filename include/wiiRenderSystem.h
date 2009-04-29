@@ -21,7 +21,8 @@
 
 #include "rendersystem.h"
 
-#define DEFAULT_FIFO_SIZE (1024*1024)
+#define DEFAULT_FIFO_SIZE (4 * 1024*1024)
+#define MAX_WII_TEXTURES 8
 
 namespace k 
 {
@@ -132,12 +133,14 @@ namespace k
 			/**
 			 * Active texture unit, if any
 			 */
-			std::map<int, GXTexObj*> mActiveTextures;
+			GXTexObj* mActiveTextures[MAX_WII_TEXTURES];
 
 			/**
 			 * Render To Texture buffer
 			 */
 			char* mRttBuffer;
+
+			void _cleanTextures();
 
 		public:
 			wiiRenderSystem();

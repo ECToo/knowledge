@@ -140,7 +140,7 @@ int main(int argc, char** argv)
 	*/
 
 	k::q3Bsp testeBsp;
-	testeBsp.loadQ3Bsp("tc_closecombat.bsp");
+	testeBsp.loadQ3Bsp("southcity.bsp");
 	kAssert(testeBsp.getLoadSuccess());
 
 	mRenderer->setWorld(&testeBsp);

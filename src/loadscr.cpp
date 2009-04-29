@@ -23,6 +23,24 @@
 
 namespace k {
 
+const vec_t vertices[] ATTRIBUTE_ALIGN(32) = 
+{ 
+	0.0, 0.0, -0.5, 
+	1.0, 0.0, -0.5, 
+	1.0, 1.0, -0.5, 
+	0.0, 1.0, -0.5
+};
+
+const vec_t uvs[] ATTRIBUTE_ALIGN(32) = 
+{ 
+	0.0, 1.0,
+	1.0, 1.0, 
+	1.0, 0.0, 
+	0.0, 0.0
+};
+
+const index_t indices[] ATTRIBUTE_ALIGN(32) = { 0, 1, 2, 3 };
+
 void bgLoadScreen::loadBg(const std::string& filename)
 {
 	k::textureManager* texMgr = &k::textureManager::getSingleton();
@@ -37,11 +55,10 @@ void bgLoadScreen::loadBg(const std::string& filename)
 
 	try
 	{
-		mBackground = new k::material();
+		mBackground = new k::material;
 		mBackground->setSingleTexture(newTexture);
 		mBackground->setCullMode(CULLMODE_NONE);
 	}
-
 	catch (...)
 	{
 		S_LOG_INFO("Failed to create material for loading screen.");
@@ -51,9 +68,10 @@ void bgLoadScreen::loadBg(const std::string& filename)
 
 void bgLoadScreen::update(const std::string& filename)
 {
-	k::renderSystem* rs = k::root::getSingleton().getRenderSystem();
-	kAssert(mBackground);
+	if (!mBackground)
+		return;
 
+	k::renderSystem* rs = k::root::getSingleton().getRenderSystem();
 	rs->frameStart();
 
 	rs->setMatrixMode(k::MATRIXMODE_PROJECTION);
@@ -65,26 +83,20 @@ void bgLoadScreen::update(const std::string& filename)
 	mBackground->prepare();
 	rs->setDepthMask(false);
 
-	rs->startVertices(VERTEXMODE_QUAD);
+	rs->clearArrayDesc(VERTEXMODE_QUAD);
+	rs->setVertexArray(vertices);
+	rs->setTexCoordArray(uvs);
+	rs->setVertexIndex(indices);
 
-	rs->texCoord(vector2(0.0, 1.0));
-	rs->vertex(vector3(0, 0, -0.5));
-
-	rs->texCoord(vector2(1.0, 1.0));
-	rs->vertex(vector3(1, 0, -0.5));
-
-	rs->texCoord(vector2(1.0, 0.0));
-	rs->vertex(vector3(1, 1, -0.5));
-
-	rs->texCoord(vector2(0.0, 0.0));
-	rs->vertex(vector3(0, 1, -0.5));
+	rs->setVertexCount(4);
+	rs->setIndexCount(4);
+	rs->drawArrays();
 
 	rs->endVertices();
 
 	mBackground->finish();
-	rs->setDepthMask(true);
-	// 
 
+	rs->setDepthMask(true);
 	rs->frameEnd();
 }
 
@@ -133,8 +145,20 @@ void imgLoadScreen::update(const std::string& filename)
 
 	uint32_t rsWidth = rs->getScreenWidth();
 	uint32_t rsHeight = rs->getScreenHeight();
-	vec_t mRealDimX = mDimension.x / rsWidth;
-	vec_t mRealDimY = mDimension.y / rsHeight;
+
+	vec_t mRealDimX;
+	vec_t mRealDimY;
+
+	if (!rsWidth || !rsHeight)
+	{
+		mRealDimX = 1.0f;
+		mRealDimY = 1.0f;
+	}
+	else
+	{
+		mRealDimX = mDimension.x / rsWidth;
+		mRealDimY = mDimension.y / rsHeight;
+	}
 
 	rs->setClearColor(mBgColor);
 	rs->frameStart();

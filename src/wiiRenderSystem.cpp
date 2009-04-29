@@ -150,6 +150,12 @@ void matrix44Stack::pop(Mtx44 destination)
 		copyMtx44(stack[mPosition++], destination);
 }
 
+void wiiRenderSystem::_cleanTextures()
+{
+	for (int i = 0; i < MAX_WII_TEXTURES; i++)
+		mActiveTextures[i] = NULL;
+}
+
 wiiRenderSystem::wiiRenderSystem()
 {
 }
@@ -264,7 +270,7 @@ void wiiRenderSystem::configure()
 
 	// Clean Textures and Materials
 	mActiveMaterial = NULL;
-	mActiveTextures.clear();
+	_cleanTextures();
 
 	// RTT
 	mRenderToTexture = false;
@@ -320,8 +326,7 @@ void wiiRenderSystem::frameEnd()
 		GX_Flush();
 		copyBufferToTexture();
 
-		// Clean Textures
-		mActiveTextures.clear();
+		_cleanTextures();
 		mActiveMaterial = NULL;
 
 		mRenderToTexture = false;
@@ -342,7 +347,7 @@ void wiiRenderSystem::frameEnd()
 	VIDEO_WaitVSync();
 
 	// Clean Textures
-	mActiveTextures.clear();
+	_cleanTextures();
 	mActiveMaterial = NULL;
 }
 			
@@ -745,11 +750,10 @@ void wiiRenderSystem::endVertices()
 			GX_SetTevOrder(GX_TEVSTAGE0 + i, GX_TEXCOORD0 + i, GX_TEXMAP0 + i, tevColor);
 	}
 
-	std::map<int, GXTexObj*>::const_iterator it;
-	for (it = mActiveTextures.begin(); it != mActiveTextures.end(); it++)
+	for (int wiiT = 0; wiiT < MAX_WII_TEXTURES; wiiT++)
 	{
-		kAssert(it->second);
-		GX_LoadTexObj(it->second, GX_TEXMAP0 + it->first);
+		if (mActiveTextures[wiiT])
+			GX_LoadTexObj(mActiveTextures[wiiT], GX_TEXMAP0 + wiiT);
 	}
 
 	// ModelView
@@ -825,7 +829,7 @@ void wiiRenderSystem::matSpecular(const vector3& color)
 
 void wiiRenderSystem::bindTexture(GXTexObj* tex, int chan)
 {
-	kAssert(chan < 8);
+	kAssert(chan < MAX_WII_TEXTURES);
 	kAssert(tex);
 
 	mActiveTextures[chan] = tex;
@@ -833,7 +837,7 @@ void wiiRenderSystem::bindTexture(GXTexObj* tex, int chan)
 			
 void wiiRenderSystem::unBindTexture(int chan)
 {
-	kAssert(chan < 8);
+	kAssert(chan < MAX_WII_TEXTURES);
 	mActiveTextures[chan] = NULL;
 }
 
@@ -843,14 +847,13 @@ void wiiRenderSystem::drawArrays()
 		return;
 
 	GX_ClearVtxDesc();
-
 	GX_SetVtxDesc(GX_VA_POS, GX_INDEX16);
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
 
 	if (!mVertexArray)
 	{
-		S_LOG_INFO("Missing vertex array");
-		return;
+		S_LOG_INFO("Vertex array is not set, quitting.");
+		exit(0);
 	}
 
 	// Define if theres a material and how many
@@ -858,7 +861,9 @@ void wiiRenderSystem::drawArrays()
 	unsigned short materialTextureUnits = 0;
 
 	if (mActiveMaterial)
+	{
 		materialTextureUnits = mActiveMaterial->getTextureUnits();
+	}
 
 	DCFlushRange((void*)mVertexArray, mVertexCount * sizeof(vec_t) * 3);
 	GX_SetArray(GX_VA_POS, (void*)mVertexArray, 3 * sizeof(vec_t));
@@ -868,26 +873,23 @@ void wiiRenderSystem::drawArrays()
 	u32 texMap = GX_TEXMAP_NULL;
 	u8 tevColor = GX_COLORNULL;
 
-	if (mTexCoordArray)
+	for (unsigned int i = 0; i < materialTextureUnits; i++)
 	{
- 		GX_SetVtxDesc(GX_VA_TEX0, GX_INDEX16);
-		GX_SetVtxDesc(GX_VA_TEX0MTXIDX, GX_TEXMTX0);
-		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
-
-		DCFlushRange((void*)mTexCoordArray, mVertexCount * sizeof(vec_t) * 2);
-		GX_SetArray(GX_VA_TEX0, (void*)mTexCoordArray, 2 * sizeof(vec_t));
-
-		for (unsigned int i = 1; i < materialTextureUnits; i++)
+		if (mTexCoordArray[i])
 		{
  			GX_SetVtxDesc(GX_VA_TEX0 + i, GX_INDEX16);
-			GX_SetArray(GX_VA_TEX0 + i, (void*)mTexCoordArray, 2 * sizeof(vec_t));
+			GX_SetVtxDesc(GX_VA_TEX0MTXIDX, GX_TEXMTX0);
 			GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0 + i, GX_TEX_ST, GX_F32, 0);
-		}
 
+			DCFlushRange((void*)mTexCoordArray[i], mVertexCount * sizeof(vec_t) * 2);
+			GX_SetArray(GX_VA_TEX0 + i, (void*)mTexCoordArray[i], 2 * sizeof(vec_t) + mTexCoordStride[i]);
+		}
+			
 		texCoord = GX_TEXCOORD0;
 		texMap = GX_TEXMAP0;
 	}
-	else
+		
+	if (!materialTextureUnits)
 	{
 		GX_SetVtxDesc(GX_VA_TEX0, GX_NONE);
 	}
@@ -906,11 +908,10 @@ void wiiRenderSystem::drawArrays()
 		GX_SetTevOrder(GX_TEVSTAGE0 + i, GX_TEXCOORD0 + i, GX_TEXMAP0 + i, tevColor);
 
 	// Bind the textures
-	std::map<int, GXTexObj*>::const_iterator it;
-	for (it = mActiveTextures.begin(); it != mActiveTextures.end(); it++)
+	for (int wiiT = 0; wiiT < MAX_WII_TEXTURES; wiiT++)
 	{
-		kAssert(it->second);
-		GX_LoadTexObj(it->second, GX_TEXMAP0 + it->first);
+		if (mActiveTextures[wiiT])
+			GX_LoadTexObj(mActiveTextures[wiiT], GX_TEXMAP0 + wiiT);
 	}
 
 	// ModelView
@@ -926,9 +927,11 @@ void wiiRenderSystem::drawArrays()
 	if (mIndexDrawMode == VERTEXMODE_TRI_STRIP)
 		drawMode = GX_TRIANGLESTRIP;
 
-	for (unsigned int i = 0; i < mIndexCount; i += 3)
+	GX_Begin(drawMode, GX_VTXFMT0, mIndexCount);
+	// for (unsigned int i = 0; i < mIndexCount; i += 3)
+	for (unsigned int i = 0; i < mIndexCount; i++)
 	{
-		GX_Begin(drawMode, GX_VTXFMT0, 3);
+		// GX_Begin(drawMode, GX_VTXFMT0, 3);
 
 		GX_Position1x16(mIndexArray[i]);
 		if (mTexCoordArray)
@@ -941,6 +944,7 @@ void wiiRenderSystem::drawArrays()
 		if (mNormalArray)
 			GX_Normal1x16(mIndexArray[i]);
 
+		/*
 		GX_Position1x16(mIndexArray[i+1]);
 		if (mTexCoordArray)
 		{
@@ -962,9 +966,11 @@ void wiiRenderSystem::drawArrays()
 
 		if (mNormalArray)
 			GX_Normal1x16(mIndexArray[i+2]);
+		*/
 
-		GX_End();
+		// GX_End();
 	}
+	GX_End();
 }
 
 void wiiRenderSystem::screenshot(const char* filename)
@@ -1011,33 +1017,6 @@ void wiiRenderSystem::screenshot(const char* filename)
 		return;
 	}
 
-	// Copy true rgb data
-	/*
-	char* finalWii = textureData;
-	for (int y = 0; y < h; y += 4)
-	{
-		char* line = &rgbTex[y * w * 3];
-		for (int x = 0; x < w; x += 8)
-		{
-			char* color = line + (x * 3);
-			for (int ty = 0; ty < 4; ty++)
-			{
-				for (int tx = 0; tx < 4; tx++)
-				{
-					*color = finalWii[1];
-					*(color + 1) = finalWii[32];
-					*(color + 2) = finalWii[33];
-
-					finalWii += 2;
-					color += 3;
-				}
-				color += w * 3 - 12;
-			}
-			finalWii += 32;
-		}
-	}
-	*/
-
 	int x0, y0, ix0, iy0;
 	int pitch = w<<1;
 	short *d = (short*)textureData;
@@ -1060,25 +1039,6 @@ void wiiRenderSystem::screenshot(const char* filename)
 			}
 		}
 	}
-
-
-	/*
-	short* p = (short*)textureData;
-
-	int pitch = w << 1;
-	int pitch2 = w * 3;
-
-	for (short y = 0; y < h; y += 4) 
-	for (short x = 0; x < w; x += 4) 
-	for (short iy = 0; iy < 4; iy++) 
-	for (short ix = 0; ix < 4; ix++) 
-	{
-		u32 c = (p[(y*pitch)+(x<<2)+(iy<<2)+((ix/4)*32)+(ix%4)]<<16)|p[(y*pitch)+(x<<2)+(iy<<2)+((ix/4)*32)+(ix%4)+16];
-		rgbTex[(y+iy)*(pitch2)+((x+ix)<<2)] = (c >> 16) & 0xff;
-		rgbTex[(y+iy)*(pitch2)+((x+ix)<<2) + 1] = (c >> 8) & 0xff;
-		rgbTex[(y+iy)*(pitch2)+((x+ix)<<2) + 2] = c & 0xff;
-	}
-	*/
 
 	// Compress the texture
 	struct jpeg_compress_struct jInfo;
