@@ -24,39 +24,66 @@ int main(int argc, char** argv)
 #endif
 {
 	// Initialize knowledge
-	k::root* appRoot = new k::root();
+	k::root* appRoot;
+	try
+	{
+		appRoot = new k::root();
+	}
+
+	catch (...)
+	{
+		printf("Failed to create app root.");
+		return 0;
+	}
+
 	k::renderSystem* mRenderSystem = appRoot->getRenderSystem();
 	k::renderer* mRenderer = appRoot->getRenderer();
 	k::guiManager* mGuiManager = appRoot->getGuiManager();
 	k::inputManager* mInputManager = appRoot->getInputManager();
-
-	assert(mRenderer != NULL);
-	assert(mRenderSystem != NULL);
 
 	// Doesnt matter on wii
 	mRenderSystem->createWindow(800, 600);
 	mRenderSystem->setWindowTitle("knowledge, the power of mind");
 
 	// Input Manager
-	assert(mInputManager != NULL);
 	mInputManager->initWii(false);
 	mInputManager->setupWiiMotes(1);
 	mInputManager->setWiiMoteTimeout(60);
 	mInputManager->setWiiMoteEmulation(true);
 	mInputManager->setPointerLock(false);
 
-	// Initialize resources
 	#ifdef __WII__
-	k::resourceManager* resourceMgr = new k::resourceManager("/knowledge/resources.cfg");
-	#else
-	k::resourceManager* resourceMgr = new k::resourceManager("../resources.cfg");
+	chdir("sd:/knowledge/model/");
 	#endif
 
+	// Initialize resources
+	k::resourceManager* resourceMgr;
+	try
+	{
+		resourceMgr = new k::resourceManager("../resources.cfg");
+	}
+
+	catch (...)
+	{
+		K_LOG_INFO("Failed to allocate resource manager.");
+		return 0;
+	}
+
 	// Loading Screen
-	k::imgLoadScreen* newLoadingScreen = new k::imgLoadScreen();
+	k::imgLoadScreen* newLoadingScreen;
+	try
+	{
+		newLoadingScreen = new k::imgLoadScreen();
+	}
+
+	catch (...)
+	{
+		K_LOG_INFO("Failed to create loading screen.");
+		return 0;
+	}
 
 	resourceMgr->setLoadingScreen(newLoadingScreen);
-	newLoadingScreen->loadBg("loading.jpg");
+	newLoadingScreen->loadBg("loading.png");
 	newLoadingScreen->setImgDimension(k::vector2(256, 256));
 	newLoadingScreen->update("");
 
@@ -68,27 +95,31 @@ int main(int argc, char** argv)
 	k::vector3 modelPosition;
 	modelPosition.z = -100;
 
-	#ifdef __WII__
-	k::md5model* newModel = new k::md5model("sd:/knowledge/model/goku.md5mesh");
-	#else
-	k::md5model* newModel = new k::md5model("goku.md5mesh");
-	// k::md5model* newModel = new k::md5model("marvin/marvin.md5mesh");
-	#endif
+	k::md5model* newModel;
+	try
+	{
+		// Comment this out for goku =]
+		newModel = new k::md5model("marvin/marvin.md5mesh");
+		newModel->attachAnimation("marvin/walk.md5anim", "idle");
 
-	#ifdef __WII__
-	newModel->attachAnimation("sd:/knowledge/model/idle.md5anim", "idle");
-	newModel->attachAnimation("sd:/knowledge/model/fly_f.md5anim", "runf");
-	newModel->attachAnimation("sd:/knowledge/model/fly_b.md5anim", "runb");
-	#else
-	newModel->attachAnimation("idle.md5anim", "idle");
-	newModel->attachAnimation("fly_f.md5anim", "runf");
-	newModel->attachAnimation("fly_b.md5anim", "runb");
-	#endif
-
-	/*
-	newModel->attachAnimation("marvin/idle.md5anim", "idle");
-	newModel->attachAnimation("marvin/walk.md5anim", "runf");
-	*/
+		// Comment this out for marvin =]
+		/*
+		newModel = new k::md5model("goku.md5mesh");
+		newModel->attachAnimation("idle.md5anim", "idle");
+		newModel->attachAnimation("fly_f.md5anim", "runf");
+		newModel->attachAnimation("fly_b.md5anim", "runb");
+		*/
+	
+		newModel->setAnimation("idle");
+		newModel->setAnimationFrame(10);
+		mRenderer->push3D(newModel);
+	}
+	
+	catch (...)
+	{
+		K_LOG_INFO("Failed to allocate displaying model.");
+		return 0;
+	}
 
 	delete newLoadingScreen;
 
@@ -96,18 +127,20 @@ int main(int argc, char** argv)
 	mRenderer->setSkyPlane("skyPlane");
 
 	// Fps Counter
-	k::bitmapText* fpsText = new k::bitmapText("fonts/cube_14.dat", "cube_14");
-	assert(fpsText != NULL);
-	fpsText->setPosition(k::vector2(4, 10));
-	mRenderer->push2D(fpsText);
+	k::bitmapText* fpsText;
+	try
+	{
+		fpsText = new k::bitmapText("fonts/cube_14.dat", "cube_14");
+		fpsText->setPosition(k::vector2(4, 10));
+		mRenderer->push2D(fpsText);
+	}
 
-	// Set Model animations
-	newModel->setAnimation("idle");
-	newModel->setAnimationFrame(10);
-	
-	mRenderer->push3D(newModel);
+	catch (...)
+	{
+		K_LOG_INFO("Failed to allocate fps text box.");
+		return 0;
+	}
 
-	assert(mGuiManager != NULL);
 	mGuiManager->setCursor("wiiCursor3", k::vector2(32, 32));
 
 	// Angles

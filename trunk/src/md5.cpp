@@ -185,6 +185,7 @@ void md5mesh::compileVertices(std::vector<bone_t*>* boneList)
 		for (int w = vertex->weight.x; w < vertex->weight.x+vertex->weight.y; w++)
 		{
 			vector3 tempPos;
+			vector3 tempNormal;
 
 			weight_t* weight = &mWeights[w];
 			kAssert(weight);
@@ -197,8 +198,11 @@ void md5mesh::compileVertices(std::vector<bone_t*>* boneList)
 			vertex->renderPos[1] += (tempPos.y + bone->pos.y) * weight->value;
 			vertex->renderPos[2] += (tempPos.z + bone->pos.z) * weight->value;
 
-			vertex->renderNormal += bone->orientation.rotateVector(vertex->baseNormal);
+			// vertex->renderNormal += bone->orientation.rotateVector(vertex->baseNormal);
 		}
+
+		// TODO: Why this works?
+		vertex->renderNormal = vertex->baseNormal;
 
 		// Put on vertex list
 		mVertexList[vIt*3] = vertex->renderPos[0];

@@ -36,7 +36,8 @@ libknowledge_la_CFLAGS = -I$(INCLUDES) -g
 libknowledge_la_LIBADD = -lode -lm -lGL -lGLU -lGLEW -lfreeimage
 libknowledge_la_LDFLAGS = -pthread
 
-pkginclude_HEADERS = @top_srcdir@/include/prerequisites.h \
+pkginclude_HEADERS = @top_srcdir@/include/config.h \
+							@top_srcdir@/include/prerequisites.h \
 							@top_srcdir@/include/physicsManager.h \
 							@top_srcdir@/include/singleton.h \
 							@top_srcdir@/include/camera.h \
@@ -73,5 +74,7 @@ pkginclude_HEADERS = @top_srcdir@/include/prerequisites.h \
 							@top_srcdir@/include/root.h \
 							@top_srcdir@/include/sprite.h \
 							@top_srcdir@/include/md3.h \
-							@top_srcdir@/include/md5.h
+							@top_srcdir@/include/md5.h \
+							@top_srcdir@/include/world.h \
+							@top_srcdir@/include/bsp46.h
 

@@ -88,10 +88,7 @@ bool textureManager::allocateTextureData(const std::string& filename, int wrapBi
 
 	// Get Path from resource manager (if any)
 	resourceManager* rsc = &resourceManager::getSingleton();
-	if (rsc)
-	{
-		fullPath = rsc->getRoot() + filename;
-	}
+	if (rsc) fullPath = rsc->getRoot() + filename;
 
 	texture* newTexture = getTexture(fullPath);
 	if (newTexture)

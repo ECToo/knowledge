@@ -53,6 +53,10 @@ extern "C"
 #define ATTRIBUTE_ALIGN(v) __attribute__((aligned(v)))
 #endif
 
+#ifndef ATTRIBUTE_PACKED
+#define ATTRIBUTE_PACKED __attribute__((packed))
+#endif
+
 #define byteSwap4(Y) (((Y & 0xff)<<24)|((Y & 0xff00) << 8)|((Y & 0xff0000) >> 8)|((Y & 0xff000000) >> 24))
 #define byteSwap2(Y) (((Y & 0xff) << 8)|((Y & 0xff00) >> 8))
 

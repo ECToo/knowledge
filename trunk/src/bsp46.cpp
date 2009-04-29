@@ -465,6 +465,8 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 	memcpy(bspTextures, fileBuffer + readLEInt(bspLumps[LUMP_TEXTURES].offset), 
 			sizeof(q3BspTexture) * mTexturesCount);
 
+	printf("textures %d\n", mTexturesCount);
+
 	mMaterialsCount = mTexturesCount;
 	mMaterials = new material*[mTexturesCount];
 	if (!mMaterials)
@@ -932,7 +934,7 @@ void q3Bsp::renderPatch(int i)
 			}
 
 			// Set of indices for each level
-			rs->setVertexCount(patchVertexCount);
+			rs->setVertexCount(patchVertexCount / 3);
 			rs->setIndexCount(thisPatch->getRowIndicesCount(j));
 			rs->setVertexIndex(thisPatch->getIndices(j));
 
@@ -994,7 +996,7 @@ void q3Bsp::renderFace(int i)
 			}
 		}
 
-		rs->setVertexCount(faceToRender->numVertices);
+		rs->setVertexCount(faceToRender->numVertices / 3);
 		rs->setIndexCount(faceToRender->numIndices);
 		rs->setVertexIndex(faceToRender->startIndex * sizeof(index_t));
 
