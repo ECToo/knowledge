@@ -92,8 +92,6 @@ void bgLoadScreen::update(const std::string& filename)
 	rs->setIndexCount(4);
 	rs->drawArrays();
 
-	rs->endVertices();
-
 	mBackground->finish();
 
 	rs->setDepthMask(true);

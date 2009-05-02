@@ -100,7 +100,9 @@ int main(int argc, char** argv)
 	{
 		// Comment this out for goku =]
 		newModel = new k::md5model("marvin/marvin.md5mesh");
-		newModel->attachAnimation("marvin/walk.md5anim", "idle");
+		newModel->attachAnimation("marvin/idle.md5anim", "idle");
+		newModel->attachAnimation("marvin/walk.md5anim", "runf");
+		newModel->attachAnimation("marvin/walk.md5anim", "runb");
 
 		// Comment this out for marvin =]
 		/*
