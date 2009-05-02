@@ -140,7 +140,8 @@ int main(int argc, char** argv)
 	*/
 
 	k::q3Bsp testeBsp;
-	testeBsp.loadQ3Bsp("southcity.bsp");
+	// testeBsp.loadQ3Bsp("southcity.bsp");
+	testeBsp.loadQ3Bsp("the_cell.bsp");
 	kAssert(testeBsp.getLoadSuccess());
 
 	mRenderer->setWorld(&testeBsp);
