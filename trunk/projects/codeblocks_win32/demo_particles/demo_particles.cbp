@@ -33,10 +33,18 @@
 			<Add option="-D_WINDOWS_" />
 			<Add option="-DWIN32" />
 			<Add directory="..\..\..\include" />
+			<Add directory="..\..\..\external_libs\FreeImage\include" />
+			<Add directory="..\..\..\external_libs\glew\include\" />
+			<Add directory="..\..\..\external_libs\pthreads\include\" />
+			<Add directory="..\..\..\external_libs\SDL-1.2.13\include\SDL\" />
 		</Compiler>
 		<Linker>
 			<Add library="knowledge" />
 			<Add directory="..\..\lib" />
+			<Add directory="..\..\..\external_libs\FreeImage\lib\" />
+			<Add directory="..\..\..\external_libs\glew\lib\" />
+			<Add directory="..\..\..\external_libs\pthreads\lib\" />
+			<Add directory="..\..\..\external_libs\SDL-1.2.13\lib\" />
 		</Linker>
 		<Unit filename="..\..\..\examples\particles\particles.cpp" />
 		<Extensions>
