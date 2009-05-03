@@ -45,6 +45,7 @@
 #include "sticker.h"
 #include "texture.h"
 #include "textureManager.h"
+#include "tinyxml.h"
 #include "thread.h"
 #include "timer.h"
 #include "vector2.h"

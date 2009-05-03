@@ -113,6 +113,8 @@
 		<Unit filename="..\..\include\textureManager.h" />
 		<Unit filename="..\..\include\thread.h" />
 		<Unit filename="..\..\include\timer.h" />
+		<Unit filename="..\..\include\tinystr.h" />
+		<Unit filename="..\..\include\tinyxml.h" />
 		<Unit filename="..\..\include\vector2.h" />
 		<Unit filename="..\..\include\vector3.h" />
 		<Unit filename="..\..\include\wiiRenderSystem.h" />
@@ -146,6 +148,10 @@
 		<Unit filename="..\..\src\tev.cpp" />
 		<Unit filename="..\..\src\texture.cpp" />
 		<Unit filename="..\..\src\textureManager.cpp" />
+		<Unit filename="..\..\src\tinystr.cpp" />
+		<Unit filename="..\..\src\tinyxml.cpp" />
+		<Unit filename="..\..\src\tinyxmlerror.cpp" />
+		<Unit filename="..\..\src\tinyxmlparser.cpp" />
 		<Unit filename="..\..\src\timer.cpp" />
 		<Unit filename="..\..\src\vector3.cpp" />
 		<Unit filename="..\..\src\wiiRenderSystem.cpp" />
