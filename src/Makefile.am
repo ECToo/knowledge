@@ -28,7 +28,11 @@ libknowledge_la_SOURCES = drawable.cpp\
 								  particle.cpp\
 								  logger.cpp\
 								  timer.cpp\
-								  root.cpp
+								  root.cpp\
+								  tinystr.cpp\
+								  tinyxml.cpp\
+								  tinyxmlerror.cpp\
+								  tinyxmlparser.cpp
 
 INCLUDES = -I@top_srcdir@/include $(CXXFLAGS)
 
@@ -76,5 +80,7 @@ pkginclude_HEADERS = @top_srcdir@/include/config.h \
 							@top_srcdir@/include/md3.h \
 							@top_srcdir@/include/md5.h \
 							@top_srcdir@/include/world.h \
+							@top_srcdir@/include/tinystr.h \
+							@top_srcdir@/include/tinyxml.h \
 							@top_srcdir@/include/bsp46.h
 
