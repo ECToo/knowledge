@@ -16,6 +16,7 @@
 */
 
 #ifndef __WII__
+#ifndef WIN32
 
 #include "physicsManager.h"
 #include "logger.h"
@@ -347,6 +348,6 @@ physicTriMesh::~physicTriMesh()
 
 }
 
-#endif
-// Wii is not working right now, set this for it 
+#endif // windows
+#endif // Wii is not working right now, set this for it 
 

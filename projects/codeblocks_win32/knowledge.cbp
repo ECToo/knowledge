@@ -58,7 +58,6 @@
 					<Add library="glut" />
 					<Add library="glaux" />
 					<Add library="opengl32" />
-					<Add library="ode_singled" />
 					<Add library="FreeImage" />
 					<Add library="pthreadGC2" />
 				</Linker>
@@ -69,7 +68,17 @@
 			<Add option="-D_WINDOWS_" />
 			<Add option="-DWIN32" />
 			<Add directory="..\..\include\" />
+			<Add directory="..\..\external_libs\FreeImage\include" />
+			<Add directory="..\..\external_libs\glew\include\" />
+			<Add directory="..\..\external_libs\pthreads\include\" />
+			<Add directory="..\..\external_libs\SDL-1.2.13\include\SDL\" />
 		</Compiler>
+		<Linker>
+			<Add directory="..\..\external_libs\FreeImage\lib\" />
+			<Add directory="..\..\external_libs\glew\lib\" />
+			<Add directory="..\..\external_libs\pthreads\lib\" />
+			<Add directory="..\..\external_libs\SDL-1.2.13\lib\" />
+		</Linker>
 		<Unit filename="..\..\include\camera.h" />
 		<Unit filename="..\..\include\drawable.h" />
 		<Unit filename="..\..\include\fileAccess.h" />
@@ -121,7 +130,10 @@
 		<Unit filename="..\..\src\logger.cpp" />
 		<Unit filename="..\..\src\material.cpp" />
 		<Unit filename="..\..\src\materialManager.cpp" />
+		<Unit filename="..\..\src\md3.cpp" />
 		<Unit filename="..\..\src\md5.cpp" />
+		<Unit filename="..\..\src\gameState.cpp" />
+		<Unit filename="..\..\src\bsp46.cpp" />
 		<Unit filename="..\..\src\particle.cpp" />
 		<Unit filename="..\..\src\physicsManager.cpp" />
 		<Unit filename="..\..\src\pngu.cpp" />

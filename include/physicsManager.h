@@ -16,6 +16,7 @@
 */
 
 #ifndef __WII__
+#ifndef WIN32
 
 #ifndef _PHYSICS_MANAGER_H_
 #define _PHYSICS_MANAGER_H_
@@ -349,4 +350,6 @@ namespace k
 
 #endif
 
+#endif // windows
 #endif // wii
+
