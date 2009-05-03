@@ -47,7 +47,9 @@ extern "C"
 	#endif
 }
 
+#ifndef WIN32
 #define DLL_EXPORT
+#endif
 
 #ifndef ATTRIBUTE_ALIGN
 #define ATTRIBUTE_ALIGN(v) __attribute__((aligned(v)))
@@ -108,7 +110,12 @@ extern "C"
 		#ifdef WIN32
 			#include <windows.h>
 			#define DLL_EXPORT __declspec(dllexport)
-			#define memalign __mingw_aligned_malloc
+
+			/**
+			 * Windows for some reason dont respect aligned_malloc.
+			 */
+			#define memalign(X, Y) malloc(Y)
+
 		#endif
 
 		// OpenGL
