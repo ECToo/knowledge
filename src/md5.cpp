@@ -150,7 +150,7 @@ void md5mesh::pushWeight(const vector2& joint, const vector3& pos)
 
 	newWeight->jointIndex = (index_t) joint.x;
 	newWeight->value = (index_t) joint.y;
-	newWeight->pos = (index_t) pos;
+	newWeight->pos = pos;
 }
 		
 void md5mesh::setMaterial(material* mat)
