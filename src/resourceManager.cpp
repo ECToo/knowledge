@@ -324,6 +324,7 @@ void resourceManager::parseGroup(parsingFile* file, resourceGroup* group)
 
 resourceManager::resourceManager(const std::string& resourceCfg)
 {
+	mLoadingScreen = NULL;
 	mUsedMemory = 0;
 	mGroups.clear();
 
