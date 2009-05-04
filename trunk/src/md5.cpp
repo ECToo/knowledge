@@ -138,9 +138,9 @@ void md5mesh::pushTriangle(const vector3& triangle)
 	triangle_t* newTri = &mTriangles[mTIndex++];
 	kAssert(newTri);
 		
-	newTri->index[0] = triangle.x;
-	newTri->index[1] = triangle.y;
-	newTri->index[2] = triangle.z;
+	newTri->index[0] = (index_t) triangle.x;
+	newTri->index[1] = (index_t) triangle.y;
+	newTri->index[2] = (index_t) triangle.z;
 }
 
 void md5mesh::pushWeight(const vector2& joint, const vector3& pos)
@@ -148,9 +148,9 @@ void md5mesh::pushWeight(const vector2& joint, const vector3& pos)
 	weight_t* newWeight = &mWeights[mWIndex++];
 	kAssert(newWeight);
 
-	newWeight->jointIndex = joint.x;
-	newWeight->value = joint.y;
-	newWeight->pos = pos;
+	newWeight->jointIndex = (index_t) joint.x;
+	newWeight->value = (index_t) joint.y;
+	newWeight->pos = (index_t) pos;
 }
 		
 void md5mesh::setMaterial(material* mat)

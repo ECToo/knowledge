@@ -118,6 +118,8 @@ namespace k
 			int mTexCoordOffset[MAX_TEXCOORD];
 
 		public:
+
+			virtual ~renderSystem() {}
 			
 			/**
 			 * Memory allocation, configurations set

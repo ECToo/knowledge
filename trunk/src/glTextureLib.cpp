@@ -38,7 +38,7 @@ typedef struct
 
 freeImageTex_t* loadWithFreeImage(const std::string& filename, int wrapBits)
 {
-	freeImageTex_t* fiTexture;
+	freeImageTex_t* fiTexture = NULL;
 	try
 	{
 		fiTexture = new freeImageTex_t;
@@ -106,7 +106,7 @@ freeImageTex_t* loadWithFreeImage(const std::string& filename, int wrapBits)
 		image = tmp;
 	}
 
-	unsigned char* imgData;
+	unsigned char* imgData = NULL;
 	try 
 	{
 		imgData = new unsigned char[fiTexture->width * fiTexture->height * 4];
@@ -347,8 +347,8 @@ texture* loadCubemap(const std::string& filename, int wrapBits)
 texture* createRawTexture(unsigned char* data, int w, int h, int flags)
 {
 	kAssert(data);
-	kTexture* glImage;
-	texture* newTexture;
+	kTexture* glImage = NULL;
+	texture* newTexture = NULL;
 
 	try
 	{

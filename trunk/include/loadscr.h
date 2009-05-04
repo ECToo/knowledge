@@ -30,6 +30,7 @@ namespace k
 	class DLL_EXPORT loadScreen
 	{
 		public:
+			virtual ~loadScreen() {}
 			virtual void update(const std::string& filename) = 0;
 	};
 

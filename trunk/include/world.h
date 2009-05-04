@@ -26,6 +26,7 @@ namespace k
 	class DLL_EXPORT world
 	{
 		public:
+			virtual ~world() {}
 			virtual void draw(const camera* viewer) = 0;
 	};
 }
