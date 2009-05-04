@@ -497,7 +497,10 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 			mMaterials[i]->setContentFlags(readLEInt(bspTextures[i].contents));
 			texture* newTexture = getNewTexture(std::string(bspTextures[i].name));
 			if (newTexture)
+			{
 				mMaterials[i]->setSingleTexture(newTexture);
+				// mMaterials[i]->setTextureUnits(mMaterials[i]->getTextureUnits() + 1);
+			}
 			else
 				mMaterials[i]->setNoDraw(true);
 		}

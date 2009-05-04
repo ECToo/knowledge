@@ -18,6 +18,7 @@
 #include "md5.h"
 #include "logger.h"
 #include "root.h"
+#include "resourceManager.h"
 #include "materialManager.h"
 
 namespace k {
@@ -395,7 +396,13 @@ md5model::md5model(const std::string& filename)
 	// Auto feed is on by default
 	mAutoFeedAnims = true;
 
-	parsingFile file(filename);
+	std::string fullPath = filename;
+
+	// Get Path from resource manager (if any)
+	resourceManager* rsc = &resourceManager::getSingleton();
+	if (rsc) fullPath = rsc->getRoot() + filename;
+
+	parsingFile file(fullPath);
 	if (!file.isReady())
 	{
 		S_LOG_INFO("Failed to load model filename (" + filename + ")");
@@ -724,7 +731,13 @@ void md5model::draw()
 		
 void md5model::attachAnimation(const std::string& filename, const std::string& name)
 {
-	parsingFile file(filename);
+	std::string fullPath = filename;
+
+	// Get Path from resource manager (if any)
+	resourceManager* rsc = &resourceManager::getSingleton();
+	if (rsc) fullPath = rsc->getRoot() + filename;
+
+	parsingFile file(fullPath);
 	if (!file.isReady())
 	{
 		S_LOG_INFO("Failed to attach model animation (" + filename + ")");

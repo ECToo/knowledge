@@ -33,9 +33,7 @@ void glTexture::draw()
 		return;
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-
-	glClientActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
-	glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
+	rs->bindTexture(getTexture(0), mIndex);
 
 	if (mProgram.length())
 	{
@@ -72,8 +70,6 @@ void glTexture::draw()
 	{
 		rs->setBlend(false);
 	}
-
-	rs->bindTexture(getTexture(0), mIndex);
 
 	switch (mTexCoordType)
 	{

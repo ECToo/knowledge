@@ -99,10 +99,10 @@ int main(int argc, char** argv)
 	try
 	{
 		// Comment this out for goku =]
-		newModel = new k::md5model("marvin/marvin.md5mesh");
-		newModel->attachAnimation("marvin/idle.md5anim", "idle");
-		newModel->attachAnimation("marvin/walk.md5anim", "runf");
-		newModel->attachAnimation("marvin/walk.md5anim", "runb");
+		newModel = new k::md5model("model/marvin/marvin.md5mesh");
+		newModel->attachAnimation("model/marvin/idle.md5anim", "idle");
+		newModel->attachAnimation("model/marvin/walk.md5anim", "runf");
+		newModel->attachAnimation("model/marvin/walk.md5anim", "runb");
 
 		// Comment this out for marvin =]
 		/*

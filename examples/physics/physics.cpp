@@ -95,11 +95,7 @@ class kPlane : public k::drawable3D
 
 void addRandomBox()
 {
-	#ifdef __WII__
-	k::md5model* newBoxModel = new k::md5model("sd:/knowledge/physics/box.md5mesh");
-	#else
-	k::md5model* newBoxModel = new k::md5model("box.md5mesh");
-	#endif
+	k::md5model* newBoxModel = new k::md5model("physics/box.md5mesh");
 
 	if (newBoxModel)
 	{
@@ -118,11 +114,7 @@ void addRandomBox()
 
 void addRandomSphere()
 {
-	#ifdef __WII__
-	k::md5model* newModel = new k::md5model("sd:/knowledge/physics/soccer.md5mesh");
-	#else
-	k::md5model* newModel = new k::md5model("soccer.md5mesh");
-	#endif
+	k::md5model* newModel = new k::md5model("physics/soccer.md5mesh");
 
 	if (newModel)
 	{
@@ -145,8 +137,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 int main(int argc, char** argv)
 #endif
 {
-	_break();
-
 	// Initialize knowledge
 	k::root* appRoot = new k::root();
 	k::renderSystem* mRenderSystem = appRoot->getRenderSystem();
@@ -178,6 +168,7 @@ int main(int argc, char** argv)
 	newLoadingScreen->update("");
 
 	k::resourceManager::getSingleton().loadGroup("common");
+	k::resourceManager::getSingleton().loadGroup("skies");
 	k::resourceManager::getSingleton().loadGroup("physics");
 
 	// Fps Counter

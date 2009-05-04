@@ -56,17 +56,12 @@ int main(int argc, char** argv)
 	newLoadingScreen->update("");
 
 	k::resourceManager::getSingleton().loadGroup("common");
+	k::resourceManager::getSingleton().loadGroup("skies");
 	k::resourceManager::getSingleton().loadGroup("lightmap");
 
 	mRenderer->setSkyPlane("skyPlane");
 
-	#ifdef __WII__
-	k::md5model* boxscene = new k::md5model("/knowledge/lightmap/boxscene.md5mesh");
-	#else
-	k::md5model* boxscene = new k::md5model("boxscene.md5mesh");
-	#endif
-
-	kAssert(boxscene);
+	k::md5model* boxscene = new k::md5model("lightmap/boxscene.md5mesh");
 	mRenderer->push3D(boxscene);
 
 	// Parse material file
