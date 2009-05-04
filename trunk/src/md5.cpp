@@ -149,7 +149,7 @@ void md5mesh::pushWeight(const vector2& joint, const vector3& pos)
 	kAssert(newWeight);
 
 	newWeight->jointIndex = (index_t) joint.x;
-	newWeight->value = (index_t) joint.y;
+	newWeight->value = joint.y;
 	newWeight->pos = pos;
 }
 		
