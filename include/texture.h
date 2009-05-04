@@ -142,6 +142,7 @@ namespace k
 
 		public:
 			textureStage(unsigned short index);
+			virtual ~textureStage() {};
 
 			void setProgram(const std::string& name);
 			void setTexCoordType(texCoordType type);

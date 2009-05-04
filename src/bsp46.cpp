@@ -222,7 +222,7 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 	unsigned int fileSize = ftell(mBspFile);
 	fseek(mBspFile, 0, SEEK_SET);
 
-	char* fileBuffer;
+	char* fileBuffer = NULL;
 	try
 	{
 
@@ -508,7 +508,7 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 
 	// Allocate Lightmaps
 	mLightmapCount = readLEInt(bspLumps[LUMP_LIGHTMAPS].length) / sizeof(q3BspLightmap128);
-	q3BspLightmap128* bspLightmaps;
+	q3BspLightmap128* bspLightmaps = NULL;
 	try
 	{
 		bspLightmaps = new q3BspLightmap128[mLightmapCount];

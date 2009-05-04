@@ -70,8 +70,6 @@ void inputManager::setPointerLock(bool lock)
 	#ifndef __WII__
 	if (lock)
 	{
-		renderSystem* rs = root::getSingleton().getRenderSystem();
-
 		SDL_WM_GrabInput(SDL_GRAB_ON);
 		SDL_ShowCursor(0);
 	}
