@@ -1,6 +1,5 @@
 AC_INIT(src/md5.cpp)
 AM_INIT_AUTOMAKE(knowledge, 0.1)
-AC_CONFIG_HEADER(include/config.h)
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_LIBTOOL
@@ -29,7 +28,6 @@ AC_MSG_ERROR([ *** Unable to find GLEW library (http://glew.sourceforge.net)]))
 AC_CHECK_LIB([freeimage], [FreeImage_DeInitialise], ,
 AC_MSG_ERROR([ *** Unable to find FreeImage library (http://freeimage.sourceforge.net)]))
 AC_MSG_CHECKING(Support for SSE3)
-AC_DEFINE(__HAVE_SSE3__, [], [Processor supports SSE3])
 AC_TRY_RUN([#include <stdlib.h>
 int main()
 {
@@ -42,7 +40,10 @@ int main()
 	else
 		exit(1);
 }]
-, AC_DEFINE(__HAVE_SSE3__, 1)
+, echo "#ifndef _KNOWLEDGE_CONFIG_H_" > include/config.h
+echo "#define _KNOWLEDGE_CONFIG_H_" >> include/config.h
+echo "#define __HAVE_SSE3__" >> include/config.h
+echo "#endif" >> include/config.h
 CXXFLAGS="$CXXFLAGS -msse -msse2 -msse3 -ffast-math"
 AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
