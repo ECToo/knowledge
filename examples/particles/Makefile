@@ -15,9 +15,9 @@
 
 
 
-pkgdatadir = $(datadir)/libknowledge
-pkglibdir = $(libdir)/libknowledge
-pkgincludedir = $(includedir)/libknowledge
+pkgdatadir = $(datadir)/knowledge
+pkglibdir = $(libdir)/knowledge
+pkgincludedir = $(includedir)/knowledge
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 install_sh_DATA = $(install_sh) -c -m 644
 install_sh_PROGRAM = $(install_sh) -c
@@ -115,7 +115,7 @@ OBJEXT = o
 ODE_CONFIG = /usr/bin/ode-config
 OTOOL = 
 OTOOL64 = 
-PACKAGE = libknowledge
+PACKAGE = knowledge
 PACKAGE_BUGREPORT = 
 PACKAGE_NAME = 
 PACKAGE_STRING = 

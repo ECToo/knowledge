@@ -1,5 +1,5 @@
 AC_INIT(src/md5.cpp)
-AM_INIT_AUTOMAKE(libknowledge, 0.1)
+AM_INIT_AUTOMAKE(knowledge, 0.1)
 AC_CONFIG_HEADER(include/config.h)
 AC_PROG_CC
 AC_PROG_CXX
