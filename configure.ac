@@ -45,7 +45,12 @@ echo "#define _KNOWLEDGE_CONFIG_H_" >> include/config.h
 echo "#define __HAVE_SSE3__" >> include/config.h
 echo "#endif" >> include/config.h
 CXXFLAGS="$CXXFLAGS -msse -msse2 -msse3 -ffast-math"
-AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+AC_MSG_RESULT(yes), AC_MSG_RESULT(no)
+echo "#ifndef _KNOWLEDGE_CONFIG_H_" > include/config.h
+echo "#define _KNOWLEDGE_CONFIG_H_" >> include/config.h
+echo "#undef __HAVE_SSE3__" >> include/config.h
+echo "#endif" >> include/config.h
+)
 
 AC_OUTPUT(Makefile src/Makefile \
 			 include/Makefile \
