@@ -27,6 +27,7 @@ material::material()
 	mCull = CULLMODE_FRONT;
 	mDepthTest = true;
 	mNoDraw = false;
+	mIsOpaque = true;
 }
 			
 material::~material()
@@ -168,7 +169,7 @@ unsigned int material::getNumberOfTextureStages() const
 	return mTextures.size();
 }
 			
-bool material::getNoDraw()
+bool material::getNoDraw() const
 {
 	return mNoDraw;
 }
@@ -187,9 +188,9 @@ textureStage* material::getTextureStage(unsigned short index)
 	return NULL;
 }
 			
-bool material::containsTexture(const std::string& name)
+bool material::containsTexture(const std::string& name) const
 {
-	std::list<textureStage*>::iterator it;
+	std::list<textureStage*>::const_iterator it;
 	for (it = mTextures.begin(); it != mTextures.end(); it++)
 	{
 		if ((*it)->containsTexture(name))
@@ -198,6 +199,11 @@ bool material::containsTexture(const std::string& name)
 
 	return false;
 }
+			
+bool material::isOpaque() const
+{
+	return mIsOpaque;
+}
 
 void material::pushTexture(textureStage* tex)
 {
@@ -205,6 +211,9 @@ void material::pushTexture(textureStage* tex)
 	mTextures.push_back(tex);
 		
 	mTextureUnits++;
+
+	if (tex->isOpaque())
+		mIsOpaque = true;
 }
 			
 void material::setSingleTexture(texture* tex)

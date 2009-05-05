@@ -155,6 +155,7 @@ namespace k
 
 			bool containsTexture(const std::string& name);
 			bool getReplaceByLightmap();
+			bool isOpaque();
 
 			unsigned short getWidth();
 			unsigned short getHeight();

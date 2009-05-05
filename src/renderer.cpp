@@ -119,7 +119,12 @@ void renderer::removeSprite(sprite* spr)
 void renderer::push3D(drawable3D* object)
 {
 	kAssert(object);
-	m3DObjects.push_back(object);
+
+	// Put transparent/translucent objects to be drawn later
+	if (!object->isOpaque())
+		m3DObjects.push_back(object);
+	else
+		m3DObjects.push_front(object);
 }
 
 void renderer::pop3D(drawable3D* object)

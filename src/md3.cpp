@@ -57,6 +57,14 @@ void md3Surface::draw(short frameNum)
 		mMaterial->finish();
 }
 
+bool md3Surface::isOpaque() const
+{
+	if (mMaterial)
+		return mMaterial->isOpaque();
+	else
+		return true;
+}
+
 void md3model::_clean()
 {
 	if (mFrames)
@@ -519,6 +527,17 @@ void md3model::setFrame(short i)
 int md3model::getFramesCount() const
 {
 	return mFramesCount;
+}
+
+bool md3model::isOpaque() const
+{
+	for (int i = 0; i < mSurfacesCount; i++)
+	{
+		if (!mSurfaces[i].isOpaque())
+			return false;
+	}
+
+	return true;
 }
 		
 void md3model::draw()

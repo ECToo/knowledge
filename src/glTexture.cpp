@@ -61,7 +61,7 @@ void glTexture::draw()
 		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	}
 
-	if (mBlendSrc && mBlendDst)
+	if (mBlendSrc || mBlendDst)
 	{
 		rs->setBlend(true);
 		rs->setBlendMode(mBlendSrc, mBlendDst);
@@ -125,7 +125,8 @@ void glTexture::finish()
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
 	// Reset Blending
-	rs->setBlend(false);
+	if (mBlendSrc || mBlendDst)
+		rs->setBlend(false);
 
 	switch (mTexCoordType)
 	{

@@ -82,6 +82,14 @@ class kPlane : public k::drawable3D
 			mMaterial->finish();
 		}
 
+		bool isOpaque() const
+		{
+			if (mMaterial)
+				return mMaterial->isOpaque();
+			else
+				return true;
+		}
+
 		k::boundingBox getAABoundingBox() 
 		{
 			return k::boundingBox(k::vector3::zero, k::vector3::zero);
