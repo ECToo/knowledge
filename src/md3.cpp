@@ -339,7 +339,9 @@ md3model::md3model(const std::string& filename)
 			material* mat = materialManager::getSingleton().getMaterial(mShaders[shader].name);
 
 			if (!mat)
+			{
 				mat = materialManager::getSingleton().getMaterialWithFilename(mShaders[shader].name);
+			}
 
 			// Material not found, we are going to create
 			// a simple material with this texture on it only.
@@ -353,6 +355,15 @@ md3model::md3model(const std::string& filename)
 
 					mSurfaces[i].mMaterial = mat;
 				}
+				else
+				{
+					S_LOG_INFO("Failed to find and create a material (" + std::string(mShaders[shader].name) + ") for md3mesh.");
+					mSurfaces[i].mMaterial = NULL;
+				}
+			}
+			else
+			{
+				mSurfaces[i].mMaterial = mat;
 			}
 		}
 
