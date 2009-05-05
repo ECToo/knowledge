@@ -335,7 +335,11 @@ md3model::md3model(const std::string& filename)
 		// For each shader, search a material containing the texture.
 		for (int shader = 0; shader < numShaders; shader++)
 		{
-			material* mat = materialManager::getSingleton().getMaterialWithFilename(mShaders[shader].name);
+			// Try a material with this name
+			material* mat = materialManager::getSingleton().getMaterial(mShaders[shader].name);
+
+			if (!mat)
+				mat = materialManager::getSingleton().getMaterialWithFilename(mShaders[shader].name);
 
 			// Material not found, we are going to create
 			// a simple material with this texture on it only.
