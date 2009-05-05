@@ -184,6 +184,8 @@ class DLL_EXPORT md5mesh
 		void setMaterial(material* mat);
 		void setMaterial(const std::string& matName);
 
+		bool isOpaque() const;
+
 		/**
 		 * Compile Base Positions
 		 */
@@ -278,6 +280,11 @@ class DLL_EXPORT md5model : public drawable3D
 		 * Overloaded
 		 */
 		void draw();
+
+		/**
+		 * Render sorting
+		 */
+		bool isOpaque() const;
 
 		/**
 		 * Return model Bounding box, rotated

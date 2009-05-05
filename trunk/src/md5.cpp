@@ -65,6 +65,14 @@ md5mesh::~md5mesh()
 	if (mTriangles)
 		free(mTriangles);
 }
+		
+bool md5mesh::isOpaque() const
+{
+	if (mMaterial)
+		return mMaterial->isOpaque();
+	else
+		return true;
+}
 
 void md5mesh::prepareVertices(unsigned int size)
 {
@@ -727,6 +735,18 @@ void md5model::draw()
 	
 		mesh->draw();
 	}
+}
+
+bool md5model::isOpaque() const
+{
+	std::list<md5mesh*>::const_iterator it;
+	for (it = mMeshes.begin(); it != mMeshes.end(); it++)
+	{
+		if (!(*it)->isOpaque())
+			return false;
+	}
+
+	return true;
 }
 		
 void md5model::attachAnimation(const std::string& filename, const std::string& name)

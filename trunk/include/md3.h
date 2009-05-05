@@ -139,6 +139,7 @@ class DLL_EXPORT md3Surface
 		int mUVCount;
 		md3TexCoord_t* mUVs;
 
+		bool isOpaque() const;
 		void _clean();
 		void draw(short frameNum);
 };
@@ -167,6 +168,8 @@ class DLL_EXPORT md3model : public drawable3D
 
 		void setFrame(short i);
 		int getFramesCount() const;
+
+		bool isOpaque() const;
 
 		void draw();
 		boundingBox getAABoundingBox();

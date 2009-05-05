@@ -111,7 +111,7 @@ bool texture::containsFilename(const std::string& name)
 
 	return false;
 }
-
+			
 textureStage::textureStage(unsigned short index)
 {
 	mIndex = index;
@@ -171,6 +171,11 @@ unsigned short textureStage::getHeight()
 bool textureStage::getReplaceByLightmap()
 {
 	return mReplaceByLightmap;
+}
+
+bool textureStage::isOpaque()
+{
+	return (mBlendSrc || mBlendDst);
 }
 			
 kTexture* textureStage::getTexture(int i)

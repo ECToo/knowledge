@@ -44,6 +44,7 @@ namespace k
 			CullMode mCull;
 			bool mDepthTest;
 			bool mNoDraw;
+			bool mIsOpaque;
 
 			unsigned int mTextureUnits;
 
@@ -77,8 +78,9 @@ namespace k
 			unsigned int getNumberOfTextureStages() const;
 			textureStage* getTextureStage(unsigned short index);
 
-			bool containsTexture(const std::string& name);
-			bool getNoDraw();
+			bool containsTexture(const std::string& name) const;
+			bool getNoDraw() const;
+			bool isOpaque() const;
 
 			/**
 			 * Prepare material, before drawing.

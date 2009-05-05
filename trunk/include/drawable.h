@@ -122,6 +122,7 @@ namespace k
 
 			virtual ~drawable3D();
 			virtual void draw() = 0;
+			virtual bool isOpaque() const = 0;
 
 			virtual boundingBox getAABoundingBox() = 0;
 			virtual boundingBox getBoundingBox() = 0;
