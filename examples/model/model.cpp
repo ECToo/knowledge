@@ -111,8 +111,8 @@ int main(int argc, char** argv)
 		newModel->attachAnimation("fly_f.md5anim", "runf");
 		newModel->attachAnimation("fly_b.md5anim", "runb");
 		*/
-	
-		newModel->setAnimation("idle");
+
+		newModel->setAnimation("runf");
 		newModel->setAnimationFrame(10);
 		mRenderer->push3D(newModel);
 	}
