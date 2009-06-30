@@ -229,8 +229,14 @@ class DLL_EXPORT md5model : public drawable3D
 
 	public:
 		md5model(const std::string& filename);
-		md5model(const md5model& source);
 		~md5model();
+
+		/**
+		 * Clone this model, allocating a new one exactly like this.
+		 * Keep in mind that when you clone it, it will receive the same animations,
+		 * same bones and same vertices/materials.
+		 */ 
+		void clone(md5model* cloned);
 
 		/**
 		 * Loads an md5anim file and attach it to the list of model animations.

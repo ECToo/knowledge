@@ -298,7 +298,12 @@ void wiiRenderSystem::setBlend(bool state)
 
 void wiiRenderSystem::setDepthMask(bool state)
 {
-	GX_SetZMode(GX_TRUE, GX_LEQUAL, state);
+	mDepthMask = state;
+
+	if (mDepthTest)
+		GX_SetZMode(GX_TRUE, GX_LEQUAL, mDepthMask);
+	else
+		GX_SetZMode(GX_TRUE, GX_NEVER, mDepthMask);
 }
 
 void wiiRenderSystem::destroyWindow()
@@ -373,7 +378,12 @@ void wiiRenderSystem::setClearDepth(const vec_t amount)
 
 void wiiRenderSystem::setDepthTest(bool test)
 {
-	// Nothing =D
+	mDepthTest = test;
+
+	if (mDepthTest)
+		GX_SetZMode(GX_TRUE, GX_LEQUAL, mDepthMask);
+	else
+		GX_SetZMode(GX_TRUE, GX_NEVER, mDepthMask);
 }
 
 void wiiRenderSystem::setShadeModel(ShadeModel model)

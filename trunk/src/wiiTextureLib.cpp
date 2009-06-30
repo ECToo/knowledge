@@ -22,6 +22,8 @@
 // Jpeg is not C++ safe
 extern "C" 
 {
+	#include <stdio.h>
+	#include <stdlib.h>
 	#include <jpeglib.h>
 	#include <jerror.h>
 	#include "pngu.h"
@@ -387,7 +389,7 @@ wiiKTexture* loadTexturePNG(const std::string& file, int wrapBits)
 	GX_InvalidateTexAll();
 
 	resourceManager* rsc = &resourceManager::getSingleton();
-	if (rsc) rsc->addMemoryUse(4 * imgProperties.imgWidth * imgProperties.imgHeight);
+	if (rsc) rsc->addMemoryUse(4 * newWiiKtexture->width * newWiiKtexture->height);
 
 	newWiiKtexture->tex = newKTexture;
 	newWiiKtexture->data = textureData;

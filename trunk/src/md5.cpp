@@ -645,9 +645,9 @@ md5model::md5model(const std::string& filename)
 	S_LOG_INFO("MD5 Model " + filename + " loaded.");
 }
 
-md5model::md5model(const md5model& source)
+void md5model::clone(md5model* cloned)
 {
-	//TODO
+	kAssert(cloned);
 }
 
 md5model::~md5model()
@@ -1068,7 +1068,7 @@ void md5model::feedAnims()
 		currentAnim->currentFrame += (currentAnim->frameRate * (timeNow - currentAnim->lastFeedTime)) / 1000.0f;
 		currentAnim->lastFeedTime = timeNow;
 
-		if ((uint32_t)currentAnim->currentFrame >= currentAnim->numFrames)
+		while ((uint32_t)currentAnim->currentFrame >= currentAnim->numFrames)
 			currentAnim->currentFrame -= currentAnim->numFrames;
 
 		// Real frame number as int

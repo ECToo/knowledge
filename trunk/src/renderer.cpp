@@ -231,6 +231,24 @@ void renderer::_drawSkyPlane()
 	if (!mSkyPlane)
 		return;
 
+	const vec_t vertices[] ATTRIBUTE_ALIGN(32) = 
+	{ 
+		0.0, 0.0, -0.5, 
+		1.0, 0.0, -0.5, 
+		1.0, 1.0, -0.5, 
+		0.0, 1.0, -0.5
+	};
+
+	const vec_t uvs[] ATTRIBUTE_ALIGN(32) = 
+	{ 
+		0.0, 1.0,
+		1.0, 1.0, 
+		1.0, 0.0, 
+		0.0, 0.0
+	};
+
+	const index_t indices[] ATTRIBUTE_ALIGN(32) = { 0, 1, 2, 3 };
+
 	// Rendersystem
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 
@@ -245,10 +263,20 @@ void renderer::_drawSkyPlane()
 	mSkyPlane->prepare();
 
 	// Obrigatory, independent of material settings.
-	rs->setDepthTest(false);
+	// rs->setDepthTest(false);
 	rs->setDepthMask(false);
 	rs->setCulling(CULLMODE_NONE);
 
+	rs->clearArrayDesc(VERTEXMODE_QUAD);
+	rs->setVertexArray(vertices);
+	rs->setTexCoordArray(uvs);
+	rs->setVertexIndex(indices);
+
+	rs->setVertexCount(4);
+	rs->setIndexCount(4);
+	rs->drawArrays();
+
+	/*
  	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(0, 2)); rs->vertex(vector3( 1.0f, -1.0f, -1.0f));
 		rs->texCoord(vector2(2, 2)); rs->vertex(vector3(-1.0f, -1.0f, -1.0f));
@@ -265,10 +293,11 @@ void renderer::_drawSkyPlane()
 		rs->texCoord(vector2(2, 0)); rs->vertex(vector3(-1.0f,  1.0f,  1.0f));
 		rs->texCoord(vector2(0, 0)); rs->vertex(vector3(-1.0f,  1.0f, -1.0f));
 	rs->endVertices();
+	*/
 
 	mSkyPlane->finish();
 	rs->setDepthMask(true);
-	rs->setDepthTest(true);
+	// rs->setDepthTest(true);
 
 	// Take it back to default
 	rs->setMatrixMode(MATRIXMODE_PROJECTION);

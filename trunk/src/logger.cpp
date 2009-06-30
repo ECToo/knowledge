@@ -45,7 +45,7 @@ void logger::setLogMode(logMode log)
 	mLoggingMode = log;
 }
 
-void logger::infoArg(const char* message, va_list args)
+void logger::infoArg(const char* message, std::va_list args)
 {
 	switch (mLoggingMode)
 	{

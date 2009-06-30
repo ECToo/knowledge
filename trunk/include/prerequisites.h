@@ -27,6 +27,9 @@
 #include <cmath>
 #include <fstream>
 #include <cassert>
+#include <cstring>
+#include <cstdlib>
+#include <cstdarg>
 #include <list>
 #include <vector>
 #include <map>
