@@ -50,12 +50,9 @@ sprite::~sprite()
 
 void sprite::calculateTransPos()
 {
-	/*
-	#ifndef __WII__
-	if (GLEW_ARB_point_sprite)
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	if (rs->getPointSpriteSupport())
 		return;
-	#endif
-	*/
 
 	// Render must be valid
 	camera* mCam = root::getSingleton().getRenderer()->getCamera();
@@ -92,23 +89,23 @@ void sprite::calculateTransPos()
 	mInvalidTransPos = false;
 }
 			
-void sprite::setPosition(vector3& pos)
+void sprite::setPosition(const vector3& pos)
 {
 	mPosition = pos;
 	invalidate();
 }
 
-const vector3& sprite::getPosition()
+const vector3& sprite::getPosition() const
 {
 	return mPosition;
 }
 
-material* sprite::getMaterial()
+material* sprite::getMaterial() const
 {
 	return mMaterial;
 }
 
-vec_t sprite::getRadius()
+const vec_t sprite::getRadius() const
 {
 	return mRadius;
 }
@@ -126,17 +123,13 @@ void sprite::setMaterial(const std::string& mat)
 
 void sprite::setRadius(vec_t rad)
 {
-	/*
-	#ifndef __WII__
-	if (GLEW_ARB_point_sprite)
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	if (rs->getPointSpriteSupport())
 	{
-		float maxSize = 0.0f;
-		glGetFloatv(GL_POINT_SIZE_MAX_ARB, &maxSize);
-		if (rad > maxSize)
-			S_LOG_INFO("Radius is greater than supported sprite point size.");
+		if (rad > rs->getPointSpriteMaxSize())
+			S_LOG_INFO("Radius is greater than max supported sprite point size.");
+
 	}
-	#endif
-	*/
 
 	mRadius = rad;
 }
@@ -146,51 +139,31 @@ void sprite::invalidate()
 	mInvalidTransPos = true;
 }
 
-/*
-#ifndef __WII__
-static GLfloat distanceAtt[] = {1, 0, 0.5f};
-#endif
-*/
-
 void sprite::draw()
 {
 	if (!mRadius)
 		return;
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-
-	/*
-	#ifndef __WII__
-	if (GLEW_ARB_point_sprite)
+	if (rs->getPointSpriteSupport())
 	{
+		mMaterial->start();
+
 		rs->setDepthMask(false);
-		glEnable(GL_POINT_SPRITE);
+		rs->setPointSprite(true);
+		rs->setPointSpriteSize(mRadius);
 
-		kAssert(mMaterial != NULL);
-		mMaterial->prepare();
+		rs->startVertices(VERTEXMODE_POINTS);
+		rs->vertex(mPosition);
+		rs->endVertices();
 
-		float maxSize = 0.0f;
-		glGetFloatv(GL_POINT_SIZE_MAX_ARB, &maxSize);
-
-		glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
-		glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, distanceAtt);
-		glPointParameterf(GL_POINT_FADE_THRESHOLD_SIZE, 60.0f);
-		glPointParameterf(GL_POINT_SIZE_MIN, 1.0f);
-		glPointParameterf(GL_POINT_SIZE_MAX, maxSize);
-		glPointSize(mRadius*rs->getScreenHeight());
-
-		glBegin(GL_POINTS);
-			glVertex3f(mPosition.x, mPosition.y, mPosition.z);
-		glEnd();
+		rs->setPointSprite(false);
 
 		mMaterial->finish();
-		glDisable(GL_POINT_SPRITE);
 		rs->setDepthMask(true);
 
 		return;
 	}
-	#endif
-	*/
 
 	if (mInvalidTransPos)
 		calculateTransPos();
@@ -200,7 +173,7 @@ void sprite::draw()
 
 	// We dont need depth masking on this case
 	rs->setDepthMask(false);
-	mMaterial->prepare();
+	mMaterial->start();
 
 	const vec_t uv[] ATTRIBUTE_ALIGN(32) = {0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0};
 	const vec_t vertex[] ATTRIBUTE_ALIGN(32) = {-mRadius, -mRadius, 0, mRadius, -mRadius, 0,
@@ -230,32 +203,19 @@ void sprite::rawDraw()
 		return;
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-
-	/*
-	#ifndef __WII__
-	if (GLEW_ARB_point_sprite)
+	if (rs->getPointSpriteSupport())
 	{
-		glEnable(GL_POINT_SPRITE);
+		rs->setPointSprite(true);
+		rs->setPointSpriteSize(mRadius);
 
-		float maxSize = 0.0f;
-		glGetFloatv(GL_POINT_SIZE_MAX_ARB, &maxSize);
+		rs->startVertices(VERTEXMODE_POINTS);
+		rs->vertex(mPosition);
+		rs->endVertices();
 
-		glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
-		glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, distanceAtt);
-		glPointParameterf(GL_POINT_FADE_THRESHOLD_SIZE, 60.0f);
-		glPointParameterf(GL_POINT_SIZE_MIN, 1.0f);
-		glPointParameterf(GL_POINT_SIZE_MAX, maxSize);
-		glPointSize(mRadius*rs->getScreenHeight());
+		rs->setPointSprite(false);
 
-		glBegin(GL_POINTS);
-			glVertex3f(mPosition.x, mPosition.y, mPosition.z);
-		glEnd();
-
-		glDisable(GL_POINT_SPRITE);
 		return;
 	}
-	#endif
-	*/
 
 	if (mInvalidTransPos)
 		calculateTransPos();

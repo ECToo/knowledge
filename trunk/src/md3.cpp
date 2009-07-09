@@ -40,7 +40,7 @@ void md3Surface::draw(short frameNum)
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 
 	if (mMaterial)
-		mMaterial->prepare();
+		mMaterial->start();
 
 	rs->clearArrayDesc();
 	rs->setVertexArray(mVertices[frameNum * mVerticesCount].pos, sizeof(md3RealVertex_t));
@@ -105,8 +105,10 @@ static inline texture* getNewTexture(const std::string& filename)
 	{
 		fclose(testFile);
 
-		texMgr->allocateTextureData(filename);
-		return texMgr->getTexture(filename);
+		if (texMgr->allocateTexture(filename))
+			return texMgr->getTexture(filename);
+		else
+			return NULL;
 	}
 
 	// Ok, file doesnt exist, lets check the extension:
@@ -132,8 +134,10 @@ static inline texture* getNewTexture(const std::string& filename)
 	{
 		fclose(testFile);
 
-		texMgr->allocateTextureData(newFile);
-		return texMgr->getTexture(newFile);
+		if (texMgr->allocateTexture(newFile))
+			return texMgr->getTexture(newFile);
+		else
+			return NULL;
 	}
 	else
 	{
@@ -358,9 +362,7 @@ md3model::md3model(const std::string& filename)
 				texture* newTexture = getNewTexture(std::string(mShaders[shader].name));
 				if (newTexture)
 				{
-					mat = materialManager::getSingleton().createMaterial(mShaders[shader].name);
-					mat->setSingleTexture(newTexture);
-
+					mat = materialManager::getSingleton().createMaterial(mShaders[shader].name, newTexture);
 					mSurfaces[i].mMaterial = mat;
 				}
 				else

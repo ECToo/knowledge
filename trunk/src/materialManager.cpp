@@ -32,28 +32,15 @@ materialManager& materialManager::getSingleton()
 materialManager::materialManager()
 {
 	mMaterials.clear();
-
-	#ifdef __WII__
-	try
-	{
-		mTev = new tevManager();
-	}
-	catch (...)
-	{
-		S_LOG_INFO("Failed to create tevManager.");
-	}
-	#endif
 }
 
 materialManager::~materialManager()
 {
-	#ifdef __WII__
-	delete mTev;
-	#endif
-
 	std::map<std::string, material*>::iterator it;
 	for (it = mMaterials.begin(); it != mMaterials.end(); it++)
+	{
 		delete it->second;
+	}
 }
 			
 material* materialManager::createMaterial(const std::string& name)
@@ -69,6 +56,56 @@ material* materialManager::createMaterial(const std::string& name)
 	try
 	{
 		newMaterial = new material();
+		S_LOG_INFO("Material " + name + " created.");
+		mMaterials[name] = newMaterial;
+		return newMaterial;
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to create material " + name + ".");
+		return NULL;
+	}
+}
+			
+material* materialManager::createMaterial(const std::string& name, texture* tex)
+{
+	material* newMaterial = getMaterial(name);
+	if (newMaterial)
+	{
+		// Material already exists
+		return newMaterial;
+	}
+		
+	// Allocate a new material
+	try
+	{
+		newMaterial = new material(tex);
+		S_LOG_INFO("Material " + name + " created.");
+		mMaterials[name] = newMaterial;
+		return newMaterial;
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to create material " + name + ".");
+		return NULL;
+	}
+}
+
+material* materialManager::createMaterial(const std::string& name, const std::string& filename)
+{
+	material* newMaterial = getMaterial(name);
+	if (newMaterial)
+	{
+		// Material already exists
+		return newMaterial;
+	}
+		
+	// Allocate a new material
+	try
+	{
+		newMaterial = new material(filename);
 		S_LOG_INFO("Material " + name + " created.");
 		mMaterials[name] = newMaterial;
 		return newMaterial;
@@ -262,12 +299,21 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 	file->skipNextToken(); // { 
 
 	// Start texture stage
-	textureStage* activeTexture = textureManager::getSingleton().createStage(index);
-	if (!activeTexture)
+	materialStage* activeStage;
+	unsigned int stageTextures = 0;
+	try
+	{
+		activeStage = new materialStage(index);
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to create a new material stage.");
 		return;
+	}
 
 	// insert into material
-	mat->pushTexture(activeTexture);
+	mat->pushStage(activeStage);
 
 	while (openBraces)
 	{
@@ -277,19 +323,41 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 		if (token == "filename")
 		{
 			token = file->getNextToken();
-			textureManager::getSingleton().setStageTexture(activeTexture, token);
+			texture* newTexture = textureManager::getSingleton().getTexture(token);
+				
+			if (!newTexture && textureManager::getSingleton().allocateTexture(token))
+				newTexture = textureManager::getSingleton().getTexture(token);
+				
+			if (newTexture)
+				activeStage->setTexture(newTexture, stageTextures++);
 		}
 		else
 		if (token == "cubename")
 		{
 			token = file->getNextToken();
-			textureManager::getSingleton().setStageCubicTexture(activeTexture, token, FLAG_CLAMP_EDGE_S | FLAG_CLAMP_EDGE_T);
+			// TODO
+			// ktextureManager::getSingleton().setStageCubicTexture(activeTexture, token, FLAG_CLAMP_EDGE_S | FLAG_CLAMP_EDGE_T);
 		}
 		else
 		if (token == "program")
 		{
 			token = file->getNextToken();
-			activeTexture->setProgram(token);
+
+			// TODO: Change the "program" name
+			if (token == "replace")
+				activeStage->setEnv(TEXENV_REPLACE);
+			else
+			if (token == "modulate")
+				activeStage->setEnv(TEXENV_MODULATE);
+			else
+			if (token == "add")
+				activeStage->setEnv(TEXENV_ADD);
+			else
+			if (token == "decal")
+				activeStage->setEnv(TEXENV_DECAL);
+			else
+			if (token == "blend")
+				activeStage->setEnv(TEXENV_BLEND);
 		}
 		else
 		if (token == "scale")
@@ -300,7 +368,7 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 			token = file->getNextToken();
 			scale.y = atof(token.c_str());
 				
-			activeTexture->setScale(scale);
+			activeStage->setScale(scale);
 		}
 		else
 		if (token == "scroll")
@@ -311,7 +379,7 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 			token = file->getNextToken();
 			scroll.y = atof(token.c_str());
 				
-			activeTexture->setScroll(scroll);
+			activeStage->setScroll(scroll);
 		}
 		else
 		if (token == "rotate")
@@ -320,14 +388,14 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 			token = file->getNextToken();
 			angle = atof(token.c_str());
 
-			activeTexture->setRotate(angle);
+			activeStage->setRotate(angle);
 		}
 		else
 		if (token == "texcoord")
 		{
 			token = file->getNextToken();
 
-			texCoordType type = TEXCOORD_NONE;
+			TextureCoordType type = TEXCOORD_NONE;
 			if (token == "uv")
 				type = TEXCOORD_UV;
 			else
@@ -352,7 +420,7 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 			if (token == "tangent")
 				type = TEXCOORD_TANGENT;
 
-			activeTexture->setTexCoordType(type);
+			activeStage->setCoordType(type);
 		}
 		else
 		if (token == "blendfunc")
@@ -364,7 +432,7 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 			token = file->getNextToken();
 			dst = getBlendMode(token);
 
-			activeTexture->setBlendMode(src, dst);
+			activeStage->setBlendMode(src, dst);
 		}
 
 		token = file->getNextToken();
@@ -457,13 +525,22 @@ void materialManager::parseMaterial(material* mat, parsingFile* file)
 				mat->setCullMode(CULLMODE_BOTH);
 		}
 		else
-		if (token == "depth_enabled")
+		if (token == "depthTest")
 		{
 			token = file->getNextToken();
-			if (token == "true" || token == "yes")
+			if (token == "true" || token == "yes" || token == "on")
 				mat->setDepthTest(true);
 			else
 				mat->setDepthTest(false);
+		}
+		else
+		if (token == "depthWrite")
+		{
+			token = file->getNextToken();
+			if (token == "true" || token == "yes" || token == "on")
+				mat->setDepthWrite(true);
+			else
+				mat->setDepthWrite(false);
 		}
 		else
 		if (token == "texture")
@@ -480,8 +557,6 @@ void materialManager::parseMaterial(material* mat, parsingFile* file)
 		if (token == "{")
 			openBraces++;
 	}
-
-	mat->setTextureUnits(textureIndex);
 }
 
 void materialManager::parseMaterialScript(const std::string& filename, materialList* map)
@@ -569,12 +644,21 @@ void materialManager::parseQ3TextureSection(material* mat, parsingFile* file, un
 	std::string token;
 	unsigned int openBraces = 1;
 
-	textureStage* activeTexture = textureManager::getSingleton().createStage(index);
-	if (!activeTexture)
+	materialStage* activeStage;
+	unsigned int stageTextures = 0;
+	try
+	{
+		activeStage = new materialStage(index);
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to create a new material stage.");
 		return;
+	}
 
 	// insert into material
-	mat->pushTexture(activeTexture);
+	mat->pushStage(activeStage);
 
 	while (openBraces)
 	{
@@ -586,11 +670,17 @@ void materialManager::parseQ3TextureSection(material* mat, parsingFile* file, un
 			token = file->getNextToken();
 			if (token  == "$lightmap")
 			{
-				activeTexture->setLightmapReplace(true);
+				// TODO
 			}
 			else
 			{
-				textureManager::getSingleton().setStageTexture(activeTexture, token, FLAG_REPEAT_S | FLAG_REPEAT_T | FLAG_REPEAT_R);
+				texture* newTexture = textureManager::getSingleton().getTexture(token);
+				
+				if (!newTexture && textureManager::getSingleton().allocateTexture(token, FLAG_REPEAT_S | FLAG_REPEAT_T | FLAG_REPEAT_R))
+					newTexture = textureManager::getSingleton().getTexture(token);
+				
+				if (newTexture)
+					activeStage->setTexture(newTexture, stageTextures++);
 			}
 		}
 		else
@@ -599,18 +689,24 @@ void materialManager::parseQ3TextureSection(material* mat, parsingFile* file, un
 			token = file->getNextToken();
 			if (token  == "$lightmap")
 			{
-				activeTexture->setLightmapReplace(true);
+				// TODO
 			}
 			else
 			{
-				textureManager::getSingleton().setStageTexture(activeTexture, token);
+				texture* newTexture = textureManager::getSingleton().getTexture(token);
+				
+				if (!newTexture && textureManager::getSingleton().allocateTexture(token))
+					newTexture = textureManager::getSingleton().getTexture(token);
+				
+				if (newTexture)
+					activeStage->setTexture(newTexture, stageTextures++);
 			}
 		}
 		else
 		if (token == "tcMod")
 		{
 			token = file->getNextToken();
-			if (activeTexture && token == "scroll")
+			if (activeStage && token == "scroll")
 			{
 				vector2 scroll;
 				token = file->getNextToken();
@@ -618,10 +714,10 @@ void materialManager::parseQ3TextureSection(material* mat, parsingFile* file, un
 				token = file->getNextToken();
 				scroll.y = atof(token.c_str());
 				
-				activeTexture->setScroll(scroll);
+				activeStage->setScroll(scroll);
 			}
 			else
-			if (activeTexture && token == "scale")
+			if (activeStage && token == "scale")
 			{
 				vector2 scale;
 				token = file->getNextToken();
@@ -629,38 +725,38 @@ void materialManager::parseQ3TextureSection(material* mat, parsingFile* file, un
 				token = file->getNextToken();
 				scale.y = atof(token.c_str());
 				
-				activeTexture->setScale(scale);
+				activeStage ->setScale(scale);
 			}
 			else
-			if (activeTexture && token == "rotate")
+			if (activeStage && token == "rotate")
 			{
 				vec_t angle;
 				token = file->getNextToken();
 				angle = atof(token.c_str());
 
-				activeTexture->setRotate(angle);
+				activeStage->setRotate(angle);
 			}
 		}
 		else
 		if (token == "blendfunc")
 		{
 			token = file->getNextToken();
-			if (activeTexture && token == "add")
+			if (activeStage && token == "add")
 			{
-				activeTexture->setBlendMode(getBlendMode("one"), getBlendMode("one"));
+				activeStage->setBlendMode(getBlendMode("one"), getBlendMode("one"));
 			}
 			else
-			if (activeTexture && token == "filter")
+			if (activeStage && token == "filter")
 			{
-				activeTexture->setBlendMode(getBlendMode("dstclr"), getBlendMode("zero"));
+				activeStage->setBlendMode(getBlendMode("dstclr"), getBlendMode("zero"));
 			}
 			else
-			if (activeTexture && token == "blend")
+			if (activeStage && token == "blend")
 			{
-				activeTexture->setBlendMode(getBlendMode("srcalpha"), getBlendMode("invsrcalpha"));
+				activeStage->setBlendMode(getBlendMode("srcalpha"), getBlendMode("invsrcalpha"));
 			}
 			else
-			if (activeTexture)
+			if (activeStage)
 			{
 				unsigned short src = 0, dst = 0;
 
@@ -668,7 +764,7 @@ void materialManager::parseQ3TextureSection(material* mat, parsingFile* file, un
 				token = file->getNextToken();
 				dst = getBlendMode(translateQ3Blend(token));
 
-				activeTexture->setBlendMode(src, dst);
+				activeStage->setBlendMode(src, dst);
 			}
 		}
 
@@ -725,8 +821,6 @@ void materialManager::parseQ3Material(material* mat, parsingFile* file)
 		if (token == "}")
 			openBraces--;
 	}
-
-	mat->setTextureUnits(textureIndex);
 }
 
 void materialManager::parseQ3MaterialScript(const std::string& filename, materialList* map)

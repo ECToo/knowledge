@@ -27,12 +27,14 @@ namespace k
 {
 	enum frustumPlanes
 	{
-		PLANE_NEAR,
+		PLANE_NEAR = 0,
 		PLANE_FAR,
 		PLANE_TOP,
 		PLANE_BOTTOM,
 		PLANE_LEFT,
-		PLANE_RIGHT
+		PLANE_RIGHT,
+
+		MAX_PLANES
 	};
 
 	class DLL_EXPORT camera
@@ -81,13 +83,13 @@ namespace k
 			/**
 			 * A point inside each frustum plane.
 			 */
-			vector3 mFrustumPlanes[6];
+			vector3 mFrustumPlanes[MAX_PLANES];
 
 			/**
 			 * The D argument for each frustum 
 			 * plane.
 			 */
-			vec_t mFrustumDs[6];
+			vec_t mFrustumDs[MAX_PLANES];
 
 		public:
 			camera();

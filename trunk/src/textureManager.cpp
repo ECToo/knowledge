@@ -42,8 +42,13 @@ textureManager::textureManager()
 
 textureManager::~textureManager()
 {
-	for (std::list<texture*>::iterator it = mTextures.begin(); it != mTextures.end(); it++)
-		delete *it;
+	std::unordered_map<int, texture*>::iterator it;
+	while (!mTextures.empty())
+	{
+		it = mTextures.begin();
+		delete it->second;
+		mTextures.erase(it);
+	}
 
 	mTextures.clear();
 
@@ -52,19 +57,55 @@ textureManager::~textureManager()
 	FreeImage_DeInitialise();
 	#endif
 }
+			
+unsigned int textureManager::getKey(const std::string& filename)
+{
+	unsigned int hashKey = 0;
+
+	// Generic key generation
+	for (unsigned int i = 0; i < filename.length(); i++)
+		hashKey += filename[i] * i;
+
+	return hashKey;
+}
 
 texture* textureManager::getTexture(const std::string& filename)
 {
-	std::list<texture*>::iterator it = mTextures.begin();
-	for (; it != mTextures.end(); it++)
-	{
-		if ((*it)->containsFilename(filename))
-			return (*it);
-	}
-		
-	return NULL;
+	textureHash::const_iterator it = mTextures.find(getKey(filename));
+	if (it != mTextures.end())
+		return it->second;
+	else
+		return NULL;
 }
 
+bool textureManager::allocateTexture(const std::string& filename, int wrapBits)
+{
+	std::string fullPath = filename;
+
+	// Get Path from resource manager (if any)
+	resourceManager* rsc = &resourceManager::getSingleton();
+	if (rsc) fullPath = rsc->getRoot() + filename;
+
+	texture* newTexture = getTexture(filename);
+	if (newTexture)
+	{
+		return true;
+	}
+	else
+	{
+		newTexture = new texture(fullPath, wrapBits);
+		if (newTexture)
+		{
+			mTextures.insert(textureHash::value_type(getKey(filename), newTexture));
+			return true;
+		}
+	}
+		
+	S_LOG_INFO("Failed to allocate texture data for " + fullPath + ".");
+	return false;
+}
+
+/*
 texture* textureManager::createEmptyTexture()
 {
 	try
@@ -82,30 +123,6 @@ texture* textureManager::createEmptyTexture()
 	}
 }
 			
-bool textureManager::allocateTextureData(const std::string& filename, int wrapBits)
-{
-	std::string fullPath = filename;
-
-	// Get Path from resource manager (if any)
-	resourceManager* rsc = &resourceManager::getSingleton();
-	if (rsc) fullPath = rsc->getRoot() + filename;
-
-	texture* newTexture = getTexture(fullPath);
-	if (newTexture)
-		return true;
-	else
-	{
-		newTexture = loadTexture(fullPath, wrapBits);
-		if (newTexture)
-		{
-			mTextures.push_back(newTexture);
-			return true;
-		}
-	}
-		
-	S_LOG_INFO("Failed to allocate texture data for " + fullPath + ".");
-	return false;
-}
 
 textureStage* textureManager::createCubicTexture(const std::string& filename, unsigned short index, int wrapBits)
 {
@@ -263,6 +280,7 @@ void textureManager::setStageCubicTexture(textureStage* newStage, const std::str
 
 	newStage->setTexture(rawTex);
 }
+*/
 
 }
 

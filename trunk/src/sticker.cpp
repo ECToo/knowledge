@@ -26,6 +26,8 @@ sticker::sticker(const std::string& matName)
 	mMaterial = root::getSingleton().getMaterialManager()->createMaterial(matName);
 	if (!mMaterial)
 		S_LOG_INFO("Failed to create sticker material.");
+
+	mZ = 0;
 }
 
 sticker::~sticker()
@@ -42,7 +44,7 @@ void sticker::draw()
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 
 	// Prepare the material
-	mMaterial->prepare();
+	mMaterial->start();
 	rs->setCulling(CULLMODE_NONE);
 
 	rs->setDepthMask(false);

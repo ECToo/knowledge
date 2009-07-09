@@ -134,12 +134,12 @@ static inline texture* getNewTexture(const std::string& filename)
 		{
 			if (isJpegUpper)
 			{
-				texMgr->allocateTextureData(filename + ".JPG");
+				texMgr->allocateTexture(filename + ".JPG");
 				newTexture = texMgr->getTexture(filename + ".JPG");
 			}
 			else
 			{
-				texMgr->allocateTextureData(filename + ".jpg");
+				texMgr->allocateTexture(filename + ".jpg");
 				newTexture = texMgr->getTexture(filename + ".jpg");
 			}
 		}
@@ -147,12 +147,12 @@ static inline texture* getNewTexture(const std::string& filename)
 		{
 			if (isTgaUpper)
 			{
-				texMgr->allocateTextureData(filename + ".TGA");
+				texMgr->allocateTexture(filename + ".TGA");
 				newTexture = texMgr->getTexture(filename + ".TGA");
 			}
 			else
 			{
-				texMgr->allocateTextureData(filename + ".tga");
+				texMgr->allocateTexture(filename + ".tga");
 				newTexture = texMgr->getTexture(filename + ".tga");
 			}
 		}
@@ -493,16 +493,16 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 		// a simple material with this texture on it only.
 		if (!mMaterials[i])
 		{
-			mMaterials[i] = matMgr->createMaterial(bspTextures[i].name);
-			mMaterials[i]->setContentFlags(readLEInt(bspTextures[i].contents));
 			texture* newTexture = getNewTexture(std::string(bspTextures[i].name));
 			if (newTexture)
 			{
-				mMaterials[i]->setSingleTexture(newTexture);
-				// mMaterials[i]->setTextureUnits(mMaterials[i]->getTextureUnits() + 1);
+				mMaterials[i] = matMgr->createMaterial(bspTextures[i].name, newTexture);
+				mMaterials[i]->setContentFlags(readLEInt(bspTextures[i].contents));
 			}
 			else
+			{
 				mMaterials[i]->setNoDraw(true);
+			}
 		}
 	}
 
@@ -549,8 +549,8 @@ void q3Bsp::loadQ3Bsp(const std::string& filename)
 	memset(mLightmaps, 0, sizeof(texture*) * mLightmapCount);
 	for (int i = 0; i < mLightmapCount; i++)
 	{
-		const int flags = FLAG_RGB | FLAG_CLAMP_S | FLAG_CLAMP_T | FLAG_CLAMP_R;
-		mLightmaps[i] = createRawTexture(bspLightmaps[i].bits, 128, 128, flags);
+		const int flags = FLAG_CLAMP_S | FLAG_CLAMP_T | FLAG_CLAMP_R;
+		mLightmaps[i] = new texture(bspLightmaps[i].bits, 128, 128, flags, TEX_RGB);
 	}
 
 	// Free read lightmaps
@@ -917,7 +917,7 @@ void q3Bsp::renderPatch(int i)
 		for (unsigned int j = 0; j < thisPatch->getLevel(); j++)
 		{
 			if (materialOfFace)
-				materialOfFace->prepare();
+				materialOfFace->start();
 
 			rs->clearArrayDesc(VERTEXMODE_TRI_STRIP);
 			rs->setVertexArray(patchVertices[0].pos, sizeof(q3BspVertex));
@@ -929,8 +929,8 @@ void q3Bsp::renderPatch(int i)
 				if (mDrawLightmaps && patchFace->lmId >= 0)
 				{
 					// Send Lightmap
-					const int stages = materialOfFace->getNumberOfTextureStages();
-					rs->bindTexture(mLightmaps[patchFace->lmId]->getId(0), stages);
+					const int stages = materialOfFace->getStagesCount();
+					rs->bindTexture(mLightmaps[patchFace->lmId]->getPointer(), stages);
 					rs->setTexEnv(TEX_ENV_MODULATE, stages);
 					rs->setTexCoordArray(patchVertices[0].lmUv, sizeof(q3BspVertex), stages);
 				}
@@ -965,7 +965,7 @@ void q3Bsp::renderFace(int i)
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 
 	if (materialOfFace)
-		materialOfFace->prepare();
+		materialOfFace->start();
 
 	if (faceToRender->lmId < 0 && !materialOfFace)
 		return;
@@ -992,8 +992,8 @@ void q3Bsp::renderFace(int i)
 			if (mDrawLightmaps && faceToRender->lmId >= 0)
 			{
 				// Send Lightmap
-				const short stages = materialOfFace->getNumberOfTextureStages();
-				rs->bindTexture(mLightmaps[faceToRender->lmId]->getId(0), stages);
+				const short stages = materialOfFace->getStagesCount();
+				rs->bindTexture(mLightmaps[faceToRender->lmId]->getPointer(), stages);
 				rs->setTexEnv(TEX_ENV_MODULATE, stages);
 				rs->setTexCoordArray(vStart + sizeof(vec_t) * 5, vSize, stages);
 			}
@@ -1022,8 +1022,8 @@ void q3Bsp::renderFace(int i)
 			if (mDrawLightmaps && faceToRender->lmId >= 0)
 			{
 				// Send Lightmap
-				const int stages = materialOfFace->getNumberOfTextureStages();
-				rs->bindTexture(mLightmaps[faceToRender->lmId]->getId(0), stages);
+				const int stages = materialOfFace->getStagesCount();
+				rs->bindTexture(mLightmaps[faceToRender->lmId]->getPointer(), stages);
 				rs->setTexEnv(TEX_ENV_MODULATE, stages);
 				rs->setTexCoordArray(mVertices[faceToRender->startVertIndex].lmUv, 
 						sizeof(q3BspVertex), stages);

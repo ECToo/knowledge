@@ -19,7 +19,7 @@
 #include "bsp46.h"
 #include "camera.h"
 #include "drawable.h"
-#include "fileAccess.h"
+#include "fileParser.h"
 #include "fontManager.h"
 #include "gameState.h"
 #include "glRenderSystem.h"

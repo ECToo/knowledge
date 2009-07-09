@@ -23,42 +23,46 @@
 
 namespace k {
 
-glTexture::glTexture(unsigned short index) : textureStage(index)
+void materialStage::draw()
 {
-}
+	bool notFound = true;
+	for (int i = 0; i < K_MAX_STAGE_TEXTURES; i++)
+	{
+		if (mTextures[i])
+		{
+			notFound = false;
+			break;
+		}
+	}
 
-void glTexture::draw()
-{
-	if (!mTexture)
+	if (notFound)
 		return;
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	rs->bindTexture(getTexture(0), mIndex);
+	rs->bindTexture(getTexture(0)->getPointer(), mIndex);
 
-	if (mProgram.length())
+	switch (mTexEnv)
 	{
-		if (mProgram == "replace")
+		default:
+		case TEXENV_REPLACE:
 			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-		else
-		if (mProgram == "modulate")
+			break;
+
+		case TEXENV_MODULATE:
 			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-		else
-		if (mProgram == "blend")
+			break;
+
+		case TEXENV_BLEND:
 			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
-		else
-		if (mProgram == "decal")
+			break;
+
+		case TEXENV_DECAL:
 			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-		else
-		if (mProgram == "add")
+			break;
+
+		case TEXENV_ADD:
 			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD);
-		else
-		{
-			// TODO - setup a glsl program here
-		}
-	}
-	else
-	{
-		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+			break;
 	}
 
 	if (mBlendSrc || mBlendDst)
@@ -71,7 +75,7 @@ void glTexture::draw()
 		rs->setBlend(false);
 	}
 
-	switch (mTexCoordType)
+	switch (mCoordType)
 	{
 		default:
 		case TEXCOORD_UV:
@@ -111,9 +115,19 @@ void glTexture::draw()
 	}
 }
 
-void glTexture::finish()
+void materialStage::finish()
 {
-	if (!mTexture)
+	bool notFound = true;
+	for (int i = 0; i < K_MAX_STAGE_TEXTURES; i++)
+	{
+		if (mTextures[i])
+		{
+			notFound = false;
+			break;
+		}
+	}
+
+	if (notFound)
 		return;
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
@@ -128,7 +142,7 @@ void glTexture::finish()
 	if (mBlendSrc || mBlendDst)
 		rs->setBlend(false);
 
-	switch (mTexCoordType)
+	switch (mCoordType)
 	{
 		default:
 		case TEXCOORD_NONE:

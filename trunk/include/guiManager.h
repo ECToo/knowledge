@@ -19,7 +19,7 @@
 #define _GUI_MANAGER_H
 
 #include "prerequisites.h"
-#include "fileAccess.h"
+#include "fileParser.h"
 #include "singleton.h"
 #include "sticker.h"
 

@@ -30,14 +30,14 @@ namespace k
 	 * instead it should offer a basic set of functions
 	 * to work on threads for various platforms.
 	 */
-	extern void createKThread(kthread* t, void* (*start)(void*), void* arg);
-	extern void destroyKThread(kthread* t);
-	extern void joinKThread(kthread* t);
+	extern void createKThread(platformThread* t, void* (*start)(void*), void* arg);
+	extern void destroyKThread(platformThread* t);
+	extern void joinKThread(platformThread* t);
 
-	extern void createKMutex(kmutex* m);
-	extern void lockKMutex(kmutex* m);
-	extern void unlockKMutex(kmutex* m);
-	extern void destroyKMutex(kmutex* m);
+	extern void createKMutex(platformMutex* m);
+	extern void lockKMutex(platformMutex* m);
+	extern void unlockKMutex(platformMutex* m);
+	extern void destroyKMutex(platformMutex* m);
 }
 
 #endif

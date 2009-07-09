@@ -6,7 +6,7 @@ AC_PROG_LIBTOOL
 AC_CONFIG_MACRO_DIR([m4])
 AM_SANITY_CHECK
 CFLAGS=""
-CXXFLAGS="-Wall -O2 -g"
+CXXFLAGS="-Wall -O2 -g -std=c++0x"
 AC_PATH_PROG(SDL_CONFIG, sdl-config)
 if test -n "$SDL_CONFIG"; then
     LIBS="$LIBS `$SDL_CONFIG --libs`"

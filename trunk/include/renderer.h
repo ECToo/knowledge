@@ -80,7 +80,7 @@ namespace k
 			/**
 			 * Render to texture
 			 */
-			kTexture* mTextureTarget;
+			platformTexturePointer* mTextureTarget;
 			bool mRenderToTexture;
 			unsigned int mRTTSize[2];
 
@@ -119,7 +119,7 @@ namespace k
 			 * subsequent call to draw() will work
 			 * normally.
 			 */
-			void prepareRTT(unsigned int w, unsigned h, kTexture* tex);	
+			void prepareRTT(unsigned int w, unsigned h, platformTexturePointer* tex);	
 
 			/**
 			 * Create a sprite within this renderer

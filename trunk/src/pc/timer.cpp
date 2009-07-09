@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2008 Rômulo Fernandes Machado <romulo@castorgroup.net>
+    Copyright (C) 2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,25 +21,15 @@ namespace k {
 
 void timer::reset()
 {
-	#ifdef __WII__
-	start = gettime();
-	#else
 	gettimeofday(&start, NULL);
-	#endif
 }
 
 long timer::getMilliSeconds()
 {
-	#ifdef __WII__
-		long long end = gettime();
+	struct timeval end;
+	gettimeofday(&end, NULL);
 
-		return ticks_to_millisecs(diff_ticks(start, end));
-	#else
-		struct timeval end;
-		gettimeofday(&end, NULL);
-
-		return (end.tv_sec-start.tv_sec)*1000+(end.tv_usec-start.tv_usec)/1000;
-	#endif
+	return (end.tv_sec-start.tv_sec)*1000+(end.tv_usec-start.tv_usec)/1000;
 }
 
 }

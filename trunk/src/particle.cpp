@@ -35,14 +35,15 @@ particle::particle()
 {
 	mVisible = false;
 	mLastDrawTime = 0;
+	mParent = NULL;
 }
 
-const vector3& particle::getVelocity()
+const vector3& particle::getVelocity() const
 {
 	return mVelocity;
 }
 
-const vector3& particle::getAcceleration()
+const vector3& particle::getAcceleration() const
 {
 	return mAcceleration;
 }
@@ -52,22 +53,17 @@ void particle::setVelocity(const vector3& vel)
 	mVelocity = vel;
 }
 			
-void particle::setPosition(const vector3& pos)
-{
-	mPosition = pos;
-}
-
 void particle::setAcceleration(const vector3& accel)
 {
 	mAcceleration = accel;
 }
 
-bool particle::isVisible()
+bool particle::isVisible() const
 {
 	return mVisible;
 }
 			
-unsigned int particle::getSpawnTime()
+unsigned int particle::getSpawnTime() const
 {
 	return mSpawnTime;
 }
@@ -88,11 +84,8 @@ void particle::setRadius(vec_t radi)
 	mRadius = radi;
 }
 
-void particle::draw(sprite* spr, long time)
+void particle::updatePhysics(long time)
 {
-	if (!mVisible || !spr)
-		return;
-
 	// Update sprite position
 	vec_t timeScaleDiff = (time - mLastDrawTime)/1000.0f;
 	mLastDrawTime = time;
@@ -105,17 +98,29 @@ void particle::draw(sprite* spr, long time)
 
 	// dr/dt
 	mPosition += mVelocity * timeScaleDiff;
+}
 
-	// sprite
-	spr->setPosition(mPosition);
+void particle::draw(sprite* spr, particleLocation* loc)
+{
+	if (loc)
+	{
+		spr->setPosition(mPosition + loc->getPosition());
+	}
+	else
+	{
+		spr->setPosition(mPosition);
+	}
+
 	spr->setRadius(mRadius);
 	spr->rawDraw();
 }
 			
 particleEmitter::particleEmitter()
 {
+	mVertexPositions = NULL;
 	mParticles = NULL;
 	mSprite = NULL;
+	mParent = NULL;
 
 	mTimer.reset();
 	mFreeParticles = 0;
@@ -136,7 +141,15 @@ particleEmitter::particleEmitter(unsigned int numParticles, material* mat)
 		mParticles = new std::vector<particle>(numParticles);
 		mTimer.reset();
 
-		mSprite = new sprite(mat, 0);
+		renderSystem* rs = root::getSingleton().getRenderSystem();
+		if (rs->getPointSpriteSupport())
+		{
+			mVertexPositions = new vec_t[numParticles * 3];
+		}
+		else
+		{
+			mSprite = new sprite(mat, 0);
+		}	
 	}
 
 	catch (...)
@@ -146,6 +159,7 @@ particleEmitter::particleEmitter(unsigned int numParticles, material* mat)
 	}
 
 	mFreeParticles = numParticles;
+	mParent = NULL;
 }
 
 particleEmitter::particleEmitter(unsigned int numParticles, const std::string& mat)
@@ -159,7 +173,16 @@ particleEmitter::particleEmitter(unsigned int numParticles, const std::string& m
 	try
 	{
 		mParticles = new std::vector<particle>(numParticles);
-		mSprite = new sprite(mat, 0);
+
+		renderSystem* rs = root::getSingleton().getRenderSystem();
+		if (rs->getPointSpriteSupport())
+		{
+			mVertexPositions = new vec_t[numParticles * 3];
+		}
+		else
+		{
+			mSprite = new sprite(mat, 0);
+		}	
 	}
 
 	catch (...)
@@ -169,6 +192,19 @@ particleEmitter::particleEmitter(unsigned int numParticles, const std::string& m
 	}
 
 	mFreeParticles = numParticles;
+	mParent = NULL;
+}
+
+particleEmitter::~particleEmitter()
+{
+	if (mParticles)
+		delete mParticles;
+
+	if (mVertexPositions)
+		delete [] mVertexPositions;
+
+	if (mSprite)
+		delete mSprite;
 }
 
 void particleEmitter::killParticle(particle* p)
@@ -220,10 +256,20 @@ void particleEmitter::setNumParticles(unsigned int amount)
 {
 	if (mParticles)
 		delete mParticles;
+		
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	if (rs->getPointSpriteSupport())
+	{
+		delete mVertexPositions;
+	}
 
 	try
 	{
 		mParticles = new std::vector<particle>(amount);
+		if (rs->getPointSpriteSupport())
+		{
+			mVertexPositions = new vec_t[amount * 3];
+		}
 	}
 
 	catch (...)
@@ -240,9 +286,13 @@ void particleEmitter::setMaterial(const std::string& mat)
 	mMaterial = mat;
 	mMaterialPtr = materialManager::getSingleton().getMaterial(mat);
 
-	if (mSprite)
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	if (!rs->getPointSpriteSupport() && mSprite)
+	{
 		mSprite->setMaterial(mat);
-	else
+	}
+	else 
+	if (!rs->getPointSpriteSupport())
 	{
 		try 
 		{
@@ -255,11 +305,6 @@ void particleEmitter::setMaterial(const std::string& mat)
 	}
 }
 			
-particleEmitter::~particleEmitter()
-{
-	delete mParticles;
-}
-			
 particle* particleEmitter::findFreeParticle()
 {
 	for (std::vector<particle>::iterator it = mParticles->begin();
@@ -270,26 +315,6 @@ particle* particleEmitter::findFreeParticle()
 	}
 
 	return NULL;
-}
-
-void particleEmitter::setPosition(const vector3& pos)
-{
-	mPosition = pos;
-}
-
-pointEmitter::pointEmitter()
-	: particleEmitter()
-{
-}
-			
-pointEmitter::pointEmitter(unsigned int numParticles, material* mat)
-	: particleEmitter(numParticles, mat)
-{
-}
-
-pointEmitter::pointEmitter(unsigned int numParticles, const std::string& mat)
-	: particleEmitter(numParticles, mat)
-{
 }
 
 static inline vector3 getRandomVelocity(const vector3& mMaxVelocity, const vector3& mMinVelocity)
@@ -321,29 +346,131 @@ static inline vector3 getRandomVelocity(const vector3& mMaxVelocity, const vecto
 
 	return randVel;
 }
+	
+void particleEmitter::genericDraw()
+{	
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	if (rs->getPointSpriteSupport())
+	{
+		kAssert(mVertexPositions);
+	}
+	else
+	{
+		kAssert(mSprite);
+	}
 
-void pointEmitter::spawnParticle(particle* p)
-{
-	particleEmitter::spawnParticle(p);
+	kAssert(mParticles);
+	kAssert(mMaterialPtr);
 
-	p->setPosition(mPosition);
+	mMaterialPtr->start();
+	rs->setDepthMask(false);
 
-	/**
-	 * Randomize particles velocity between minimum and max speeds
-	 */
-	p->setVelocity(getRandomVelocity(mMaxVelocity, mMinVelocity));
-	p->setAcceleration(mAcceleration);
+	unsigned int particleIndex = 0;
+
+	std::vector<particle>::iterator it;
+	for (it = mParticles->begin(); it != mParticles->end(); it++)
+	{
+		particle* p = &(*it);
+		if (!p->isVisible())
+			continue;
+
+		if (rs->getPointSpriteSupport())
+		{
+			p->updatePhysics(mTimer.getMilliSeconds());
+			const vector3& pos = p->getPosition() + getPosition();
+
+			mVertexPositions[particleIndex * 3 + 0] = pos.x;
+			mVertexPositions[particleIndex * 3 + 1] = pos.y;
+			mVertexPositions[particleIndex * 3 + 2] = pos.z;
+
+			particleIndex++;
+		}
+		else
+		{
+			camera* haveCamera = root::getSingleton().getRenderer()->getCamera();
+			if (!haveCamera)
+			{
+				rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+				rs->identityMatrix();
+			}
+			else
+			{
+				haveCamera->copyView();
+			}
+
+			p->updatePhysics(mTimer.getMilliSeconds());
+			p->draw(mSprite, &(*this));
+		}
+	}
+
+	if (rs->getPointSpriteSupport())
+	{
+		camera* haveCamera = root::getSingleton().getRenderer()->getCamera();
+		if (!haveCamera)
+		{
+			rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+			rs->identityMatrix();
+		}
+		else
+		{
+			haveCamera->copyView();
+		}
+			
+		rs->setPointSprite(true);
+		rs->setPointSpriteSize(mRadius);
+
+		rs->drawPointSprites(mVertexPositions, particleIndex);
+
+		rs->setPointSprite(false);
+	}
+
+	mMaterialPtr->finish();
+	rs->setDepthMask(true);
 }
-					
+			
+void particleEmitter::setVelocity(const vector3& min, const vector3& max)
+{
+	mMinVelocity = min;
+	mMaxVelocity = max;
+}
+
+void particleEmitter::setMinVelocity(const vector3& min)
+{
+	mMinVelocity = min;
+}
+
+void particleEmitter::setMaxVelocity(const vector3& max)
+{
+	mMaxVelocity = max;
+}
+
+pointEmitter::pointEmitter()
+	: particleEmitter()
+{
+}
+			
+pointEmitter::pointEmitter(unsigned int numParticles, material* mat)
+	: particleEmitter(numParticles, mat)
+{
+}
+
+pointEmitter::pointEmitter(unsigned int numParticles, const std::string& mat)
+	: particleEmitter(numParticles, mat)
+{
+}
+
+pointEmitter::~pointEmitter()
+{
+}
+
 void pointEmitter::feed()
 {
 	long timeElapsed = mTimer.getMilliSeconds();
 
-	for (std::vector<particle>::iterator it = mParticles->begin();
-			it != mParticles->end(); it++)
+	std::vector<particle>::iterator it;
+	for (it = mParticles->begin(); it != mParticles->end(); it++)
 	{
 		particle* p = &(*it);
-		
 		if (p->isVisible() && (timeElapsed - p->getSpawnTime()) > mLifetime)
 		{
 			// Particle is dead
@@ -366,55 +493,22 @@ void pointEmitter::feed()
 	}
 }
 
-void pointEmitter::draw(camera* c)
+void pointEmitter::draw()
 {
-	if (!mSprite || !mParticles || !mMaterialPtr)
-		return;
-				
-	renderSystem* rs = root::getSingleton().getRenderSystem();
-
-	rs->setDepthMask(false);
-	mMaterialPtr->prepare();
-
-	for (std::vector<particle>::iterator it = mParticles->begin();
-			it != mParticles->end(); it++)
-	{
-		particle* p = &(*it);
-
-		if (p->isVisible())
-		{
-			if (c == NULL)
-			{
-				rs->setMatrixMode(MATRIXMODE_MODELVIEW);
-				rs->identityMatrix();
-			}
-			else
-			{
-				c->copyView();
-			}
-
-			p->draw(mSprite, mTimer.getMilliSeconds());
-		}
-	}
-
-	rs->setDepthMask(true);
-	mMaterialPtr->finish();
-}
-			
-void particleEmitter::setVelocity(const vector3& min, const vector3& max)
-{
-	mMinVelocity = min;
-	mMaxVelocity = max;
+	genericDraw();
 }
 
-void particleEmitter::setMinVelocity(const vector3& min)
+void pointEmitter::spawnParticle(particle* p)
 {
-	mMinVelocity = min;
-}
+	particleEmitter::spawnParticle(p);
 
-void particleEmitter::setMaxVelocity(const vector3& max)
-{
-	mMaxVelocity = max;
+	p->setPosition(vector3::zero);
+
+	/**
+	 * Randomize particles velocity between minimum and max speeds
+	 */
+	p->setVelocity(getRandomVelocity(mMaxVelocity, mMinVelocity));
+	p->setAcceleration(mAcceleration);
 }
 
 void pointEmitter::setAcceleration(const vector3& accel)
@@ -435,6 +529,45 @@ planeEmitter::planeEmitter(unsigned int numParticles, material* mat)
 planeEmitter::planeEmitter(unsigned int numParticles, const std::string& mat)
 	: particleEmitter(numParticles, mat)
 {
+}
+
+planeEmitter::~planeEmitter()
+{
+}
+
+void planeEmitter::feed()
+{
+	long timeElapsed = mTimer.getMilliSeconds();
+
+	std::vector<particle>::iterator it;
+	for (it = mParticles->begin(); it != mParticles->end(); it++)
+	{
+		particle* p = &(*it);
+		if (p->isVisible() && (timeElapsed - p->getSpawnTime()) > mLifetime)
+		{
+			// Particle is dead
+			killParticle(p);
+		}
+	}
+			
+	// Spawn new particles
+	if (mSpawnTimer.getMilliSeconds() > mSpawnTime)
+	{
+		// Spawn
+		if (mSpawnQuantity <= mFreeParticles)
+		{
+			for (unsigned short i = 0; i < mSpawnQuantity; i++)
+				spawnParticle(findFreeParticle());
+		}
+
+		// Reset Timer
+		mSpawnTimer.reset();
+	}
+}
+
+void planeEmitter::draw()
+{
+	genericDraw();
 }
 
 /**
@@ -481,72 +614,6 @@ void planeEmitter::spawnParticle(particle* p)
 	p->setAcceleration(mAcceleration);
 }
 					
-void planeEmitter::feed()
-{
-	long timeElapsed = mTimer.getMilliSeconds();
-
-	for (std::vector<particle>::iterator it = mParticles->begin();
-			it != mParticles->end(); it++)
-	{
-		particle* p = &(*it);
-		
-		if (p->isVisible() && (timeElapsed - p->getSpawnTime()) > mLifetime)
-		{
-			// Particle is dead
-			killParticle(p);
-		}
-	}
-			
-	// Spawn new particles
-	if (mSpawnTimer.getMilliSeconds() > mSpawnTime)
-	{
-		// Spawn
-		if (mSpawnQuantity <= mFreeParticles)
-		{
-			for (unsigned short i = 0; i < mSpawnQuantity; i++)
-				spawnParticle(findFreeParticle());
-		}
-
-		// Reset Timer
-		mSpawnTimer.reset();
-	}
-}
-
-void planeEmitter::draw(camera* c)
-{
-	if (!mSprite || !mParticles || !mMaterialPtr)
-		return;
-
-	renderSystem* rs = root::getSingleton().getRenderSystem();
-
-	rs->setDepthMask(false);
-	mMaterialPtr->prepare();
-
-	for (std::vector<particle>::iterator it = mParticles->begin();
-			it != mParticles->end(); it++)
-	{
-		particle* p = &(*it);
-
-		if (p->isVisible())
-		{
-			if (c == NULL)
-			{
-				rs->setMatrixMode(MATRIXMODE_MODELVIEW);
-				rs->identityMatrix();
-			}
-			else
-			{
-				c->copyView();
-			}
-
-			p->draw(mSprite, mTimer.getMilliSeconds());
-		}
-	}
-
-	rs->setDepthMask(true);
-	mMaterialPtr->finish();
-}
-
 void planeEmitter::setAcceleration(const vector3& accel)
 {
 	mAcceleration = accel;
@@ -554,34 +621,11 @@ void planeEmitter::setAcceleration(const vector3& accel)
 
 particleSystem::particleSystem()
 {
+	mParent = NULL;
 }
 
 particleSystem::~particleSystem()
 {
-}
-
-void particleSystem::setPosition(const vector3& pos)
-{
-	mPosition = pos;
-
-	/*
-	std::map<std::string, particleAffector*>::iterator it;
-	for (it = mAffectors.begin(); it != mAffectors.end(); it++)
-	{
-		it->second->setPosition(pos);
-	}
-	*/
-
-	std::map<std::string, particleEmitter*>::iterator eIt;
-	for (eIt = mEmitters.begin(); eIt != mEmitters.end(); eIt++)
-	{
-		eIt->second->setPosition(pos);
-	}
-}
-			
-const vector3& particleSystem::getPosition()
-{
-	return mPosition;
 }
 
 void particleSystem::setMaterial(const std::string& mat)
@@ -604,11 +648,10 @@ void particleSystem::pushEmitter(const std::string& name, particleEmitter* em)
 {
 	kAssert(em);
 	mEmitters[name] = em;
-
-	em->setPosition(mPosition);
+	em->setParent(&(*this));
 }
 			
-void particleSystem::cycle(camera* c)
+void particleSystem::cycle()
 {
 	std::map<std::string, particleEmitter*>::const_iterator it;
 	for (it = mEmitters.begin(); it != mEmitters.end(); it++)
@@ -616,7 +659,7 @@ void particleSystem::cycle(camera* c)
 		particleEmitter* em = it->second;
 
 		em->feed();
-		em->draw(c);
+		em->draw();
 	}
 
 	/*
@@ -809,11 +852,11 @@ void particleManager::parsePointEmitter(parsingFile* file, particleSystem* syste
 	std::string token = file->getNextToken(); // {
 	unsigned int openBraces = 1;
 
-	planeEmitter* emitter;
+	pointEmitter* emitter;
 
 	try
 	{
-		emitter = new planeEmitter();
+		emitter = new pointEmitter();
 	}
 
 	catch (...)
@@ -939,12 +982,12 @@ void particleManager::parseParticleScript(parsingFile* file)
 	// while (!file->eof())
 }
 			
-void particleManager::drawParticles(camera* active)
+void particleManager::drawParticles()
 {
 	std::map<std::string, particleSystem*>::const_iterator pIt;
 	for (pIt = mSystems.begin(); pIt != mSystems.end(); pIt++)
 	{
-		pIt->second->cycle(active);
+		pIt->second->cycle();
 	}
 }
 

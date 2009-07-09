@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2008 Rômulo Fernandes Machado <romulo@castorgroup.net>
+    Copyright (C) 2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include "material.h"
 #include "sprite.h"
 #include "camera.h"
-#include "fileAccess.h"
+#include "fileParser.h"
 #include "camera.h"
 
 namespace k 
@@ -42,14 +42,38 @@ namespace k
 		AFFECTOR_WAVE
 	};
 
+	class DLL_EXPORT particleLocation
+	{
+		protected:
+			vector3 mPosition;
+			particleLocation* mParent;
+
+		public:
+			vector3 getPosition() const
+			{
+				if (mParent)
+					return mParent->getPosition() + mPosition;
+				else
+					return mPosition;
+			}
+
+			void setPosition(const vector3& pos)
+			{
+				mPosition = pos;
+			}
+
+			void setParent(particleLocation* parent)
+			{
+				mParent = parent;
+			}
+	};
+
 	/**
 	 * Particle class.
 	 */
-	class DLL_EXPORT particle
+	class DLL_EXPORT particle : public particleLocation
 	{
 		private:
-			vector3 mPosition;
-
 			/**
 			 * This is applied to the corpse
 			 * position each second. Of course
@@ -85,23 +109,23 @@ namespace k
 		public:
 			particle();
 
-			const vector3& getVelocity();
-			const vector3& getAcceleration();
-			bool isVisible();
+			const vector3& getVelocity() const;
+			const vector3& getAcceleration() const;
+			bool isVisible() const;
 
-			unsigned int getSpawnTime();
+			unsigned int getSpawnTime() const;
 
 			void setVelocity(const vector3& vel);
 			void setAcceleration(const vector3& accel);
-			void setPosition(const vector3& pos);
 
 			void setRadius(vec_t radi);
 			void setVisibility(bool vis);
 			void resetLife(long time);
-			void draw(sprite* spr, long time);
+			void updatePhysics(long time);
+			void draw(sprite* spr, particleLocation* loc);
 	};
 
-	class DLL_EXPORT particleEmitter
+	class DLL_EXPORT particleEmitter : public particleLocation
 	{
 		protected:
 			vector3 mMinVelocity;
@@ -140,9 +164,14 @@ namespace k
 
 			/**
 			 * Timer to keep track of emitter
-			 * events.
+			 * events. Global timer.
 			 */
 			timer mTimer;
+
+			/**
+			 * Timer to keep track of emitter
+			 * events. Time that particles spawned
+			 */
 			timer mSpawnTimer;
 
 			/**
@@ -154,6 +183,10 @@ namespace k
 			 * The material used by the particles.
 			 */
 			std::string mMaterial;
+
+			/**
+			 * Pointer to the material used by particles.
+			 */
 			material* mMaterialPtr;
 
 			/**
@@ -164,13 +197,25 @@ namespace k
 			sprite* mSprite;
 
 			/**
-			 * Point pos.
+			 * If we are using ARB point sprites, dont use
+			 * sprite at all, build an array of particle
+			 * positions and call it, F-A-S-T-ER.
 			 */
-			vector3 mPosition;
+			vec_t* mVertexPositions;
 
+			/**
+			 * Returns a free particle.
+			 */
 			particle* findFreeParticle();
 
+			/**
+			 * Disable (make invisible) particle.
+			 */
 			void killParticle(particle* p);
+
+			/**
+			 * Enable (make visible) particle.
+			 */
 			void spawnParticle(particle* p);
 
 		public:
@@ -186,7 +231,6 @@ namespace k
 			void setSpawnTime(long time);
 			void setLifeTime(long time);
 			void setMaterial(const std::string& mat);
-			void setPosition(const vector3& pos);
 
 			/**
 			 * The emitter will release
@@ -197,8 +241,10 @@ namespace k
 			void setMinVelocity(const vector3& min);
 			void setMaxVelocity(const vector3& min);
 
+			void genericDraw();
+
 			virtual void feed() = 0;
-			virtual void draw(camera* c) = 0;
+			virtual void draw() = 0;
 	};
 	
 	class DLL_EXPORT pointEmitter : public particleEmitter
@@ -211,14 +257,15 @@ namespace k
 
 		public:
 			pointEmitter();
+			~pointEmitter();
+
 			pointEmitter(unsigned int numParticles, material* mat);
 			pointEmitter(unsigned int numParticles, const std::string& mat);
 
-			void spawnParticle(particle* p);
-
 			void feed();
-			void draw(camera* c);
+			void draw();
 
+			void spawnParticle(particle* p);
 			void setAcceleration(const vector3& accel);
 	};
 
@@ -245,14 +292,15 @@ namespace k
 
 		public:
 			planeEmitter();
+			~planeEmitter();
+
 			planeEmitter(unsigned int numParticles, material* mat);
 			planeEmitter(unsigned int numParticles, const std::string& mat);
 
-			void spawnParticle(particle* p);
-
 			void feed();
-			void draw(camera* c);
+			void draw();
 
+			void spawnParticle(particle* p);
 			void setBounds(const vector3& a, const vector3& b);
 			void setAcceleration(const vector3& accel);
 	};
@@ -261,14 +309,9 @@ namespace k
 	{
 	};
 
-	class DLL_EXPORT particleSystem
+	class DLL_EXPORT particleSystem : public particleLocation
 	{
 		private:
-			/**
-			 * System Position
-			 */
-			vector3 mPosition;
-
 			/**
 			 * Particles material
 			 */
@@ -293,9 +336,6 @@ namespace k
 			particleSystem();
 			~particleSystem();
 
-			void setPosition(const vector3& pos);
-			const vector3& getPosition();
-
 			void setMaterial(const std::string& mat);
 			void setMaterial(material* mat);
 
@@ -303,7 +343,7 @@ namespace k
 
 			void pushEmitter(const std::string& name, particleEmitter* em);
 
-			void cycle(camera* c);
+			void cycle();
 	};
 
 	class DLL_EXPORT particleManager : public singleton<particleManager>
@@ -328,7 +368,7 @@ namespace k
 			void parsePlaneEmitter(parsingFile* file, particleSystem* system, const std::string& name);
 			void parsePointEmitter(parsingFile* file, particleSystem* system, const std::string& name);
 
-			void drawParticles(camera* active);
+			void drawParticles();
 	};
 }
 

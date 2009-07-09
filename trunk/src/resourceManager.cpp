@@ -74,130 +74,6 @@ resourceManager& resourceManager::getSingleton()
 	return (*singleton_instance);  
 }
 			
-void resourceGroup::filterResource(const std::string& path, bool material)
-{
-	std::string extension = getExtension(path);
-	if (!extension.length())
-		return;
-
-	// Check if we have a loading screen
-	loadScreen* loadingScreen = resourceManager::getSingleton().getLoadingScreen();
-
-	if (material && (mLoadOptions & (1 << LOAD_MATERIALS)) && extension == ".material")
-	{
-		if (loadingScreen)
-			loadingScreen->update(path);
-
-		materialManager::getSingleton().parseMaterialScript(path, &mMaterials);
-	}
-	else
-	if (!material && (mLoadOptions & (1 << LOAD_SCRIPTS)) && extension == ".particle")
-	{
-		if (loadingScreen)
-			loadingScreen->update(path);
-
-		particleManager::getSingleton().parseParticleScript(path);
-	}
-	#ifdef __WII__
-	// custom TEV scripts
-	else
-	if (mLoadOptions & (1 << LOAD_SCRIPTS) && extension == ".script")
-	{
-		if (loadingScreen)
-			loadingScreen->update(path);
-
-		tevManager::getSingleton().parseTevScript(path);
-	}
-	#endif
-}
-
-#ifndef __WII__
-void resourceGroup::scanDir(std::string path, bool recursive, bool materialParsing)
-{
-	DIR *dp;
-	struct dirent *dirp;
-
-	if ((dp  = opendir(path.c_str())) == NULL) 
-	{
-		S_LOG_INFO("Failed to access directory " + path + ".");
-		return;
-	}
-    
-	while ((dirp = readdir(dp)) != NULL) 
-	{
-		if (!strcmp(dirp->d_name, ".") || !strcmp(dirp->d_name, ".."))
-			continue;
-
-		std::string fullPath = path + dirp->d_name;
-		if (opendir(fullPath.c_str()) == NULL)
-		{
-			// Do something with file names
-			filterResource(fullPath, materialParsing);
-		}
-		else
-		if (recursive)
-		{
-			// This is a directory
-			// save the original filename
-			std::string original = path;
-
-			path += dirp->d_name;
-			path += "/";
-
-			scanDir(path, false, materialParsing);
-
-			path = original;
-		}
-	}
-
-	closedir(dp);
-}
-#else
-void resourceGroup::scanDir(std::string path, bool recursive, bool materialParsing)
-{
-	// Hold Wii directories
-	DIR_ITER *dp = NULL;
-
-	// For each dirnext filename
-	char filename[FILENAME_MAX + 1];
-
-	if ((dp  = diropen(path.c_str())) == NULL) 
-	{
-		S_LOG_INFO("Failed to access directory " + path + ".");
-		return;
-	}
-    
-	while (dirnext(dp, filename, NULL) == 0) 
-	{
-		if (!strcmp(filename, ".") || !strcmp(filename, ".."))
-			continue;
-
-		std::string fullPath = path + filename;
-		if (diropen(fullPath.c_str()) == NULL)
-		{
-			// Do something with file names.
-			filterResource(fullPath, materialParsing);
-		}
-		else
-		if (recursive)
-		{
-			// This is a directory
-			// save the original filename
-			std::string original = path;
-
-			path += filename;
-			path += "/";
-
-			scanDir(path, false, materialParsing);
-
-			path = original;
-		}
-	}
-
-	dirclose(dp);
-}
-#endif
-
 // Helper
 static inline std::string getDirectory(const std::string& path)
 {
@@ -412,8 +288,9 @@ resourceManager::~resourceManager()
 	for (it = mGroups.begin(); it != mGroups.end(); it++)
 	{
 		delete it->second;
-		mGroups.erase(it);
 	}
+
+	mGroups.clear();
 }
 			
 void resourceManager::loadGroup(const std::string& name)

@@ -24,34 +24,67 @@ int main(int argc, char** argv)
 #endif
 {
 	// Initialize knowledge
-	k::root* appRoot = new k::root();
+	k::root* appRoot;
+	try
+	{
+		appRoot = new k::root();
+	}
+
+	catch (...)
+	{
+		printf("Failed to create app root.");
+		return 0;
+	}
+
 	k::renderSystem* mRenderSystem = appRoot->getRenderSystem();
 	k::renderer* mRenderer = appRoot->getRenderer();
-	k::materialManager* mMaterialManager = appRoot->getMaterialManager();
 	k::guiManager* mGuiManager = appRoot->getGuiManager();
 	k::inputManager* mInputManager = appRoot->getInputManager();
-
-	kAssert(mRenderer);
-	kAssert(mRenderSystem);
+	k::materialManager* mMaterialManager = appRoot->getMaterialManager();
 
 	// Doesnt matter on wii
 	mRenderSystem->createWindow(800, 600);
 	mRenderSystem->setWindowTitle("knowledge, the power of mind");
-	mRenderSystem->setDepthTest(true);
 
-	// Common library
+	// Input Manager
+	mInputManager->initWii(false);
+	mInputManager->setupWiiMotes(1);
+	mInputManager->setWiiMoteTimeout(60);
+	mInputManager->setWiiMoteEmulation(true);
+	mInputManager->setPointerLock(false);
+
 	#ifdef __WII__
-	k::resourceManager* resourceMgr = new k::resourceManager("/knowledge/resources.cfg");
-	#else
-	k::resourceManager* resourceMgr = new k::resourceManager("../resources.cfg");
+	chdir("sd:/knowledge/model/");
 	#endif
 
+	// Initialize resources
+	k::resourceManager* resourceMgr;
+	try
+	{
+		resourceMgr = new k::resourceManager("../resources.cfg");
+	}
+
+	catch (...)
+	{
+		K_LOG_INFO("Failed to allocate resource manager.");
+		return 0;
+	}
+
 	// Loading Screen
-	k::imgLoadScreen* newLoadingScreen = new k::imgLoadScreen();
-	kAssert(newLoadingScreen);
+	k::imgLoadScreen* newLoadingScreen;
+	try
+	{
+		newLoadingScreen = new k::imgLoadScreen();
+	}
+
+	catch (...)
+	{
+		K_LOG_INFO("Failed to create loading screen.");
+		return 0;
+	}
 
 	resourceMgr->setLoadingScreen(newLoadingScreen);
-	newLoadingScreen->loadBg("loading.png");
+	newLoadingScreen->loadBg("loading.jpg");
 	newLoadingScreen->setImgDimension(k::vector2(256, 256));
 	newLoadingScreen->update("");
 
@@ -61,37 +94,54 @@ int main(int argc, char** argv)
 
 	mRenderer->setSkyPlane("skyPlane");
 
-	k::md5model* boxscene = new k::md5model("lightmap/boxscene.md5mesh");
-	mRenderer->push3D(boxscene);
+	k::md5model* newModel;
+	try
+	{
+		newModel = new k::md5model("lightmap/boxscene.md5mesh");
+		mRenderer->push3D(newModel);
+	}
+
+	catch (...)
+	{
+		K_LOG_INFO("Failed to allocate new model.");
+		return 0;
+	}
 
 	// Parse material file
-	kAssert(mGuiManager);
-	mGuiManager->setCursor("wiiCursor", k::vector2(48, 48));
-
-	/**
-	 * Setup the input Manager
-	 */
-	kAssert(mInputManager);
-	mInputManager->initWii(false);
-	mInputManager->setupWiiMotes(1);
-	mInputManager->setWiiMoteTimeout(60);
-	mInputManager->setWiiMoteEmulation(true);
+	mGuiManager->setCursor("wiiCursor3", k::vector2(32, 32));
 
 	// Setup Camera
-	k::camera* newCamera = new k::camera();
-	kAssert(newCamera);
+	k::camera* newCamera;
+	try
+	{
+		newCamera = new k::camera();
+	
+		#define CAM_DIST 30
+		newCamera->setPosition(k::vector3(CAM_DIST, CAM_DIST / 2, 0));
+		newCamera->lookAt(k::vector3(0, 0, 0));
+		mRenderer->setCamera(newCamera);
+	}
 
-	#define CAM_DIST 30
-	newCamera->setPosition(k::vector3(CAM_DIST, CAM_DIST / 2, 0));
-	newCamera->lookAt(k::vector3(0, 0, 0));
-	mRenderer->setCamera(newCamera);
+	catch (...)
+	{
+		K_LOG_INFO("Failed to create scene camera.");
+		return 0;
+	}
 
-	// FPS
-	k::bitmapText* fpsText = new k::bitmapText("fonts/cube_14.dat", "cube_14");
-	assert(fpsText != NULL);
+	// Fps Counter
+	k::bitmapText* fpsText;
+	try
+	{
+		fpsText = new k::bitmapText("fonts/cube_14.dat", "cube_14");
+		fpsText->setPosition(k::vector2(4, 10));
+		mRenderer->push2D(fpsText);
+	}
 
-	fpsText->setPosition(k::vector2(10, 10));
-	mRenderer->push2D(fpsText);
+	catch (...)
+	{
+		K_LOG_INFO("Failed to allocate fps text box.");
+		return 0;
+	}
 
 	bool running = true;
 	bool leftHold = false;
@@ -125,20 +175,20 @@ int main(int argc, char** argv)
 			// Action
 			if (!lightmap)
 			{
-				k::md5mesh* m1 = boxscene->getMesh(0);
+				k::md5mesh* m1 = newModel->getMesh(0);
 				if (m1) m1->setMaterial(mMaterialManager->getMaterial("boxLitShader"));
 
-				k::md5mesh* m2 = boxscene->getMesh(1);
+				k::md5mesh* m2 = newModel->getMesh(1);
 				if (m2) m2->setMaterial(mMaterialManager->getMaterial("planeLitShader"));
 
 				lightmap = true;
 			}
 			else
 			{
-				k::md5mesh* m1 = boxscene->getMesh(0);
+				k::md5mesh* m1 = newModel->getMesh(0);
 				if (m1) m1->setMaterial(mMaterialManager->getMaterial("boxShader"));
 
-				k::md5mesh* m2 = boxscene->getMesh(1);
+				k::md5mesh* m2 = newModel->getMesh(1);
 				if (m2) m2->setMaterial(mMaterialManager->getMaterial("planeShader"));
 
 				lightmap = false;
@@ -172,11 +222,16 @@ int main(int argc, char** argv)
 		fps << "FPS: " << mRenderer->getLastFps();
 		fpsText->setText(fps.str());
 
-		// Physics Loop
+		// Loop
 		mRenderer->draw();
 	}
-
+	
+	delete newCamera;
+	delete newModel;
+	delete fpsText;
+	delete resourceMgr;
 	delete appRoot;
+
 	return 0;
 }
 

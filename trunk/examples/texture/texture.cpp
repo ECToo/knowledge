@@ -37,7 +37,7 @@ static inline void drawScene(bool rtt)
 	mRenderSystem->rotateScene(rquad, 0.0f, 1.0f, 0.0f);
 
 	// Bind Texture
-	crateMaterial->prepare();
+	crateMaterial->start();
 
 	// Start Vertices
 	mRenderSystem->startVertices(k::VERTEXMODE_QUAD);
@@ -153,17 +153,24 @@ int main(int argc, char** argv)
 	newLoadingScreen->setImgDimension(k::vector2(256, 256));
 	newLoadingScreen->update("");
 
-	// Create Material for RTT
-	k::material* rttMaterial = mMaterialManager->createMaterial("rttMaterial");
-	kAssert(rttMaterial);
-
 	// Create Texture for RTT
-	kTexture rttTarget;
+	platformTexturePointer rttTarget;
 	mRenderSystem->genTexture(128, 128, 3, &rttTarget);
 	mRenderSystem->setRttSize(128, 128);
 
-	// Add to material
-	rttMaterial->setSingleTexture(128, 128, &rttTarget);
+	// Create Material for RTT
+	try
+	{
+		k::texture* newTexture = new k::texture(&rttTarget, 128, 128, k::TEX_RGB);
+		k::material* rttMaterial = mMaterialManager->createMaterial("rttMaterial", newTexture);
+		kAssert(rttMaterial);
+	}
+
+	catch (...)
+	{
+		K_LOG_INFO("Failed to create texture material.");
+		return 0;
+	}
 
 	// Create a sticker ;)
 	texSticker = new k::sticker("rttMaterial");

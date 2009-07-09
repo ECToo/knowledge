@@ -50,7 +50,7 @@ namespace k
 			timer mGlobalTimer;
 
 		public:
-			root();
+			root(const std::string& filename = "knowledge.log");
 			~root();
 
 			// Get Root Singleton

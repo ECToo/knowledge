@@ -10,8 +10,21 @@ particleSystem "bubbles"
 		radius 1.5
 		spawnQuantity 30
 		spawnTime 100
-		lifeTime 2000
+		lifeTime 1000
 		bounds -20 0 -20 20 0 20
+	}
+
+	planeEmitter "windBubbles"
+	{
+		quota 2000
+		material "bubble"
+		minVelocity -20 20 -20
+		maxVelocity 20 30 20
+		radius 1.5
+		spawnQuantity 2
+		spawnTime 100
+		lifeTime 1000
+		position 0 -40 -10
 	}
 
 	pointEmitter "pointBubbles"
@@ -23,7 +36,7 @@ particleSystem "bubbles"
 		radius 1.5
 		spawnQuantity 2
 		spawnTime 100
-		lifeTime 2000
+		lifeTime 1000
 		position 0 -40 -10
 	}
 }

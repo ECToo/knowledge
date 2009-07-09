@@ -22,6 +22,7 @@ namespace k {
 
 glRenderSystem::glRenderSystem()
 {
+	mActiveMaterial = NULL;
 }
 
 glRenderSystem::~glRenderSystem()
@@ -115,6 +116,12 @@ void glRenderSystem::configure()
 		
 	// Initially we dont want it
 	mRenderToTexture = false;
+
+	if (getPointSpriteSupport())
+	{
+		float distanceAtt[3] = { 1.0, 0.005, 0.005 };
+		glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, distanceAtt);
+	}
 }
 
 void glRenderSystem::createWindow(const int w, const int h)
@@ -190,6 +197,11 @@ void glRenderSystem::destroyWindow()
 void glRenderSystem::setWindowTitle(const std::string& title)
 {
 	SDL_WM_SetCaption(title.c_str(), "");
+}
+			
+void glRenderSystem::showCursor(bool show)
+{
+	SDL_ShowCursor(show);
 }
 
 void glRenderSystem::frameStart()
@@ -378,6 +390,9 @@ void glRenderSystem::startVertices(VertexMode mode)
 
 	switch (mode)
 	{
+		case VERTEXMODE_POINTS:
+			glBegin(GL_POINTS);
+			break;
 		case VERTEXMODE_LINE:
 			glBegin(GL_LINES);
 			break;
@@ -426,7 +441,7 @@ void glRenderSystem::texCoord(const vector2& coord)
 	unsigned int texUnits = 1;
 
 	if (mActiveMaterial)
-		texUnits = mActiveMaterial->getTextureUnits();
+		texUnits = mActiveMaterial->getStagesCount();
 
 	if (texUnits > 1)
 	{
@@ -483,7 +498,7 @@ void glRenderSystem::matSpecular(const vector3& color)
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, v);
 }
 			
-void glRenderSystem::genTexture(uint32_t w, uint32_t h, uint32_t bpp, kTexture* tex)
+void glRenderSystem::genTexture(uint32_t w, uint32_t h, uint32_t bpp, platformTexturePointer* tex)
 {
 	kAssert(tex);
 
@@ -540,7 +555,7 @@ void glRenderSystem::drawArrays()
 		glDisableClientState(GL_NORMAL_ARRAY);
 	}
 
-	unsigned int texUnits = mActiveMaterial->getTextureUnits();
+	unsigned int texUnits = mActiveMaterial->getStagesCount();
 	for (unsigned int i = texUnits; i < MAX_TEXCOORD; i++)
 	{
 		// In case we specified an array
@@ -604,6 +619,9 @@ void glRenderSystem::drawArrays()
 	else
 	if (mIndexDrawMode == VERTEXMODE_TRI_STRIP)
 		drawMode = GL_TRIANGLE_STRIP;
+	else
+	if (mIndexDrawMode == VERTEXMODE_POINTS)
+		drawMode = GL_POINTS;
 
 	if (mUsingVBO)
 		glDrawRangeElements(drawMode, 0, mVertexCount - 1, mIndexCount, GL_UNSIGNED_INT, (char*)NULL + mIndexOffset);
@@ -614,7 +632,7 @@ void glRenderSystem::drawArrays()
 	glDisableClientState(GL_NORMAL_ARRAY);
 }
 			
-void glRenderSystem::copyToTexture(kTexture* tex)
+void glRenderSystem::copyToTexture(platformTexturePointer* tex)
 {
 	kAssert(tex);
 	bindTexture(tex, 0);
@@ -675,18 +693,79 @@ void glRenderSystem::screenshot(const char* filename)
 	delete [] imgData;
 }
 			
+bool glRenderSystem::getPointSpriteSupport()
+{
+	if (GLEW_ARB_point_sprite)
+		return true;
+	else
+		return false;
+}
+
+float glRenderSystem::getPointSpriteMaxSize()
+{
+	if (!getPointSpriteSupport())
+		return 0;
+
+	float size;
+	glGetFloatv(GL_POINT_SIZE_MAX_ARB, &size);
+
+	return size;
+}
+
+void glRenderSystem::setPointSprite(bool enabled)
+{
+	if (!getPointSpriteSupport())
+		return;
+
+	if (enabled)
+	{
+		glEnable(GL_POINT_SPRITE);
+		glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
+	}
+	else
+	{
+		glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_FALSE);
+		glDisable(GL_POINT_SPRITE);
+	}
+}
+
+void glRenderSystem::setPointSpriteSize(vec_t size)
+{
+	if (!getPointSpriteSupport())
+		return;
+
+	glPointParameterf(GL_POINT_SIZE_MIN, size);
+	glPointParameterf(GL_POINT_SIZE_MAX, getPointSpriteMaxSize());
+	glPointSize(size * getScreenHeight());
+}
+			
+void glRenderSystem::drawPointSprites(const vec_t* positions, unsigned int numPositions)
+{
+	if (!getPointSpriteSupport())
+		return;
+
+	kAssert(positions);
+	
+	glEnableClientState(GL_VERTEX_ARRAY);
+
+	glVertexPointer(3, GL_FLOAT, 0, positions);
+	glDrawArrays(GL_POINTS, 0, numPositions);
+
+	glDisableClientState(GL_VERTEX_ARRAY);
+}
+			
 bool glRenderSystem::getVBOSupport()
 {
 	return GLEW_ARB_vertex_buffer_object;
 }
 
-void glRenderSystem::genVBO(kVBO* target)
+void glRenderSystem::genVBO(platformVBO* target)
 {
 	kAssert(target);
 	glGenBuffers(1, target);
 }
 
-void glRenderSystem::bindVBO(kVBO* target, VBOArrayType type = VBO_ARRAY)
+void glRenderSystem::bindVBO(platformVBO* target, VBOArrayType type = VBO_ARRAY)
 {
 	if (type == VBO_ARRAY)
 	{
@@ -746,7 +825,7 @@ void glRenderSystem::setVBOData(VBOArrayType type, int size, void* data, VBOUsag
 	glBufferData(t, size, data, use);
 }
 
-void glRenderSystem::delVBO(kVBO* target)
+void glRenderSystem::delVBO(platformVBO* target)
 {
 	kAssert(target);
 	glDeleteBuffers(1, target);

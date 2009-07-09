@@ -260,7 +260,7 @@ void renderer::_drawSkyPlane()
 	rs->identityMatrix();
 
 	// Prepare Material
-	mSkyPlane->prepare();
+	mSkyPlane->start();
 
 	// Obrigatory, independent of material settings.
 	// rs->setDepthTest(false);
@@ -336,18 +336,18 @@ void renderer::_drawSkybox()
 	}
 
 	// Material
-	mSkybox->prepare();
+	mSkybox->start();
 
 	// Material Independent Settings
 	rs->setCulling(CULLMODE_NONE);
 	rs->setDepthMask(false);
 
-	textureStage* texStage = mSkybox->getTextureStage(0);
-	kAssert(texStage != NULL);
-	kAssert(texStage->getImagesCount() == 6);
+	const materialStage* matStage = mSkybox->getStage(0);
+	kAssert(matStage);
+	kAssert(matStage->getImagesCount() == 6);
 
 	// Render the front quad
-	rs->bindTexture(texStage->getTexture(CUBE_FRONT), 0);
+	rs->bindTexture(matStage->getTexture(CUBE_FRONT)->getPointer(), 0);
  	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 400.0f, -200.0f, -400.0f));
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-400.0f, -200.0f, -400.0f));
@@ -356,7 +356,7 @@ void renderer::_drawSkybox()
 	rs->endVertices();
 
 	// Render the left quad
-	rs->bindTexture(texStage->getTexture(CUBE_LEFT), 0);
+	rs->bindTexture(matStage->getTexture(CUBE_LEFT)->getPointer(), 0);
 	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(0, 1)); rs->vertex(vector3( 400.0f, -200.0f,  400.0f));
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3( 400.0f, -200.0f, -400.0f));
@@ -365,7 +365,7 @@ void renderer::_drawSkybox()
 	rs->endVertices();
 
 	// Render the back quad
-	rs->bindTexture(texStage->getTexture(CUBE_BACK), 0);
+	rs->bindTexture(matStage->getTexture(CUBE_BACK)->getPointer(), 0);
 	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(0, 1)); rs->vertex(vector3(-400.0f, -200.0f,  400.0f));
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3( 400.0f, -200.0f,  400.0f));
@@ -374,7 +374,7 @@ void renderer::_drawSkybox()
 	rs->endVertices();
 
 	// Render the right quad
-	rs->bindTexture(texStage->getTexture(CUBE_RIGHT), 0);
+	rs->bindTexture(matStage->getTexture(CUBE_RIGHT)->getPointer(), 0);
 	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(0, 1)); rs->vertex(vector3(-400.0f, -200.0f, -400.0f));
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-400.0f, -200.0f,  400.0f));
@@ -383,7 +383,7 @@ void renderer::_drawSkybox()
 	rs->endVertices();
 
 	// Render the top quad
-	rs->bindTexture(texStage->getTexture(CUBE_UP), 0);
+	rs->bindTexture(matStage->getTexture(CUBE_UP)->getPointer(), 0);
 	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-400.0f,  200.0f, -400.0f));
 		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-400.0f,  200.0f,  400.0f));
@@ -392,7 +392,7 @@ void renderer::_drawSkybox()
 	rs->endVertices();
 
 	// Render the bottom quad
-	rs->bindTexture(texStage->getTexture(CUBE_DOWN), 0);
+	rs->bindTexture(matStage->getTexture(CUBE_DOWN)->getPointer(), 0);
 	rs->startVertices(VERTEXMODE_QUAD);
 		rs->texCoord(vector2(1, 0)); rs->vertex(vector3(-400.0f, -200.0f, -400.0f));
 		rs->texCoord(vector2(1, 1)); rs->vertex(vector3(-400.0f, -200.0f,  400.0f));
@@ -520,8 +520,9 @@ void renderer::draw()
 	}
 
 	// Particles
-	particleManager::getSingleton().drawParticles(mActiveCamera);
+	particleManager::getSingleton().drawParticles();
 
+	// Render to Texture
 	if (!mRenderToTexture)
 	{
 		/**
@@ -584,7 +585,7 @@ long renderer::getTimeNow()
 	return mRendererTimer.getMilliSeconds();
 }
 
-void renderer::prepareRTT(unsigned int w, unsigned int h, kTexture* tex)
+void renderer::prepareRTT(unsigned int w, unsigned int h, platformTexturePointer* tex)
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 

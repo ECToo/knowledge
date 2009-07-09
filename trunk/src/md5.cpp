@@ -377,7 +377,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 void md5mesh::draw()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	mMaterial->prepare();
+	mMaterial->start();
 
 	rs->clearArrayDesc();
 	rs->setVertexArray(mVertexList);
@@ -404,9 +404,8 @@ md5model::md5model(const std::string& filename)
 	// Auto feed is on by default
 	mAutoFeedAnims = true;
 
-	std::string fullPath = filename;
-
 	// Get Path from resource manager (if any)
+	std::string fullPath = filename;
 	resourceManager* rsc = &resourceManager::getSingleton();
 	if (rsc) fullPath = rsc->getRoot() + filename;
 

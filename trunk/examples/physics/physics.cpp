@@ -66,7 +66,7 @@ class kPlane : public k::drawable3D
 			k::renderSystem* rs = k::root::getSingleton().getRenderSystem();
 			kAssert(rs);
 
-			mMaterial->prepare();
+			mMaterial->start();
 
 			rs->clearArrayDesc();
 			rs->setVertexArray(vertices);

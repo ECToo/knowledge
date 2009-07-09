@@ -55,10 +55,7 @@ void guiManager::setCursor(const std::string& mat, const vector2& scale)
 		mCursor->setZ(-1.0f);
 
 		root::getSingleton().getRenderer()->push2D(mCursor);
-
-		#ifndef __WII__
-		SDL_ShowCursor(false);
-		#endif
+		root::getSingleton().getRenderSystem()->showCursor(false);
 	}
 	
 	catch (...)
