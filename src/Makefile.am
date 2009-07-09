@@ -30,8 +30,8 @@ libknowledge_la_SOURCES = drawable.cpp\
 								  tinyxmlparser.cpp\
 								  pc/glRenderSystem.cpp\
 								  pc/glTexture.cpp\
-								  pc/texture.cpp\
-								  pc/timer.cpp\
+								  pc/glMaterialStage.cpp\
+								  pc/pcTimer.cpp\
 								  pc/pcResourceManager.cpp
 
 INCLUDES = -I@top_srcdir@/include -I@top_srcdir@/include/pc -I@top_srcdir@/include/wii $(CXXFLAGS)
