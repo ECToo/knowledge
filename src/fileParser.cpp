@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2008 Rômulo Fernandes Machado <romulo@castorgroup.net>
+    Copyright (C) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -284,6 +284,32 @@ std::string parsingFile::getNextToken()
 	}
 
 	return std::string(buffer);
+}
+		
+vector2 parsingFile::getVector2()
+{
+	float x, y;
+
+	std::string token = getNextToken();
+	x = atof(token.c_str());
+	token = getNextToken();
+	y = atof(token.c_str());
+
+	return vector2(x, y);
+}
+
+vector3 parsingFile::getVector3()
+{
+	float x, y, z;
+
+	std::string token = getNextToken();
+	x = atof(token.c_str());
+	token = getNextToken();
+	y = atof(token.c_str());
+	token = getNextToken();
+	z = atof(token.c_str());
+
+	return vector3(x, y, z);
 }
 
 }
