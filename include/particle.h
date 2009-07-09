@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
+    Copyright (C) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,7 +27,8 @@
 #include "fileParser.h"
 #include "camera.h"
 
-namespace k 
+namespace k {
+namespace particle
 {
 	enum emissorType
 	{
@@ -42,11 +43,16 @@ namespace k
 		AFFECTOR_WAVE
 	};
 
-	class DLL_EXPORT particleLocation
+	/**
+	 * Defines a particle or particle system location.
+	 * It also supports parenting, so affectors and emitters
+	 * can offset from original particle system position.
+	 */
+	class DLL_EXPORT location
 	{
 		protected:
 			vector3 mPosition;
-			particleLocation* mParent;
+			location* mParent;
 
 		public:
 			vector3 getPosition() const
@@ -62,7 +68,7 @@ namespace k
 				mPosition = pos;
 			}
 
-			void setParent(particleLocation* parent)
+			void setParent(location* parent)
 			{
 				mParent = parent;
 			}
@@ -71,28 +77,31 @@ namespace k
 	/**
 	 * Particle class.
 	 */
-	class DLL_EXPORT particle : public particleLocation
+	class DLL_EXPORT particle : public location
 	{
-		private:
+		protected:
 			/**
-			 * This is applied to the corpse
-			 * position each second. Of course
-			 * that if it is called in a smaller
-			 * interval, it is applied in smaller
-			 * parts.
+			 * Velocity change particle's position on each dt.
 			 */
 			vector3 mVelocity;
+
+			/**
+			 * Acceleration changes particle's velocity on each dt.
+			 */
 			vector3 mAcceleration;
 
 			/**
-			 * Last time we called the draw
-			 * function
+			 * Last time we called the draw function.
+			 *
+			 * On each iteration, we can get dt as the difference
+			 * between local time and mLastDrawTime.
 			 */
 			unsigned long mLastDrawTime;
 			
 			/**
-			 * The time (based on timer class)
-			 * this particle was spawned.
+			 * The time particle was spawned.
+			 * The particle's life is defined by
+			 * actual time - mSpawnTime.
 			 */
 			long mSpawnTime;
 
@@ -106,88 +115,98 @@ namespace k
 			 */
 			bool mVisible;
 
+			/**
+			 * Life time of this particle.
+			 */
+			unsigned int mLifeTime;
+
 		public:
 			particle();
 
+			/**
+			 * Particle Velocity
+			 */
 			const vector3& getVelocity() const;
+
+			/**
+			 * Particle Acceleration
+			 */
 			const vector3& getAcceleration() const;
+
+			/**
+			 * Is this particle visible? If not, its
+			 * not going to be drawn.
+			 */
 			bool isVisible() const;
 
+			/**
+			 * Time particle spawned. 
+			 * This time is relative to the container mTime.
+			 */
 			unsigned int getSpawnTime() const;
 
+			/**
+			 * How much time this particle can live.
+			 */
+			unsigned int getLifeTime() const;
+
+			/**
+			 * Get particle radius.
+			 */
+			vec_t getRadius() const;
+
+			/**
+			 * Set particle velocity.
+			 */
 			void setVelocity(const vector3& vel);
+
+			/**
+			 * Set particle acceleration.
+			 */
 			void setAcceleration(const vector3& accel);
 
+			/**
+			 * Set particle life time. This is the amount
+			 * of time (in milliseconds) the particle can live.
+			 */
+			void setLifeTime(unsigned int time);
+
+			/**
+			 * Set particle radius.
+			 */
 			void setRadius(vec_t radi);
+
+			/**
+			 * Set the particle visibility. If the particle
+			 * is not visible, then its considered dead
+			 * and will not be drawn.
+			 */
 			void setVisibility(bool vis);
+
+			/**
+			 * Change particle mSpawnTime to time.
+			 */
 			void resetLife(long time);
+
+			/**
+			 * Calculates dv/dt and dr/dt and update them.
+			 * @time Actual time on container.
+			 */
 			void updatePhysics(long time);
-			void draw(sprite* spr, particleLocation* loc);
+
+			/**
+			 * Draw particle, specifying the sprite used.
+			 */
+			void draw(sprite* spr);
 	};
 
-	class DLL_EXPORT particleEmitter : public particleLocation
+	class DLL_EXPORT container
 	{
 		protected:
-			vector3 mMinVelocity;
-			vector3 mMaxVelocity;
-
-			/**
-			 * Particle initial radius.
-			 */
-			vec_t	mRadius;
-
-			/**
-			 * Lifetime (in msec) of each particle on the system.
-			 */
-			unsigned int mLifetime;
-
-			/**
-			 * Max number of particles on this system.
-			 */
-			unsigned int mMaxNumberOfParticles;
-
-			/**
-			 * This is the time (in msec) between each set of particles
-			 * spawn.
-			 */
-			long mSpawnTime;
-
-			/**
-			 * This is the amount of particles to spawn.
-			 */
-			unsigned int mSpawnQuantity;
-
-			/**
-			 * Number of free particles in the system.
-			 */
-			unsigned int mFreeParticles;
-
-			/**
-			 * Timer to keep track of emitter
-			 * events. Global timer.
-			 */
-			timer mTimer;
-
-			/**
-			 * Timer to keep track of emitter
-			 * events. Time that particles spawned
-			 */
-			timer mSpawnTimer;
-
 			/**
 			 * The actual particles
 			 */
 			std::vector<particle>* mParticles;
-
-			/**
-			 * The material used by the particles.
-			 */
-			std::string mMaterial;
-
-			/**
-			 * Pointer to the material used by particles.
-			 */
-			material* mMaterialPtr;
 
 			/**
 			 * This sprite is shared among the particles
@@ -204,33 +223,113 @@ namespace k
 			vec_t* mVertexPositions;
 
 			/**
+			 * Timer to update particle positions
+			 * and keep track of events.
+			 */
+			timer mTimer;
+
+			/**
+			 * Max number of particles on this system.
+			 */
+			unsigned int mMaxNumberOfParticles;
+
+			/**
+			 * Number of free particles.
+			 */
+			unsigned int mFreeParticles;
+
+			/**
+			 * Material used to draw the particles.
+			 */
+			material* mMaterial;
+
+		public:
+			container();
+			~container();
+			
+			/**
+			 * Set particle quota.
+			 */
+			void setNumParticles(unsigned int amount);
+
+			/**
+			 * Set particles material.
+			 */
+			void setMaterial(const std::string& name);
+
+			/**
+			 * Set particles material.
+			 */
+			void setMaterial(material* mat);
+
+			/**
 			 * Returns a free particle.
 			 */
 			particle* findFreeParticle();
 
 			/**
-			 * Disable (make invisible) particle.
+			 * Spawn a new particle
 			 */
-			void killParticle(particle* p);
+			particle* spawnParticle();
 
 			/**
-			 * Enable (make visible) particle.
+			 * Remove dead particles, update other
+			 * positions.
 			 */
-			void spawnParticle(particle* p);
+			void update();
+
+			/**
+			 * Draw the particles on this container.
+			 */
+			void draw();
+	};
+
+	class DLL_EXPORT emitter : public location
+	{
+		protected:
+			vector3 mMinVelocity;
+			vector3 mMaxVelocity;
+
+			/**
+			 * Particle initial radius.
+			 */
+			vec_t	mRadius;
+
+			/**
+			 * Lifetime (in msec) of each particle on the system.
+			 */
+			unsigned int mLifetime;
+
+			/**
+			 * This is the time (in msec) between each set of particles
+			 * spawn.
+			 */
+			long mSpawnTime;
+
+			/**
+			 * This is the amount of particles to spawn.
+			 */
+			unsigned int mSpawnQuantity;
+
+			/**
+			 * Timer to keep track of emitter
+			 * events. Time that particles spawned
+			 */
+			timer mSpawnTimer;
+
+			/**
+			 * The particle container this emitter is child of.
+			 */
+			container* mContainer;
 
 		public:
-			particleEmitter();
-			particleEmitter(unsigned int numParticles, material* mat);
-			particleEmitter(unsigned int numParticles, const std::string& mat);
+			emitter(container* cont);
+			virtual ~emitter();
 
-			virtual ~particleEmitter();
-
-			void setNumParticles(unsigned int amount);
 			void setRadius(vec_t radi);
 			void setSpawnQuantity(unsigned int amount);
 			void setSpawnTime(long time);
 			void setLifeTime(long time);
-			void setMaterial(const std::string& mat);
 
 			/**
 			 * The emitter will release
@@ -241,13 +340,12 @@ namespace k
 			void setMinVelocity(const vector3& min);
 			void setMaxVelocity(const vector3& min);
 
-			void genericDraw();
+			void baseSpawn(particle* newP);
 
-			virtual void feed() = 0;
-			virtual void draw() = 0;
+			virtual void spawnParticles() = 0;
 	};
 	
-	class DLL_EXPORT pointEmitter : public particleEmitter
+	class DLL_EXPORT pointEmitter : public emitter
 	{
 		protected:
 			/**
@@ -256,16 +354,10 @@ namespace k
 			vector3 mAcceleration;
 
 		public:
-			pointEmitter();
+			pointEmitter(container* cont);
 			~pointEmitter();
 
-			pointEmitter(unsigned int numParticles, material* mat);
-			pointEmitter(unsigned int numParticles, const std::string& mat);
-
-			void feed();
-			void draw();
-
-			void spawnParticle(particle* p);
+			void spawnParticles();
 			void setAcceleration(const vector3& accel);
 	};
 
@@ -276,7 +368,7 @@ namespace k
 	 * within the plane bounds and then shoot with
 	 * initial velocity and acceleration.
 	 */
-	class DLL_EXPORT planeEmitter : public particleEmitter
+	class DLL_EXPORT planeEmitter : public emitter
 	{
 		protected:
 			vector3 mAcceleration;
@@ -291,32 +383,21 @@ namespace k
 			vector3 mVertices[2];
 
 		public:
-			planeEmitter();
+			planeEmitter(container* cont);
 			~planeEmitter();
 
-			planeEmitter(unsigned int numParticles, material* mat);
-			planeEmitter(unsigned int numParticles, const std::string& mat);
-
-			void feed();
-			void draw();
-
-			void spawnParticle(particle* p);
+			void spawnParticles();
 			void setBounds(const vector3& a, const vector3& b);
 			void setAcceleration(const vector3& accel);
 	};
 
-	class DLL_EXPORT particleAffector
+	class DLL_EXPORT affector
 	{
 	};
 
-	class DLL_EXPORT particleSystem : public particleLocation
+	class DLL_EXPORT system : public location, public container
 	{
 		private:
-			/**
-			 * Particles material
-			 */
-			material* mMaterial;
-
 			/**
 			 * Particle mass
 			 */
@@ -325,52 +406,54 @@ namespace k
 			/**
 			 * Emitters
 			 */
-			std::map<std::string, particleEmitter*> mEmitters;
+			std::map<std::string, emitter*> mEmitters;
 
 			/**
 			 * Affectors
 			 */
-			std::map<std::string, particleAffector*> mAffectors;
+			std::map<std::string, affector*> mAffectors;
 
 		public:
-			particleSystem();
-			~particleSystem();
+			system();
+			~system();
 
 			void setMaterial(const std::string& mat);
 			void setMaterial(material* mat);
 
 			void setMass(vec_t mass);
 
-			void pushEmitter(const std::string& name, particleEmitter* em);
+			void pushEmitter(const std::string& name, emitter* em);
 
 			void cycle();
 	};
 
-	class DLL_EXPORT particleManager : public singleton<particleManager>
+	class DLL_EXPORT manager : public singleton<manager>
 	{
 		protected:
-			std::map<std::string, particleSystem*> mSystems;
+			std::map<std::string, system*> mSystems;
 
 		public:
-			particleManager();
-			~particleManager();
+			manager();
+			~manager();
 
-			particleSystem* getParticleSystem(const std::string& name);
-			particleSystem* allocatePS(const std::string& name);
+			system* getSystem(const std::string& name);
+			system* allocateSystem(const std::string& name);
 
-			static particleManager& getSingleton();
+			static manager& getSingleton();
 
-			void parseParticleScript(const std::string& filename);
-			void parseParticleScript(parsingFile* file);
+			void parseScript(const std::string& filename);
+			void parseScript(parsingFile* file);
 
-			void parseParticleSystem(parsingFile* file, const std::string& psName);
+			void parseSystem(parsingFile* file, const std::string& psName);
 
-			void parsePlaneEmitter(parsingFile* file, particleSystem* system, const std::string& name);
-			void parsePointEmitter(parsingFile* file, particleSystem* system, const std::string& name);
+			void parsePlaneEmitter(parsingFile* file, system* mSystem, const std::string& name);
+			void parsePointEmitter(parsingFile* file, system* mSystem, const std::string& name);
 
 			void drawParticles();
 	};
-}
+
+} // particle
+} // k
 
 #endif
 

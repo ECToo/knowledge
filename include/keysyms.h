@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2008 Rômulo Fernandes Machado <romulo@castorgroup.net>
+    Copyright (C) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
 
 	 ====================================================================
 	 Part of these mappings came from SDL. If they changed, they will

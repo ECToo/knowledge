@@ -15,50 +15,20 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _GAMESTATE_H_
-#define _GAMESTATE_H_
+#include "timer.h"
 
-#include "prerequisites.h"
-#include "singleton.h"
+namespace k {
 
-namespace k 
+void timer::reset()
 {
-
-class gameState 
-{
-	public:
-		virtual ~gameState() {}
-
-		virtual void start() = 0;
-		virtual void end() = 0;
-
-		virtual void frameStart() = 0;
-		virtual void frameEnd() = 0;
-};
-
-class stateManager : public k::singleton<stateManager>
-{
-	protected:
-		std::map<std::string, gameState*> mStates;
-		gameState* mActiveState;
-
-	public:
-		stateManager();
-		~stateManager();
-
-		static stateManager& getSingleton();
-
-		gameState* findState(const std::string&);
-		void setState(const std::string&);
-
-		void pushState(const std::string&, gameState*);
-		void popState(const std::string&);
-
-		void frameStart();
-		void frameEnd();
-};
-
+	start = gettime();
 }
 
-#endif
+long timer::getMilliSeconds()
+{
+	long long end = gettime();
+	return ticks_to_millisecs(diff_ticks(start, end));
+}
+
+}
 

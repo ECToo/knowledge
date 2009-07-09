@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2008 Rômulo Fernandes Machado <romulo@castorgroup.net>
+    Copyright (C) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -291,7 +291,7 @@ int main(int argc, char** argv)
 				}
 			}
 
-			k::particleSystem* ps = k::particleManager::getSingleton().getParticleSystem("rain");
+			k::particle::system* ps = k::particle::manager::getSingleton().getSystem("rain");
 			if (ps)
 			{
 				k::vector3 psPos = ps->getPosition();
@@ -319,7 +319,7 @@ int main(int argc, char** argv)
 				pos += up * 2;
 			}
 
-			k::particleSystem* ps = k::particleManager::getSingleton().getParticleSystem("rain");
+			k::particle::system* ps = k::particle::manager::getSingleton().getSystem("rain");
 			if (ps)
 			{
 				k::vector3 psPos = ps->getPosition();
