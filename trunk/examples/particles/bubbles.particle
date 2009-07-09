@@ -1,10 +1,11 @@
 particleSystem "bubbles"
 {
 	position 0 -40 -10
+	quota 20000
+	material "bubble"
+
 	planeEmitter "planeBubbles"
 	{
-		quota 2000
-		material "bubble"
 		minVelocity 0 20 0
 		maxVelocity 0 20 0
 		radius 1.5
@@ -16,11 +17,9 @@ particleSystem "bubbles"
 
 	planeEmitter "windBubbles"
 	{
-		quota 2000
-		material "bubble"
 		minVelocity -20 20 -20
 		maxVelocity 20 30 20
-		radius 1.5
+		radius 10
 		spawnQuantity 2
 		spawnTime 100
 		lifeTime 1000
@@ -29,8 +28,6 @@ particleSystem "bubbles"
 
 	pointEmitter "pointBubbles"
 	{
-		quota 2000
-		material "bubble"
 		minVelocity -20 20 -20
 		maxVelocity 20 30 20
 		radius 1.5

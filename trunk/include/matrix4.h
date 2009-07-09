@@ -1,5 +1,10 @@
 /*
-    Copyright (C) 2008 Rômulo Fernandes Machado <romulo@castorgroup.net>
+    Copyright (C) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
+
+	 =========================================================================
+	 Some Functions came from Ogre3D math library, wich is LGPL. Credits
+	 go to Ogre3D authors. http://www.ogre3d.org
+	 =========================================================================
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -102,7 +107,7 @@ namespace k
 				return *this;
 			}
         
-			// This Also came from Ogre3D
+			// From Ogre3D
 			inline vector3 operator * (const vector3& v) const
 			{
 				vector3 r;
@@ -116,7 +121,7 @@ namespace k
 				return r;
 			}
 
-			// This Also came from Ogre3D
+			// From Ogre3D
 			matrix4 inverse() const
 			{
 				vec_t m00 = m[0][0], m01 = m[0][1], m02 = m[0][2], m03 = m[0][3];
@@ -179,7 +184,7 @@ namespace k
 						d30, d31, d32, d33);
 			}
 
-			// This Also came from Ogre3D
+			// From Ogre3D
 			matrix4 operator* (matrix4 m2)
 			{
 				matrix4 r;

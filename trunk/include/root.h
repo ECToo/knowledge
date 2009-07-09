@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2008 Rômulo Fernandes Machado <romulo@castorgroup.net>
+    Copyright (C) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ namespace k
 			renderer* mRenderer;
 			guiManager* mGuiManager;
 			inputManager* mInputManager;
-			particleManager* mParticleManager;
+			particle::manager* mParticleManager;
 
 			/**
 			 * Global timer
@@ -72,7 +72,7 @@ namespace k
 			inputManager* getInputManager();
 
 			// Particles
-			particleManager* getParticleManager();
+			particle::manager* getParticleManager();
 
 			// The Global Timer =]
 			long getGlobalTime();
