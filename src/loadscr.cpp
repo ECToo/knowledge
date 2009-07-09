@@ -44,7 +44,10 @@ const index_t indices[] ATTRIBUTE_ALIGN(32) = { 0, 1, 2, 3 };
 void bgLoadScreen::loadBg(const std::string& filename)
 {
 	k::textureManager* texMgr = &k::textureManager::getSingleton();
-	texMgr->allocateTextureData(filename);
+	if (!texMgr->allocateTexture(filename))
+	{
+		S_LOG_INFO("Failed to allocate load screen texture.");
+	}
 
 	k::texture* newTexture = texMgr->getTexture(filename);
 	if (!newTexture)
@@ -55,8 +58,7 @@ void bgLoadScreen::loadBg(const std::string& filename)
 
 	try
 	{
-		mBackground = new k::material;
-		mBackground->setSingleTexture(newTexture);
+		mBackground = new k::material(newTexture);
 		mBackground->setCullMode(CULLMODE_NONE);
 	}
 	catch (...)
@@ -80,7 +82,7 @@ void bgLoadScreen::update(const std::string& filename)
 	rs->setMatrixMode(k::MATRIXMODE_MODELVIEW);
 	rs->identityMatrix();
 
-	mBackground->prepare();
+	mBackground->start();
 	rs->setDepthMask(false);
 
 	rs->clearArrayDesc(VERTEXMODE_QUAD);
@@ -101,7 +103,10 @@ void bgLoadScreen::update(const std::string& filename)
 void imgLoadScreen::loadBg(const std::string& filename)
 {
 	k::textureManager* texMgr = &k::textureManager::getSingleton();
-	texMgr->allocateTextureData(filename);
+	if (!texMgr->allocateTexture(filename))
+	{
+		S_LOG_INFO("Failed to allocate load screen texture.");
+	}
 
 	k::texture* newTexture = texMgr->getTexture(filename);
 	if (!newTexture)
@@ -112,8 +117,7 @@ void imgLoadScreen::loadBg(const std::string& filename)
 
 	try
 	{
-		mImgMaterial = new k::material();
-		mImgMaterial->setSingleTexture(newTexture->getWidth(), newTexture->getHeight(), newTexture->getId(0));
+		mImgMaterial = new k::material(newTexture);
 		mImgMaterial->setCullMode(CULLMODE_NONE);
 	}
 
@@ -168,7 +172,7 @@ void imgLoadScreen::update(const std::string& filename)
 	rs->identityMatrix();
 	rs->translateScene(0.5 - mRealDimX / 2.0f, 0.5 - mRealDimY / 2.0f, 0);
 
-	mImgMaterial->prepare();
+	mImgMaterial->start();
 	rs->setDepthMask(false);
 
 	rs->startVertices(VERTEXMODE_QUAD);

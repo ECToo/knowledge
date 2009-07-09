@@ -83,7 +83,7 @@ int main(int argc, char** argv)
 	}
 
 	resourceMgr->setLoadingScreen(newLoadingScreen);
-	newLoadingScreen->loadBg("loading.png");
+	newLoadingScreen->loadBg("loading.jpg");
 	newLoadingScreen->setImgDimension(k::vector2(256, 256));
 	newLoadingScreen->update("");
 

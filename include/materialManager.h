@@ -19,10 +19,9 @@
 #define _MATERIAL_MANAGER_H
 
 #include "prerequisites.h"
-#include "fileAccess.h"
+#include "fileParser.h"
 #include "singleton.h"
 #include "material.h"
-#include "tev.h"
 
 namespace k
 {
@@ -34,10 +33,6 @@ namespace k
 		private:
 			materialMap mMaterials;
 
-			#ifdef __WII__
-			tevManager* mTev;
-			#endif
-
 		public:
 			materialManager();
 			~materialManager();
@@ -45,6 +40,9 @@ namespace k
 			static materialManager& getSingleton();
 
 			material* createMaterial(const std::string& name);
+			material* createMaterial(const std::string& name, texture* tex);
+			material* createMaterial(const std::string& name, const std::string& filename);
+
 			material* getMaterial(const std::string& name);
 			material* getMaterialWithFilename(const std::string& filename);
 

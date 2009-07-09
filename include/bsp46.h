@@ -32,7 +32,7 @@
 #include "world.h"
 #include "camera.h"
 #include "logger.h"
-#include "fileAccess.h"
+#include "fileParser.h"
 
 namespace k
 {
@@ -463,8 +463,8 @@ namespace k
 			/**
 			 * Vertex Buffer Objects
 			 */
-			kVBO mVBOVertex;
-			kVBO mVBOIndex;
+			platformVBO mVBOVertex;
+			platformVBO mVBOIndex;
 			
 			/**
 			 * Free allocated memory

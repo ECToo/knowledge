@@ -23,23 +23,74 @@ namespace k {
 
 material::material()
 {
-	mTextureUnits = 0;
 	mCull = CULLMODE_FRONT;
 	mDepthTest = true;
+	mDepthWrite = true;
+	mNoDraw = false;
+	mIsOpaque = true;
+}
+
+material::material(texture* tex)
+{
+	kAssert(tex);
+
+	try 
+	{
+		materialStage* newStage = new materialStage(0);
+		newStage->setTexture(tex, 0);
+		pushStage(newStage);
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate material stage.");
+	}
+
+	mCull = CULLMODE_FRONT;
+	mDepthTest = true;
+	mDepthWrite = true;
+	mNoDraw = false;
+	mIsOpaque = true;
+}
+			
+material::material(const std::string& filename)
+{
+	texture* newTexture = textureManager::getSingleton().getTexture(filename);
+	if (!newTexture)
+	{
+		S_LOG_INFO("Failed to make a new material, texture not found.");
+		return;
+	}
+
+	try 
+	{
+		materialStage* newStage = new materialStage(0);
+		newStage->setTexture(newTexture, 0);
+		pushStage(newStage);
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate material stage.");
+	}
+
+	mCull = CULLMODE_FRONT;
+	mDepthTest = true;
+	mDepthWrite = true;
 	mNoDraw = false;
 	mIsOpaque = true;
 }
 			
 material::~material()
 {
-	std::list<textureStage*>::iterator it;
-	for (it = mTextures.begin(); it != mTextures.end(); it++)
+	std::vector<materialStage*>::iterator it;
+	for (it = mStages.begin(); it != mStages.end(); it++)
 		delete (*it);
 
-	mTextures.clear();
+	mStages.clear();
 }
 
-void material::prepare()
+void material::start()
 {
 	// Material Properties
 	renderSystem* rs = root::getSingleton().getRenderSystem();
@@ -59,12 +110,11 @@ void material::prepare()
 		rs->matSpecular(mSpecular);
 
 	rs->setCulling(mCull);
-
-	if (!mDepthTest)
-		rs->setDepthTest(mDepthTest);
+	rs->setDepthTest(mDepthTest);
+	rs->setDepthMask(mDepthWrite);
 
 	// Color/Light Only
-	if (!mTextureUnits)
+	if (!mStages.size())
 	{
 		rs->setColorChannels(0);
 		rs->setTextureGenerations(0);
@@ -73,19 +123,14 @@ void material::prepare()
 	else
 	{
 		rs->setColorChannels(1);
-		rs->setTextureGenerations(mTextureUnits);
-		rs->setTextureUnits(mTextureUnits);
+		rs->setTextureGenerations(mStages.size());
+		rs->setTextureUnits(mStages.size());
 	}
 
 	// Cycle through textures
-	std::list<textureStage*>::iterator it;
-	for (it = mTextures.begin(); it != mTextures.end(); it++)
-	{
-		textureStage* tex = (*it);
-		kAssert(tex != NULL);
-		
-		tex->draw();
-	}
+	std::vector<materialStage*>::const_iterator it;
+	for (it = mStages.begin(); it != mStages.end(); it++)
+		(*it)->draw();
 }
 
 void material::finish()
@@ -94,173 +139,120 @@ void material::finish()
 		return;
 
 	// Cycle through textures
-	std::list<textureStage*>::iterator it;
-	for (it = mTextures.begin(); it != mTextures.end(); it++)
+	std::vector<materialStage*>::const_iterator it;
+	for (it = mStages.begin(); it != mStages.end(); it++)
+		(*it)->finish();
+}
+
+materialStage::materialStage(unsigned short index)
+{
+	mIndex = index;
+	mAngle = 0;
+	mBlendSrc = 0;
+	mBlendDst = 0;
+	mRotate = 0;
+	mScroll.x = 0;
+	mScroll.y = 0;
+
+	mTexEnv = TEXENV_REPLACE;
+	mCoordType = TEXCOORD_UV;
+	
+	for (int i = 0; i < K_MAX_STAGE_TEXTURES; i++)
+		mTextures[i] = NULL;
+}
+
+materialStage::~materialStage()
+{}
+
+void materialStage::setEnv(unsigned int tev)
+{
+	mTexEnv = tev;
+}
+
+void materialStage::setBlendMode(unsigned short src, unsigned short dst)
+{
+	mBlendSrc = src;
+	mBlendDst = dst;
+}
+			
+void materialStage::setTexture(texture* tex, unsigned int index)
+{
+	kAssert(tex);
+	mTextures[index] = tex;
+}
+
+const texture* materialStage::getTexture(unsigned int i) const
+{
+	return mTextures[i];
+}
+
+unsigned int materialStage::getWidth() const
+{
+	for (int i = 0; i < K_MAX_STAGE_TEXTURES; i++)
 	{
-		textureStage* tex = (*it);
-		kAssert(tex != NULL);
+		if (mTextures[i])
+			return mTextures[i]->getWidth();
+	}
 		
-		tex->finish();
-	}
-}
-			
-unsigned int material::getTextureUnits()
-{
-	return mTextureUnits;
-}
-			
-void material::setDepthTest(bool test)
-{
-	mDepthTest = test;
-}
-			
-void material::setNoDraw(bool nd)
-{
-	mNoDraw = nd;
-}
-			
-void material::setContentFlags(int flags)
-{
-	mContentFlags = flags;
+	return 0;
 }
 
-void material::setEffectFlags(int flags)
+unsigned int materialStage::getHeight() const
 {
-	mEffectFlags = flags;
-}
-
-int material::getContentFlags()
-{
-	return mContentFlags;
-}
-
-int material::getEffectFlags()
-{
-	return mEffectFlags;
-}
-
-void material::setTextureUnits(unsigned int tex)
-{
-	mTextureUnits = tex;
-}
-			
-void material::setAmbient(const vector3& color)
-{
-	mAmbient = color;
-}
-
-void material::setDiffuse(const vector3& color)
-{
-	mDiffuse = color;
-}
-
-void material::setSpecular(const vector3& color)
-{
-	mSpecular = color;
-}
-			
-void material::setCullMode(CullMode cull)
-{
-	mCull = cull;
-}
-			
-unsigned int material::getNumberOfTextureStages() const
-{
-	return mTextures.size();
-}
-			
-bool material::getNoDraw() const
-{
-	return mNoDraw;
-}
-
-textureStage* material::getTextureStage(unsigned short index)
-{
-	unsigned short i = 0;
-	std::list<textureStage*>::iterator it;
-
-	for (it = mTextures.begin(); it != mTextures.end(); it++)
+	for (int i = 0; i < K_MAX_STAGE_TEXTURES; i++)
 	{
-		if (i++ == index)
-			return (*it);
+		if (mTextures[i])
+			return mTextures[i]->getHeight();
 	}
+		
+	return 0;
+}
 
-	return NULL;
+bool materialStage::isOpaque() const
+{
+	return (mBlendSrc || mBlendDst);
 }
 			
-bool material::containsTexture(const std::string& name) const
+void materialStage::setCoordType(TextureCoordType type)
 {
-	std::list<textureStage*>::const_iterator it;
-	for (it = mTextures.begin(); it != mTextures.end(); it++)
+	mCoordType = type;
+}
+
+void materialStage::setScroll(vector2 scroll)
+{
+	mScroll = scroll;
+}
+			
+unsigned int materialStage::getImagesCount() const
+{
+	int i = 0;
+	for (i = 0; i < K_MAX_STAGE_TEXTURES; i++)
+		if (!mTextures[i])
+			break;
+
+	return i;
+}
+			
+void materialStage::setScale(vector2 scale)
+{
+	mScale = scale;
+}
+
+void materialStage::setRotate(vec_t angle)
+{
+	mRotate = angle;
+}
+			
+bool materialStage::containsTexture(const std::string& name) const
+{
+	for (int i = 0; i < K_MAX_STAGE_TEXTURES; i++)
 	{
-		if ((*it)->containsTexture(name))
+		if (mTextures[i]->containsFilename(name))
 			return true;
 	}
-
+				
 	return false;
 }
 			
-bool material::isOpaque() const
-{
-	return mIsOpaque;
-}
-
-void material::pushTexture(textureStage* tex)
-{
-	kAssert(tex);
-	mTextures.push_back(tex);
-		
-	mTextureUnits++;
-
-	if (tex->isOpaque())
-		mIsOpaque = true;
-}
-			
-void material::setSingleTexture(texture* tex)
-{
-	kAssert(tex);
-
-	try 
-	{
-		platTextureStage* newTexStage = new platTextureStage(0);
-		newTexStage->setTexture(tex);
-		pushTexture(newTexStage);
-	}
-
-	catch (...)
-	{
-		S_LOG_INFO("Failed to allocate texture stage.");
-	}
-}
-
-void material::setSingleTexture(unsigned int w, unsigned int h, kTexture* tex)
-{
-	kAssert(tex);
-
-	try
-	{
-		// Set texture on new Stage
-		platTextureStage* newTexStage = new platTextureStage(0);
-
-		texture* newTexture = textureManager::getSingleton().createEmptyTexture();
-		if (!newTexture)
-		{
-			delete newTexStage;
-			return;
-		}
-		
-		// Push 
-		newTexture->push(tex, w, h);
-		newTexStage->setTexture(newTexture);
-
-		pushTexture(newTexStage);
-	}
-
-	catch (...)
-	{
-		S_LOG_INFO("Failed to allocate texture stage.");
-	}
-}
-
 }
 

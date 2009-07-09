@@ -20,10 +20,11 @@
 
 #include "prerequisites.h"
 #include "vector2.h"
+#include "logger.h"
 
 namespace k
 {
-	enum texCoordType 
+	enum TextureCoordType 
 	{
 		TEXCOORD_NONE,
 		TEXCOORD_UV,
@@ -36,7 +37,7 @@ namespace k
 		TEXCOORD_TANGENT
 	};
 
-	enum cubeTexOrdering
+	enum CubeTextureOrdering
 	{
 		CUBE_FRONT,
 		CUBE_BACK,
@@ -46,7 +47,7 @@ namespace k
 		CUBE_DOWN
 	};
 
-	enum texFlags
+	enum TextureFlags
 	{
 		FLAG_REPEAT_S = 0,
 		FLAG_REPEAT_T,
@@ -57,149 +58,115 @@ namespace k
 		FLAG_CLAMP_S,
 		FLAG_CLAMP_T,
 		FLAG_CLAMP_R,
-		FLAG_RGB,
-		FLAG_RGBA,
-		FLAG_BGR,
-		FLAG_BGRA
+	};
+
+	enum TextureFormats
+	{
+		TEX_NONE,
+
+		TEX_RGB,
+		TEX_RGBA,
+
+		TEX_BGR,
+		TEX_BGRA,
+
+		TEX_WII_TPL,
+		TEX_WII_RGBA8,
+
+		TEX_MAX_FORMATS
 	};
 
 	class DLL_EXPORT texture
 	{
-		private:
-			unsigned short mWidth;
-			unsigned short mHeight;
+		protected:
+			unsigned int mWidth;
+			unsigned int mHeight;
+			unsigned int mFormat;
+			unsigned int mFlags;
 
-			std::vector<char*> mTextureData;
-			std::vector<std::string> mFilenames;
-			std::vector<kTexture*> mId;
+			/**
+			 * Platform specific texture pointer, used
+			 * by the render library to bind textures.
+			 */
+			platformTexturePointer* mPointer;
+
+			/**
+			 * Data allocated by texture library 
+			 * or read from file.
+			 */
+			unsigned char* mRawData;
+
+			/**
+			 * Name of texture file. If this is a cubic
+			 * texture.
+			 */
+			std::string mFilename;
 
 		public:
-			texture();
+			/**
+			 * On each platform, it will load the right texture file and 
+			 * set its flags according.
+			 */
+			texture(const std::string& filename, int flags);
+
+			/**
+			 * Start a texture made from the render system.
+			 */
+			texture(platformTexturePointer* ptr, unsigned int w, unsigned int h, int format)
+			{
+				kAssert(ptr);
+
+				mPointer = ptr;
+				mWidth = w;
+				mHeight = h;
+				mFormat = format;
+			}
+
+			/**
+			 * Start a texture with data set already.
+			 */
+			texture(void* data, unsigned int w, unsigned int h, int flags, int format);
+
+			/**
+			 * Must free pointers and raw data.
+			 */
 			~texture();
 
-			void push(kTexture* tex, unsigned short w, unsigned short h);
-			void push(const std::string& filename);
-			void push(char* data);
+			/**
+			 * Needs platform specific implementations.
+			 */
+			void setFlags(unsigned int flags);
 
-			unsigned short getWidth();
-			unsigned short getHeight();
-			unsigned short getSize();
+			const unsigned int getFlags() const
+			{ return mFlags; }
 
-			char* getData(unsigned int i);
-			kTexture* getId(unsigned int i);
+			platformTexturePointer* getPointer() const
+			{ return mPointer; }
 
-			bool containsFilename(const std::string& name);
+			unsigned char* getRaw() const
+			{ return mRawData; }
+
+			const std::string& getFilename() const
+			{ return mFilename; }
+
+			const bool containsFilename(const std::string& filename) const
+			{
+				if (mFilename.find(filename) != std::string::npos)
+					return true;
+				else
+					return false;
+			}
+
+			unsigned int getFormat() const
+			{ return mFormat; }
+
+			unsigned int getWidth() const
+			{ return mWidth; }
+
+			unsigned int getHeight() const
+			{ return mHeight; }
 	};
 
-	class DLL_EXPORT textureStage
-	{
-		protected:
-			/**
-			 * Amount to scroll per frame on x and y
-			 */
-			vector2 mScale;
-			vector2 mScroll;
-			vector2 mScrolled;
-
-			/**
-			 * Amount to rotate per frame in degrees
-			 */
-			vec_t	mAngle;
-			vec_t mRotate;
-
-			/**
-			 * How texture coordinates are defined for this texture
-			 */
-			texCoordType mTexCoordType;
-
-			/**
-			 * The texture index in multi texturing
-			 */
-			unsigned short mIndex;
-
-			/**
-			 * Blendfunc
-			 * Note that if both src and dst are ZERO
-			 * blend will be disabled
-			 */
-			unsigned short mBlendSrc, mBlendDst;
-
-			/**
-			 * Tev unit or GLSL program for use on this texture stage. If this field is blank
-			 * the default REPLACE stage is going to be used.
-			 */
-			std::string mProgram;
-
-			/**
-			 * Textures
-			 */
-			texture* mTexture;
-
-			/**
-			 * Replace by lightmap
-			 */
-			bool mReplaceByLightmap;
-
-		public:
-			textureStage(unsigned short index);
-			virtual ~textureStage() {};
-
-			void setProgram(const std::string& name);
-			void setTexCoordType(texCoordType type);
-			void setBlendMode(unsigned short src, unsigned short dst);
-			void setScroll(vector2 scroll);
-			void setScale(vector2 scale);
-			void setRotate(vec_t angle);
-			void setTexture(texture* tex);
-			void setLightmapReplace(bool lm);
-
-			bool containsTexture(const std::string& name);
-			bool getReplaceByLightmap();
-			bool isOpaque();
-
-			unsigned short getWidth();
-			unsigned short getHeight();
-			unsigned short getImagesCount();
-
-			kTexture* getTexture(int i);
-			texCoordType getTexCoordType();
-
-			/**
-			 * Draw texture setting needed params.
-			 */
-			virtual void draw() = 0;
-
-			/**
-			 * Unset texture set params.
-			 */
-			virtual void finish() = 0;
-	};
-
-	#ifdef __WII__
-	class DLL_EXPORT wiiTexture : public textureStage
-	{
-		private:
-			Mtx mTransRotate;
-			void setTexCoordGen();
-
-		public:
-			wiiTexture(unsigned short index);
-
-			void draw();
-			void finish();
-	};
-	typedef wiiTexture platTextureStage;
-	#else
-	class DLL_EXPORT glTexture : public textureStage
-	{
-		public:
-			glTexture(unsigned short index);
-
-			void draw();
-			void finish();
-	};
-	typedef glTexture platTextureStage;
-	#endif
 }
 
 #endif

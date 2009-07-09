@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2008 Rômulo Fernandes Machado <romulo@castorgroup.net>
+    Copyright (C) 2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -69,15 +69,15 @@ namespace k
 			sprite(const std::string& mat, vec_t radi);
 			~sprite();
 
-			material* getMaterial();
-			vec_t getRadius();
+			material* getMaterial() const;
+			const vec_t getRadius() const;
 
 			void setMaterial(material* mat);
 			void setMaterial(const std::string& mat);
 			void setRadius(vec_t rad);
 
-			void setPosition(vector3& pos);
-			const vector3& getPosition();
+			void setPosition(const vector3& pos);
+			const vector3& getPosition() const;
 
 			/**
 			 * Invalidate sprite orientation.

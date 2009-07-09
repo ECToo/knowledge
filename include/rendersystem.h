@@ -42,6 +42,7 @@ namespace k
 	enum VertexMode
 	{
 		VERTEXMODE_LINE,
+		VERTEXMODE_POINTS,
 		VERTEXMODE_TRIANGLES,
 		VERTEXMODE_TRI_STRIP,
 		VERTEXMODE_QUAD
@@ -108,7 +109,7 @@ namespace k
 			// Render To Texture
 			bool mRenderToTexture;
 			unsigned int mRttDimensions[2];
-			kTexture* mRttTarget;
+			platformTexturePointer* mRttTarget;
 
 			// Vertex Buffer Object
 			bool mUsingVBO;
@@ -132,11 +133,13 @@ namespace k
 			virtual void destroyWindow() = 0;
 			virtual void setWindowTitle(const std::string& title) = 0;
 
+			virtual void showCursor(bool show) = 0;
+
 			virtual void frameStart() = 0;
 			virtual void frameEnd() = 0;
 			virtual void setWireFrame(bool wire) = 0;
 
-			virtual void setRttTarget(kTexture* tex)
+			virtual void setRttTarget(platformTexturePointer* tex)
 			{
 				kAssert(tex);
 				mRttTarget = tex;
@@ -227,14 +230,14 @@ namespace k
 				mActiveMaterial = mat;
 			}
 
-			virtual void genTexture(unsigned int w, unsigned int h, unsigned int bpp, kTexture* tex) = 0;
-			virtual void bindTexture(kTexture* tex, int chan) = 0;
+			virtual void genTexture(unsigned int w, unsigned int h, unsigned int bpp, platformTexturePointer* tex) = 0;
+			virtual void bindTexture(platformTexturePointer* tex, int chan) = 0;
 			virtual void unBindTexture(int chan) = 0;
 
 			virtual void setBlendMode(unsigned short src, unsigned short dst) = 0;
 			virtual void setBlend(bool state) = 0;
 
-			virtual void copyToTexture(kTexture* tex) = 0;
+			virtual void copyToTexture(platformTexturePointer* tex) = 0;
 
 			virtual void clearArrayDesc(VertexMode drawMode = VERTEXMODE_TRIANGLES)
 			{
@@ -473,6 +476,31 @@ namespace k
 			virtual void screenshot(const char* filename) = 0;
 
 			/**
+			 * Check if rendersystem supports point sprite.
+			 */
+			virtual bool getPointSpriteSupport() = 0;
+
+			/**
+			 * Get max size for point sprites
+			 */
+			virtual float getPointSpriteMaxSize() = 0;
+
+			/**
+			 * Set draw commands using point sprite
+			 */
+			virtual void setPointSprite(bool enabled) = 0;
+
+			/**
+			 * Set Point sprite size.
+			 */
+			virtual void setPointSpriteSize(vec_t size) = 0;
+
+			/**
+			 * Draw an array of sprite positions
+			 */
+			virtual void drawPointSprites(const vec_t* positions, unsigned int numPositions) = 0;
+
+			/**
 			 * See if the rendersystem supports
 			 * vertex buffer objects.
 			 */
@@ -481,12 +509,12 @@ namespace k
 			/**
 			 * Generate a VBO
 			 */
-			virtual void genVBO(kVBO* target) = 0;
+			virtual void genVBO(platformVBO* target) = 0;
 
 			/**
 			 * Bind a VBO to the array type
 			 */
-			virtual void bindVBO(kVBO* target, VBOArrayType type = VBO_ARRAY) = 0;
+			virtual void bindVBO(platformVBO* target, VBOArrayType type = VBO_ARRAY) = 0;
 
 			/**
 			 * Set memory area for VBO
@@ -496,7 +524,7 @@ namespace k
 			/**
 			 * Remove VBO
 			 */
-			virtual void delVBO(kVBO* target) = 0;
+			virtual void delVBO(platformVBO* target) = 0;
 
 			virtual unsigned int getScreenWidth() = 0;
 			virtual unsigned int getScreenHeight() = 0;

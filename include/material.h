@@ -21,8 +21,7 @@
 #include "prerequisites.h"
 #include "vector3.h"
 #include "texture.h"
-#include "tev.h"
-
+#include "wii/tev.h"
 
 namespace k
 {
@@ -34,6 +33,91 @@ namespace k
 		CULLMODE_BOTH
 	};
 
+	enum TexEnvFunctions
+	{
+		TEXENV_REPLACE,
+		TEXENV_MODULATE,
+		TEXENV_BLEND,
+		TEXENV_DECAL,
+		TEXENV_ADD,
+
+		TEXENV_MAX_ENV
+	};
+
+	#define K_MAX_STAGE_TEXTURES 8
+
+	class DLL_EXPORT materialStage
+	{
+		protected:
+			vector2 mScale;
+
+			/**
+			 * Texture scrolling.
+			 */
+			vector2 mScroll;
+			vector2 mScrolled;
+
+			/**
+			 * Texture rotation.
+			 */
+			float mAngle;
+			float mRotate;
+
+			/**
+			 * Texture coordinate type, check @TextureCoordType
+			 */
+			TextureCoordType mCoordType;
+
+			/**
+			 * Stage index
+			 */
+			unsigned short mIndex;
+
+			/**
+			 * Blendfunc
+			 * Note that if both src and dst are ZERO
+			 * blend will be disabled
+			 */
+			unsigned short mBlendSrc, mBlendDst;
+
+			/**
+			 * Blending Operation
+			 */
+			unsigned int mTexEnv;
+
+			/**
+			 * All textures within this stage.
+			 */
+			texture* mTextures[K_MAX_STAGE_TEXTURES];
+
+		public:
+
+			materialStage(unsigned short index);
+			virtual ~materialStage();
+
+			void setEnv(unsigned int tev);
+			void setCoordType(TextureCoordType type);
+			void setBlendMode(unsigned short src, unsigned short dst);
+
+			void setScroll(vector2 scroll);
+			void setScale(vector2 scale);
+			void setRotate(float angle);
+
+			void setTexture(texture* tex, unsigned int index);
+
+			bool containsTexture(const std::string& name) const;
+			bool isOpaque() const;
+
+			unsigned int getWidth() const;
+			unsigned int getHeight() const;
+			unsigned int getImagesCount() const;
+
+			const texture* getTexture(unsigned int index) const;
+
+			void draw();
+			void finish();
+	};
+
 	class DLL_EXPORT material
 	{
 		protected:
@@ -42,57 +126,125 @@ namespace k
 			vector3 mSpecular;
 
 			CullMode mCull;
+
 			bool mDepthTest;
+			bool mDepthWrite;
+
 			bool mNoDraw;
 			bool mIsOpaque;
-
-			unsigned int mTextureUnits;
 
 			int mContentFlags;
 			int mEffectFlags;
 
-			std::list<textureStage*> mTextures;
+			std::vector<materialStage*> mStages;
 
 		public:
 			material();
 			~material();
 
-			void setAmbient(const vector3& color);
-			void setDiffuse(const vector3& color);
-			void setSpecular(const vector3& color);
-			void setCullMode(CullMode cull);
-			void setDepthTest(bool test);
-			void setNoDraw(bool nd);
-
-			void setContentFlags(int flags);
-			void setEffectFlags(int flags);
-
-			int getContentFlags(); 
-			int getEffectFlags(); 
-
-			void setTextureUnits(unsigned int tex);
-			void setSingleTexture(unsigned int w, unsigned int h, kTexture* tex);
-			void setSingleTexture(texture* tex);
-			void pushTexture(textureStage* tex);
-
-			unsigned int getNumberOfTextureStages() const;
-			textureStage* getTextureStage(unsigned short index);
-
-			bool containsTexture(const std::string& name) const;
-			bool getNoDraw() const;
-			bool isOpaque() const;
-
 			/**
-			 * Prepare material, before drawing.
+			 * Spawn material with a single texture.
 			 */
-			void prepare();
+			material(texture* tex);
 
 			/**
-			 * Reset material set properties, after drawing.
+			 * Spawn material with a single texture.
+			 */
+			material(const std::string& filename);
+
+			void setAmbient(const vector3& color)
+			{
+				mAmbient = color;
+			}
+
+			void setDiffuse(const vector3& color)
+			{
+				mDiffuse = color;
+			}
+
+			void setSpecular(const vector3& color)
+			{
+				mSpecular = color;
+			}
+
+			void setCullMode(CullMode cull)
+			{
+				mCull = cull;
+			}
+
+			void setDepthTest(bool test)
+			{
+				mDepthTest = test;
+			}
+
+			void setDepthWrite(bool test)
+			{
+				mDepthWrite = test;
+			}
+
+			void setNoDraw(bool nd)
+			{
+				mNoDraw = nd;
+			}
+
+			void setContentFlags(int flags)
+			{
+				mContentFlags = flags;
+			}
+
+			void setEffectFlags(int flags)
+			{
+				mEffectFlags = flags;
+			}
+
+			void pushStage(materialStage* stage)
+			{
+				mStages.push_back(stage);
+			}
+
+			unsigned int getStagesCount() const
+			{
+				return mStages.size();
+			}
+
+			const materialStage* getStage(unsigned int index) const
+			{
+				return mStages[index];
+			}
+
+			bool containsTexture(const std::string& name) const
+			{
+				std::vector<materialStage*>::const_iterator it;
+				for (it = mStages.begin(); it != mStages.end(); it++)
+				{
+					if ((*it)->containsTexture(name))
+						return true;
+				}
+
+				return false;
+			}
+
+			bool getNoDraw() const
+			{ return mNoDraw; }
+
+			bool isOpaque() const
+			{ return mIsOpaque; }
+
+			int getContentFlags() const
+			{ return mContentFlags; }
+			
+			int getEffectFlags() const
+			{ return mEffectFlags; }
+
+			/**
+			 * Set material stuff before drawing.
+			 */
+			void start();
+
+			/**
+			 * Unset material stuff after drawing.
 			 */
 			void finish();
-
-			unsigned int getTextureUnits();
 	};
 }
 

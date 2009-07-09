@@ -109,6 +109,9 @@ bitmapText::bitmapText(const std::string& datName, const std::string& matName)
 
 	// A good line diff
 	mMaxHeight += mMaxHeight * 0.5f;
+
+	// Clear Contents
+	mContents.clear();
 }
 			
 bitmapText::~bitmapText()
@@ -154,7 +157,7 @@ void bitmapText::draw()
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 
 	// Material setup
-	mMaterial->prepare();
+	mMaterial->start();
 
 	// Indepedent of material
 	rs->setCulling(CULLMODE_NONE);

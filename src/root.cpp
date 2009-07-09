@@ -30,14 +30,8 @@ root& root::getSingleton()
 	return (*singleton_instance);  
 }
 
-root::root()
+root::root(const std::string& filename)
 {
-	#ifndef __WII__
-	const std::string logPath("knowledge.log");
-	#else
-	const std::string logPath("sd:/knowledge/knowledge.log");
-	#endif
-
 	#ifdef __WII__
 		CON_EnableGecko(1, false);
 		DEBUG_Init(GDBSTUB_DEVICE_USB, 1);
@@ -49,7 +43,7 @@ root::root()
 
 	try
 	{
-		new logger(logPath);
+		new logger(filename);
 		logger::getSingleton().setLogMode(LOGMODE_BOTH);
 	}
 

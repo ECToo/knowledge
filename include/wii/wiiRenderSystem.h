@@ -153,6 +153,7 @@ namespace k
 			void createWindow(const int w, const int h);
 			void destroyWindow();
 			void setWindowTitle(const std::string& title);
+			void showCursor(bool show) {}
 
 			void frameStart();
 			void frameEnd();

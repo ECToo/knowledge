@@ -172,7 +172,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-pkginclude_HEADERS = prerequisites.h vector2.h vector3.h quaternion.h fileAccess.h md5.h rendersystem.h glRenderSystem.h root.h singleton.h
+pkginclude_HEADERS = prerequisites.h vector2.h vector3.h quaternion.h fileParser.h md5.h rendersystem.h root.h singleton.h
 all: all-am
 
 .SUFFIXES:

@@ -21,7 +21,7 @@
 #include "prerequisites.h"
 #include "drawable.h"
 #include "material.h"
-#include "fileAccess.h"
+#include "fileParser.h"
 #include "timer.h"
 
 // Bone flags on .md5anim
