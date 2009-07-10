@@ -548,6 +548,118 @@ void planeEmitter::setAcceleration(const vector3& accel)
 {
 	mAcceleration = accel;
 }
+			
+void affector::setAffectedParameter(unsigned int param)
+{
+	mAffectedParameter = param;
+}
+			
+void affector::setAffectedOperation(unsigned int op)
+{
+	mAffectedOperation = op;
+}
+
+void affector::setFactor(const vector3& factor)
+{
+	mFactor = factor;
+}
+
+void affector::setFactor(vec_t factor)
+{
+	mFactor.x = factor;
+}
+
+void linearAffector::interact(particle* p)
+{
+	switch (mAffectedParameter)
+	{
+		case AFF_POS:
+			switch (mAffectedOperation)
+			{
+				case AFF_SUM:
+					p->setPosition(p->getRelativePosition() + mFactor);
+					break;
+				case AFF_SUB:
+					p->setPosition(p->getRelativePosition() - mFactor);
+					break;
+				case AFF_MUL:
+					p->setPosition(p->getRelativePosition() * mFactor.x);
+					break;
+				case AFF_DIV:
+					p->setPosition(p->getRelativePosition() / mFactor.x);
+					break;
+			}
+			break;
+		case AFF_ACCELERATION:
+			switch (mAffectedOperation)
+			{
+				case AFF_SUM:
+					p->setAcceleration(p->getAcceleration() + mFactor);
+					break;
+				case AFF_SUB:
+					p->setAcceleration(p->getAcceleration() - mFactor);
+					break;
+				case AFF_MUL:
+					p->setAcceleration(p->getAcceleration() * mFactor.x);
+					break;
+				case AFF_DIV:
+					p->setAcceleration(p->getAcceleration() / mFactor.x);
+					break;
+			}
+			break;
+		case AFF_VELOCITY:
+			switch (mAffectedOperation)
+			{
+				case AFF_SUM:
+					p->setVelocity(p->getVelocity() + mFactor);
+					break;
+				case AFF_SUB:
+					p->setVelocity(p->getVelocity() - mFactor);
+					break;
+				case AFF_MUL:
+					p->setVelocity(p->getVelocity() * mFactor.x);
+					break;
+				case AFF_DIV:
+					p->setVelocity(p->getVelocity() / mFactor.x);
+					break;
+			}
+			break;
+		case AFF_RADIUS:
+			switch (mAffectedOperation)
+			{
+				case AFF_SUM:
+					p->setRadius(p->getRadius() + mFactor.x);
+					break;
+				case AFF_SUB:
+					p->setRadius(p->getRadius() - mFactor.x);
+					break;
+				case AFF_MUL:
+					p->setRadius(p->getRadius() * mFactor.x);
+					break;
+				case AFF_DIV:
+					p->setRadius(p->getRadius() / mFactor.x);
+					break;
+			}
+			break;
+		case AFF_LIFETIME:
+			switch (mAffectedOperation)
+			{
+				case AFF_SUM:
+					p->setLifeTime(p->getLifeTime() + mFactor.x);
+					break;
+				case AFF_SUB:
+					p->setLifeTime(p->getLifeTime() - mFactor.x);
+					break;
+				case AFF_MUL:
+					p->setLifeTime(p->getLifeTime() * mFactor.x);
+					break;
+				case AFF_DIV:
+					p->setLifeTime(p->getLifeTime() / mFactor.x);
+					break;
+			}
+			break;
+	}
+}
 
 system::system()
 {
@@ -581,24 +693,40 @@ void system::pushEmitter(const std::string& name, emitter* em)
 	em->setParent(&(*this));
 }
 			
+void system::pushAffector(const std::string& name, affector* aff)
+{
+	kAssert(aff);
+	mAffectors[name] = aff;
+	aff->setParent(&(*this));
+}
+			
 void system::cycle()
 {
+	if (!mParticles)
+		return;
+
 	// Container update
 	update();
 	
 	// Spawn Particles
-	std::map<std::string, emitter*>::const_iterator it;
-	for (it = mEmitters.begin(); it != mEmitters.end(); it++)
+	std::map<std::string, emitter*>::const_iterator emIt;
+	for (emIt = mEmitters.begin(); emIt != mEmitters.end(); emIt++)
 	{
-		it->second->spawnParticles();
+		emIt->second->spawnParticles();
 	}
 
-	/*
-	std::map<std::string, particleAffector*>::const_iterator ait;
-	for (ait = mAffectors.begin(); ait != mAffectors.end(); ait++)
+	std::vector<particle>::iterator pIt;
+	for (pIt = mParticles->begin(); pIt != mParticles->end(); pIt++)
 	{
+		if (!pIt->isVisible())
+			continue;
+
+		std::map<std::string, affector*>::const_iterator affIt;
+		for (affIt = mAffectors.begin(); affIt != mAffectors.end(); affIt++)
+		{ 
+			affIt->second->interact(&(*pIt));
+		}
 	}
-	*/
 
 	// Draw container
 	draw();
@@ -708,11 +836,11 @@ void manager::parsePlaneEmitter(parsingFile* file, system* system, const std::st
 	std::string token = file->getNextToken(); // {
 	unsigned int openBraces = 1;
 
-	planeEmitter* emitter;
+	planeEmitter* emit;
 
 	try
 	{
-		emitter = new planeEmitter(system);
+		emit = new planeEmitter(system);
 	}
 
 	catch (...)
@@ -727,7 +855,7 @@ void manager::parsePlaneEmitter(parsingFile* file, system* system, const std::st
 			return;
 
 		// Tokens Here =]
-		token = parseEmitterGenericToken(file, token, emitter);
+		token = parseEmitterGenericToken(file, token, emit);
 		if (token == "bounds")
 		{
 			vector3 min;
@@ -736,7 +864,7 @@ void manager::parsePlaneEmitter(parsingFile* file, system* system, const std::st
 			min = file->getVector3();
 			max = file->getVector3();
 
-			emitter->setBounds(min, max);
+			emit->setBounds(min, max);
 		}
 
 		token = file->getNextToken();
@@ -749,7 +877,7 @@ void manager::parsePlaneEmitter(parsingFile* file, system* system, const std::st
 			openBraces++;
 	}
 
-	system->pushEmitter(name, emitter);
+	system->pushEmitter(name, emit);
 }
 
 void manager::parsePointEmitter(parsingFile* file, system* system, const std::string& name)
@@ -760,11 +888,11 @@ void manager::parsePointEmitter(parsingFile* file, system* system, const std::st
 	std::string token = file->getNextToken(); // {
 	unsigned int openBraces = 1;
 
-	pointEmitter* emitter;
+	pointEmitter* emit;
 
 	try
 	{
-		emitter = new pointEmitter(system);
+		emit = new pointEmitter(system);
 	}
 
 	catch (...)
@@ -779,7 +907,7 @@ void manager::parsePointEmitter(parsingFile* file, system* system, const std::st
 			return;
 
 		// Tokens Here =]
-		parseEmitterGenericToken(file, token, emitter);
+		parseEmitterGenericToken(file, token, emit);
 		token = file->getNextToken();
 
 		// Script properties
@@ -790,7 +918,110 @@ void manager::parsePointEmitter(parsingFile* file, system* system, const std::st
 			openBraces++;
 	}
 
-	system->pushEmitter(name, emitter);
+	system->pushEmitter(name, emit);
+}
+
+static inline std::string parseAffectorGenericToken(parsingFile* file, const std::string& parsedToken, affector* system)
+{
+	kAssert(file);
+	kAssert(system);
+
+	// Current Token
+	std::string token = parsedToken;
+
+	if ((token == "param") || (token == "parameter"))
+	{
+		token = file->getNextToken();
+
+		if (token == "position")
+			system->setAffectedParameter(AFF_POS);
+		else
+		if (token == "velocity")
+			system->setAffectedParameter(AFF_VELOCITY);
+		else
+		if (token == "acceleration")
+			system->setAffectedParameter(AFF_ACCELERATION);
+		else
+		if (token == "radius")
+			system->setAffectedParameter(AFF_RADIUS);
+		else
+		if (token == "lifeTime")
+			system->setAffectedParameter(AFF_LIFETIME);
+	}
+	else
+	if ((token == "op") || (token == "operation"))
+	{
+		token = file->getNextToken();
+
+		if ((token == "sum") || (token == "add"))
+			system->setAffectedOperation(AFF_SUM);
+		else
+		if ((token == "sub") || (token == "diff"))
+			system->setAffectedOperation(AFF_SUB);
+		else
+		if (token == "mul")
+			system->setAffectedOperation(AFF_MUL);
+		else
+		if (token == "div")
+			system->setAffectedOperation(AFF_DIV);
+	}
+	else
+	if (token == "factor")
+	{
+		token = file->getNextToken();
+		vec_t value = atof(token.c_str());
+
+		system->setFactor(value);
+	}
+	else
+	if (token == "factorVector")
+	{
+		vector3 value = file->getVector3();
+		system->setFactor(value);
+	}
+
+	return token;
+}
+
+void manager::parseLinearAffector(parsingFile* file, system* system, const std::string& name)
+{
+	kAssert(file);
+	kAssert(system);
+
+	std::string token = file->getNextToken(); // {
+	unsigned int openBraces = 1;
+
+	linearAffector* aff;
+
+	try
+	{
+		aff = new linearAffector();
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate linear particle affector.");
+		return;
+	}
+
+	while (openBraces)
+	{
+		if (file->eof())
+			return;
+
+		// Tokens Here =]
+		parseAffectorGenericToken(file, token, aff);
+		token = file->getNextToken();
+
+		// Script properties
+		if (token == "}")
+			openBraces--;
+		else
+		if (token == "{")
+			openBraces++;
+	}
+
+	system->pushAffector(name, aff);
 }
 				
 void manager::parseSystem(parsingFile* file, const std::string& psName)
@@ -827,6 +1058,12 @@ void manager::parseSystem(parsingFile* file, const std::string& psName)
 		{
 			token = file->getNextToken();
 			parsePointEmitter(file, newSystem, token);
+		}
+		else
+		if (token == "linearAffector")
+		{
+			token = file->getNextToken();
+			parseLinearAffector(file, newSystem, token);
 		}
 		else
 		if (token == "position")

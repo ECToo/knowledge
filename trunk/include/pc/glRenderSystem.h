@@ -114,6 +114,7 @@ namespace k
 			void setPointSprite(bool enabled);
 			void setPointSpriteSize(vec_t size);
 			void drawPointSprites(const vec_t* positions, unsigned int numPositions);
+			void setPointSpriteAttenuation(vec_t* att);
 
 			bool getVBOSupport(); 
 			void genVBO(platformVBO* target);

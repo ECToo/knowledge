@@ -501,6 +501,11 @@ namespace k
 			virtual void drawPointSprites(const vec_t* positions, unsigned int numPositions) = 0;
 
 			/**
+			 * Set point sprite attenuation
+			 */
+			virtual void setPointSpriteAttenuation(vec_t* att) = 0;
+
+			/**
 			 * See if the rendersystem supports
 			 * vertex buffer objects.
 			 */
