@@ -754,6 +754,15 @@ void glRenderSystem::drawPointSprites(const vec_t* positions, unsigned int numPo
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
 			
+void glRenderSystem::setPointSpriteAttenuation(vec_t* att)
+{
+	if (!getPointSpriteSupport())
+		return;
+
+	kAssert(att);
+	glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, att);
+}
+			
 bool glRenderSystem::getVBOSupport()
 {
 	return GLEW_ARB_vertex_buffer_object;

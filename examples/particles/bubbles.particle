@@ -1,40 +1,37 @@
 particleSystem "bubbles"
 {
 	position 0 -40 -10
-	quota 20000
+	quota 10000
 	material "bubble"
 
 	planeEmitter "planeBubbles"
 	{
-		minVelocity 0 20 0
-		maxVelocity 0 20 0
+		minVelocity 20 0 0
+		maxVelocity 20 0 0
 		radius 1.5
 		spawnQuantity 30
 		spawnTime 100
-		lifeTime 1000
-		bounds -20 0 -20 20 0 20
+		lifeTime 2000
+		bounds 20 20 -20 20 -20 20
+	}
+
+	linearAffector "gravity"
+	{
+		param velocity
+		op sub
+		factorVector 0 0.1 0
 	}
 
 	planeEmitter "windBubbles"
 	{
-		minVelocity -20 20 -20
-		maxVelocity 20 30 20
-		radius 10
-		spawnQuantity 2
+		minVelocity -20 30 -20
+		maxVelocity 20 50 20
+		radius 8
+		spawnQuantity 6
 		spawnTime 100
 		lifeTime 1000
-		position 0 -40 -10
-	}
-
-	pointEmitter "pointBubbles"
-	{
-		minVelocity -20 20 -20
-		maxVelocity 20 30 20
-		radius 1.5
-		spawnQuantity 2
-		spawnTime 100
-		lifeTime 1000
-		position 0 -40 -10
+		position 20 -50 -10
+		bounds -10 0 -10 10 0 10
 	}
 }
 

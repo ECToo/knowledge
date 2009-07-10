@@ -30,17 +30,34 @@
 namespace k {
 namespace particle
 {
-	enum emissorType
+	/**
+	 * What paremeters the affectors
+	 * can change in a particle.
+	 */
+	enum affectedTypes
 	{
-		EMISSOR_POINT,
-		EMISSOR_PLANE
+		AFF_POS = 0,
+		AFF_VELOCITY,
+		AFF_ACCELERATION,
+
+		AFF_RADIUS,
+		AFF_LIFETIME,
+
+		MAX_AFFECTED
 	};
 
-	enum affectorType
+	/**
+	 * How the factors affect
+	 * the particle parameters
+	 */
+	enum affectedOperations
 	{
-		AFFECTOR_ACCELERATOR,
-		AFFECTOR_LINEAR,
-		AFFECTOR_WAVE
+		AFF_SUM = 0,
+		AFF_SUB,
+		AFF_MUL,
+		AFF_DIV,
+
+		MAX_AFFECT_OPERATIONS
 	};
 
 	/**
@@ -61,6 +78,11 @@ namespace particle
 					return mParent->getPosition() + mPosition;
 				else
 					return mPosition;
+			}
+
+			const vector3& getRelativePosition() const
+			{
+				return mPosition;
 			}
 
 			void setPosition(const vector3& pos)
@@ -391,8 +413,34 @@ namespace particle
 			void setAcceleration(const vector3& accel);
 	};
 
-	class DLL_EXPORT affector
+	class DLL_EXPORT affector : public location
 	{
+		protected:
+			unsigned int mAffectedParameter;
+			unsigned int mAffectedOperation;
+
+			vector3 mFactor;
+
+			timer mTimer;
+
+		public:
+
+			void setAffectedParameter(unsigned int param);
+			void setAffectedOperation(unsigned int op);
+
+			void setFactor(const vector3& factor);
+			void setFactor(vec_t factor);
+
+			virtual void interact(particle* p) = 0;
+	};
+
+	/**
+	 * Affect particle parameter in a linear fashion.
+	 */
+	class DLL_EXPORT linearAffector : public affector
+	{
+		public:
+			void interact(particle* p);
 	};
 
 	class DLL_EXPORT system : public location, public container
@@ -423,6 +471,7 @@ namespace particle
 			void setMass(vec_t mass);
 
 			void pushEmitter(const std::string& name, emitter* em);
+			void pushAffector(const std::string& name, affector* aff);
 
 			void cycle();
 	};
@@ -448,6 +497,7 @@ namespace particle
 
 			void parsePlaneEmitter(parsingFile* file, system* mSystem, const std::string& name);
 			void parsePointEmitter(parsingFile* file, system* mSystem, const std::string& name);
+			void parseLinearAffector(parsingFile* file, system* system, const std::string& name);
 
 			void drawParticles();
 	};
