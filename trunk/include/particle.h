@@ -19,13 +19,13 @@
 #define _PARTICLE_H_
 
 #include "prerequisites.h"
-#include "vector3.h"
-#include "timer.h"
+
+#include "drawable.h"
+#include "fileParser.h"
 #include "material.h"
 #include "sprite.h"
-#include "camera.h"
-#include "fileParser.h"
-#include "camera.h"
+#include "timer.h"
+#include "vector3.h"
 
 namespace k {
 namespace particle
@@ -44,6 +44,15 @@ namespace particle
 		AFF_LIFETIME,
 
 		MAX_AFFECTED
+	};
+
+	/**
+	 * Bounds for emitters/affectors
+	 */
+	enum boundIndex
+	{
+		BOUND_MIN = 0,
+		BOUND_MAX
 	};
 
 	/**
@@ -69,13 +78,18 @@ namespace particle
 	{
 		protected:
 			vector3 mPosition;
-			location* mParent;
+			const location* mParent;
 
 		public:
-			vector3 getPosition() const
+			location()
+			{
+				mParent = NULL;
+			}
+
+			vector3 getAbsolutePosition() const
 			{
 				if (mParent)
-					return mParent->getPosition() + mPosition;
+					return mParent->getAbsolutePosition() + mPosition;
 				else
 					return mPosition;
 			}
@@ -365,6 +379,7 @@ namespace particle
 			void baseSpawn(particle* newP);
 
 			virtual void spawnParticles() = 0;
+			virtual const boundingBox getAABB() const = 0;
 	};
 	
 	class DLL_EXPORT pointEmitter : public emitter
@@ -381,6 +396,8 @@ namespace particle
 
 			void spawnParticles();
 			void setAcceleration(const vector3& accel);
+
+			const boundingBox getAABB() const;
 	};
 
 	/**
@@ -411,6 +428,8 @@ namespace particle
 			void spawnParticles();
 			void setBounds(const vector3& a, const vector3& b);
 			void setAcceleration(const vector3& accel);
+			
+			const boundingBox getAABB() const;
 	};
 
 	class DLL_EXPORT affector : public location
@@ -445,7 +464,7 @@ namespace particle
 
 	class DLL_EXPORT system : public location, public container
 	{
-		private:
+		protected:
 			/**
 			 * Particle mass
 			 */
@@ -461,19 +480,69 @@ namespace particle
 			 */
 			std::map<std::string, affector*> mAffectors;
 
+			/**
+			 * System bounding box.
+			 */
+			boundingBox mBounds;
+
+			/**
+			 * System visibility.
+			 */
+			bool mIsVisible;
+
 		public:
 			system();
 			~system();
 
+			/**
+			 * Get system visibility
+			 */
+			const bool getVisible() const;
+
+			/**
+			 * Set System visibility
+			 */
+			void setVisible(bool v);
+
+			/**
+			 * Calculate AA bounding box for this system.
+			 */
+			void _calculateAABB();
+
+			/**
+			 * Set system material, taken from materialManager
+			 */
 			void setMaterial(const std::string& mat);
+
+			/**
+			 * Set system material from pointer.
+			 */
 			void setMaterial(material* mat);
 
+			/**
+			 * Set particles mass.
+			 */
 			void setMass(vec_t mass);
 
+			/**
+			 * Add a new emitter on the system.
+			 */
 			void pushEmitter(const std::string& name, emitter* em);
+
+			/**
+			 * Add a new affector on the system.
+			 */
 			void pushAffector(const std::string& name, affector* aff);
 
+			/**
+			 * Update and draw everything
+			 */
 			void cycle();
+
+			/**
+			 * Draw system bounding box.
+			 */
+			void drawBounds();
 	};
 
 	class DLL_EXPORT manager : public singleton<manager>

@@ -547,8 +547,8 @@ void md3model::draw()
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 
 	// Rotate and Translate
-	vector3 finalPos = getPosition();
-	quaternion finalOrientation = getOrientation();
+	vector3 finalPos = getAbsolutePosition();
+	quaternion finalOrientation = getAbsoluteOrientation();
 
 	vec_t angle;
 	vector3 axis;

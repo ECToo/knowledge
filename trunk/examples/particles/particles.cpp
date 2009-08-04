@@ -56,6 +56,22 @@ int main(int argc, char** argv)
 	k::resourceManager::getSingleton().loadGroup("particles");
 	k::resourceManager::getSingleton().loadGroup("skies");
 
+	// Test
+	/*
+	k::md5model* newModel;
+	try
+	{
+		newModel = new k::md5model("particles/marvin/marvin.md5mesh");
+		mRenderer->push3D(newModel);
+	}
+	
+	catch (...)
+	{
+		K_LOG_INFO("Failed to allocate displaying model.");
+		return 0;
+	}
+	*/
+
 	delete newLoadingScreen;
 
 	// Set the skybox
