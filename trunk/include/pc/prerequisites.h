@@ -53,6 +53,7 @@ typedef pthread_t 			platformThread;
 typedef pthread_mutex_t 	platformMutex;
 typedef GLuint 				platformTexturePointer;
 typedef GLuint 				platformVBO;
+typedef struct timeval		platformTimer;
 typedef GLfloat 				vec_t;
 typedef unsigned int 		index_t;
 

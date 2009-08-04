@@ -739,7 +739,7 @@ void wiiRenderSystem::endVertices()
 		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
 
 		if (mActiveMaterial)
-		for (unsigned int i = 1; i < mActiveMaterial->getTextureUnits(); i++)
+		for (unsigned int i = 1; i < mActiveMaterial->getStagesCount(); i++)
 		{
  			GX_SetVtxDesc(GX_VA_TEX0 + i, GX_DIRECT);
 			GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0 + i, GX_TEX_ST, GX_F32, 0);
@@ -756,7 +756,7 @@ void wiiRenderSystem::endVertices()
 	GX_SetTevOrder(GX_TEVSTAGE0, texCoord, texMap, tevColor);
 	if (mActiveMaterial)
 	{
-		for (unsigned int i = 1; i < mActiveMaterial->getTextureUnits(); i++)
+		for (unsigned int i = 1; i < mActiveMaterial->getStagesCount(); i++)
 			GX_SetTevOrder(GX_TEVSTAGE0 + i, GX_TEXCOORD0 + i, GX_TEXMAP0 + i, tevColor);
 	}
 
@@ -811,7 +811,7 @@ void wiiRenderSystem::endVertices()
 			GX_TexCoord2f32(mTexCoords[index].x, mTexCoords[index].y);
 			if (mActiveMaterial)
 			{
-				for (unsigned int i = 1; i < mActiveMaterial->getTextureUnits(); i++)
+				for (unsigned int i = 1; i < mActiveMaterial->getStagesCount(); i++)
 					GX_TexCoord2f32(mTexCoords[index].x, mTexCoords[index].y);
 			}
 		}
@@ -871,9 +871,7 @@ void wiiRenderSystem::drawArrays()
 	unsigned short materialTextureUnits = 0;
 
 	if (mActiveMaterial)
-	{
-		materialTextureUnits = mActiveMaterial->getTextureUnits();
-	}
+		materialTextureUnits = mActiveMaterial->getStagesCount();
 
 	DCFlushRange((void*)mVertexArray, mVertexCount * sizeof(vec_t) * 3);
 	GX_SetArray(GX_VA_POS, (void*)mVertexArray, 3 * sizeof(vec_t));
@@ -1082,6 +1080,18 @@ void wiiRenderSystem::screenshot(const char* filename)
 	// memalign'ed
 	free(textureData);
 }
+			
+bool wiiRenderSystem::getPointSpriteSupport()
+{
+	// Wii doesnt support point sprites
+	return false;
+}
+
+float wiiRenderSystem::getPointSpriteMaxSize() { return 0; }
+void wiiRenderSystem::setPointSprite(bool enabled) { kAssert(0); }
+void wiiRenderSystem::setPointSpriteSize(vec_t size) { kAssert(0); }
+void wiiRenderSystem::drawPointSprites(const vec_t* positions, unsigned int numPositions) { kAssert(0); }
+void wiiRenderSystem::setPointSpriteAttenuation(vec_t* att)  { kAssert(0); }
 
 unsigned int wiiRenderSystem::getScreenWidth()
 {
@@ -1107,7 +1117,7 @@ void wiiRenderSystem::copyBufferToTexture()
 	GX_InvalidateTexAll();
 }
 
-void wiiRenderSystem::copyToTexture(kTexture* tex)
+void wiiRenderSystem::copyToTexture(platformTexturePointer* tex)
 {
 	kAssert(tex);
 
@@ -1173,7 +1183,7 @@ void wiiRenderSystem::setColorChannels(int i)
 	GX_SetNumChans(i);
 }
 			
-void wiiRenderSystem::genTexture(uint32_t w, uint32_t h, uint32_t bpp, kTexture* tex)
+void wiiRenderSystem::genTexture(uint32_t w, uint32_t h, uint32_t bpp, platformTexturePointer* tex)
 {
 	// For now, nothing
 }

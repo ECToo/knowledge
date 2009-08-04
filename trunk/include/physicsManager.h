@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __WII__
+#ifndef __WII__ // TODO: REMOVE THIS FROM HERE
 #ifndef WIN32
 
 #ifndef _PHYSICS_MANAGER_H_

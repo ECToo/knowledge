@@ -42,7 +42,7 @@ textureManager::textureManager()
 
 textureManager::~textureManager()
 {
-	std::unordered_map<int, texture*>::iterator it;
+	std::map<int, texture*>::iterator it;
 	while (!mTextures.empty())
 	{
 		it = mTextures.begin();

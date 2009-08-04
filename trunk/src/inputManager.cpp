@@ -180,17 +180,17 @@ void inputManager::feed()
 	// Reset Mouse Motion
 	mLastMouseMotion.x = mLastMouseMotion.y = 0;
 
-	SDL_Event events;
-	while (SDL_PollEvent (&events))
+	SDL_Event ev, *events = &ev;
+	while (SDL_PollEvent (events))
 	{	
-		switch (events.type)
+		switch (events->type)
 		{
 			case SDL_QUIT:
 				mQuitEvent = true;
 				break;
 			case SDL_MOUSEMOTION:
-				mLastMouseMotion.x = events.motion.xrel;
-				mLastMouseMotion.y = events.motion.yrel;
+				mLastMouseMotion.x = events->motion.xrel;
+				mLastMouseMotion.y = events->motion.yrel;
 				break;
 		}
 	}

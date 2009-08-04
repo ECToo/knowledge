@@ -29,7 +29,7 @@ namespace k
 	static inline bool isPowerOfTwo(unsigned int n)
 	{ return ((n & (n-1)) == 0); }
 
-	typedef std::unordered_map<int, texture*> textureHash;
+	typedef std::map<int, texture*> textureHash;
 	class DLL_EXPORT textureManager : public singleton<textureManager>
 	{
 		private:

@@ -21,37 +21,37 @@
 
 namespace k {
 
-void createKThread(kthread* t, void* (*start)(void*), void* arg)
+void createplatformThread(platformThread* t, void* (*start)(void*), void* arg)
 {
 	LWP_CreateThread(t, start, arg, NULL, 0, 0);
 }
 
-void destroyKThread(kthread* t)
+void destroyplatformThread(platformThread* t)
 {
 	LWP_SuspendThread(*t);
 }
 
-void joinKThread(kthread* t)
+void joinplatformThread(platformThread* t)
 {
 	LWP_JoinThread(*t, NULL);
 }
 
-void createKMutex(kmutex* m)
+void createplatformMutex(platformMutex* m)
 {
 	LWP_MutexInit(m, false);	
 }
 	
-void lockKMutex(kmutex* m)
+void lockplatformMutex(platformMutex* m)
 {
 	LWP_MutexLock(*m);
 }
 
-void unlockKMutex(kmutex* m)
+void unlockplatformMutex(platformMutex* m)
 {
 	LWP_MutexUnlock(*m);
 }
 
-void destroyKMutex(kmutex* m)
+void destroyplatformMutex(platformMutex* m)
 {
 	LWP_MutexDestroy(*m);
 }

@@ -28,7 +28,7 @@ namespace k
 	class DLL_EXPORT inputManager : public singleton<inputManager>
 	{
 		private:
-			#ifdef __WII__
+			#ifdef __WII__ // TODO: Remove this from here
 			/**
 			 * Number of wiimotes connected.
 			 * The input Manager will probe
