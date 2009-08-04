@@ -31,11 +31,7 @@ namespace k
 			 * of the counting.
 			 */
 	
-			#ifdef __WII__
-				long long start;
-			#else
-				struct timeval start;
-			#endif
+			platformTimer start;
 
 		public:
 			timer()

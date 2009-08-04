@@ -39,7 +39,7 @@ namespace k
 			 */
 			inline float ReciprocalSqrt(float x) 
 			{
-				#ifdef __WII__
+				#ifdef __WII__ // TODO: REMOVE THIS FROM HERE
 				register f32 d = 0.0f;
 				__asm__ __volatile__(
 						"frsqrte	%0,%1\n"
@@ -230,7 +230,7 @@ namespace k
 			{
 				quaternion output;
 
-				#ifdef __WII__
+				#ifdef __WII__ // TODO: Remove this from here
 
 				Vector tmp;
 				tmp.x = newVec.x;

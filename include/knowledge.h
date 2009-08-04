@@ -15,14 +15,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "prerequisites.h"
 #include "bsp46.h"
 #include "camera.h"
+#include "config.h"
 #include "drawable.h"
 #include "fileParser.h"
 #include "fontManager.h"
 #include "gameState.h"
-#include "glRenderSystem.h"
 #include "guiManager.h"
 #include "inputManager.h"
 #include "keysyms.h"
@@ -36,8 +35,10 @@
 #include "md5.h"
 #include "particle.h"
 #include "physicsManager.h"
+#include "prerequisites.h"
 #include "quaternion.h"
 #include "renderer.h"
+#include "rendersystem.h"
 #include "resourceManager.h"
 #include "root.h"
 #include "singleton.h"
@@ -45,9 +46,21 @@
 #include "sticker.h"
 #include "texture.h"
 #include "textureManager.h"
-#include "tinyxml.h"
 #include "thread.h"
 #include "timer.h"
+#include "tinystr.h"
+#include "tinyxml.h"
 #include "vector2.h"
 #include "vector3.h"
+#include "world.h"
+
+// Platform Files
+#ifndef __WII__
+	#include "pc/prerequisites.h"
+	#include "pc/glRenderSystem.h"
+#else
+	#include "wii/prerequisites.h"
+	#include "wii/wiiRenderSystem.h"
+	#include "wii/tev.h"
+#endif
 

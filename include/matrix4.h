@@ -228,6 +228,7 @@ namespace k
 					m[0][3] * MINOR(*this, 1, 2, 3, 0, 1, 2);
 			}
 
+			// TODO: Get this out of here
 			#ifdef __WII__
 			void getWiiMatrix(Mtx wiiMat)
 			{

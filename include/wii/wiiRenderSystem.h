@@ -205,30 +205,38 @@ namespace k
 			void matDiffuse(const vector3& color);
 			void matSpecular(const vector3& color);
 
-			void genTexture(uint32_t w, uint32_t h, uint32_t bpp, kTexture* tex);
-			void bindTexture(kTexture* tex, int chan);
+			void genTexture(uint32_t w, uint32_t h, uint32_t bpp, platformTexturePointer* tex);
+			void bindTexture(platformTexturePointer* tex, int chan);
 			void unBindTexture(int chan);
 
 			/**
 			 * Internal, copy to temp texture
 			 */
 			void copyBufferToTexture();
-			void copyToTexture(kTexture* tex);
+			void copyToTexture(platformTexturePointer* tex);
 
 			void setBlendMode(unsigned short src, unsigned short dst);
 			void setBlend(bool state);
 			void drawArrays();
 			void screenshot(const char* filename);
 
+			bool getPointSpriteSupport();
+			float getPointSpriteMaxSize();
+			void setPointSprite(bool enabled);
+			void setPointSpriteSize(vec_t size);
+			void drawPointSprites(const vec_t* positions, unsigned int numPositions);
+			void setPointSpriteAttenuation(vec_t* att);
+
 			bool getVBOSupport() { return false; }
-			void genVBO(kVBO* target) {}
-			void bindVBO(kVBO* target, VBOArrayType type = VBO_ARRAY) {}
+			void genVBO(platformVBO* target) {}
+			void bindVBO(platformVBO* target, VBOArrayType type = VBO_ARRAY) {}
 			void setVBOData(VBOArrayType type, int size, void* data, VBOUsage use) {}
-			void delVBO(kVBO* target) {}
+			void delVBO(platformVBO* target) {}
 
 			unsigned int getScreenWidth();
 			unsigned int getScreenHeight();
 	};
+	typedef wiiRenderSystem	platformRenderSystem;
 }
 
 #endif

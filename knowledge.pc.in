@@ -5,7 +5,7 @@ includedir=@includedir@
 plugindir=@libdir@/knowledge
 
 Name: knowledge
-Description: a gaming library for the pc and wii
+Description: a gaming library for pc and wii
 Version: 0.1
 Libs: -L${libdir} -lknowledge
-Cflags: -I${includedir} -I${includedir}/knowledge
+Cflags: -I${includedir} -I${includedir}/knowledge -I${includedir}/knowledge/pc/  -I${includedir}/knowledge/wii/

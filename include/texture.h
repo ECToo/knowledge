@@ -94,7 +94,7 @@ namespace k
 			 * Data allocated by texture library 
 			 * or read from file.
 			 */
-			unsigned char* mRawData;
+			void* mRawData;
 
 			/**
 			 * Name of texture file. If this is a cubic
@@ -143,7 +143,7 @@ namespace k
 			platformTexturePointer* getPointer() const
 			{ return mPointer; }
 
-			unsigned char* getRaw() const
+			void* getRaw() const
 			{ return mRawData; }
 
 			const std::string& getFilename() const

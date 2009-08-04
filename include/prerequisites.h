@@ -28,7 +28,6 @@
 #include <list>
 #include <vector>
 #include <map>
-#include <unordered_map>
 
 // Standard C Libraries
 #include <cmath>

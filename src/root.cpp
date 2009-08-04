@@ -17,8 +17,6 @@
 
 #include "root.h"
 #include "logger.h"
-#include "glRenderSystem.h"
-#include "wiiRenderSystem.h"
 
 namespace k {
 
@@ -30,120 +28,7 @@ root& root::getSingleton()
 	return (*singleton_instance);  
 }
 
-root::root(const std::string& filename)
-{
-	#ifdef __WII__
-		CON_EnableGecko(1, false);
-		DEBUG_Init(GDBSTUB_DEVICE_USB, 1);
-	#endif
-
-	#ifdef __WII__
-		fatInitDefault();
-	#endif
-
-	try
-	{
-		new logger(filename);
-		logger::getSingleton().setLogMode(LOGMODE_BOTH);
-	}
-
-	catch (...)
-	{
-		printf("Failed to allocate log system.");
-		return;
-	}
-
-	try
-	{
-		// Initialize the render system
-		#ifndef __WII__
-			mActiveRS = new glRenderSystem();
-		#else
-			mActiveRS = new wiiRenderSystem();
-		#endif
-
-		mActiveRS->initialize();
-	}
-
-	catch (...)
-	{
-		S_LOG_INFO("Failed to allocate renderSystem.");
-		return;
-	}
-
-	try
-	{
-		// Create the renderer
-		mRenderer = new renderer();
-	}
-
-	catch (...)
-	{
-		S_LOG_INFO("Failed to allocate renderer.");
-		return;
-	}
-
-	try
-	{
-		// Create a new Texture Manager
-		mTextureManager = new textureManager();
-	}
-
-	catch (...)
-	{
-		S_LOG_INFO("Failed to allocate textureManager.");
-		return;
-	}
-
-	try
-	{
-		// Create the Material manager
-		mMaterialManager = new materialManager();
-	}
-
-	catch (...)
-	{
-		S_LOG_INFO("Failed to allocate materialManager.");
-		return;
-	}
-
-	try
-	{
-		// Create The Gui manager
-		mGuiManager = new guiManager();
-	}
-
-	catch (...)
-	{
-		S_LOG_INFO("Failed to allocate guiManager.");
-		return;
-	}
-
-	try
-	{
-		// Create The Input Manager
-		mInputManager = new inputManager();
-	}
-
-	catch (...)
-	{
-		S_LOG_INFO("Failed to allocate inputManager.");
-		return;
-	}
-
-	try
-	{
-		// Create Particle Manager
-		mParticleManager = new particle::manager();
-	}
-
-	catch (...)
-	{
-		S_LOG_INFO("Failed to allocate particleManager.");
-		return;
-	}
-
-}
+// root::root is implemented in platform specific fashion
 
 root::~root()
 {
