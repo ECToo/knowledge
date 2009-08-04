@@ -16,6 +16,7 @@
 */
 
 #include "particle.h"
+#include "camera.h"
 #include "materialManager.h"
 #include "rendersystem.h"
 #include "root.h"
@@ -23,43 +24,37 @@
 namespace k {
 namespace particle {
 
-static inline int getRandNonZero()
-{
-	int random = rand();
-	while (!random)
-		random = rand();
-
-	return random;
-}
-
 static inline vector3 getRandomVelocity(const vector3& mMaxVelocity, const vector3& mMinVelocity)
 {
-	vector3 randVel;
 	if (mMaxVelocity != mMinVelocity)
 	{
-		int tmp;
+		vector3 randVel;
+		vector3 diff = mMaxVelocity - mMinVelocity;
 
-		if ((tmp = (int)(mMaxVelocity.x - mMinVelocity.x + 1)) != 0 && (mMaxVelocity.x != mMinVelocity.x))
-			randVel.x = getRandNonZero() % tmp + mMinVelocity.x;
+		int tmp = (int)(diff.x);
+		if (tmp != 0)
+			randVel.x = (rand() % tmp) + mMinVelocity.x;
 		else
 			randVel.x = mMinVelocity.x;
 
-		if ((tmp = (int)(mMaxVelocity.y - mMinVelocity.y + 1)) != 0 && (mMaxVelocity.y != mMinVelocity.y))
-			randVel.y = getRandNonZero() % tmp + mMinVelocity.y;
+		tmp = (int)(diff.y);
+		if (tmp != 0)
+			randVel.y = (rand() % tmp) + mMinVelocity.y;
 		else
 			randVel.y = mMinVelocity.y;
 
-		if ((tmp = (int)(mMaxVelocity.z - mMinVelocity.z + 1)) != 0 && (mMaxVelocity.z != mMinVelocity.z))
-			randVel.z = getRandNonZero() % tmp + mMinVelocity.z;
+		tmp = (int)(diff.z);
+		if (tmp != 0)
+			randVel.z = (rand() % tmp) + mMinVelocity.z;
 		else
 			randVel.z = mMinVelocity.z;
+
+		return randVel;
 	}
 	else
 	{
-		randVel = mMinVelocity;
+		return mMinVelocity;
 	}
-
-	return randVel;
 }
 			
 particle::particle()
@@ -141,11 +136,12 @@ void particle::updatePhysics(long time)
 	vec_t timeScaleDiff = (time - mLastDrawTime)/1000.0f;
 	mLastDrawTime = time;
 
+	if (timeScaleDiff < 0)
+		return;
+
 	// dv/dt
 	if (mAcceleration != vector3::zero)
-	{
 		mVelocity += mAcceleration * timeScaleDiff;
-	}
 
 	// dr/dt
 	mPosition += mVelocity * timeScaleDiff;
@@ -153,7 +149,7 @@ void particle::updatePhysics(long time)
 
 void particle::draw(sprite* spr)
 {
-	spr->setPosition(getPosition());
+	spr->setPosition(getAbsolutePosition());
 	spr->setRadius(mRadius);
 	spr->rawDraw();
 }
@@ -326,7 +322,7 @@ void container::draw()
 				}
 
 				p->updatePhysics(mTimer.getMilliSeconds());
-				const vector3& pos = p->getPosition();
+				const vector3& pos = p->getAbsolutePosition();
 
 				mVertexPositions[particleIndex * 3 + 0] = pos.x;
 				mVertexPositions[particleIndex * 3 + 1] = pos.y;
@@ -387,6 +383,7 @@ emitter::emitter(container* cont)
 {
 	kAssert(cont);
 	mContainer = cont;
+	mParent = NULL;
 }
 
 emitter::~emitter()
@@ -455,7 +452,6 @@ void pointEmitter::spawnParticles()
 			if (!newP)
 				break;
 
-
 			baseSpawn(newP);
 			newP->setPosition(vector3::zero);
 	
@@ -474,6 +470,18 @@ void pointEmitter::spawnParticles()
 void pointEmitter::setAcceleration(const vector3& accel)
 {
 	mAcceleration = accel;
+}
+			
+const boundingBox pointEmitter::getAABB() const
+{
+	boundingBox AABB;
+	const float lifeUnit = mLifetime / 1000.0f;
+
+	// d = v0*t + 1/2 a*t²
+	vector3 dist = (mMaxVelocity * lifeUnit) + (mAcceleration * (lifeUnit * lifeUnit)) * 0.5;
+	AABB.setTest(getRelativePosition() + dist);
+
+	return AABB;
 }
 			
 planeEmitter::planeEmitter(container* cont)
@@ -500,28 +508,30 @@ void planeEmitter::spawnParticles()
 			/**
 			 * Randomize particles position between plane bounds
 			 */
-			vector3 randPos = mPosition;
-			int tmp;
+			vector3 randPos;
+			vector3 diff = mVertices[BOUND_MAX] - mVertices[BOUND_MIN];
 
-			if ((tmp = (int)(mVertices[1].x - mVertices[0].x)) != 0)
-				randPos.x += getRandNonZero() % tmp + mVertices[0].x;
+			int tmp = (int)(diff.x);
+			if (tmp != 0)
+				randPos.x += (rand() % tmp) + mVertices[BOUND_MIN].x;
 			else
-				randPos.x += mVertices[0].x;
+				randPos.x += mVertices[BOUND_MIN].x;
 	
-			if ((tmp = (int)(mVertices[1].y - mVertices[0].y)) != 0)
-				randPos.y += getRandNonZero() % tmp + mVertices[0].y;
+			tmp = (int)(diff.y);
+			if (tmp != 0)
+				randPos.y += (rand() % tmp) + mVertices[BOUND_MIN].y;
 			else
-				randPos.y += mVertices[0].y;
+				randPos.y += mVertices[BOUND_MIN].y;
 
-			if ((tmp = (int)(mVertices[1].z - mVertices[0].z)) != 0)
-				randPos.z += getRandNonZero() % tmp + mVertices[0].z;
+			tmp = (int)(diff.z);
+			if (tmp != 0)
+				randPos.z += (rand() % tmp) + mVertices[BOUND_MIN].z;
 			else
-				randPos.z += mVertices[0].z;
-
+				randPos.z += mVertices[BOUND_MIN].z;
 
 			baseSpawn(newP);
 			newP->setPosition(randPos);
-			newP->setVelocity(getRandomVelocity(mMinVelocity, mMaxVelocity));
+			newP->setVelocity(getRandomVelocity(mMaxVelocity, mMinVelocity));
 			newP->setAcceleration(mAcceleration);
 		}
 
@@ -540,13 +550,30 @@ void planeEmitter::spawnParticles()
 
 void planeEmitter::setBounds(const vector3& a, const vector3& b)
 {
-	mVertices[0] = a;
-	mVertices[1] = b;
+	mVertices[BOUND_MIN] = a;
+	mVertices[BOUND_MAX] = b;
 }
 					
 void planeEmitter::setAcceleration(const vector3& accel)
 {
 	mAcceleration = accel;
+}
+			
+const boundingBox planeEmitter::getAABB() const
+{
+	boundingBox AABB;
+	const float lifeUnit = mLifetime / 1000.0f;
+
+	// d = v0*t + 1/2 a*t²
+	vector3 dist = (mMaxVelocity * lifeUnit) + (mAcceleration * (lifeUnit * lifeUnit)) * 0.5;
+
+	AABB.setTest(getRelativePosition());
+	AABB.setTest(getRelativePosition() + mVertices[BOUND_MIN] + dist);
+	AABB.setTest(getRelativePosition() + mVertices[BOUND_MAX] + dist);
+	AABB.setTest(getRelativePosition() + mVertices[BOUND_MIN] - dist);
+	AABB.setTest(getRelativePosition() + mVertices[BOUND_MAX] - dist);
+
+	return AABB;
 }
 			
 void affector::setAffectedParameter(unsigned int param)
@@ -664,10 +691,44 @@ void linearAffector::interact(particle* p)
 system::system()
 {
 	mParent = NULL;
+	mIsVisible = true;
 }
 
 system::~system()
 {
+}
+			
+const bool system::getVisible() const
+{
+	return mIsVisible;
+}
+
+void system::setVisible(bool v)
+{
+	mIsVisible = v;
+}
+			
+void system::_calculateAABB()
+{
+	std::map<std::string, emitter*>::const_iterator emIt;
+	for (emIt = mEmitters.begin(); emIt != mEmitters.end(); emIt++)
+	{
+		boundingBox bb = emIt->second->getAABB();
+
+		mBounds.setTestMins(bb.getMins());
+		mBounds.setTestMaxs(bb.getMaxs());
+	}
+
+	// Compensate translation
+	vector3 newMins = mBounds.getMins();
+	vector3 maxs = mBounds.getMaxs();
+	newMins.y -= maxs.y;
+	mBounds.setMins(newMins);
+
+	std::map<std::string, affector*>::const_iterator affIt;
+	for (affIt = mAffectors.begin(); affIt != mAffectors.end(); affIt++)
+	{
+	}
 }
 
 void system::setMaterial(const std::string& mat)
@@ -690,21 +751,21 @@ void system::pushEmitter(const std::string& name, emitter* em)
 {
 	kAssert(em);
 	mEmitters[name] = em;
-	em->setParent(&(*this));
+	em->setParent(this);
 }
 			
 void system::pushAffector(const std::string& name, affector* aff)
 {
 	kAssert(aff);
 	mAffectors[name] = aff;
-	aff->setParent(&(*this));
+	aff->setParent(this);	
 }
 			
 void system::cycle()
 {
 	if (!mParticles)
 		return;
-
+	
 	// Container update
 	update();
 	
@@ -729,7 +790,30 @@ void system::cycle()
 	}
 
 	// Draw container
-	draw();
+	if (mIsVisible)
+		draw();
+
+	// testing bounds
+	// drawBounds();
+}
+
+void system::drawBounds()
+{
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	camera* haveCamera = root::getSingleton().getRenderer()->getCamera();
+
+	if (!haveCamera)
+	{
+		rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+		rs->identityMatrix();
+	}
+	else
+	{
+		haveCamera->copyView();
+	}
+	
+	rs->translateScene(mPosition.x, mPosition.y, mPosition.z);
+	mBounds.draw();
 }
 
 template<> manager* singleton<manager>::singleton_instance = 0;
@@ -1099,6 +1183,7 @@ void manager::parseSystem(parsingFile* file, const std::string& psName)
 			openBraces++;
 	}
 
+	newSystem->_calculateAABB();
 	S_LOG_INFO("Particle System " + psName + " created.");
 }
 

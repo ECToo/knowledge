@@ -90,12 +90,12 @@ class kPlane : public k::drawable3D
 				return true;
 		}
 
-		k::boundingBox getAABoundingBox() 
+		k::boundingBox getAABoundingBox() const
 		{
 			return k::boundingBox(k::vector3::zero, k::vector3::zero);
 		}
 
-		k::boundingBox getBoundingBox() 
+		k::boundingBox getBoundingBox() const
 		{
 			return k::boundingBox(k::vector3::zero, k::vector3::zero);
 		}

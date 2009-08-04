@@ -712,8 +712,8 @@ void md5model::draw()
 	// Feed animations =]
 	feedAnims();
 
-	vector3 finalPos = getPosition();
-	quaternion finalOrientation = getOrientation();
+	vector3 finalPos = getAbsolutePosition();
+	quaternion finalOrientation = getAbsoluteOrientation();
 
 	// Rotate and Translate
 	vec_t angle;
@@ -1235,12 +1235,12 @@ bool md5model::getAutoFeed()
 	return mAutoFeedAnims;
 }
 		
-boundingBox md5model::getBoundingBox()
+boundingBox md5model::getBoundingBox() const
 {
 	return boundingBox(vector3::zero, vector3::zero);
 }
 
-boundingBox md5model::getAABoundingBox()
+boundingBox md5model::getAABoundingBox() const
 {
 	return boundingBox(vector3::zero, vector3::zero);
 }

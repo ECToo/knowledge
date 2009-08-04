@@ -39,6 +39,16 @@ class speedmd3 : public k::md3model
 
 		vec_t getRadius() const
 		{ return mRadius;	}
+
+		k::boundingBox getAABoundingBox() const
+		{
+			return k::boundingBox(k::vector3::zero, k::vector3::zero);
+		}
+
+		k::boundingBox getBoundingBox() const
+		{
+			return k::boundingBox(k::vector3::zero, k::vector3::zero);
+		}
 };
 
 #ifdef WIN32
@@ -294,7 +304,7 @@ int main(int argc, char** argv)
 			k::particle::system* ps = k::particle::manager::getSingleton().getSystem("rain");
 			if (ps)
 			{
-				k::vector3 psPos = ps->getPosition();
+				k::vector3 psPos = ps->getAbsolutePosition();
 				psPos.x = pos.x;
 				psPos.z = pos.z;
 
@@ -322,7 +332,7 @@ int main(int argc, char** argv)
 			k::particle::system* ps = k::particle::manager::getSingleton().getSystem("rain");
 			if (ps)
 			{
-				k::vector3 psPos = ps->getPosition();
+				k::vector3 psPos = ps->getAbsolutePosition();
 				psPos.x = pos.x;
 				psPos.z = pos.z;
 
@@ -370,9 +380,11 @@ int main(int argc, char** argv)
 		sphere->setSpeed(sphere->getSpeed() + k::vector3(0, -0.05, 0));
 
 		// Feed sphere speed
-		k::q3BspTrace newTrace = testeBsp.traceSphere(sphere->getPosition(), sphere->getPosition() + sphere->getSpeed() * 2, sphere->getRadius()); 
+		k::q3BspTrace newTrace = testeBsp.traceSphere(sphere->getAbsolutePosition(), 
+				sphere->getAbsolutePosition() + sphere->getSpeed() * 2, sphere->getRadius()); 
+
 		if (newTrace.fraction == 1.0f && newTrace.startsOut)
-			sphere->setPosition(sphere->getPosition() + sphere->getSpeed());
+			sphere->setPosition(sphere->getAbsolutePosition() + sphere->getSpeed());
 		else
 		{
 			sphere->setSpeed(sphere->getSpeed().reflect(newTrace.planeNormal) * 0.95);

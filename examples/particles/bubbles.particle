@@ -12,7 +12,7 @@ particleSystem "bubbles"
 		spawnQuantity 30
 		spawnTime 100
 		lifeTime 2000
-		bounds 20 20 -20 20 -20 20
+		bounds 0 40 -20 0 0 20
 	}
 
 	linearAffector "gravity"
@@ -30,8 +30,8 @@ particleSystem "bubbles"
 		spawnQuantity 6
 		spawnTime 100
 		lifeTime 1000
-		position 20 -50 -10
-		bounds -10 0 -10 10 0 10
+		position 40 -50 -10
+		bounds 0 0 -20 0 0 20
 	}
 }
 

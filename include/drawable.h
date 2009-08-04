@@ -41,18 +41,31 @@ namespace k
 			 */
 			vec_t mRotation;
 
+			// Another Drawable this one
+			// is attached to
+			const drawable2D* mAttach;
+
 		public:
+			drawable2D();
+			virtual ~drawable2D();
+
 			void setPosition(const vector2& pos);
 			void setRotation(const vec_t rot);
 			void setScale(const vector2& size);
 			void setZ(vec_t z);
 
-			const vector2& getPosition();
-			const vec_t getRotation();
-			const vector2& getDimension();
-			const vec_t getZ();
+			void attach(const drawable2D* target);
+			const drawable2D* getRoot() const;
 
-			virtual ~drawable2D();
+			const vector2& getRelativePosition() const;
+			const vec_t getRelativeRotation() const;
+
+			vector2 getAbsolutePosition() const;
+			vec_t getAbsoluteRotation() const;
+
+			const vector2& getDimension() const;
+			const vec_t getZ() const;
+
 			virtual void draw() = 0;
 	};
 
@@ -63,31 +76,26 @@ namespace k
 			vector3 mMaxs;
 
 		public:
-			boundingBox(const vector3& min, const vector3& max)
-			{
-				mMins = min;
-				mMaxs = max;
-			}
+			boundingBox();
+			boundingBox(const vector3& min, const vector3& max);
 
-			void setMins(const vector3& min)
-			{
-				mMins = min;
-			}
+			boundingBox operator + (const boundingBox& b);
+			boundingBox& operator += (const boundingBox& b);
 
-			void setMaxs(const vector3& max)
-			{
-				mMaxs = max;
-			}
+			boundingBox operator - (const boundingBox& b);
+			boundingBox& operator -= (const boundingBox& b);
 
-			const vector3& getMins()
-			{
-				return mMins;
-			}
+			void setTestMins(const vector3& min);
+			void setTestMaxs(const vector3& max);
+			void setTest(const vector3& dist);
 
-			const vector3& getMaxs()
-			{
-				return mMaxs;
-			}
+			void setMins(const vector3& min);
+			void setMaxs(const vector3& max);
+
+			const vector3& getMins() const;
+			const vector3& getMaxs() const;
+
+			void draw() const;
 	};
 
 	class DLL_EXPORT drawable3D
@@ -102,11 +110,8 @@ namespace k
 			const drawable3D* mAttach;
 
 		public:
-			drawable3D()
-			{
-				mAttach = NULL;
-				mScale = vector3(1, 1, 1);
-			}
+			drawable3D();
+			virtual ~drawable3D();
 
 			void setOrientation(const quaternion& orientation);
 			void setScale(const vector3& scale);
@@ -117,15 +122,18 @@ namespace k
 			const drawable3D* getRoot() const;
 
 			const vector3& getScale() const;
-			vector3 getPosition() const;
-			quaternion getOrientation() const;
 
-			virtual ~drawable3D();
+			vector3 getAbsolutePosition() const;
+			quaternion getAbsoluteOrientation() const;
+
+			const vector3& getRelativePosition() const;
+			const quaternion& getRelativeOrientation() const;
+
 			virtual void draw() = 0;
 			virtual bool isOpaque() const = 0;
 
-			virtual boundingBox getAABoundingBox() = 0;
-			virtual boundingBox getBoundingBox() = 0;
+			virtual boundingBox getAABoundingBox() const = 0;
+			virtual boundingBox getBoundingBox() const = 0;
 	};
 }
 
