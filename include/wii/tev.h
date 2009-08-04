@@ -23,6 +23,70 @@
 #include "fileParser.h"
 #include "singleton.h"
 
+/**
+ * Standard TEV Definitions.
+ * Remember the equation-> input(a,b,c,d) -> a*(1 - c) + b*c -> op -> bias + d -> scale -> clamp -> output
+ *
+ * For the input the following are valid:
+ * colorZero, colorOne, colorHalf, colorQuarter -> self explanatory
+ * colorC0, colorC1, colorC2 -> color from registers
+ * alphaC0, alphaC1, alphaC2 -> alpha from registers
+ * colorPrevious, alphaPrevious -> color and alpha from previous TEV stage
+ * textureColor, textureAlpha -> color/alpha from texture
+ * rasterizedColor, rasterizedAlpha -> self explanatory too
+ *
+ * For the equation:
+ * operations: 
+ * 	add, sub, comp_R_gt, comp_R_eq
+ * 	comp_GR_gt, comp_GR_eq, comp_BGR_gt, comp_BGR_eq,
+ * 	comp_RGB_gt, comp_RGB_eq, comp_A_gt, comp_A_eq
+ *
+ * bias:
+ * 	zero, addHalf, subHalf
+ *
+ * scale:
+ * 	1.0, 2.0, 4.0, 0.5
+ *
+ * clamp:
+ * 	true, false
+ *
+ * clampMode:
+ * 	linear, great, equal, less
+ *
+ * output:
+ * 	reg0, reg1, reg2, regPrev
+ *
+ */
+
+/* In case you missed the ADD (tev.script) script, here it is.
+
+tev add
+{
+	stage 0
+	{
+		// Color Input -> tevColorABCD a b c d
+		tevColorABCD colorZero colorZero colorZero textureColor
+	
+		// Alpha Input -> tevAlphaABCD a b c d
+		tevAlphaABCD alphaZero alphaZero alphaZero textureAlpha
+	}
+	
+	stage all
+	{
+		// Color Input -> tevColorABCD a b c d
+		tevColorABCD textureColor colorZero colorZero rasterizedColor
+	
+		// Alpha Input -> tevAlphaABCD a b c d
+		tevAlphaABCD textureAlpha alphaZero alphaZero rasterizedAlpha
+	}	
+	
+	// Color Operation - tevColorOp op bias scale clamp clampMode output
+	tevColorOp add zero 1.0 true linear regPrev
+	tevAlphaOp add zero 1.0 true linear regPrev
+}
+
+*/
+
 namespace k
 {
 	typedef struct
