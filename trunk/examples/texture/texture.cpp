@@ -171,7 +171,7 @@ int main(int argc, char** argv)
 		K_LOG_INFO("Failed to create texture material.");
 		return 0;
 	}
-
+		
 	// Create a sticker ;)
 	texSticker = new k::sticker("rttMaterial");
 	kAssert(texSticker);

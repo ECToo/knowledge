@@ -154,6 +154,7 @@ void materialStage::finish()
 		case TEXCOORD_SPHERE:
 			glDisable(GL_TEXTURE_GEN_S);
 			glDisable(GL_TEXTURE_GEN_T);
+			glDisable(GL_TEXTURE_GEN_R);
 			break;
 	}
 }

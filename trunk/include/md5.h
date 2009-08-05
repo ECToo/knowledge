@@ -170,6 +170,9 @@ class DLL_EXPORT md5mesh
 		unsigned int mIndexListSize;
 		index_t* mIndexList;
 
+		// Non animated meshes, have a default boundingBox
+		boundingBox mAABB;
+
 	public:
 		md5mesh();
 		~md5mesh();
@@ -185,6 +188,11 @@ class DLL_EXPORT md5mesh
 		void setMaterial(const std::string& matName);
 
 		bool isOpaque() const;
+
+		/**
+		 * Return mesh bounding box
+		 */
+		const boundingBox& getAABoundingBox();
 
 		/**
 		 * Compile Base Positions

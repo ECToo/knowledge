@@ -18,6 +18,7 @@
 #include "drawable.h"
 #include "renderer.h"
 #include "root.h"
+#include "materialManager.h"
 
 namespace k {
 
@@ -196,6 +197,9 @@ void boundingBox::draw() const
 	const vector3 v7 = mMaxs;
 	const vector3 v8 = vector3(mMins.x, mMaxs.y, mMaxs.z);
 
+	material* boundMaterial = materialManager::getSingleton().getMaterial("k_base_white");
+	if (boundMaterial) boundMaterial->start();
+
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	rs->translateScene(0, mMaxs.y, 0);
 	rs->startVertices(VERTEXMODE_LINE);
@@ -238,6 +242,8 @@ void boundingBox::draw() const
 		rs->vertex(v4);
 		rs->vertex(v8);
 	rs->endVertices();
+
+	if (boundMaterial) boundMaterial->finish();
 }
 
 void drawable3D::setOrientation(const quaternion& orientation)
@@ -293,6 +299,7 @@ const quaternion& drawable3D::getRelativeOrientation() const
 			
 drawable3D::drawable3D()
 {
+	mDrawAABB = false;
 	mAttach = NULL;
 	mScale = vector3(1, 1, 1);
 }
@@ -301,6 +308,16 @@ drawable3D::~drawable3D()
 {
 }
 			
+void drawable3D::setDrawBoundingBox(bool option)
+{
+	mDrawAABB = option;
+}
+
+bool drawable3D::getDrawBoundingBox() const
+{
+	return mDrawAABB;
+}
+
 void drawable3D::attach(const drawable3D* target)
 {
 	mAttach = target;

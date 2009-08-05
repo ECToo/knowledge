@@ -31,6 +31,7 @@ textureManager& textureManager::getSingleton()
 
 textureManager::textureManager()
 {
+	// TODO: Remove this from here
 	#ifdef __WII__
 	GX_InvalidateTexAll();
 	#else
@@ -39,7 +40,7 @@ textureManager::textureManager()
 
 	mTextures.clear();
 }
-
+			
 textureManager::~textureManager()
 {
 	std::map<int, texture*>::iterator it;
@@ -96,13 +97,111 @@ bool textureManager::allocateTexture(const std::string& filename, int wrapBits)
 		newTexture = new texture(fullPath, wrapBits);
 		if (newTexture)
 		{
-			mTextures.insert(textureHash::value_type(getKey(filename), newTexture));
+			mTextures[getKey(filename)] = newTexture;
 			return true;
 		}
 	}
 		
 	S_LOG_INFO("Failed to allocate texture data for " + fullPath + ".");
 	return false;
+}
+
+void textureManager::createSystemTextures()
+{
+	// Register some basic textures (k_base_white, k_base_black, k_base_null)
+	// RGBA: 4x4
+	const char whiteTextureData[64] = {
+		255, 255, 255, 255,
+		255, 255, 255, 255,
+		255, 255, 255, 255,
+		255, 255, 255, 255,
+		255, 255, 255, 255,
+		255, 255, 255, 255,
+		255, 255, 255, 255,
+		255, 255, 255, 255,
+		255, 255, 255, 255,
+		255, 255, 255, 255,
+		255, 255, 255, 255,
+		255, 255, 255, 255,
+		255, 255, 255, 255,
+		255, 255, 255, 255,
+		255, 255, 255, 255,
+		255, 255, 255, 255
+	};
+
+	try
+	{
+		texture* whiteTexture = new texture((void*)whiteTextureData, 4, 4, FLAG_REPEAT_S | FLAG_REPEAT_T | FLAG_REPEAT_R, TEX_RGBA);
+		mTextures[getKey("k_base_white")] = whiteTexture;
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate white texture");
+		return;
+	}
+
+	const unsigned char blackTextureData[64] = { 
+		0, 0, 0, 255,
+		0, 0, 0, 255,
+		0, 0, 0, 255,
+		0, 0, 0, 255,
+		0, 0, 0, 255,
+		0, 0, 0, 255,
+		0, 0, 0, 255,
+		0, 0, 0, 255,
+		0, 0, 0, 255,
+		0, 0, 0, 255,
+		0, 0, 0, 255,
+		0, 0, 0, 255,
+		0, 0, 0, 255,
+		0, 0, 0, 255,
+		0, 0, 0, 255,
+		0, 0, 0, 255
+	};
+
+	try
+	{
+		texture* blackTexture = new texture((void*)blackTextureData, 4, 4, FLAG_REPEAT_S | FLAG_REPEAT_T | FLAG_REPEAT_R, TEX_RGBA);
+		mTextures[getKey("k_base_black")] = blackTexture;
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate black texture");
+		return;
+	}
+
+	const unsigned char nullTextureData[64] = {
+		255, 0, 255, 255,
+		255, 0, 255, 255,
+		255, 255, 255, 255,
+		255, 255, 255, 255,
+		255, 0, 255, 255,
+		255, 0, 255, 255,
+		255, 255, 255, 255,
+		255, 255, 255, 255,
+		255, 255, 255, 255,
+		255, 255, 255, 255,
+		255, 0, 255, 255,
+		255, 0, 255, 255,
+		255, 255, 255, 255,
+		255, 255, 255, 255,
+		255, 0, 255, 255,
+		255, 0, 255, 255
+	};
+
+	try
+	{
+		texture* nullTexture = new texture((void*)nullTextureData, 4, 4, FLAG_REPEAT_S | FLAG_REPEAT_T | FLAG_REPEAT_R, TEX_RGBA);
+		mTextures[getKey("k_base_null")] = nullTexture;
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate null texture");
+		return;
+	}
 }
 
 /*

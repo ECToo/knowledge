@@ -105,6 +105,9 @@ namespace k
 			vector3 mPosition;
 			quaternion mOrientation;
 
+			// Draws bounding box? Default to false
+			bool mDrawAABB;
+
 			// Another Drawable this one
 			// is attached to
 			const drawable3D* mAttach;
@@ -128,6 +131,9 @@ namespace k
 
 			const vector3& getRelativePosition() const;
 			const quaternion& getRelativeOrientation() const;
+
+			void setDrawBoundingBox(bool option);
+			bool getDrawBoundingBox() const;
 
 			virtual void draw() = 0;
 			virtual bool isOpaque() const = 0;

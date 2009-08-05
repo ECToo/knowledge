@@ -16,6 +16,9 @@
 */
 
 #include "glRenderSystem.h"
+#include "materialManager.h"
+#include "textureManager.h"
+
 #ifndef __WII__
 
 namespace k {
@@ -122,6 +125,10 @@ void glRenderSystem::configure()
 		float distanceAtt[3] = { 1.0, 0.005, 0.005 };
 		glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, distanceAtt);
 	}
+
+	// Ask System Materials and Textures to be created
+	textureManager::getSingleton().createSystemTextures();
+	materialManager::getSingleton().createSystemMaterials();
 }
 
 void glRenderSystem::createWindow(const int w, const int h)

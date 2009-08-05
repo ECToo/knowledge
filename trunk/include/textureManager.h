@@ -46,6 +46,11 @@ namespace k
 			bool allocateTexture(const std::string& filename, int wrapBits = DEFAULT_WRAP);
 			texture* getTexture(const std::string& filename);
 
+			/**
+			 * Create system textures. (k_base_white, k_base_black, k_base_null)
+			 */
+			void createSystemTextures();
+
 			/*
 			textureStage* createStage(unsigned short index);
 			void setStageTexture(textureStage* newStage, const std::string& filename, int wrapBits = DEFAULT_WRAP);
