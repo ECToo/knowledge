@@ -169,7 +169,7 @@ void renderer::setSkyPlane(const std::string& matName)
 {
 	materialManager* matMgr = &materialManager::getSingleton();
 	material* mat = matMgr->getMaterial(matName);
-
+	
 	if (!mat)
 	{
 		S_LOG_INFO("Invalid pointer to skybox material");

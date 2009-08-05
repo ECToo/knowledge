@@ -116,10 +116,11 @@ texture::texture(const std::string& filename, int flags)
 	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate GLuint texture for " + filename);
-		delete [] mRawData;
+		delete [] (char*) mRawData;
 		return;
 	}
 		
+	glEnable(GL_TEXTURE_2D);
 	glGenTextures(1, mPointer);
 	glBindTexture(GL_TEXTURE_2D, *mPointer);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mWidth, mHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, mRawData);
@@ -156,7 +157,7 @@ texture::texture(const std::string& filename, int flags)
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	delete [] mRawData;
+	delete [] (char*) mRawData;
 	mRawData = NULL;
 }
 			
@@ -166,6 +167,7 @@ texture::texture(void* data, unsigned int w, unsigned int h, int flags, int form
 	mHeight = h;
 	mFormat = format;
 	mFlags = flags;
+	mRawData = NULL;
 
 	try
 	{
@@ -198,6 +200,7 @@ texture::texture(void* data, unsigned int w, unsigned int h, int flags, int form
 			return;
 	}
 		
+	glEnable(GL_TEXTURE_2D);
 	glGenTextures(1, mPointer);
 	glBindTexture(GL_TEXTURE_2D, *mPointer);
 	glTexImage2D(GL_TEXTURE_2D, 0, realFormat, mWidth, mHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, data);
@@ -233,7 +236,6 @@ texture::texture(void* data, unsigned int w, unsigned int h, int flags, int form
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
-	mRawData = NULL;
 }
 
 texture::~texture()

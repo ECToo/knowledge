@@ -27,6 +27,8 @@ extern "C"
 
 #include "wiiRenderSystem.h"
 #include "logger.h"
+#include "materialManager.h"
+#include "textureManager.h"
 
 namespace k {
 
@@ -277,6 +279,10 @@ void wiiRenderSystem::configure()
 	mRttTarget = NULL;
 	mRttDimensions[0] = getScreenWidth();
 	mRttDimensions[1] = getScreenHeight();
+
+	// Ask System Materials and Textures to be created
+	textureManager::getSingleton().createSystemTextures();
+	materialManager::getSingleton().createSystemMaterials();
 }
 
 void wiiRenderSystem::createWindow(const int w, const int h)

@@ -104,6 +104,12 @@ int main(int argc, char** argv)
 		newModel->attachAnimation("model/marvin/walk.md5anim", "runf");
 		newModel->attachAnimation("model/marvin/walk.md5anim", "runb");
 
+		// Lets Say we want to change the model first mesh material to k_base_null material
+		/*
+		k::md5mesh* m1 = newModel->getMesh(0);
+		if (m1) m1->setMaterial("k_base_null");
+		*/
+
 		// Comment this out for marvin =]
 		/*
 		newModel = new k::md5model("goku.md5mesh");

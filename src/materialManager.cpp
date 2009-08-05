@@ -42,6 +42,19 @@ materialManager::~materialManager()
 		delete it->second;
 	}
 }
+
+void materialManager::createSystemMaterials()
+{
+	// Create base materials (k_base_white, k_base_black and k_base_null)
+	texture* whiteTexture = textureManager::getSingleton().getTexture("k_base_white");
+	if (whiteTexture) createMaterial("k_base_white", whiteTexture);
+
+	texture* blackTexture = textureManager::getSingleton().getTexture("k_base_black");
+	if (blackTexture) createMaterial("k_base_black", blackTexture);
+
+	texture* nullTexture = textureManager::getSingleton().getTexture("k_base_null");
+	if (nullTexture) createMaterial("k_base_null", nullTexture);
+}
 			
 material* materialManager::createMaterial(const std::string& name)
 {
@@ -118,9 +131,9 @@ material* materialManager::createMaterial(const std::string& name, const std::st
 	}
 }
 
-material* materialManager::getMaterial(const std::string& name)
+material* materialManager::getMaterial(const std::string& name) const
 {
-	std::map<std::string, material*>::iterator it = mMaterials.find(name);
+	std::map<std::string, material*>::const_iterator it = mMaterials.find(name);
 	if (it != mMaterials.end())
 	{
 		return it->second;
@@ -131,9 +144,9 @@ material* materialManager::getMaterial(const std::string& name)
 	}
 }
 			
-material* materialManager::getMaterialWithFilename(const std::string& filename)
+material* materialManager::getMaterialWithFilename(const std::string& filename) const
 {
-	std::map<std::string, material*>::iterator it;
+	std::map<std::string, material*>::const_iterator it;
 	for (it = mMaterials.begin(); it != mMaterials.end(); it++)
 	{
 		if (it->first == filename || it->second->containsTexture(filename))

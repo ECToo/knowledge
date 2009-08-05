@@ -43,8 +43,8 @@ namespace k
 			material* createMaterial(const std::string& name, texture* tex);
 			material* createMaterial(const std::string& name, const std::string& filename);
 
-			material* getMaterial(const std::string& name);
-			material* getMaterialWithFilename(const std::string& filename);
+			material* getMaterial(const std::string& name) const;
+			material* getMaterialWithFilename(const std::string& filename) const;
 
 			void destroyMaterial(const std::string& name);
 
@@ -54,6 +54,11 @@ namespace k
 			void parseMaterialScript(parsingFile* file, materialList* map = NULL);
 
 			void parseMaterial(material* mat, parsingFile* file);
+
+			/**
+			 * Create System materials (k_base_white, k_base_black, k_base_null)
+			 */
+			void createSystemMaterials();
 
 			// Quake 3 Shaders
 			void parseQ3TextureSection(material* mat, parsingFile* file, unsigned short index);

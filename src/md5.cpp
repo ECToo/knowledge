@@ -74,6 +74,11 @@ bool md5mesh::isOpaque() const
 		return true;
 }
 
+const boundingBox& md5mesh::getAABoundingBox()
+{
+	return mAABB;
+}
+
 void md5mesh::prepareVertices(unsigned int size)
 {
 	mVertices = (vert_t*) memalign(32, size * sizeof(vert_t));
@@ -252,6 +257,9 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 			tempPos = bone->orientation.rotateVector(weight->pos);
 			vertex->basePos += (tempPos + bone->pos) * weight->value;
 		}
+
+		// BoundingBoxData
+		mAABB.setTest(vertex->basePos);
 
 		// Copy final position
 		vertex->renderPos[0] = vertex->basePos.x;
@@ -621,6 +629,7 @@ md5model::md5model(const std::string& filename)
 					newBone->pos = pos;
 					newBone->orientation = quaternion(orientation);
 					newBone->orientation.computeW();
+					newBone->currentAnim = NULL;
 
 					newBone->basePos = newBone->pos;
 					newBone->baseOrientation = newBone->orientation;
@@ -734,6 +743,9 @@ void md5model::draw()
 	
 		mesh->draw();
 	}
+	
+	if (getDrawBoundingBox())
+		getAABoundingBox().draw();
 }
 
 bool md5model::isOpaque() const
@@ -747,7 +759,7 @@ bool md5model::isOpaque() const
 
 	return true;
 }
-		
+			
 void md5model::attachAnimation(const std::string& filename, const std::string& name)
 {
 	std::string fullPath = filename;
@@ -1242,7 +1254,43 @@ boundingBox md5model::getBoundingBox() const
 
 boundingBox md5model::getAABoundingBox() const
 {
-	return boundingBox(vector3::zero, vector3::zero);
+	boundingBox AABB;
+
+	for (unsigned int i = 0; i < mBones.size(); i++)
+	{
+		bone_t* thisBone = mBones[i];
+		if (!thisBone)
+			continue;
+
+		anim_t* thisAnim = thisBone->currentAnim;
+		if (!thisAnim)
+			continue;
+
+		if (thisAnim)
+		{
+			// Get Bounds for current Frame
+			bound_t* animBound = &thisAnim->bounds[(int)thisAnim->currentFrame];
+			if (!animBound)
+				continue;
+
+			AABB.setTestMins(animBound->mins);
+			AABB.setTestMaxs(animBound->maxs);
+		}
+	}
+
+	// In case we didnt find any anim, use model ones
+	if (AABB.getMins() == vector3::zero && AABB.getMaxs() == vector3::zero)
+	{
+		std::list<md5mesh*>::const_iterator it;
+		for (it = mMeshes.begin(); it != mMeshes.end(); it++)
+		{
+			boundingBox meshAABB = (*it)->getAABoundingBox();
+			AABB.setTestMins(meshAABB.getMins());
+			AABB.setTestMaxs(meshAABB.getMaxs());
+		}
+	}
+
+	return AABB;
 }
 
 }
