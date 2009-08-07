@@ -95,7 +95,14 @@ int main(int argc, char** argv)
 	k::vector3 modelPosition;
 	modelPosition.z = -100;
 
-	k::md5model* newModel;
+	// md5 Model
+	k::md5model* newModel = NULL;
+
+	// md3 model(s)
+	k::md3model* q3Model = NULL;
+	k::md3model* q3ModelUpper = NULL;
+	k::md3model* q3ModelHead = NULL;
+
 	try
 	{
 		// Comment this out for goku =]
@@ -112,15 +119,45 @@ int main(int argc, char** argv)
 
 		// Comment this out for marvin =]
 		/*
-		newModel = new k::md5model("goku.md5mesh");
-		newModel->attachAnimation("idle.md5anim", "idle");
-		newModel->attachAnimation("fly_f.md5anim", "runf");
-		newModel->attachAnimation("fly_b.md5anim", "runb");
+		newModel = new k::md5model("model/goku.md5mesh");
+		newModel->attachAnimation("model/idle.md5anim", "idle");
+		newModel->attachAnimation("model/fly_f.md5anim", "runf");
+		newModel->attachAnimation("model/fly_b.md5anim", "runb");
 		*/
 
 		newModel->setAnimation("runf");
 		newModel->setAnimationFrame(10);
 		mRenderer->push3D(newModel);
+
+		/*
+		 * If you want to see a Quake 3 Arena(tm) model working
+		 * here, replace every occurrence of monster by xaero
+		 * and copy over the xaero folder from pak0.pk3 (models/players/xaero)
+		 * to the model folder. Keep in mind that you will need to create
+		 * a new material script for it. Should look like this:
+		 *
+		 * material xaeroBody { texture { filename "model/xaero/red.tga" } }
+		 * material xaeroHead { texture { filename "model/xaero/red_h.tga" } }
+		 *
+		q3Model = new k::md3model("model/monster/lower.md3");
+		q3ModelUpper = new k::md3model("model/monster/upper.md3");
+		q3ModelHead = new k::md3model("model/monster/head.md3");
+
+		for (int i = 0; i < q3Model->getSurfaceCount(); i++)
+			q3Model->getSurface(i)->setMaterial("monsterBody");
+
+		for (int i = 0; i < q3ModelUpper->getSurfaceCount(); i++)
+			q3ModelUpper->getSurface(i)->setMaterial("monsterBody");
+
+		q3ModelHead->getSurface(0)->setMaterial("monsterHead");
+
+		q3Model->attach(q3ModelUpper, "tag_torso");
+		q3ModelUpper->attach(q3ModelHead, "tag_head");
+
+		q3Model->setFrame(150);
+		q3ModelUpper->setFrame(150);
+		mRenderer->push3D(q3Model);
+		*/
 	}
 	
 	catch (...)
@@ -167,6 +204,10 @@ int main(int argc, char** argv)
 	bool E_Hold = false;
 	bool wireframe = false;
 
+	// Bounding Boxes
+	bool B_Hold = false;
+	bool bounding = false;
+
 	// Anims
 	bool runf = false;
 	bool runb = false;
@@ -202,11 +243,37 @@ int main(int argc, char** argv)
 			mRenderSystem->setWireFrame(wireframe);
 		}
 
+		// Bounding Boxes
+		if (mInputManager->getKbdKeyDown(K_KBD_b))
+		{
+			B_Hold = true;
+		}
+		else
+		if (B_Hold)
+		{
+			B_Hold = false;
+
+			bounding ^= 1;
+
+			if (newModel)
+				newModel->setDrawBoundingBox(bounding);
+
+			if (q3Model && q3ModelUpper && q3ModelHead)
+			{
+				q3Model->setDrawBoundingBox(bounding);
+				q3ModelUpper->setDrawBoundingBox(bounding);
+				q3ModelHead->setDrawBoundingBox(bounding);
+			}
+		}
+
+
 		if (mInputManager->getKbdKeyDown(K_KBD_UP))
 		{
 			if (!runf)
 			{
-				newModel->setAnimation("runf");
+				if (newModel)
+					newModel->setAnimation("runf");
+
 				runf = true;
 				runb = idle = false;
 			}
@@ -216,7 +283,9 @@ int main(int argc, char** argv)
 		{
 			if (!runb)
 			{
-				newModel->setAnimation("runb");
+				if (newModel)
+					newModel->setAnimation("runb");
+
 				runb = true;
 				runf = idle = false;
 			}
@@ -225,7 +294,9 @@ int main(int argc, char** argv)
 		{
 			if (!idle)
 			{
-				newModel->setAnimation("idle");
+				if (newModel)
+					newModel->setAnimation("idle");
+
 				idle = true;
 				runf = runb = false;
 			}
@@ -309,8 +380,16 @@ int main(int argc, char** argv)
 		k::quaternion xQuat = k::quaternion(rX, k::vector3(0, 1, 0));
 		k::quaternion modelQuat = xQuat * yQuat;
 
-		newModel->setPosition(modelPosition);
-		newModel->setOrientation(modelQuat);
+		if (newModel)
+		{
+			newModel->setPosition(modelPosition);
+			newModel->setOrientation(modelQuat);
+		}
+		if (q3Model)
+		{
+			q3Model->setPosition(modelPosition);
+			q3Model->setOrientation(modelQuat);
+		}
 
 		std::stringstream fpsT;
 		fpsT << "fps: " << mRenderer->getLastFps();

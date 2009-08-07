@@ -109,21 +109,25 @@ boundingBox::boundingBox(const vector3& min, const vector3& max)
 			
 boundingBox boundingBox::operator + (const boundingBox& b)
 {
-	boundingBox newBox(mMins + b.getMins(), mMaxs + b.getMaxs());
+	boundingBox newBox(mMins, mMaxs);
+	newBox += b;
+
 	return newBox;
 }
 
 boundingBox& boundingBox::operator += (const boundingBox& b)
 {
-	mMins += b.getMins();
-	mMaxs += b.getMaxs();
+	setTestMins(b.getMins());
+	setTestMaxs(b.getMaxs());
 
 	return *this;
 }
 
 boundingBox boundingBox::operator - (const boundingBox& b)
 {
-	boundingBox newBox(mMins - b.getMins(), mMaxs - b.getMaxs());
+	boundingBox newBox(mMins, mMaxs);
+	newBox -= b;
+
 	return newBox;
 }
 

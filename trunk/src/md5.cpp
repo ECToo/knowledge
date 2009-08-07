@@ -20,6 +20,7 @@
 #include "root.h"
 #include "resourceManager.h"
 #include "materialManager.h"
+#include "camera.h"
 
 namespace k {
 
@@ -729,7 +730,17 @@ void md5model::draw()
 	vector3 axis;
 	finalOrientation.toAxisAngle(angle, axis);
 
-	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+	camera* haveCamera = root::getSingleton().getRenderer()->getCamera();
+	if (!haveCamera)
+	{
+		rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+		rs->identityMatrix();
+	}
+	else
+	{
+		haveCamera->copyView();
+	}
+
 	rs->translateScene(finalPos.x, finalPos.y, finalPos.z);
 	rs->rotateScene(angle, axis.x, axis.y, axis.z);
 	rs->scaleScene(mScale.x, mScale.y, mScale.z);

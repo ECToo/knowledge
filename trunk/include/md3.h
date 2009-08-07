@@ -60,6 +60,43 @@ typedef struct
 	float axis[3][3];
 } md3Tag_t;
 
+class md3Tag
+{
+	public:
+		std::string mName;
+		vector3 mOrigin;
+		matrix3 mRotation;
+
+		// Axis Angle Notation
+		vec_t mAA_Angle;
+		vector3 mAA_Axis;
+
+		inline md3Tag operator = (const md3Tag_t& tag)
+		{
+			mName = tag.name;
+
+			mOrigin.x = readLEFloat(tag.origin[0]);
+			mOrigin.y = readLEFloat(tag.origin[2]);
+			mOrigin.z = -readLEFloat(tag.origin[1]);
+
+			mRotation.m[0][0] = readLEFloat(tag.axis[0][0]);
+			mRotation.m[0][1] = readLEFloat(tag.axis[0][1]);
+			mRotation.m[0][2] = readLEFloat(tag.axis[0][2]);
+
+			mRotation.m[1][0] = readLEFloat(tag.axis[1][0]);
+			mRotation.m[1][1] = readLEFloat(tag.axis[1][1]);
+			mRotation.m[1][2] = readLEFloat(tag.axis[1][2]);
+
+			mRotation.m[2][0] = readLEFloat(tag.axis[2][0]);
+			mRotation.m[2][1] = readLEFloat(tag.axis[2][1]);
+			mRotation.m[2][2] = readLEFloat(tag.axis[2][2]);
+
+			mRotation.toAxisAngle(mAA_Angle, mAA_Axis);
+
+			return *this;
+		}
+};
+
 typedef struct
 {
 	char ident[4]; // should be IDP3
@@ -82,15 +119,34 @@ typedef struct
 	int index;
 } md3Shader_t;
 
-typedef struct
+class md3Triangle_t
 {
-	index_t indices[3];
-} md3Triangle_t;
+	public:
+		index_t indices[3];
 
-typedef struct
+		inline md3Triangle_t operator = (const md3Triangle_t& tri)
+		{
+			indices[0] = readLEInt(tri.indices[0]);
+			indices[1] = readLEInt(tri.indices[1]);
+			indices[2] = readLEInt(tri.indices[2]);
+
+			return *this;
+		}
+};
+
+class md3TexCoord_t
 {
-	float uv[2];
-} md3TexCoord_t;
+	public:
+		float uv[2];
+
+		inline md3TexCoord_t operator = (const md3TexCoord_t& u)
+		{
+			uv[0] = readLEFloat(u.uv[0]);
+			uv[1] = readLEFloat(u.uv[1]);
+
+			return *this;
+		}
+};
 
 typedef struct
 {
@@ -114,66 +170,351 @@ typedef struct
  * used by the engine, from md3Vertex
  * and md3TexCoord.
  */
-typedef struct
+class md3RealVertex
 {
+	/*
 	float pos[3];
 	float normal[3];
-} md3RealVertex_t;
+	*/
+
+	public:
+		vector3 pos;
+		vector3 normal;
+
+		inline md3RealVertex operator = (const md3Vertex_t& t)
+		{
+			const float vertexMultiplier = 0.015625f;
+	 		const float lat = t.normal[0] * (2.0f * M_PI) / 255.0f;
+	 		const float lng = t.normal[1] * (2.0f * M_PI) / 255.0f;
+
+			pos.x = readLEShort(t.coord[0]) * vertexMultiplier;
+			pos.y = readLEShort(t.coord[2]) * vertexMultiplier;
+			pos.z = -readLEShort(t.coord[1]) * vertexMultiplier;
+
+			normal.x = cos(lat) * sin(lng);
+			normal.y = -cos(lng);
+			normal.z = sin(lat) * sin(lng);
+
+			return *this;
+		}
+};
+
+/**
+ * This structure hold an "animation"
+ * definition for the md3 model. 
+ */
+typedef struct
+{
+	std::string name;
+	unsigned int firstFrame;
+	unsigned int numFrames;
+	unsigned int loopingFrames;
+	unsigned int framesPerSecond;
+} md3Animation_t;
 
 class DLL_EXPORT md3Surface
 {
-	public:
-		char name[64];
+	protected:
+		/**
+		 * Surface name
+		 */
+		std::string mName;
 
+		//
 		material* mMaterial;
 
 		// Number of Frames
-		int mFrameCount;
+		unsigned int mFrameCount;
 
-		int mVerticesCount;
-		md3RealVertex_t* mVertices;
+		// Number of Vertices
+		unsigned int mVerticesCount;
 
-		int mIndicesCount;
+		// Vertex Arrays
+		md3RealVertex* mVertices;
+
+		// Number of Indices
+		unsigned int mIndicesCount;
+
+		// Indices array
 		md3Triangle_t* mIndices;
 
-		int mUVCount;
+		// Number of Uv's
+		unsigned int mUVCount;
+
+		// UV's array
 		md3TexCoord_t* mUVs;
 
+		// Lower Y, for ajudsting
+		float mLowerY;
+
+	public:
+		md3Surface();
+		~md3Surface();
+
+		/**
+		 * Set Surface name
+		 */
+		void setName(const std::string& name)
+		{
+			mName = name;
+		}
+
+		/**
+		 * Return surface name.
+		 */
+		const std::string& getName() const
+		{
+			return mName;
+		}
+
+		/**
+		 * Adjust vertices, because we want the model
+		 * to have its bottom part on its lower (Y) vertex.
+		 */
+		void adjustVertices();
+
+		/**
+		 * Allocate indices
+		 */
+		bool allocateIndices(unsigned int i);
+
+		/**
+		 * Allocate vertices
+		 */
+		bool allocateVertices(unsigned int i);
+
+		/**
+		 * Allocate uvs 
+		 */
+		bool allocateUVs(unsigned int i);
+
+		/**
+		 * In case we want to replace index count.
+		 */
+		void setIndexCount(unsigned int c)
+		{
+			mIndicesCount = c;
+		}
+
+		/**
+		 * In case we want to replace vertex count.
+		 */
+		void setVertexCount(unsigned int c)
+		{
+			mVerticesCount = c;
+		}
+
+		/**
+		 * In case we want to replace uv count.
+		 */
+		void setUVCount(unsigned int c)
+		{
+			mUVCount = c;
+		}
+
+		/**
+		 * In case we want to replace frame count.
+		 */
+		void setFrameCount(unsigned int c)
+		{
+			mFrameCount = c;
+		}
+
+		/**
+		 * Set index. Set the surface index[index]
+		 * to tri values.
+		 *
+		 * @index Index to the destination index.
+		 * @tri Values to copy from.
+		 */
+		void setIndex(unsigned int index, const md3Triangle_t& tri);
+
+		/**
+		 * Set Vertex. Set the surface vertex[index]
+		 * to v values.
+		 *
+		 * @index Index to the destination vertex.
+		 * @v Values to copy from.
+		 */
+		void setVertex(unsigned int index, const md3Vertex_t& v);
+
+		/**
+		 * Set UV. Set the surface uv[index]
+		 * to uv values.
+		 *
+		 * @index Index to the destination uv.
+		 * @uv Values to copy from.
+		 */
+		void setUV(unsigned int index, const md3TexCoord_t& uv);
+
+		/**
+		 * Get number of indices
+		 */
+		unsigned int getIndicesCount() const
+		{
+			return mIndicesCount;
+		}
+
+		/**
+		 * Get number of frames 
+		 */
+		unsigned int getFrameCount() const
+		{
+			return mFrameCount;
+		}
+
+		/**
+		 * Get number of Vertices 
+		 */
+		unsigned int getVertexCount() const
+		{
+			return mVerticesCount;
+		}
+
+		/**
+		 * Get number of uv's 
+		 */
+		unsigned int getUVCount() const
+		{
+			return mUVCount;
+		}
+
+		/**
+		 * Is this model opaque? We need this
+		 * so we can render it right (putting opaque on front) in renderer.
+		 */
 		bool isOpaque() const;
+
+		/**
+		 * Delete the pointers and free memory used by surface.
+		 */
 		void _clean();
+
+		/**
+		 * Draw the model.
+		 * @frameNum The number of frame to draw.
+		 */
 		void draw(short frameNum);
+
+		/**
+		 * Set surface material.
+		 */
+		void setMaterial(material* mat);
+
+		/**
+		 * Set surface material.
+		 *	This function will call material manager to retrieve the material pointer.
+		 */
+		void setMaterial(const std::string& matName);
 };
 
 class DLL_EXPORT md3model : public drawable3D
 {
 	protected:
-		int mFramesCount;
+		unsigned int mFramesCount;
 		md3Frame_t* mFrames;
 
-		int mTagsCount;
-		md3Tag_t* mTags;
+		unsigned int mTagsCount;
+		md3Tag* mTags;
 
-		int mSurfacesCount;
+		unsigned int mSurfacesCount;
 		md3Surface* mSurfaces;
 
-		int mCurrentFrame;
+		/**
+		 * Current frame of the animation
+		 */
+		unsigned int mCurrentFrame;
 
+		/**
+		 * Delete allocated structures.
+		 */
 		void _clean();
 
-	public:
-		md3model(const std::string& filename);
+		/**
+		 * Hash map of md3 "animations"
+		 */
+		std::map<int, md3Animation_t*> mAnimations;
 
-		// Clean allocated structures
+		/**
+		 * Attached models to tags.
+		 * The key of the map is the tag name.
+		 * If the tag is not found, model will not be attached.
+		 */
+		std::vector<md3model*> mAttach;
+		
+		/**
+		 * Attach Parent
+		 */
+		md3model* mAttachParent;
+
+		/**
+		 * The tag we are attached to.
+		 */
+		std::string mAttachTag;
+
+		/**
+		 * Are we drawing the tags?
+		 */
+		bool mDrawTags;
+
+	public:
+		md3model(const std::string& filename, bool adjustVertices = false);
+
+		/**
+		 * Clean allocated structures
+		 */
 		~md3model() { _clean(); }
 
-		void setFrame(short i);
+		/**
+		 * Set to wich tag this model is attached to.
+		 */
+		void setAttachTag(const std::string& tag, md3model* parent)
+		{
+			mAttachParent = parent;
+			mAttachTag = tag;
+		}
+
+		/**
+		 * Get surface (mesh) index
+		 */
+		md3Surface* getSurface(unsigned int index);
+
+		/**
+		 * Get the number of surfaces (meshes)
+		 */
+		const unsigned int getSurfaceCount() const;
+
+		/**
+		 * Get Model tag.
+		 * @name The Tag name.
+		 * @return A pair with the tag index and a pointer to the tag
+		 */
+		md3Tag* getTag(const std::string& name);
+
+		/**
+		 * Set Drawing frame.
+		 */
+		void setFrame(unsigned short i);
+
+		/**
+		 * Return the number of frames
+		 */
 		int getFramesCount() const;
 
-		bool isOpaque() const;
+		/**
+		 * Attach another md3model to a tag of this one.
+		 */
+		void attach(md3model* model, const std::string& tag);
 
+		/**
+		 * Draw frame when this is attached to another model tag.
+		 */
+		void attachDraw();
+
+		bool isOpaque() const;
 		void draw();
-		boundingBox getAABoundingBox();
-		boundingBox getBoundingBox();
+		boundingBox getAABoundingBox() const;
+		boundingBox getBoundingBox() const;
 };
 
 }
