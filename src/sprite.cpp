@@ -152,6 +152,18 @@ void sprite::draw()
 		return;
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
+
+	camera* mActiveCamera = root::getSingleton().getRenderer()->getCamera();
+	if (!mActiveCamera)
+	{
+		rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+		rs->identityMatrix();
+	}
+	else
+	{
+		mActiveCamera->copyView();
+	}
+
 	if (rs->getPointSpriteSupport())
 	{
 		mMaterial->start();

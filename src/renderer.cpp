@@ -485,18 +485,7 @@ void renderer::draw()
 	for (std::list<drawable3D*>::const_iterator it = m3DObjects.begin(); it != m3DObjects.end(); ++it)
 	{
 		drawable3D* obj = *it;
-		kAssert(obj != NULL);
-
-		if (!mActiveCamera)
-		{
-			rs->setMatrixMode(MATRIXMODE_MODELVIEW);
-			rs->identityMatrix();
-		}
-		else
-		{
-			mActiveCamera->copyView();
-		}
-
+		kAssert(obj);
 		obj->draw();
 	}
 
@@ -504,18 +493,7 @@ void renderer::draw()
 	for (it = mSprites.begin(); it != mSprites.end(); it++)
 	{
 		sprite* spr = (*it);
-		kAssert(spr != NULL);
-
-		if (!mActiveCamera)
-		{
-			rs->setMatrixMode(MATRIXMODE_MODELVIEW);
-			rs->identityMatrix();
-		}
-		else
-		{
-			mActiveCamera->copyView();
-		}
-
+		kAssert(spr);
 		spr->draw();
 	}
 

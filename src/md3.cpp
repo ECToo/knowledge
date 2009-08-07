@@ -20,19 +20,30 @@
 #include "root.h"
 #include "materialManager.h"
 #include "resourceManager.h"
+#include "camera.h"
 
 namespace k {
 
+md3Surface::md3Surface()
+{
+	mMaterial = NULL;
+	
+	mFrameCount = mVerticesCount = mIndicesCount = mUVCount = 0;
+	mVertices = NULL;
+	mIndices = NULL;
+	mUVs = NULL;
+}
+
+md3Surface::~md3Surface()
+{
+	_clean();
+}
+
 void md3Surface::_clean()
 {
-	if (mVertices)
-		delete [] mVertices;
-
-	if (mIndices)
-		delete [] mIndices;
-
-	if (mUVs)
-		delete [] mUVs;
+	delete [] mVertices;
+	delete [] mIndices;
+	delete [] mUVs;
 }
 
 void md3Surface::draw(short frameNum)
@@ -43,8 +54,8 @@ void md3Surface::draw(short frameNum)
 		mMaterial->start();
 
 	rs->clearArrayDesc();
-	rs->setVertexArray(mVertices[frameNum * mVerticesCount].pos, sizeof(md3RealVertex_t));
-	rs->setNormalArray(mVertices[frameNum * mVerticesCount].normal, sizeof(md3RealVertex_t));
+	rs->setVertexArray(mVertices[frameNum * mVerticesCount].pos.vec, sizeof(md3RealVertex));
+	rs->setNormalArray(mVertices[frameNum * mVerticesCount].normal.vec, sizeof(md3RealVertex));
 	rs->setTexCoordArray(mUVs[0].uv, sizeof(md3TexCoord_t));
 		
 	rs->setVertexCount(mVerticesCount);
@@ -64,6 +75,114 @@ bool md3Surface::isOpaque() const
 	else
 		return true;
 }
+		
+void md3Surface::setMaterial(material* mat)
+{
+	kAssert(mat);
+	mMaterial = mat;
+}
+
+void md3Surface::setMaterial(const std::string& matName)
+{
+	material* destMaterial = materialManager::getSingleton().getMaterial(matName);
+	kAssert(destMaterial);
+
+	mMaterial = destMaterial;
+}
+		
+bool md3Surface::allocateIndices(unsigned int i)
+{
+	kAssert(i);
+	delete [] mIndices;
+
+	mIndicesCount = i;
+
+	try
+	{
+		mIndices = new md3Triangle_t[i];
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate surface indices.");
+		return false;
+	}
+
+	return true;
+}
+		
+bool md3Surface::allocateVertices(unsigned int i)
+{
+	kAssert(i);
+	delete [] mVertices;
+
+	mVerticesCount = i;
+
+	try
+	{
+		mVertices = new md3RealVertex[i];
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate surface vertices.");
+		return false;
+	}
+
+	return true;
+}
+
+bool md3Surface::allocateUVs(unsigned int i)
+{
+	kAssert(i);
+	delete [] mUVs;
+
+	mUVCount = i;
+
+	try
+	{
+		mUVs = new md3TexCoord_t[i];
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate surface uvw's.");
+		return false;
+	}
+
+	return true;
+}
+		
+void md3Surface::setIndex(unsigned int index, const md3Triangle_t& tri)
+{
+	kAssert(index < mIndicesCount);
+	mIndices[index] = tri;
+}
+
+void md3Surface::setVertex(unsigned int index, const md3Vertex_t& v)
+{
+	kAssert(index < mVerticesCount);
+	mVertices[index] = v;
+
+	float y = v.coord[2] * 0.015625f;
+	if (index == 0)
+		mLowerY = y;
+	
+	if (y < mLowerY)
+		mLowerY = y;
+}
+
+void md3Surface::setUV(unsigned int index, const md3TexCoord_t& uv)
+{
+	kAssert(index < mUVCount);
+	mUVs[index] = uv;
+}
+		
+void md3Surface::adjustVertices()
+{
+	for (unsigned int i = 0; i < mVerticesCount; i++)
+		mVertices[i].pos.y -= mLowerY;
+}
 
 void md3model::_clean()
 {
@@ -75,7 +194,7 @@ void md3model::_clean()
 
 	if (mSurfaces)
 	{
-		for (int i = 0; i < mSurfacesCount; i++)
+		for (unsigned int i = 0; i < mSurfacesCount; i++)
 		{
 			if (!(&mSurfaces[i]))
 				continue;
@@ -87,66 +206,7 @@ void md3model::_clean()
 	}
 }
 
-/**
- * Yes i know i should share this between bsp64.cpp and md3.cpp
- * Im taking care of this later.
- */
-static inline texture* getNewTexture(const std::string& filename)
-{
-	resourceManager* rscMgr = &resourceManager::getSingleton();
-	textureManager* texMgr = &textureManager::getSingleton();
-
-	std::string fullPath = filename;
-	if (rscMgr) fullPath = rscMgr->getRoot() + filename;
-
-	// First, lets test if default filename exists.
-	FILE* testFile = fopen(fullPath.c_str(), "rb");
-	if (testFile)
-	{
-		fclose(testFile);
-
-		if (texMgr->allocateTexture(filename))
-			return texMgr->getTexture(filename);
-		else
-			return NULL;
-	}
-
-	// Ok, file doesnt exist, lets check the extension:
-	std::string extension = getExtension(filename);
-	std::string newFile = filename.substr(0, filename.size() - extension.size());
-
-	if (extension == ".jpg" || extension == ".JPG" || extension == ".jpeg" || extension == ".JPEG")
-	{
-		// Test TGA
-		newFile += ".tga";
-	}
-	else
-	{
-		// Test JPEG
-		newFile += ".jpg";
-	}
-	
-	fullPath = newFile;
-	if (rscMgr) fullPath = rscMgr->getRoot() + newFile;
-
-	testFile = fopen(fullPath.c_str(), "rb");
-	if (testFile)
-	{
-		fclose(testFile);
-
-		if (texMgr->allocateTexture(newFile))
-			return texMgr->getTexture(newFile);
-		else
-			return NULL;
-	}
-	else
-	{
-		S_LOG_INFO("Texture " + filename + " not found.");
-		return NULL;
-	}
-}
-		
-md3model::md3model(const std::string& filename)
+md3model::md3model(const std::string& filename, bool adjustVertices)
 {
 	// Get file full path if resource manager is available.
 	std::string fullPath = filename;
@@ -158,6 +218,12 @@ md3model::md3model(const std::string& filename)
 	mTags = NULL;
 	mSurfaces = NULL;
 	mCurrentFrame = 0;
+	mAnimations.clear();
+	
+	// Tags
+	mDrawTags = false;
+	mAttachParent = NULL;
+	mAttach.clear();
 
 	// Ok, start parsing file.
 	FILE* md3File = fopen(fullPath.c_str(), "rb");
@@ -204,7 +270,7 @@ md3model::md3model(const std::string& filename)
 
 	// Read Frames
 	fseek(md3File, readLEInt(modelHeader.offsetFrames), SEEK_SET);
-	for (int i = 0; i < mFramesCount; i++)
+	for (unsigned int i = 0; i < mFramesCount; i++)
 	{
 		md3Frame_t tempFrame;
 		if (fread(&tempFrame, sizeof(md3Frame_t), 1, md3File) <= 0)
@@ -240,7 +306,7 @@ md3model::md3model(const std::string& filename)
 
 	try
 	{
-		mTags = new md3Tag_t[mTagsCount];
+		mTags = new md3Tag[mTagsCount * mFramesCount];
 	}
 
 	catch (...)
@@ -253,7 +319,7 @@ md3model::md3model(const std::string& filename)
 
 	// Read Tags
 	fseek(md3File, readLEInt(modelHeader.offsetTags), SEEK_SET);
-	for (int i = 0; i < mTagsCount; i++)
+	for (unsigned int i = 0; i < mTagsCount * mFramesCount; i++)
 	{
 		md3Tag_t tempTag;
 		if (fread(&tempTag, sizeof(md3Tag_t), 1, md3File) <= 0)
@@ -264,24 +330,7 @@ md3model::md3model(const std::string& filename)
 			return;
 		}
 
-		strncpy(mTags[i].name, tempTag.name, 64);
-
-		float tmp = readLEFloat(tempTag.origin[1]);
-		mTags[i].origin[0] = readLEFloat(tempTag.origin[0]);
-		mTags[i].origin[1] = readLEFloat(tempTag.origin[2]);
-		mTags[i].origin[2] = -tmp;
-
-		mTags[i].axis[0][0] = readLEFloat(tempTag.axis[0][0]);
-		mTags[i].axis[0][1] = readLEFloat(tempTag.axis[0][1]);
-		mTags[i].axis[0][2] = readLEFloat(tempTag.axis[0][2]);
-
-		mTags[i].axis[1][0] = readLEFloat(tempTag.axis[1][0]);
-		mTags[i].axis[1][1] = readLEFloat(tempTag.axis[1][1]);
-		mTags[i].axis[1][2] = readLEFloat(tempTag.axis[1][2]);
-
-		mTags[i].axis[2][0] = readLEFloat(tempTag.axis[2][0]);
-		mTags[i].axis[2][1] = readLEFloat(tempTag.axis[2][1]);
-		mTags[i].axis[2][2] = readLEFloat(tempTag.axis[2][2]);
+		mTags[i] = tempTag;
 	}
 
 	// Surfaces
@@ -302,7 +351,7 @@ md3model::md3model(const std::string& filename)
 
 	// Read Surfaces
 	fseek(md3File, readLEInt(modelHeader.offsetSurfaces), SEEK_SET);
-	for (int i = 0; i < mSurfacesCount; i++)
+	for (unsigned int i = 0; i < mSurfacesCount; i++)
 	{
 		long int surfaceStartOffset = ftell(md3File);
 
@@ -314,7 +363,7 @@ md3model::md3model(const std::string& filename)
 
 			return;
 		}
-
+	
 		// Read Shaders
 		int numShaders = readLEInt(tempSurface.numShaders);
 		md3Shader_t* mShaders;
@@ -341,9 +390,6 @@ md3model::md3model(const std::string& filename)
 			return;
 		}
 
-		// Reset material
-		mSurfaces[i].mMaterial = NULL;
-
 		// For each shader, search a material containing the texture.
 		for (int shader = 0; shader < numShaders; shader++)
 		{
@@ -351,29 +397,26 @@ md3model::md3model(const std::string& filename)
 			material* mat = materialManager::getSingleton().getMaterial(mShaders[shader].name);
 
 			if (!mat)
-			{
 				mat = materialManager::getSingleton().getMaterialWithFilename(mShaders[shader].name);
-			}
 
 			// Material not found, we are going to create
 			// a simple material with this texture on it only.
 			if (!mat)
 			{
-				texture* newTexture = getNewTexture(std::string(mShaders[shader].name));
+				texture* newTexture = textureManager::getSingleton().getTexture(std::string(mShaders[shader].name));
 				if (newTexture)
 				{
 					mat = materialManager::getSingleton().createMaterial(mShaders[shader].name, newTexture);
-					mSurfaces[i].mMaterial = mat;
+					mSurfaces[i].setMaterial(mat);
 				}
 				else
 				{
 					S_LOG_INFO("Failed to find and create a material (" + std::string(mShaders[shader].name) + ") for md3mesh.");
-					mSurfaces[i].mMaterial = NULL;
 				}
 			}
 			else
 			{
-				mSurfaces[i].mMaterial = mat;
+				mSurfaces[i].setMaterial(mat);
 			}
 		}
 
@@ -381,23 +424,14 @@ md3model::md3model(const std::string& filename)
 		delete [] mShaders;
 
 		// Read Triangles
-		mSurfaces[i].mIndicesCount = readLEInt(tempSurface.numTris);
-
-		try
+		if (!mSurfaces[i].allocateIndices(readLEInt(tempSurface.numTris)))
 		{
-			mSurfaces[i].mIndices = new md3Triangle_t[mSurfaces[i].mIndicesCount];
-		}
-
-		catch (...)
-		{
-			S_LOG_INFO("Failed to allocate surface indices.");
 			_clean();
-
 			return;
 		}
 
 		fseek(md3File, surfaceStartOffset + readLEInt(tempSurface.offsetTriangles), SEEK_SET);
-		for (int surf = 0; surf < mSurfaces[i].mIndicesCount; surf++)
+		for (unsigned int surf = 0; surf < mSurfaces[i].getIndicesCount(); surf++)
 		{
 			md3Triangle_t tempTriangle;
 			if (fread(&tempTriangle, sizeof(md3Triangle_t), 1, md3File) <= 0)
@@ -408,33 +442,22 @@ md3model::md3model(const std::string& filename)
 				return;
 			}
 
-			mSurfaces[i].mIndices[surf].indices[0] = readLEInt(tempTriangle.indices[0]);
-			mSurfaces[i].mIndices[surf].indices[1] = readLEInt(tempTriangle.indices[1]);
-			mSurfaces[i].mIndices[surf].indices[2] = readLEInt(tempTriangle.indices[2]);
+			mSurfaces[i].setIndex(surf, tempTriangle);
 		}
 
 		// The right number of indices gets multiplied by 3 (we have the number of tris)
-		mSurfaces[i].mIndicesCount *= 3;
+		mSurfaces[i].setIndexCount(mSurfaces[i].getIndicesCount() * 3);
 
 		// allocate uv's
-		mSurfaces[i].mUVCount = readLEInt(tempSurface.numVerts);
-		
-		try
+		if (!mSurfaces[i].allocateUVs(readLEInt(tempSurface.numVerts)))
 		{
-			mSurfaces[i].mUVs = new md3TexCoord_t[mSurfaces[i].mUVCount];
-		}
-
-		catch (...)
-		{
-			S_LOG_INFO("Failed to allocate surface uvs.");
 			_clean();
-
 			return;
 		}
 
 		// read uvs
 		fseek(md3File, surfaceStartOffset + readLEInt(tempSurface.offsetUV), SEEK_SET);
-		for (int uv = 0; uv < mSurfaces[i].mUVCount; uv++)
+		for (unsigned int uv = 0; uv < mSurfaces[i].getUVCount(); uv++)
 		{
 			md3TexCoord_t tempUV;
 			if (fread(&tempUV, sizeof(md3TexCoord_t), 1, md3File) <= 0)
@@ -445,24 +468,14 @@ md3model::md3model(const std::string& filename)
 				return;
 			}
 
-			mSurfaces[i].mUVs[uv].uv[0] = readLEFloat(tempUV.uv[0]);
-			mSurfaces[i].mUVs[uv].uv[1] = readLEFloat(tempUV.uv[1]);
+			mSurfaces[i].setUV(uv, tempUV);
 		}
 
 		// allocate vertices
 		int tempVertexCount = readLEInt(tempSurface.numVerts) * readLEInt(tempSurface.numFrames);
-		mSurfaces[i].mVerticesCount = readLEInt(tempSurface.numVerts);
-
-		try
+		if (!mSurfaces[i].allocateVertices(tempVertexCount))
 		{
-			mSurfaces[i].mVertices = new md3RealVertex_t[tempVertexCount];
-		}
-
-		catch (...)
-		{
-			S_LOG_INFO("Failed to allocate surface vertices.");
 			_clean();
-
 			return;
 		}
 
@@ -489,41 +502,54 @@ md3model::md3model(const std::string& filename)
 			_clean();
 
 			delete [] tempVertices;
-
 			return;
 		}
 
 		// Convert vertices
-		for (int vertex = 0; vertex < tempVertexCount; vertex++)
-		{
-			const float vertexMultiplier = 0.015625f;
-	 		const float lat = tempVertices[vertex].normal[0] * (2.0f * M_PI) / 255.0f;
-	 		const float lng = tempVertices[vertex].normal[1] * (2.0f * M_PI) / 255.0f;
+		for (unsigned int vertex = 0; vertex < mSurfaces[i].getVertexCount(); vertex++)
+			mSurfaces[i].setVertex(vertex, tempVertices[vertex]);
 
-			mSurfaces[i].mVertices[vertex].pos[0] = readLEShort(tempVertices[vertex].coord[0]) * vertexMultiplier;
-			mSurfaces[i].mVertices[vertex].pos[1] = readLEShort(tempVertices[vertex].coord[2]) * vertexMultiplier;
-			mSurfaces[i].mVertices[vertex].pos[2] = -readLEShort(tempVertices[vertex].coord[1]) * vertexMultiplier;
+		// Adjust Vertices, because we need the model center on lower part of
+		// surface (lower Y)
+		if (adjustVertices)
+			mSurfaces[i].adjustVertices();
 
-			mSurfaces[i].mVertices[vertex].normal[0] = cos(lat) * sin(lng);
-			mSurfaces[i].mVertices[vertex].normal[1] = -cos(lng);
-			mSurfaces[i].mVertices[vertex].normal[2] = sin(lat) * sin(lng);
-		}
+		// Set Vertex Count
+		mSurfaces[i].setVertexCount(readLEInt(tempSurface.numVerts));
 
 		// We dont need the temporary vertices anymore, free it
 		delete [] tempVertices;
 
 		// Copy name
-		strncpy(mSurfaces[i].name, tempSurface.name, 64);
+		mSurfaces[i].setName(tempSurface.name);
 
 		// FrameCount
-		mSurfaces[i].mFrameCount = readLEInt(tempSurface.numFrames);
+		mSurfaces[i].setFrameCount(readLEInt(tempSurface.numFrames));
 	}
 }
 		
-void md3model::setFrame(short i)
+md3Surface* md3model::getSurface(unsigned int index)
+{
+	return &mSurfaces[index];
+}
+		
+const unsigned int md3model::getSurfaceCount() const
+{
+	return mSurfacesCount;
+}
+
+void md3model::setFrame(unsigned short i)
 {
 	if (i < mFramesCount)
 		mCurrentFrame = i;
+	else
+	{
+		std::stringstream msg;
+		msg << "Frame desired(" << i << ") is greater than maximum number of frames(" 
+		<< mFramesCount << ")";
+
+		S_LOG_INFO(msg.str());
+	}
 }
 
 int md3model::getFramesCount() const
@@ -533,7 +559,7 @@ int md3model::getFramesCount() const
 
 bool md3model::isOpaque() const
 {
-	for (int i = 0; i < mSurfacesCount; i++)
+	for (unsigned int i = 0; i < mSurfacesCount; i++)
 	{
 		if (!mSurfaces[i].isOpaque())
 			return false;
@@ -547,23 +573,91 @@ void md3model::draw()
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 
 	// Rotate and Translate
+	vector3 tempPos = getRelativePosition();
 	vector3 finalPos = getAbsolutePosition();
 	quaternion finalOrientation = getAbsoluteOrientation();
 
 	vec_t angle;
 	vector3 axis;
 	finalOrientation.toAxisAngle(angle, axis);
+			
+	camera* haveCamera = root::getSingleton().getRenderer()->getCamera();
+	if (!haveCamera)
+	{
+		rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+		rs->identityMatrix();
+	}
+	else
+	{
+		haveCamera->copyView();
+	}
 
-	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 	rs->translateScene(finalPos.x, finalPos.y, finalPos.z);
 	rs->rotateScene(angle, axis.x, axis.y, axis.z);
 	rs->scaleScene(mScale.x, mScale.y, mScale.z);
 
-	for (int i = 0; i < mSurfacesCount; i++)
+	mPosition = vector3::zero;
+
+	for (unsigned int i = 0; i < mSurfacesCount; i++)
 		mSurfaces[i].draw(mCurrentFrame);
+
+	if (getDrawBoundingBox())
+		getAABoundingBox().draw();
+		
+	// Attached
+	for (std::vector<md3model*>::iterator it = mAttach.begin(); it != mAttach.end(); it++)
+		(*it)->attachDraw();
+
+	mPosition = tempPos;
+}
+		
+void md3model::attachDraw()
+{
+	if (!mAttachParent)
+		return;
+		
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+
+	// Get Our Tags
+	md3Tag* mAttachedTo = mAttachParent->getTag(mAttachTag);
+	md3Tag* mAttachConnection = getTag(mAttachTag);
+
+	if (!mAttachedTo || !mAttachConnection)
+		return;
+
+	matrix3 rotationMatrix = mAttachedTo->mRotation * mAttachConnection->mRotation;
+	rotationMatrix.toAxisAngle(mAttachedTo->mAA_Angle, mAttachedTo->mAA_Axis);
+
+	vector3 mTranslation = mAttachedTo->mOrigin - mAttachConnection->mOrigin;
+	mPosition = mTranslation;
+		
+	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+	rs->translateScene(mTranslation.x, mTranslation.y, mTranslation.z);
+	rs->rotateScene(mAttachedTo->mAA_Angle, mAttachedTo->mAA_Axis.x, mAttachedTo->mAA_Axis.y, mAttachedTo->mAA_Axis.z);
+
+	for (unsigned int i = 0; i < mSurfacesCount; i++)
+		getSurface(i)->draw(mCurrentFrame);
+
+	if (getDrawBoundingBox())
+		getAABoundingBox().draw();
+
+	for (std::vector<md3model*>::iterator it = mAttach.begin(); it != mAttach.end(); it++)
+		(*it)->attachDraw();
 }
 
-boundingBox md3model::getAABoundingBox()
+boundingBox md3model::getAABoundingBox() const
+{
+	vector3 mins = vector3(mFrames[mCurrentFrame].mins[0],
+			mFrames[mCurrentFrame].mins[1],
+			mFrames[mCurrentFrame].mins[2]);
+	vector3 maxs = vector3(mFrames[mCurrentFrame].maxs[0],
+			mFrames[mCurrentFrame].maxs[1],
+			mFrames[mCurrentFrame].maxs[2]);
+
+	return boundingBox(mins, maxs);
+}
+
+boundingBox md3model::getBoundingBox() const
 {
 	vector3 mins = vector3(mFrames[mCurrentFrame].mins[0],
 			mFrames[mCurrentFrame].mins[1],
@@ -575,17 +669,42 @@ boundingBox md3model::getAABoundingBox()
 	return boundingBox(mOrientation.rotateVector(mins), 
 			mOrientation.rotateVector(maxs));
 }
-
-boundingBox md3model::getBoundingBox()
+		
+void md3model::attach(md3model* model, const std::string& tag)
 {
-	vector3 mins = vector3(mFrames[mCurrentFrame].mins[0],
-			mFrames[mCurrentFrame].mins[1],
-			mFrames[mCurrentFrame].mins[2]);
-	vector3 maxs = vector3(mFrames[mCurrentFrame].maxs[0],
-			mFrames[mCurrentFrame].maxs[1],
-			mFrames[mCurrentFrame].maxs[2]);
+	if (!model->getTag(tag))
+	{
+		S_LOG_INFO("Tag " + tag + " not found on model to attach.");
+		return;
+	}
 
-	return boundingBox(mins, maxs);
+	for (unsigned int i = 0; i < mTagsCount; i++)
+	{
+		if (mTags[i].mName == tag)
+		{
+			mAttach.push_back(model);
+			model->setAttachTag(tag, this);
+
+			return;
+		}
+	}
+
+	S_LOG_INFO("Tag " + tag + " not found, model not attached.");
+}
+		
+md3Tag* md3model::getTag(const std::string& name)
+{
+	unsigned int tagIndex;
+	for (tagIndex = 0; tagIndex < mTagsCount * mFramesCount; tagIndex++)
+	{
+		if (mTags[tagIndex].mName == name)
+			break;
+	}
+	
+	if (tagIndex == (mTagsCount * mFramesCount))
+		return NULL;
+
+	return &mTags[tagIndex + (mCurrentFrame * mTagsCount)];
 }
 
 }

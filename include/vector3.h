@@ -168,6 +168,22 @@ namespace k
 			 * Multiply this vector by a rotation matrix
 			 * @return Another vector with the multiplication stored
 			 */
+			inline vector3 operator * (const vec_t matrix[3][3]) const
+			{
+				vector3 tempVec
+						(
+						x * matrix[0][0] + y * matrix[0][1] + z * matrix[0][2],
+						x * matrix[1][0] + y * matrix[4][1] + z * matrix[7][2],
+						x * matrix[2][0] + y * matrix[5][1] + z * matrix[8][2]
+						);
+				
+				return tempVec;				
+			}
+
+			/**
+			 * Multiply this vector by a rotation matrix
+			 * @return Another vector with the multiplication stored
+			 */
 			inline vector3 operator * (const vec_t matrix[9]) const
 			{
 				vector3 tempVec

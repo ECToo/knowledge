@@ -109,6 +109,97 @@ namespace k
 				return result;
 			}
 
+			/**
+			 * Thanks to martin baker site for the formula and pseudo java code
+			 * wich this one is a port of.
+			 */
+			void toAxisAngle(vec_t& angle, vector3& axis)
+			{
+				double epsilon = 0.01; 
+				double epsilon2 = 0.1;
+	
+				if ((abs(m[0][1] - m[1][0]) < epsilon) &&
+					(abs(m[0][2] - m[2][0]) < epsilon) &&
+					(abs(m[1][2] - m[2][1]) < epsilon)) 
+				{
+					// singularity found
+					// first check for identity matrix which must have +1 for all terms
+					//  in leading diagonaland zero in other terms
+					if ((abs(m[0][1] + m[1][0]) < epsilon2) &&
+						 (abs(m[0][2] + m[2][0]) < epsilon2) &&
+						 (abs(m[1][2] + m[2][1]) < epsilon2) &&
+						 (abs(m[0][0] + m[1][1]+m[2][2]-3) < epsilon2))
+					{
+						// this singularity is identity matrix so angle = 0
+						angle = 0;
+						axis.x = 1;
+						axis.y = axis.z = 0;
+
+						return;
+					}
+		
+					// otherwise this singularity is angle = 180
+					angle = M_PI;
+
+					double xx = (m[0][0] + 1) / 2;
+					double yy = (m[1][1] + 1) / 2;
+					double zz = (m[2][2] + 1) / 2;
+					double xy = (m[0][1] + m[1][0]) / 4;
+					double xz = (m[0][2] + m[2][0]) / 4;
+					double yz = (m[1][2] + m[2][1]) / 4;
+
+					if ((xx > yy) && (xx > zz)) 
+					{ 
+						// m[0][0] is the largest diagonal term
+						if (xx < epsilon) 
+						{
+							axis.x = 0;
+							axis.y = 0.7071;
+							axis.z = 0.7071;
+						} 
+						else 
+						{
+							axis.x = sqrt(xx);
+							axis.y = xy / axis.x;
+							axis.z = xz / axis.x;
+						}
+					} 
+					else 
+					if (yy > zz) 
+					{ 
+						// m[1][1] is the largest diagonal term
+						if (yy < epsilon) 
+						{
+							axis.x = 0.7071;
+							axis.y = 0;
+							axis.z = 0.7071;
+						} 
+						else 
+						{
+							axis.y = sqrt(yy);
+							axis.x = xy / axis.y;
+							axis.z = yz / axis.y;
+						}	
+					} 
+					else 
+					{ 
+						// m[2][2] is the largest diagonal term so base result on this
+						if (zz < epsilon) 
+						{
+							axis.x = 0.7071;
+							axis.y = 0.7071;
+							axis.z = 0;
+						} 
+						else 
+						{
+							axis.z = sqrt(zz);
+							axis.x = xz / axis.z;
+							axis.y = yz / axis.z;
+						}
+					}
+				}
+			}
+
 			vec_t determinant()
 			{
 				vec_t fCofactor00 = m[1][1]*m[2][2] - m[1][2]*m[2][1];
