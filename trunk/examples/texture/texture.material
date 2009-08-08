@@ -12,7 +12,7 @@ material crate
 	{
 		filename /texture/crate_skull.png
 		texcoord uv
-		program decal
+		texenv decal
 		blendfunc srcalpha invsrcalpha
 	}
 }

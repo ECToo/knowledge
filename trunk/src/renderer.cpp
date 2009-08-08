@@ -34,6 +34,7 @@ renderer::renderer()
 	m3DObjects.clear();
 	m2DObjects.clear();
 	mSprites.clear();
+	mLights.clear();
 
 	mActiveCamera = NULL;
 	mSkybox = NULL;
@@ -59,6 +60,24 @@ void renderer::setWorld(world* w)
 	kAssert(w);
 	mActiveWorld = w;
 }
+			
+light::light* renderer::createPointLight()
+{
+	try
+	{
+		light::light* newLight = new light::light();
+		mLights.push_back(newLight);
+
+		return newLight;
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate point light.");
+	}
+		
+	return NULL;
+}
 
 void renderer::setFpsCounter(bool status)
 {
@@ -73,6 +92,22 @@ unsigned int renderer::getFps()
 unsigned int renderer::getLastFps()
 {
 	return mLastFps;
+}
+
+sprite* renderer::createSprite(const std::string& mat, vec_t radius)
+{
+	try
+	{
+		sprite* newSpr = new sprite(mat, radius);
+		mSprites.push_back(newSpr);
+		return newSpr;
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate sprite.");
+		return NULL;
+	}
 }
 
 sprite* renderer::createSprite(vec_t radi, material* mat)
@@ -484,9 +519,44 @@ void renderer::draw()
 	 */
 	for (std::list<drawable3D*>::const_iterator it = m3DObjects.begin(); it != m3DObjects.end(); ++it)
 	{
+		bool lightFound = false;
+		unsigned int lightIndex = 0;
+
 		drawable3D* obj = *it;
 		kAssert(obj);
+
+		// loop lights
+		std::list<light::light*>::const_iterator lightIt;
+		for (lightIt = mLights.begin(); lightIt != mLights.end(); lightIt++)
+		{
+			if (!(*lightIt)->getEnabled() || !(*lightIt)->isInLightRange(obj->getAbsolutePosition()))
+				continue;
+
+			if (lightIndex >= 8)
+				break;
+
+			// Light is valid for this object
+			if (!lightFound)
+			{
+				rs->setLighting(true);
+				lightFound = true;
+			}
+
+			// Lets Setup
+			rs->setLightPosition(lightIndex, (*lightIt)->getPosition(), false);
+			rs->setLightDiffuse(lightIndex, (*lightIt)->getDiffuse());
+			rs->setLightSpecular(lightIndex, (*lightIt)->getSpecular());
+			rs->setLightAmbient(lightIndex, (*lightIt)->getAmbient());
+			rs->setLightAttenuation(lightIndex, (*lightIt)->getAttenuation());
+			rs->setLight(lightIndex, true);
+
+			lightIndex++;
+		}
+
 		obj->draw();
+
+		if (lightFound)
+			rs->setLighting(false);
 	}
 
 	std::list<sprite*>::const_iterator it;

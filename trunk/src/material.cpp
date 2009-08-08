@@ -28,6 +28,7 @@ material::material()
 	mDepthWrite = true;
 	mNoDraw = false;
 	mIsOpaque = true;
+	mReceiveLight = true;
 }
 
 material::material(texture* tex)

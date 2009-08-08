@@ -17,6 +17,7 @@
 
 #include "bsp46.h"
 #include "camera.h"
+#include "color.h"
 #include "config.h"
 #include "drawable.h"
 #include "fileParser.h"
@@ -25,6 +26,7 @@
 #include "guiManager.h"
 #include "inputManager.h"
 #include "keysyms.h"
+#include "light.h"
 #include "loadscr.h"
 #include "logger.h"
 #include "material.h"

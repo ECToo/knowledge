@@ -28,7 +28,7 @@ material boxLitShader
 	{
 		filename ./lightmap/box_lightmap.png
 		texcoord uv
-		program modulate
+		texenv modulate
 	}
 }
 
@@ -44,7 +44,7 @@ material planeLitShader
 	{
 		filename ./lightmap/plane_lightmap.png
 		texcoord uv
-		program modulate
+		texenv modulate
 	}
 }
 

@@ -686,7 +686,7 @@ void wiiRenderSystem::normal(const vector3& norm)
 	mNormals.push_back(norm);
 }
 
-void wiiRenderSystem::color(const vector3& col)
+void wiiRenderSystem::vcolor(const vector3& col)
 {
 	if (mActiveMaterial && mActiveMaterial->getNoDraw())
 		return;
@@ -1085,6 +1085,40 @@ void wiiRenderSystem::screenshot(const char* filename)
 
 	// memalign'ed
 	free(textureData);
+}
+
+// TODO!!!
+bool wiiRenderSystem::isLightOn()
+{
+	return false;
+}
+
+void wiiRenderSystem::setLighting(bool status)
+{
+}
+			
+void wiiRenderSystem::setLight(unsigned int i, bool status)
+{
+}
+
+void wiiRenderSystem::setLightPosition(unsigned int i, const vector3& p, bool directional)
+{
+}
+
+void wiiRenderSystem::setLightAmbient(unsigned int i, const color& a)
+{
+}
+
+void wiiRenderSystem::setLightSpecular(unsigned int i, const color& s)
+{
+}
+
+void wiiRenderSystem::setLightDiffuse(unsigned int i, const color& d)
+{
+}
+
+void wiiRenderSystem::setLightAttenuation(unsigned int i, const vector3& att)
+{
 }
 			
 bool wiiRenderSystem::getPointSpriteSupport()

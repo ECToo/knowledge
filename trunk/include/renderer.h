@@ -27,6 +27,7 @@
 #include "timer.h"
 #include "particle.h"
 #include "world.h"
+#include "light.h"
 
 namespace k
 {
@@ -36,6 +37,7 @@ namespace k
 			std::list<drawable3D*> m3DObjects;
 			std::list<drawable2D*> m2DObjects;
 			std::list<sprite*> mSprites;
+			std::list<light::light*> mLights;
 
 			camera* mActiveCamera;
 
@@ -111,6 +113,11 @@ namespace k
 			void draw();
 
 			/**
+			 * Create a point light.
+			 */
+			light::light* createPointLight();
+
+			/**
 			 * Render to texture.
 			 *
 			 * After calling this function, the first
@@ -125,6 +132,7 @@ namespace k
 			 * Create a sprite within this renderer
 			 */
 			sprite* createSprite(vec_t radi, material* mat);
+			sprite* createSprite(const std::string& mat, vec_t radius);
 
 			/**
 			 * Remove the sprite from the renderer.

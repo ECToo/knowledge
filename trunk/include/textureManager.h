@@ -43,7 +43,7 @@ namespace k
 
 			static textureManager& getSingleton();
 
-			bool allocateTexture(const std::string& filename, int wrapBits = DEFAULT_WRAP);
+			texture* allocateTexture(const std::string& filename, int wrapBits = DEFAULT_WRAP);
 			texture* getTexture(const std::string& filename);
 
 			/**

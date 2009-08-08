@@ -21,6 +21,7 @@
 #include "prerequisites.h"
 #include "vector2.h"
 #include "vector3.h"
+#include "color.h"
 #include "quaternion.h"
 #include "material.h"
 #include "logger.h"
@@ -156,7 +157,7 @@ namespace k
 				mRenderToTexture = rtt;
 			}
 
-			virtual void setClearColor(const vector3& color) = 0;
+			virtual void setClearColor(const vector3& cl) = 0;
 			virtual void setClearDepth(const vec_t amount) = 0;
 			virtual void setDepthTest(bool test) = 0;
 			virtual void setDepthMask(bool mask) = 0;
@@ -217,7 +218,7 @@ namespace k
 			virtual void startVertices(VertexMode mode) = 0;
 			virtual void vertex(const vector3& vert) = 0;
 			virtual void normal(const vector3& norm) = 0;
-			virtual void color(const vector3& col) = 0;
+			virtual void vcolor(const vector3& col) = 0;
 			virtual void texCoord(const vector2& coord) = 0;
 			virtual void endVertices() = 0;
 
@@ -474,6 +475,58 @@ namespace k
 
 			virtual void drawArrays() = 0;
 			virtual void screenshot(const char* filename) = 0;
+
+			/**
+			 * If we are rendering with lights.
+			 */
+			virtual bool isLightOn() = 0;
+
+			/**
+			 * Set lighting
+			 * @status If lighting is on or off.
+			 */
+			virtual void setLighting(bool status) = 0;
+
+			/**
+			 * Set light status
+			 * @status If light is on or off.
+			 */
+			virtual void setLight(unsigned int i, bool status) = 0;
+
+			/**
+			 * Set light position
+			 * @i Light index
+			 * @p New position
+			 */
+			virtual void setLightPosition(unsigned int i, const vector3& p, bool directional) = 0;
+
+			/**
+			 * Set light ambient
+			 * @i Light index
+			 * @a Ambient
+			 */
+			virtual void setLightAmbient(unsigned int i, const color& a) = 0;
+
+			/**
+			 * Set light specular
+			 * @i Light index
+			 * @s Specular 
+			 */
+			virtual void setLightSpecular(unsigned int i, const color& s) = 0;
+
+			/**
+			 * Set light diffuse
+			 * @i Light index
+			 * @d Diffuse
+			 */
+			virtual void setLightDiffuse(unsigned int i, const color& d) = 0;
+
+			/**
+			 * Set light attenuation
+			 * @i Light index
+			 * @att Light attenuation vector [constant, linear, quadratic]
+			 */
+			virtual void setLightAttenuation(unsigned int i, const vector3& att) = 0;
 
 			/**
 			 * Check if rendersystem supports point sprite.

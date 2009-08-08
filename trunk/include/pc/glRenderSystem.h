@@ -90,7 +90,7 @@ namespace k
 			void startVertices(VertexMode mode);
 			void vertex(const vector3& vert);
 			void normal(const vector3& norm);
-			void color(const vector3& col);
+			void vcolor(const vector3& col);
 			void texCoord(const vector2& coord);
 			void endVertices();
 
@@ -108,6 +108,15 @@ namespace k
 			void setBlend(bool state);
 			void drawArrays();
 			void screenshot(const char* filename);
+
+			bool isLightOn();
+			void setLighting(bool status);
+			void setLight(unsigned int i, bool status);
+			void setLightPosition(unsigned int i, const vector3& p, bool directional);
+			void setLightAmbient(unsigned int i, const color& a);
+			void setLightSpecular(unsigned int i, const color& s);
+			void setLightDiffuse(unsigned int i, const color& d);
+			void setLightAttenuation(unsigned int i, const vector3& att);
 			
 			bool getPointSpriteSupport();
 			float getPointSpriteMaxSize();

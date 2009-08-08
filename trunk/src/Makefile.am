@@ -44,6 +44,7 @@ libknowledge_la_LDFLAGS = -pthread
 
 pkginclude_HEADERS = @top_srcdir@/include/bsp46.h \
 @top_srcdir@/include/camera.h \
+@top_srcdir@/include/color.h \
 @top_srcdir@/include/config.h \
 @top_srcdir@/include/drawable.h \
 @top_srcdir@/include/fileParser.h \

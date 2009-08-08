@@ -18,6 +18,7 @@
 #include "materialManager.h"
 #include "textureManager.h"
 #include "logger.h"
+#include "root.h"
 
 namespace k {
 
@@ -336,11 +337,8 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 		if (token == "filename")
 		{
 			token = file->getNextToken();
-			texture* newTexture = textureManager::getSingleton().getTexture(token);
-				
-			if (!newTexture && textureManager::getSingleton().allocateTexture(token))
-				newTexture = textureManager::getSingleton().getTexture(token);
-				
+			texture* newTexture = textureManager::getSingleton().allocateTexture(token);
+
 			if (newTexture)
 				activeStage->setTexture(newTexture, stageTextures++);
 		}
@@ -348,15 +346,73 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 		if (token == "cubename")
 		{
 			token = file->getNextToken();
-			// TODO
-			// ktextureManager::getSingleton().setStageCubicTexture(activeTexture, token, FLAG_CLAMP_EDGE_S | FLAG_CLAMP_EDGE_T);
+
+			std::string extension = getExtension(token);
+			token.erase(token.length() - extension.length(), extension.length());
+
+			int flags = FLAG_CLAMP_EDGE_S | FLAG_CLAMP_EDGE_T;
+
+			// Temporary
+			std::string tempName;
+			texture* tempTex;
+
+			// Front
+			tempName = token + "_front" + extension;
+			tempTex = textureManager::getSingleton().allocateTexture(tempName, flags);
+			if (!tempTex)
+				goto endOfCubeName;
+			else
+				activeStage->setTexture(tempTex, CUBE_FRONT);
+
+			// Back 
+			tempName = token + "_back" + extension;
+			tempTex = textureManager::getSingleton().allocateTexture(tempName, flags);
+			if (!tempTex)
+				goto endOfCubeName;
+			else
+				activeStage->setTexture(tempTex, CUBE_BACK);
+
+			// Left
+			tempName = token + "_left" + extension;
+			tempTex = textureManager::getSingleton().allocateTexture(tempName, flags);
+			if (!tempTex)
+				goto endOfCubeName;
+			else
+				activeStage->setTexture(tempTex, CUBE_LEFT);
+
+			// Right
+			tempName = token + "_right" + extension;
+			tempTex = textureManager::getSingleton().allocateTexture(tempName, flags);
+			if (!tempTex)
+				goto endOfCubeName;
+			else
+				activeStage->setTexture(tempTex, CUBE_RIGHT);
+
+			// Up
+			tempName = token + "_up" + extension;
+			tempTex = textureManager::getSingleton().allocateTexture(tempName, flags);
+			if (!tempTex)
+				goto endOfCubeName;
+			else
+				activeStage->setTexture(tempTex, CUBE_UP);
+
+			// Down
+			tempName = token + "_down" + extension;
+			tempTex = textureManager::getSingleton().allocateTexture(tempName, flags);
+			if (!tempTex)
+				goto endOfCubeName;
+			else
+				activeStage->setTexture(tempTex, CUBE_DOWN);
+
+// i hate this but lets make the code more concise
+endOfCubeName:
+			flags = 0;
 		}
 		else
-		if (token == "program")
+		if (token == "texenv")
 		{
 			token = file->getNextToken();
 
-			// TODO: Change the "program" name
 			if (token == "replace")
 				activeStage->setEnv(TEXENV_REPLACE);
 			else
@@ -476,6 +532,13 @@ void materialManager::parseMaterial(material* mat, parsingFile* file)
 		if (token == "nodraw")
 		{
 			mat->setNoDraw(true);
+		}
+		else
+		if (token == "receiveLight")
+		{
+			token = file->getNextToken();
+			if (token == "no" || token == "false" || token == "off")
+				mat->setReceiveLight(false);
 		}
 		else
 		if (token == "ambient")

@@ -45,7 +45,11 @@ void materialStage::draw()
 	{
 		default:
 		case TEXENV_REPLACE:
-			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+			if (rs->isLightOn())
+				glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+			else
+				glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
 			break;
 
 		case TEXENV_MODULATE:

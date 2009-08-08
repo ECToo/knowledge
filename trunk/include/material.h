@@ -133,6 +133,8 @@ namespace k
 			bool mNoDraw;
 			bool mIsOpaque;
 
+			bool mReceiveLight;
+
 			int mContentFlags;
 			int mEffectFlags;
 
@@ -235,6 +237,18 @@ namespace k
 			
 			int getEffectFlags() const
 			{ return mEffectFlags; }
+
+			/**
+			 * Set if the material receives light.
+			 */
+			void setReceiveLight(bool recv)
+			{ mReceiveLight = recv; }
+
+			/**
+			 * Does this material receive light?
+			 */
+			bool getReceiveLight() const
+			{ return mReceiveLight; } 
 
 			/**
 			 * Set material stuff before drawing.
