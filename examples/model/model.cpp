@@ -95,6 +95,17 @@ int main(int argc, char** argv)
 	k::vector3 modelPosition;
 	modelPosition.z = -100;
 
+	k::light::light* tempLight = mRenderer->createPointLight();
+	k::sprite* lightSprite = NULL;
+	if (tempLight)
+	{
+		lightSprite = mRenderer->createSprite("light", 50);
+
+		tempLight->setAmbient(k::color(0.0, 0.0, 0.0, 1.0));
+		tempLight->setDiffuse(k::color(1.0, 1.0, 1.0, 1.0));
+		tempLight->setSpecular(k::color(0.5, 0.5, 0.5, 1.0));
+	}
+
 	// md5 Model
 	k::md5model* newModel = NULL;
 
@@ -106,10 +117,12 @@ int main(int argc, char** argv)
 	try
 	{
 		// Comment this out for goku =]
+		/*
 		newModel = new k::md5model("model/marvin/marvin.md5mesh");
 		newModel->attachAnimation("model/marvin/idle.md5anim", "idle");
 		newModel->attachAnimation("model/marvin/walk.md5anim", "runf");
 		newModel->attachAnimation("model/marvin/walk.md5anim", "runb");
+		*/
 
 		// Lets Say we want to change the model first mesh material to k_base_null material
 		/*
@@ -118,12 +131,10 @@ int main(int argc, char** argv)
 		*/
 
 		// Comment this out for marvin =]
-		/*
 		newModel = new k::md5model("model/goku.md5mesh");
 		newModel->attachAnimation("model/idle.md5anim", "idle");
 		newModel->attachAnimation("model/fly_f.md5anim", "runf");
 		newModel->attachAnimation("model/fly_b.md5anim", "runb");
-		*/
 
 		newModel->setAnimation("runf");
 		newModel->setAnimationFrame(10);
@@ -169,7 +180,8 @@ int main(int argc, char** argv)
 	delete newLoadingScreen;
 
 	// Set Skyplane
-	mRenderer->setSkyPlane("skyPlane");
+	// mRenderer->setSkyPlane("skyPlane");
+	mRenderer->setSkyBox("nightzSky");
 
 	// Fps Counter
 	k::bitmapText* fpsText;
@@ -389,6 +401,12 @@ int main(int argc, char** argv)
 		{
 			q3Model->setPosition(modelPosition);
 			q3Model->setOrientation(modelQuat);
+		}
+
+		if (tempLight)
+		{
+			tempLight->setPosition(k::vector3(100, 100, 0) + modelPosition);
+			lightSprite->setPosition(tempLight->getPosition());
 		}
 
 		std::stringstream fpsT;

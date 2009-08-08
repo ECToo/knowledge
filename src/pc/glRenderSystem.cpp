@@ -432,7 +432,7 @@ void glRenderSystem::normal(const vector3& norm)
 	glNormal3f(norm.x, norm.y, norm.z);
 }
 
-void glRenderSystem::color(const vector3& col)
+void glRenderSystem::vcolor(const vector3& col)
 {
 	if (mActiveMaterial && mActiveMaterial->getNoDraw())
 		return;
@@ -698,6 +698,77 @@ void glRenderSystem::screenshot(const char* filename)
 	FreeImage_Save(FIF_JPEG, newImage, filename, JPEG_QUALITYSUPERB);
 	FreeImage_Unload(newImage);
 	delete [] imgData;
+}
+			
+bool glRenderSystem::isLightOn()
+{
+	return glIsEnabled(GL_LIGHTING);
+}
+
+void glRenderSystem::setLighting(bool status)
+{
+	if (status)
+	{
+		glEnable(GL_LIGHTING);
+		glEnable(GL_COLOR_MATERIAL);
+		glEnable(GL_NORMALIZE);
+	}
+	else
+	{
+		for (int i = 0; i < 8; i++)
+			glDisable(GL_LIGHT0 + i);
+
+		glDisable(GL_LIGHTING);
+		glDisable(GL_NORMALIZE);
+	}
+}
+			
+void glRenderSystem::setLight(unsigned int index, bool status)
+{
+	kAssert(index < 8);
+
+	if (status)
+		glEnable(GL_LIGHT0 + index);
+	else
+		glDisable(GL_LIGHT0 + index);
+}
+
+void glRenderSystem::setLightPosition(unsigned int i, const vector3& p, bool directional)
+{
+	kAssert(i < 8);
+
+	// Light position is in world space
+	setMatrixMode(MATRIXMODE_MODELVIEW);
+	identityMatrix();
+
+	GLfloat position[4] = {p.x, p.y, p.z, directional ? 0 : 1 };
+	glLightfv(GL_LIGHT0 + i, GL_POSITION, position);
+}
+
+void glRenderSystem::setLightAmbient(unsigned int i, const color& a)
+{
+	kAssert(i < 8);
+	glLightfv(GL_LIGHT0 + i, GL_AMBIENT, a.c);
+}
+
+void glRenderSystem::setLightSpecular(unsigned int i, const color& s)
+{
+	kAssert(i < 8);
+	glLightfv(GL_LIGHT0 + i, GL_SPECULAR, s.c);
+}
+
+void glRenderSystem::setLightDiffuse(unsigned int i, const color& d)
+{
+	kAssert(i < 8);
+	glLightfv(GL_LIGHT0 + i, GL_DIFFUSE, d.c);
+}
+
+void glRenderSystem::setLightAttenuation(unsigned int i, const vector3& att)
+{
+	kAssert(i < 8);
+	glLightf(GL_LIGHT0 + i, GL_CONSTANT_ATTENUATION, att.x);
+	glLightf(GL_LIGHT0 + i, GL_LINEAR_ATTENUATION, att.y);
+	glLightf(GL_LIGHT0 + i, GL_QUADRATIC_ATTENUATION, att.y);
 }
 			
 bool glRenderSystem::getPointSpriteSupport()

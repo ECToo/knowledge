@@ -79,18 +79,25 @@ texture* textureManager::getTexture(const std::string& filename)
 		return NULL;
 }
 
-bool textureManager::allocateTexture(const std::string& filename, int wrapBits)
+texture* textureManager::allocateTexture(const std::string& filename, int wrapBits)
 {
+	texture* newTexture = getTexture(filename);
+
+	// Check for existence
+	if (newTexture)
+		return newTexture;
+
+	// It doesnt exist, allocate it
 	std::string fullPath = filename;
 
 	// Get Path from resource manager (if any)
 	resourceManager* rsc = &resourceManager::getSingleton();
 	if (rsc) fullPath = rsc->getRoot() + filename;
 
-	texture* newTexture = getTexture(filename);
+	newTexture = getTexture(filename);
 	if (newTexture)
 	{
-		return true;
+		return newTexture;
 	}
 	else
 	{
@@ -98,12 +105,12 @@ bool textureManager::allocateTexture(const std::string& filename, int wrapBits)
 		if (newTexture)
 		{
 			mTextures[getKey(filename)] = newTexture;
-			return true;
+			return newTexture;
 		}
 	}
 		
 	S_LOG_INFO("Failed to allocate texture data for " + fullPath + ".");
-	return false;
+	return NULL;
 }
 
 void textureManager::createSystemTextures()
