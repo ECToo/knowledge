@@ -22,6 +22,7 @@
 #include "vector2.h"
 #include "vector3.h"
 #include "quaternion.h"
+#include "drawable.h"
 
 namespace k
 {
@@ -142,7 +143,7 @@ namespace k
 			 */
 			bool isPointInsideFrustum(const vector3& point) const;
 			bool isSphereInsideFrustum(const vector3& center, vec_t radius) const;
-			bool isBoxInsideFrustum(const vector3& mins, const vector3& maxs) const;
+			bool isBoxInsideFrustum(const boundingBox& AABB) const;
 
 			// Look at the vector dest
 			void lookAt(vector3 dest);

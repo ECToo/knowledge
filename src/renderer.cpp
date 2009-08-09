@@ -525,6 +525,10 @@ void renderer::draw()
 		drawable3D* obj = *it;
 		kAssert(obj);
 
+		// Frustum test obj against camera
+		if (mActiveCamera && !mActiveCamera->isBoxInsideFrustum(obj->getAABoundingBox()))
+			continue;
+
 		// loop lights
 		std::list<light::light*>::const_iterator lightIt;
 		for (lightIt = mLights.begin(); lightIt != mLights.end(); lightIt++)

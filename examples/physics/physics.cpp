@@ -64,7 +64,6 @@ class kPlane : public k::drawable3D
 		void draw()
 		{
 			k::renderSystem* rs = k::root::getSingleton().getRenderSystem();
-			kAssert(rs);
 
 			mMaterial->start();
 
@@ -92,12 +91,12 @@ class kPlane : public k::drawable3D
 
 		k::boundingBox getAABoundingBox() const
 		{
-			return k::boundingBox(k::vector3::zero, k::vector3::zero);
+			return k::boundingBox(k::vector3(40, 0, 40), k::vector3(-40, 0, -40));
 		}
 
 		k::boundingBox getBoundingBox() const
 		{
-			return k::boundingBox(k::vector3::zero, k::vector3::zero);
+			return k::boundingBox(k::vector3(40, 0, 40), k::vector3(-40, 0, -40));
 		}
 };
 

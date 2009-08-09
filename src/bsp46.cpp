@@ -1058,9 +1058,10 @@ void q3Bsp::draw(const camera* viewer)
 		if (!isClusterVisible(cluster, currLeaf->cluster))
 			continue;
 
-		const vector3 mins = vector3(currLeaf->mins[0], currLeaf->mins[1], currLeaf->mins[2]);
-		const vector3 maxs = vector3(currLeaf->maxs[0], currLeaf->maxs[1], currLeaf->maxs[2]);
-		if (!viewer->isBoxInsideFrustum(mins, maxs))
+		const boundingBox AABB = boundingBox(vector3(currLeaf->mins[0], currLeaf->mins[1], currLeaf->mins[2]),
+				vector3(currLeaf->maxs[0], currLeaf->maxs[1], currLeaf->maxs[2]));
+
+		if (!viewer->isBoxInsideFrustum(AABB))
 			continue;
 
 		int faceCount = currLeaf->numLeafSurf;

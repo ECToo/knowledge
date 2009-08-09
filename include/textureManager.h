@@ -35,8 +35,6 @@ namespace k
 		private:
 			textureHash mTextures;
 
-			unsigned int getKey(const std::string& filename);
-
 		public:
 			textureManager();
 			~textureManager();

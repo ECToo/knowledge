@@ -133,7 +133,14 @@ namespace k
 			bool mNoDraw;
 			bool mIsOpaque;
 
-			bool mReceiveLight;
+			/**
+			 * This isnt a boolean because if we
+			 * are not receiving light and light
+			 * is enabled, we need to enable it again
+			 * after rendering, so we set mReceiveLight (internally) to
+			 * -getEnabledLightCount() and then on finish() we turn it back to zero.
+			 */
+			int mReceiveLight;
 
 			int mContentFlags;
 			int mEffectFlags;
@@ -242,13 +249,13 @@ namespace k
 			 * Set if the material receives light.
 			 */
 			void setReceiveLight(bool recv)
-			{ mReceiveLight = recv; }
+			{ if (recv) mReceiveLight = 1; else mReceiveLight = 0; }
 
 			/**
 			 * Does this material receive light?
 			 */
 			bool getReceiveLight() const
-			{ return mReceiveLight; } 
+			{ return mReceiveLight ? true : false; } 
 
 			/**
 			 * Set material stuff before drawing.

@@ -28,7 +28,7 @@ material::material()
 	mDepthWrite = true;
 	mNoDraw = false;
 	mIsOpaque = true;
-	mReceiveLight = true;
+	mReceiveLight = 1;
 }
 
 material::material(texture* tex)
@@ -128,6 +128,13 @@ void material::start()
 		rs->setTextureUnits(mStages.size());
 	}
 
+	if (!mReceiveLight && rs->isLightOn())
+	{
+		// Magic trick
+		mReceiveLight = -rs->getEnabledLightCount();
+		rs->setLighting(false);
+	}
+
 	// Cycle through textures
 	std::vector<materialStage*>::const_iterator it;
 	for (it = mStages.begin(); it != mStages.end(); it++)
@@ -138,6 +145,17 @@ void material::finish()
 {
 	if (mNoDraw)
 		return;
+
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	if (mReceiveLight < 0)
+	{
+		rs->setLighting(true);
+		for (int i = 0; i < -mReceiveLight; i++)
+			rs->setLight(i, true);
+
+		// Disabled again
+		mReceiveLight = 0;
+	}
 
 	// Cycle through textures
 	std::vector<materialStage*>::const_iterator it;

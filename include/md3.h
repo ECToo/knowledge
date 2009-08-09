@@ -184,16 +184,16 @@ class md3RealVertex
 		inline md3RealVertex operator = (const md3Vertex_t& t)
 		{
 			const float vertexMultiplier = 0.015625f;
-	 		const float lat = t.normal[0] * (2.0f * M_PI) / 255.0f;
-	 		const float lng = t.normal[1] * (2.0f * M_PI) / 255.0f;
+	 		const float lat = t.normal[1] * (2.0f * M_PI) / 255.0f;
+	 		const float lng = t.normal[0] * (2.0f * M_PI) / 255.0f;
 
 			pos.x = readLEShort(t.coord[0]) * vertexMultiplier;
 			pos.y = readLEShort(t.coord[2]) * vertexMultiplier;
 			pos.z = -readLEShort(t.coord[1]) * vertexMultiplier;
 
 			normal.x = cos(lat) * sin(lng);
-			normal.y = -cos(lng);
-			normal.z = sin(lat) * sin(lng);
+			normal.y = cos(lng);
+			normal.z = -sin(lat) * sin(lng);
 
 			return *this;
 		}
@@ -421,11 +421,6 @@ class DLL_EXPORT md3model : public drawable3D
 		md3Surface* mSurfaces;
 
 		/**
-		 * Current frame of the animation
-		 */
-		unsigned int mCurrentFrame;
-
-		/**
 		 * Delete allocated structures.
 		 */
 		void _clean();
@@ -434,6 +429,11 @@ class DLL_EXPORT md3model : public drawable3D
 		 * Hash map of md3 "animations"
 		 */
 		std::map<int, md3Animation_t*> mAnimations;
+
+		/**
+		 * Active md3 animation.
+		 */
+		md3Animation_t* mActiveAnimation;
 
 		/**
 		 * Attached models to tags.
@@ -456,6 +456,22 @@ class DLL_EXPORT md3model : public drawable3D
 		 * Are we drawing the tags?
 		 */
 		bool mDrawTags;
+
+		/**
+		 * Auto set the animation frames based on frame
+		 * time. The default is true.
+		 */
+		bool mAutoFeedAnims;
+
+		/**
+		 * Current animation frame.
+		 */
+		vec_t mCurrentAnimFrame;
+
+		/**
+		 * Last time animation was updated
+		 */
+		long mLastFeedTime;
 
 	public:
 		md3model(const std::string& filename, bool adjustVertices = false);
@@ -485,6 +501,30 @@ class DLL_EXPORT md3model : public drawable3D
 		const unsigned int getSurfaceCount() const;
 
 		/**
+		 * Define if the model animations
+		 * are set automatically or not.
+		 * The default setting is true.
+		 */
+		void setAutoFeed(bool feed)
+		{
+			mAutoFeedAnims = feed;
+		}
+
+		/**
+		 * Tells if the model auto update
+		 * its anims.
+		 */
+		bool getAutoFeed() const
+		{
+			return mAutoFeedAnims;
+		}
+
+		/**
+		 * Feed animations ;)
+		 */
+		void feedAnims();
+
+		/**
 		 * Get Model tag.
 		 * @name The Tag name.
 		 * @return A pair with the tag index and a pointer to the tag
@@ -510,6 +550,31 @@ class DLL_EXPORT md3model : public drawable3D
 		 * Draw frame when this is attached to another model tag.
 		 */
 		void attachDraw();
+
+		/**
+		 * Create an md3Animation_t. If the animation already
+		 * exists, it returns the current animation.
+		 *
+		 * @name The name of the new animation.
+		 * @return The animation with name @name or NULL on failure.
+		 */
+		md3Animation_t* createAnimation(const std::string& name);
+
+		/**
+		 * Insert a md3Animation into model animation list.
+		 * You wont need to free your pointer after inserting
+		 * it, the md3model class will take care of it.
+		 *
+		 * @anim Pointer to md3Animation.
+		 * @return True on success, false on failure.
+		 */
+		bool insertAnimation(md3Animation_t* anim);
+
+		/**
+		 * Set model active animation. The animation
+		 * must be pre-registered with insertAnimation()
+		 */
+		void setAnimation(const std::string& name);
 
 		bool isOpaque() const;
 		void draw();

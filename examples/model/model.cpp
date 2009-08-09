@@ -96,14 +96,11 @@ int main(int argc, char** argv)
 	modelPosition.z = -100;
 
 	k::light::light* tempLight = mRenderer->createPointLight();
-	k::sprite* lightSprite = NULL;
 	if (tempLight)
 	{
-		lightSprite = mRenderer->createSprite("light", 50);
-
 		tempLight->setAmbient(k::color(0.0, 0.0, 0.0, 1.0));
-		tempLight->setDiffuse(k::color(1.0, 1.0, 1.0, 1.0));
-		tempLight->setSpecular(k::color(0.5, 0.5, 0.5, 1.0));
+		tempLight->setDiffuse(k::color(1.0, 0.0, 0.0, 1.0));
+		tempLight->setSpecular(k::color(0.8, 0.8, 0.8, 1.0));
 	}
 
 	// md5 Model
@@ -117,12 +114,10 @@ int main(int argc, char** argv)
 	try
 	{
 		// Comment this out for goku =]
-		/*
 		newModel = new k::md5model("model/marvin/marvin.md5mesh");
 		newModel->attachAnimation("model/marvin/idle.md5anim", "idle");
 		newModel->attachAnimation("model/marvin/walk.md5anim", "runf");
 		newModel->attachAnimation("model/marvin/walk.md5anim", "runb");
-		*/
 
 		// Lets Say we want to change the model first mesh material to k_base_null material
 		/*
@@ -131,10 +126,12 @@ int main(int argc, char** argv)
 		*/
 
 		// Comment this out for marvin =]
+		/*
 		newModel = new k::md5model("model/goku.md5mesh");
 		newModel->attachAnimation("model/idle.md5anim", "idle");
 		newModel->attachAnimation("model/fly_f.md5anim", "runf");
 		newModel->attachAnimation("model/fly_b.md5anim", "runb");
+		*/
 
 		newModel->setAnimation("runf");
 		newModel->setAnimationFrame(10);
@@ -154,11 +151,18 @@ int main(int argc, char** argv)
 		q3ModelUpper = new k::md3model("model/monster/upper.md3");
 		q3ModelHead = new k::md3model("model/monster/head.md3");
 
-		for (int i = 0; i < q3Model->getSurfaceCount(); i++)
+		for (unsigned int i = 0; i < q3Model->getSurfaceCount(); i++)
 			q3Model->getSurface(i)->setMaterial("monsterBody");
 
-		for (int i = 0; i < q3ModelUpper->getSurfaceCount(); i++)
+		for (unsigned int i = 0; i < q3ModelUpper->getSurfaceCount(); i++)
 			q3ModelUpper->getSurface(i)->setMaterial("monsterBody");
+
+		k::md3Animation_t* upperAnim = q3ModelUpper->createAnimation("gesture");
+		upperAnim->firstFrame = 90;
+		upperAnim->numFrames = 40;
+		upperAnim->loopingFrames = 0;
+		upperAnim->framesPerSecond = 10;
+		q3ModelUpper->setAnimation("gesture");
 
 		q3ModelHead->getSurface(0)->setMaterial("monsterHead");
 
@@ -166,9 +170,8 @@ int main(int argc, char** argv)
 		q3ModelUpper->attach(q3ModelHead, "tag_head");
 
 		q3Model->setFrame(150);
-		q3ModelUpper->setFrame(150);
 		mRenderer->push3D(q3Model);
-		*/
+		 */
 	}
 	
 	catch (...)
@@ -180,8 +183,7 @@ int main(int argc, char** argv)
 	delete newLoadingScreen;
 
 	// Set Skyplane
-	// mRenderer->setSkyPlane("skyPlane");
-	mRenderer->setSkyBox("nightzSky");
+	mRenderer->setSkyPlane("skyPlane");
 
 	// Fps Counter
 	k::bitmapText* fpsText;
@@ -220,6 +222,9 @@ int main(int argc, char** argv)
 	bool B_Hold = false;
 	bool bounding = false;
 
+	// Light
+	bool V_Hold = false;
+
 	// Anims
 	bool runf = false;
 	bool runb = false;
@@ -253,6 +258,20 @@ int main(int argc, char** argv)
 			// Set Inverted wireframe
 			wireframe ^= 1;
 			mRenderSystem->setWireFrame(wireframe);
+		}
+
+		// Light
+		if (mInputManager->getKbdKeyDown(K_KBD_v))
+		{
+			V_Hold = true;
+		}
+		else
+		if (V_Hold)
+		{
+			V_Hold = false;
+
+			// Set Inverted wireframe
+			tempLight->setEnabled(tempLight->getEnabled() ^ 1);
 		}
 
 		// Bounding Boxes
@@ -404,10 +423,7 @@ int main(int argc, char** argv)
 		}
 
 		if (tempLight)
-		{
-			tempLight->setPosition(k::vector3(100, 100, 0) + modelPosition);
-			lightSprite->setPosition(tempLight->getPosition());
-		}
+			tempLight->setPosition(k::vector3(0, 0, 50) + modelPosition);
 
 		std::stringstream fpsT;
 		fpsT << "fps: " << mRenderer->getLastFps();

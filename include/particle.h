@@ -495,7 +495,7 @@ namespace particle
 			~system();
 
 			/**
-			 * Get system visibility
+			 * Get system visi bility
 			 */
 			const bool getVisible() const;
 
@@ -508,6 +508,14 @@ namespace particle
 			 * Calculate AA bounding box for this system.
 			 */
 			void _calculateAABB();
+
+			/**
+			 * Return the axis aligned bounding box of the system.
+			 */
+			const boundingBox& getAABoundingBox() const
+			{
+				return mBounds;
+			}
 
 			/**
 			 * Set system material, taken from materialManager

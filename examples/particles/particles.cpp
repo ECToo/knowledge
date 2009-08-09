@@ -56,22 +56,6 @@ int main(int argc, char** argv)
 	k::resourceManager::getSingleton().loadGroup("particles");
 	k::resourceManager::getSingleton().loadGroup("skies");
 
-	// Test
-	/*
-	k::md5model* newModel;
-	try
-	{
-		newModel = new k::md5model("particles/marvin/marvin.md5mesh");
-		mRenderer->push3D(newModel);
-	}
-	
-	catch (...)
-	{
-		K_LOG_INFO("Failed to allocate displaying model.");
-		return 0;
-	}
-	*/
-
 	delete newLoadingScreen;
 
 	// Set the skybox
@@ -197,13 +181,6 @@ int main(int argc, char** argv)
 		// Set Demo FPS
 		std::stringstream fps;
 		fps << "FPS: " << mRenderer->getLastFps();
-		fps << "\nINSIDE FRUSTUM: ";
-
-		if (newCamera->isPointInsideFrustum(k::vector3(0, -40, -10)))
-			fps << "YES";
-		else
-			fps << "NO";
-
 		fpsText->setText(fps.str());
 
 		k::vector2 mousePos = mInputManager->getWiiMotePosition(0);

@@ -48,13 +48,25 @@ void materialManager::createSystemMaterials()
 {
 	// Create base materials (k_base_white, k_base_black and k_base_null)
 	texture* whiteTexture = textureManager::getSingleton().getTexture("k_base_white");
-	if (whiteTexture) createMaterial("k_base_white", whiteTexture);
+	if (whiteTexture) 
+	{
+		material* whiteMaterial = createMaterial("k_base_white", whiteTexture);
+		if (whiteMaterial) whiteMaterial->setReceiveLight(false);
+	}
 
 	texture* blackTexture = textureManager::getSingleton().getTexture("k_base_black");
-	if (blackTexture) createMaterial("k_base_black", blackTexture);
+	if (blackTexture)
+	{
+		material* blackMaterial = createMaterial("k_base_black", blackTexture);
+		if (blackMaterial) blackMaterial->setReceiveLight(false);
+	}
 
 	texture* nullTexture = textureManager::getSingleton().getTexture("k_base_null");
-	if (nullTexture) createMaterial("k_base_null", nullTexture);
+	if (nullTexture)
+	{
+		material* nullMaterial = createMaterial("k_base_null", nullTexture);
+		if (nullMaterial) nullMaterial->setReceiveLight(false);
+	}
 }
 			
 material* materialManager::createMaterial(const std::string& name)
