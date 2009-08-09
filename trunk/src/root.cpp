@@ -86,6 +86,17 @@ std::string getExtension(const std::string& file)
 	}
 }
 			
+unsigned int getHashKey(const std::string& filename)
+{
+	unsigned int hashKey = 0;
+
+	// Generic key generation
+	for (unsigned int i = 0; i < filename.length(); i++)
+		hashKey += filename[i] * i;
+
+	return hashKey;
+}
+
 long root::getGlobalTime()
 {
 	return mGlobalTimer.getMilliSeconds();

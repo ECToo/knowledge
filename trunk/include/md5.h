@@ -187,6 +187,9 @@ class DLL_EXPORT md5mesh
 		void setMaterial(material* mat);
 		void setMaterial(const std::string& matName);
 
+		/**
+		 * Is this object opaque?
+		 */
 		bool isOpaque() const;
 
 		/**

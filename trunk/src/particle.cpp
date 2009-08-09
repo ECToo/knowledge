@@ -1225,9 +1225,14 @@ void manager::parseScript(parsingFile* file)
 			
 void manager::drawParticles()
 {
+	camera* haveCamera = root::getSingleton().getRenderer()->getCamera();
+
 	std::map<std::string, system*>::const_iterator pIt;
 	for (pIt = mSystems.begin(); pIt != mSystems.end(); pIt++)
 	{
+		if (!haveCamera->isBoxInsideFrustum(pIt->second->getAABoundingBox()))
+			continue;
+
 		pIt->second->cycle();
 	}
 }

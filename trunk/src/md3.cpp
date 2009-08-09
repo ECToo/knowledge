@@ -27,7 +27,7 @@ namespace k {
 md3Surface::md3Surface()
 {
 	mMaterial = NULL;
-	
+
 	mFrameCount = mVerticesCount = mIndicesCount = mUVCount = 0;
 	mVertices = NULL;
 	mIndices = NULL;
@@ -217,7 +217,10 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 	mFrames = NULL;
 	mTags = NULL;
 	mSurfaces = NULL;
-	mCurrentFrame = 0;
+	mCurrentAnimFrame = 0;
+
+	mAutoFeedAnims = true;
+	mActiveAnimation = NULL;
 	mAnimations.clear();
 	
 	// Tags
@@ -379,7 +382,7 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 
 			return;
 		}
-
+	
 		fseek(md3File, surfaceStartOffset + readLEInt(tempSurface.offsetShaders), SEEK_SET);
 		if (fread(mShaders, sizeof(md3Shader_t) * numShaders, 1, md3File) <= 0)
 		{
@@ -472,7 +475,7 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 		}
 
 		// allocate vertices
-		int tempVertexCount = readLEInt(tempSurface.numVerts) * readLEInt(tempSurface.numFrames);
+		unsigned int tempVertexCount = readLEInt(tempSurface.numVerts) * readLEInt(tempSurface.numFrames);
 		if (!mSurfaces[i].allocateVertices(tempVertexCount))
 		{
 			_clean();
@@ -541,7 +544,7 @@ const unsigned int md3model::getSurfaceCount() const
 void md3model::setFrame(unsigned short i)
 {
 	if (i < mFramesCount)
-		mCurrentFrame = i;
+		mCurrentAnimFrame = i;
 	else
 	{
 		std::stringstream msg;
@@ -567,13 +570,31 @@ bool md3model::isOpaque() const
 
 	return true;
 }
+
+void md3model::feedAnims()
+{
+	if (!mAutoFeedAnims || !mAnimations.size() || !mActiveAnimation)
+		return;
+
+	// Global Time
+	long timeNow = root::getSingleton().getGlobalTime();
+
+	// Time elapsed
+	mCurrentAnimFrame += (mActiveAnimation->framesPerSecond * (timeNow - mLastFeedTime)) / 1000.0f;
+	mLastFeedTime = timeNow;
+
+	while ((uint32_t)mCurrentAnimFrame >= (mActiveAnimation->firstFrame + mActiveAnimation->numFrames))
+		mCurrentAnimFrame -= mActiveAnimation->numFrames;
+}
 		
 void md3model::draw()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 
+	// Feed animations =]
+	feedAnims();
+
 	// Rotate and Translate
-	vector3 tempPos = getRelativePosition();
 	vector3 finalPos = getAbsolutePosition();
 	quaternion finalOrientation = getAbsoluteOrientation();
 
@@ -596,27 +617,46 @@ void md3model::draw()
 	rs->rotateScene(angle, axis.x, axis.y, axis.z);
 	rs->scaleScene(mScale.x, mScale.y, mScale.z);
 
-	mPosition = vector3::zero;
-
 	for (unsigned int i = 0; i < mSurfacesCount; i++)
-		mSurfaces[i].draw(mCurrentFrame);
+		mSurfaces[i].draw((uint32_t)mCurrentAnimFrame);
 
 	if (getDrawBoundingBox())
 		getAABoundingBox().draw();
 		
 	// Attached
 	for (std::vector<md3model*>::iterator it = mAttach.begin(); it != mAttach.end(); it++)
-		(*it)->attachDraw();
+	{
+		// Each attach changes the transformation matrix
+		if (it != mAttach.begin())
+		{
+			if (!haveCamera)
+			{
+				rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+				rs->identityMatrix();
+			}
+			else
+			{
+				haveCamera->copyView();
+			}
 
-	mPosition = tempPos;
+			rs->translateScene(finalPos.x, finalPos.y, finalPos.z);
+			rs->rotateScene(angle, axis.x, axis.y, axis.z);
+			rs->scaleScene(mScale.x, mScale.y, mScale.z);
+		}
+
+		(*it)->attachDraw();
+	}
 }
 		
 void md3model::attachDraw()
 {
 	if (!mAttachParent)
 		return;
-		
+	
 	renderSystem* rs = root::getSingleton().getRenderSystem();
+
+	// Feed animations =]
+	feedAnims();
 
 	// Get Our Tags
 	md3Tag* mAttachedTo = mAttachParent->getTag(mAttachTag);
@@ -636,7 +676,7 @@ void md3model::attachDraw()
 	rs->rotateScene(mAttachedTo->mAA_Angle, mAttachedTo->mAA_Axis.x, mAttachedTo->mAA_Axis.y, mAttachedTo->mAA_Axis.z);
 
 	for (unsigned int i = 0; i < mSurfacesCount; i++)
-		getSurface(i)->draw(mCurrentFrame);
+		getSurface(i)->draw((uint32_t)mCurrentAnimFrame);
 
 	if (getDrawBoundingBox())
 		getAABoundingBox().draw();
@@ -647,24 +687,24 @@ void md3model::attachDraw()
 
 boundingBox md3model::getAABoundingBox() const
 {
-	vector3 mins = vector3(mFrames[mCurrentFrame].mins[0],
-			mFrames[mCurrentFrame].mins[1],
-			mFrames[mCurrentFrame].mins[2]);
-	vector3 maxs = vector3(mFrames[mCurrentFrame].maxs[0],
-			mFrames[mCurrentFrame].maxs[1],
-			mFrames[mCurrentFrame].maxs[2]);
+	vector3 mins = vector3(mFrames[(uint32_t)mCurrentAnimFrame].mins[0],
+			mFrames[(uint32_t)mCurrentAnimFrame].mins[1],
+			mFrames[(uint32_t)mCurrentAnimFrame].mins[2]);
+	vector3 maxs = vector3(mFrames[(uint32_t)mCurrentAnimFrame].maxs[0],
+			mFrames[(uint32_t)mCurrentAnimFrame].maxs[1],
+			mFrames[(uint32_t)mCurrentAnimFrame].maxs[2]);
 
 	return boundingBox(mins, maxs);
 }
 
 boundingBox md3model::getBoundingBox() const
 {
-	vector3 mins = vector3(mFrames[mCurrentFrame].mins[0],
-			mFrames[mCurrentFrame].mins[1],
-			mFrames[mCurrentFrame].mins[2]);
-	vector3 maxs = vector3(mFrames[mCurrentFrame].maxs[0],
-			mFrames[mCurrentFrame].maxs[1],
-			mFrames[mCurrentFrame].maxs[2]);
+	vector3 mins = vector3(mFrames[(uint32_t)mCurrentAnimFrame].mins[0],
+			mFrames[(uint32_t)mCurrentAnimFrame].mins[1],
+			mFrames[(uint32_t)mCurrentAnimFrame].mins[2]);
+	vector3 maxs = vector3(mFrames[(uint32_t)mCurrentAnimFrame].maxs[0],
+			mFrames[(uint32_t)mCurrentAnimFrame].maxs[1],
+			mFrames[(uint32_t)mCurrentAnimFrame].maxs[2]);
 
 	return boundingBox(mOrientation.rotateVector(mins), 
 			mOrientation.rotateVector(maxs));
@@ -704,7 +744,67 @@ md3Tag* md3model::getTag(const std::string& name)
 	if (tagIndex == (mTagsCount * mFramesCount))
 		return NULL;
 
-	return &mTags[tagIndex + (mCurrentFrame * mTagsCount)];
+	return &mTags[tagIndex + ((uint32_t)mCurrentAnimFrame * mTagsCount)];
+}
+		
+md3Animation_t* md3model::createAnimation(const std::string& name)
+{
+	// Check if animation exists
+	unsigned int nameHash = getHashKey(name);
+	std::map<int, md3Animation_t*>::iterator it = mAnimations.find(nameHash);
+	if (it != mAnimations.end())
+	{
+		return it->second;
+	}
+
+	// Create animation
+	md3Animation_t* newAnim = NULL;
+	try
+	{
+		newAnim = new md3Animation_t;
+		newAnim->name = name;
+
+		mAnimations[nameHash] = newAnim;
+		return newAnim;
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate md3Animation.");
+	}
+		
+	return NULL;
+}
+		
+bool md3model::insertAnimation(md3Animation_t* anim)
+{
+	kAssert(anim);
+
+	unsigned int nameHash = getHashKey(anim->name);
+	std::map<int, md3Animation_t*>::iterator it = mAnimations.find(nameHash);
+	if (it != mAnimations.end())
+	{
+		S_LOG_INFO("Failed to insert animation " + anim->name + ", this name already exist in animation list.");
+		return false;
+	}
+
+	mAnimations[nameHash] = anim;
+	return true;
+}
+		
+void md3model::setAnimation(const std::string& name)
+{
+	unsigned int nameHash = getHashKey(name);
+	std::map<int, md3Animation_t*>::iterator it = mAnimations.find(nameHash);
+	if (it != mAnimations.end())
+	{
+		mActiveAnimation = it->second;
+		mCurrentAnimFrame = mActiveAnimation->firstFrame;
+		mLastFeedTime = root::getSingleton().getGlobalTime();
+		return;
+	}
+
+	S_LOG_INFO("Animation " + name + " not found in model.");
 }
 
 }

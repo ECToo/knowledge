@@ -18,6 +18,7 @@
 #include "textureManager.h"
 #include "logger.h"
 #include "resourceManager.h"
+#include "root.h"
 
 namespace k {
 
@@ -59,20 +60,9 @@ textureManager::~textureManager()
 	#endif
 }
 			
-unsigned int textureManager::getKey(const std::string& filename)
-{
-	unsigned int hashKey = 0;
-
-	// Generic key generation
-	for (unsigned int i = 0; i < filename.length(); i++)
-		hashKey += filename[i] * i;
-
-	return hashKey;
-}
-
 texture* textureManager::getTexture(const std::string& filename)
 {
-	textureHash::const_iterator it = mTextures.find(getKey(filename));
+	textureHash::const_iterator it = mTextures.find(getHashKey(filename));
 	if (it != mTextures.end())
 		return it->second;
 	else
@@ -104,7 +94,7 @@ texture* textureManager::allocateTexture(const std::string& filename, int wrapBi
 		newTexture = new texture(fullPath, wrapBits);
 		if (newTexture)
 		{
-			mTextures[getKey(filename)] = newTexture;
+			mTextures[getHashKey(filename)] = newTexture;
 			return newTexture;
 		}
 	}
@@ -139,7 +129,7 @@ void textureManager::createSystemTextures()
 	try
 	{
 		texture* whiteTexture = new texture((void*)whiteTextureData, 4, 4, FLAG_REPEAT_S | FLAG_REPEAT_T | FLAG_REPEAT_R, TEX_RGBA);
-		mTextures[getKey("k_base_white")] = whiteTexture;
+		mTextures[getHashKey("k_base_white")] = whiteTexture;
 	}
 
 	catch (...)
@@ -170,7 +160,7 @@ void textureManager::createSystemTextures()
 	try
 	{
 		texture* blackTexture = new texture((void*)blackTextureData, 4, 4, FLAG_REPEAT_S | FLAG_REPEAT_T | FLAG_REPEAT_R, TEX_RGBA);
-		mTextures[getKey("k_base_black")] = blackTexture;
+		mTextures[getHashKey("k_base_black")] = blackTexture;
 	}
 
 	catch (...)
@@ -201,7 +191,7 @@ void textureManager::createSystemTextures()
 	try
 	{
 		texture* nullTexture = new texture((void*)nullTextureData, 4, 4, FLAG_REPEAT_S | FLAG_REPEAT_T | FLAG_REPEAT_R, TEX_RGBA);
-		mTextures[getKey("k_base_null")] = nullTexture;
+		mTextures[getHashKey("k_base_null")] = nullTexture;
 	}
 
 	catch (...)

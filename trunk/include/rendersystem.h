@@ -119,6 +119,9 @@ namespace k
 			int mIndexOffset;
 			int mTexCoordOffset[MAX_TEXCOORD];
 
+			// Last Light Index selected
+			unsigned int mLastLightIndex;
+
 		public:
 
 			virtual ~renderSystem() {}
@@ -475,6 +478,14 @@ namespace k
 
 			virtual void drawArrays() = 0;
 			virtual void screenshot(const char* filename) = 0;
+
+			/**
+			 * Get the last light index we enabled.
+			 */
+			unsigned int getEnabledLightCount() const
+			{
+				return mLastLightIndex;
+			}
 
 			/**
 			 * If we are rendering with lights.

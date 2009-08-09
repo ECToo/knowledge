@@ -720,6 +720,8 @@ void glRenderSystem::setLighting(bool status)
 
 		glDisable(GL_LIGHTING);
 		glDisable(GL_NORMALIZE);
+
+		mLastLightIndex = 0;
 	}
 }
 			
@@ -728,7 +730,12 @@ void glRenderSystem::setLight(unsigned int index, bool status)
 	kAssert(index < 8);
 
 	if (status)
+	{
 		glEnable(GL_LIGHT0 + index);
+
+		if ((index + 1) > mLastLightIndex)
+			mLastLightIndex = index + 1;
+	}
 	else
 		glDisable(GL_LIGHT0 + index);
 }

@@ -770,7 +770,7 @@ bool md5model::isOpaque() const
 
 	return true;
 }
-			
+
 void md5model::attachAnimation(const std::string& filename, const std::string& name)
 {
 	std::string fullPath = filename;

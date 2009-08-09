@@ -136,6 +136,7 @@ namespace k
 			bool getDrawBoundingBox() const;
 
 			virtual void draw() = 0;
+
 			virtual bool isOpaque() const = 0;
 
 			virtual boundingBox getAABoundingBox() const = 0;
