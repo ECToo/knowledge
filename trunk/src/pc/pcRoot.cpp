@@ -25,8 +25,8 @@ root::root(const std::string& filename)
 {
 	try
 	{
-		new logger(filename);
-		logger::getSingleton().setLogMode(LOGMODE_BOTH);
+		mLogger = new logger(filename);
+		mLogger->setLogMode(LOGMODE_BOTH);
 	}
 
 	catch (...)

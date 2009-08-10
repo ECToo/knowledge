@@ -95,11 +95,12 @@ int main(int argc, char** argv)
 	k::vector3 modelPosition;
 	modelPosition.z = -100;
 
+	// k::light::light* tempLight = NULL;
 	k::light::light* tempLight = mRenderer->createPointLight();
 	if (tempLight)
 	{
 		tempLight->setAmbient(k::color(0.0, 0.0, 0.0, 1.0));
-		tempLight->setDiffuse(k::color(1.0, 0.0, 0.0, 1.0));
+		tempLight->setDiffuse(k::color(0.0, 0.2, 1.0, 1.0));
 		tempLight->setSpecular(k::color(0.8, 0.8, 0.8, 1.0));
 	}
 
@@ -113,11 +114,13 @@ int main(int argc, char** argv)
 
 	try
 	{
-		// Comment this out for goku =]
+		// Uncomment this out for marvin =]
+		/*
 		newModel = new k::md5model("model/marvin/marvin.md5mesh");
 		newModel->attachAnimation("model/marvin/idle.md5anim", "idle");
 		newModel->attachAnimation("model/marvin/walk.md5anim", "runf");
 		newModel->attachAnimation("model/marvin/walk.md5anim", "runb");
+		*/
 
 		// Lets Say we want to change the model first mesh material to k_base_null material
 		/*
@@ -125,17 +128,17 @@ int main(int argc, char** argv)
 		if (m1) m1->setMaterial("k_base_null");
 		*/
 
-		// Comment this out for marvin =]
+		// Uncomment this out for goku =]
 		/*
 		newModel = new k::md5model("model/goku.md5mesh");
 		newModel->attachAnimation("model/idle.md5anim", "idle");
 		newModel->attachAnimation("model/fly_f.md5anim", "runf");
 		newModel->attachAnimation("model/fly_b.md5anim", "runb");
-		*/
 
 		newModel->setAnimation("runf");
 		newModel->setAnimationFrame(10);
 		mRenderer->push3D(newModel);
+		*/
 
 		/*
 		 * If you want to see a Quake 3 Arena(tm) model working
@@ -147,31 +150,40 @@ int main(int argc, char** argv)
 		 * material xaeroBody { texture { filename "model/xaero/red.tga" } }
 		 * material xaeroHead { texture { filename "model/xaero/red_h.tga" } }
 		 *
+		 */
 		q3Model = new k::md3model("model/monster/lower.md3");
-		q3ModelUpper = new k::md3model("model/monster/upper.md3");
-		q3ModelHead = new k::md3model("model/monster/head.md3");
-
 		for (unsigned int i = 0; i < q3Model->getSurfaceCount(); i++)
 			q3Model->getSurface(i)->setMaterial("monsterBody");
 
+		q3ModelUpper = new k::md3model("model/monster/upper.md3");
 		for (unsigned int i = 0; i < q3ModelUpper->getSurfaceCount(); i++)
 			q3ModelUpper->getSurface(i)->setMaterial("monsterBody");
 
-		k::md3Animation_t* upperAnim = q3ModelUpper->createAnimation("gesture");
-		upperAnim->firstFrame = 90;
-		upperAnim->numFrames = 40;
-		upperAnim->loopingFrames = 0;
-		upperAnim->framesPerSecond = 10;
-		q3ModelUpper->setAnimation("gesture");
+		q3ModelHead = new k::md3model("model/monster/head.md3");
+		for (unsigned int i = 0; i < q3ModelHead->getSurfaceCount(); i++)
+			q3ModelHead->getSurface(0)->setMaterial("monsterHead");
 
-		q3ModelHead->getSurface(0)->setMaterial("monsterHead");
+		// Got this from monster animation.cfg =]
+		k::md3Animation_t* lowerAnim = q3Model->createAnimation("run");
+		lowerAnim->firstFrame = 110;
+		lowerAnim->numFrames = 9;
+		lowerAnim->loopingFrames = 0;
+		lowerAnim->framesPerSecond = 15;
+		q3Model->setAnimation("run");
 
 		q3Model->attach(q3ModelUpper, "tag_torso");
 		q3ModelUpper->attach(q3ModelHead, "tag_head");
+		q3ModelUpper->setFrame(100);
 
-		q3Model->setFrame(150);
 		mRenderer->push3D(q3Model);
-		 */
+
+		/* 
+		 * Show Bounding?
+		q3Model->setDrawBoundingBox(true);
+		q3ModelUpper->setDrawBoundingBox(true);
+		q3ModelHead->setDrawBoundingBox(true);
+		newModel->setDrawBoundingBox(true);
+		*/
 	}
 	
 	catch (...)
@@ -271,7 +283,8 @@ int main(int argc, char** argv)
 			V_Hold = false;
 
 			// Set Inverted wireframe
-			tempLight->setEnabled(tempLight->getEnabled() ^ 1);
+			if (tempLight)
+				tempLight->setEnabled(tempLight->getEnabled() ^ 1);
 		}
 
 		// Bounding Boxes
@@ -433,6 +446,10 @@ int main(int argc, char** argv)
 	}
 	
 	delete newModel;
+	delete q3Model;
+	delete q3ModelUpper;
+	delete q3ModelHead;
+
 	delete fpsText;
 	delete resourceMgr;
 	delete appRoot;

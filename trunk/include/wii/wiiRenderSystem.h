@@ -245,7 +245,6 @@ namespace k
 			unsigned int getScreenWidth();
 			unsigned int getScreenHeight();
 	};
-	typedef wiiRenderSystem	platformRenderSystem;
 }
 
 #endif

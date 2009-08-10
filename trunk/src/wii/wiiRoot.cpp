@@ -42,7 +42,7 @@ root::root(const std::string& filename)
 	try
 	{
 		// Initialize the render system
-		mActiveRS = new platformRenderSystem();
+		mActiveRS = new wiiRenderSystem();
 		mActiveRS->initialize();
 	}
 

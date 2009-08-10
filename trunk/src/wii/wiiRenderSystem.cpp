@@ -279,14 +279,13 @@ void wiiRenderSystem::configure()
 	mRttTarget = NULL;
 	mRttDimensions[0] = getScreenWidth();
 	mRttDimensions[1] = getScreenHeight();
-
-	// Ask System Materials and Textures to be created
-	textureManager::getSingleton().createSystemTextures();
-	materialManager::getSingleton().createSystemMaterials();
 }
 
 void wiiRenderSystem::createWindow(const int w, const int h)
 {
+	// Ask System Materials and Textures to be created
+	textureManager::getSingleton().createSystemTextures();
+	materialManager::getSingleton().createSystemMaterials();
 }
 			
 void wiiRenderSystem::setBlendMode(unsigned short src, unsigned short dst)
@@ -713,6 +712,13 @@ void wiiRenderSystem::endVertices()
 	GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
 
+	// Define if theres a material and how many
+	// texture units it has.
+	unsigned short materialTextureUnits = 0;
+
+	if (mActiveMaterial)
+		materialTextureUnits = mActiveMaterial->getStagesCount();
+
 	u8 texCoord = GX_TEXCOORDNULL;
 	u32 texMap = GX_TEXMAP_NULL;
 	u8 tevColor = GX_COLORNULL;
@@ -744,8 +750,7 @@ void wiiRenderSystem::endVertices()
 		GX_SetVtxDesc(GX_VA_TEX0MTXIDX, GX_TEXMTX0);
 		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
 
-		if (mActiveMaterial)
-		for (unsigned int i = 1; i < mActiveMaterial->getStagesCount(); i++)
+		for (unsigned int i = 1; i < materialTextureUnits; i++)
 		{
  			GX_SetVtxDesc(GX_VA_TEX0 + i, GX_DIRECT);
 			GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0 + i, GX_TEX_ST, GX_F32, 0);
@@ -760,16 +765,15 @@ void wiiRenderSystem::endVertices()
 	}
 
 	GX_SetTevOrder(GX_TEVSTAGE0, texCoord, texMap, tevColor);
-	if (mActiveMaterial)
-	{
-		for (unsigned int i = 1; i < mActiveMaterial->getStagesCount(); i++)
-			GX_SetTevOrder(GX_TEVSTAGE0 + i, GX_TEXCOORD0 + i, GX_TEXMAP0 + i, tevColor);
-	}
+	for (unsigned int i = 1; i < materialTextureUnits; i++)
+		GX_SetTevOrder(GX_TEVSTAGE0 + i, GX_TEXCOORD0 + i, GX_TEXMAP0 + i, tevColor);
 
 	for (int wiiT = 0; wiiT < MAX_WII_TEXTURES; wiiT++)
 	{
 		if (mActiveTextures[wiiT])
 			GX_LoadTexObj(mActiveTextures[wiiT], GX_TEXMAP0 + wiiT);
+		else
+			break;
 	}
 
 	// ModelView
@@ -815,11 +819,8 @@ void wiiRenderSystem::endVertices()
 		if (renderTexCoords)
 		{
 			GX_TexCoord2f32(mTexCoords[index].x, mTexCoords[index].y);
-			if (mActiveMaterial)
-			{
-				for (unsigned int i = 1; i < mActiveMaterial->getStagesCount(); i++)
-					GX_TexCoord2f32(mTexCoords[index].x, mTexCoords[index].y);
-			}
+			for (unsigned int i = 1; i < materialTextureUnits; i++)
+				GX_TexCoord2f32(mTexCoords[index].x, mTexCoords[index].y);
 		}
 
 		index++;
@@ -926,6 +927,8 @@ void wiiRenderSystem::drawArrays()
 	{
 		if (mActiveTextures[wiiT])
 			GX_LoadTexObj(mActiveTextures[wiiT], GX_TEXMAP0 + wiiT);
+		else
+			break;
 	}
 
 	// ModelView
