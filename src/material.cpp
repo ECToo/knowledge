@@ -52,6 +52,7 @@ material::material(texture* tex)
 	mDepthWrite = true;
 	mNoDraw = false;
 	mIsOpaque = true;
+	mReceiveLight = 1;
 }
 			
 material::material(const std::string& filename)
@@ -80,6 +81,7 @@ material::material(const std::string& filename)
 	mDepthWrite = true;
 	mNoDraw = false;
 	mIsOpaque = true;
+	mReceiveLight = 1;
 }
 			
 material::~material()

@@ -33,9 +33,13 @@ root& root::getSingleton()
 root::~root()
 {
 	delete mActiveRS;
+	delete mInputManager;
 	delete mRenderer;
+	delete mGuiManager;
 	delete mTextureManager;
 	delete mMaterialManager;
+	delete mParticleManager;
+	delete mLogger;
 }
 			
 particle::manager* root::getParticleManager()

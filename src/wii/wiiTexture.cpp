@@ -79,6 +79,11 @@ namespace k {
 			
 texture::texture(const std::string& filename, int flags)
 {
+	// Clean Fields
+	mFormat = 0;
+	mRawData = NULL;
+	mPointer = NULL;
+
 	// Check if file exists
 	FILE* fileExist = fopen(filename.c_str(), "rb");
 
@@ -450,7 +455,8 @@ texture::~texture()
 			delete (TPLFile*)mRawData;
 			break;
 		default:
-			free(mRawData);
+			if (mRawData)
+				free(mRawData);
 			break;
 	}
 

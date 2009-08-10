@@ -44,6 +44,7 @@ namespace k
 			guiManager* mGuiManager;
 			inputManager* mInputManager;
 			particle::manager* mParticleManager;
+			logger* mLogger;
 
 			/**
 			 * Global timer

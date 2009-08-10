@@ -87,7 +87,7 @@ int main(int argc, char** argv)
 
 	bool running = true;
 	bool leftHold = false;
-
+			
 	while (running)
 	{
 		mInputManager->feed();

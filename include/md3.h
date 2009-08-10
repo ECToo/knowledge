@@ -386,11 +386,6 @@ class DLL_EXPORT md3Surface
 		bool isOpaque() const;
 
 		/**
-		 * Delete the pointers and free memory used by surface.
-		 */
-		void _clean();
-
-		/**
 		 * Draw the model.
 		 * @frameNum The number of frame to draw.
 		 */
@@ -419,11 +414,6 @@ class DLL_EXPORT md3model : public drawable3D
 
 		unsigned int mSurfacesCount;
 		md3Surface* mSurfaces;
-
-		/**
-		 * Delete allocated structures.
-		 */
-		void _clean();
 
 		/**
 		 * Hash map of md3 "animations"
@@ -479,7 +469,7 @@ class DLL_EXPORT md3model : public drawable3D
 		/**
 		 * Clean allocated structures
 		 */
-		~md3model() { _clean(); }
+		~md3model();
 
 		/**
 		 * Set to wich tag this model is attached to.

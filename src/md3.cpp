@@ -36,14 +36,14 @@ md3Surface::md3Surface()
 
 md3Surface::~md3Surface()
 {
-	_clean();
-}
+	if (mVertices) 
+		free(mVertices);
 
-void md3Surface::_clean()
-{
-	delete [] mVertices;
-	delete [] mIndices;
-	delete [] mUVs;
+	if (mIndices) 
+		free(mIndices);
+
+	if (mUVs) 
+		free(mUVs);
 }
 
 void md3Surface::draw(short frameNum)
@@ -55,12 +55,13 @@ void md3Surface::draw(short frameNum)
 
 	rs->clearArrayDesc();
 	rs->setVertexArray(mVertices[frameNum * mVerticesCount].pos.vec, sizeof(md3RealVertex));
-	rs->setNormalArray(mVertices[frameNum * mVerticesCount].normal.vec, sizeof(md3RealVertex));
-	rs->setTexCoordArray(mUVs[0].uv, sizeof(md3TexCoord_t));
-		
 	rs->setVertexCount(mVerticesCount);
-	rs->setIndexCount(mIndicesCount);
+
+	rs->setTexCoordArray(mUVs[0].uv, sizeof(md3TexCoord_t));
+	rs->setNormalArray(mVertices[frameNum * mVerticesCount].normal.vec, sizeof(md3RealVertex));
+		
 	rs->setVertexIndex(mIndices[0].indices);
+	rs->setIndexCount(mIndicesCount);
 
 	rs->drawArrays();
 
@@ -93,13 +94,17 @@ void md3Surface::setMaterial(const std::string& matName)
 bool md3Surface::allocateIndices(unsigned int i)
 {
 	kAssert(i);
-	delete [] mIndices;
+
+	// delete [] mIndices;
+	if (mIndices)
+		free(mIndices);
 
 	mIndicesCount = i;
 
 	try
 	{
-		mIndices = new md3Triangle_t[i];
+		// mIndices = new md3Triangle_t[i];
+		mIndices = (md3Triangle_t*) memalign(32, sizeof(md3Triangle_t) * i);
 	}
 
 	catch (...)
@@ -114,13 +119,17 @@ bool md3Surface::allocateIndices(unsigned int i)
 bool md3Surface::allocateVertices(unsigned int i)
 {
 	kAssert(i);
-	delete [] mVertices;
+
+	// delete [] mVertices;
+	if (mVertices)
+		free(mVertices);
 
 	mVerticesCount = i;
 
 	try
 	{
-		mVertices = new md3RealVertex[i];
+		// mVertices = new md3RealVertex[i];
+		mVertices = (md3RealVertex*) memalign(32, sizeof(md3RealVertex) * i);
 	}
 
 	catch (...)
@@ -135,13 +144,17 @@ bool md3Surface::allocateVertices(unsigned int i)
 bool md3Surface::allocateUVs(unsigned int i)
 {
 	kAssert(i);
-	delete [] mUVs;
+	
+	// delete [] mUVs;
+	if (mUVs)
+		free(mUVs);
 
 	mUVCount = i;
 
 	try
 	{
-		mUVs = new md3TexCoord_t[i];
+		// mUVs = new md3TexCoord_t[i];
+		mUVs = (md3TexCoord_t*) memalign(32, sizeof(md3TexCoord_t) * i);
 	}
 
 	catch (...)
@@ -164,7 +177,7 @@ void md3Surface::setVertex(unsigned int index, const md3Vertex_t& v)
 	kAssert(index < mVerticesCount);
 	mVertices[index] = v;
 
-	float y = v.coord[2] * 0.015625f;
+	float y = readLEShort(v.coord[2]) * 0.015625f;
 	if (index == 0)
 		mLowerY = y;
 	
@@ -184,26 +197,24 @@ void md3Surface::adjustVertices()
 		mVertices[i].pos.y -= mLowerY;
 }
 
-void md3model::_clean()
+md3model::~md3model()
 {
-	if (mFrames)
-		delete [] mFrames;
+	delete [] mFrames;
+	delete [] mTags;
+	delete [] mSurfaces;
 
-	if (mTags)
-		delete [] mTags;
+	while (!mAttach.empty())
+		mAttach.erase(mAttach.begin());
 
-	if (mSurfaces)
+	std::map<int, md3Animation_t*>::iterator it;
+	while (!mAnimations.empty())
 	{
-		for (unsigned int i = 0; i < mSurfacesCount; i++)
-		{
-			if (!(&mSurfaces[i]))
-				continue;
-
-			mSurfaces[i]._clean();
-		}
-
-		delete [] mSurfaces;
+		it = mAnimations.begin();
+		delete it->second;
+		mAnimations.erase(it);
 	}
+
+	mAnimations.clear();
 }
 
 md3model::md3model(const std::string& filename, bool adjustVertices)
@@ -279,7 +290,8 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 		if (fread(&tempFrame, sizeof(md3Frame_t), 1, md3File) <= 0)
 		{
 			S_LOG_INFO("Failed to read md3 frame.");
-			_clean();
+			delete [] mFrames;
+			fclose(md3File);
 
 			return;
 		}
@@ -315,7 +327,8 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate md3 tags.");
-		_clean();
+		delete [] mFrames;
+		fclose(md3File);
 
 		return;
 	}
@@ -328,7 +341,9 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 		if (fread(&tempTag, sizeof(md3Tag_t), 1, md3File) <= 0)
 		{
 			S_LOG_INFO("Failed to read tag from md3 file.");
-			_clean();
+			fclose(md3File);
+			delete [] mFrames;
+			delete [] mTags;
 
 			return;
 		}
@@ -347,7 +362,9 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate md3 surfaces.");
-		_clean();
+		fclose(md3File);
+		delete [] mFrames;
+		delete [] mTags;
 
 		return;
 	}
@@ -362,7 +379,10 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 		if (fread(&tempSurface, sizeof(md3Surface_t), 1, md3File) <= 0)
 		{
 			S_LOG_INFO("Failed to read md3 surface.");
-			_clean();
+			fclose(md3File);
+			delete [] mFrames;
+			delete [] mTags;
+			delete [] mSurfaces;
 
 			return;
 		}
@@ -378,7 +398,10 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 		catch (...)
 		{
 			S_LOG_INFO("Failed to allocate surface shaders.");
-			_clean();
+			fclose(md3File);
+			delete [] mFrames;
+			delete [] mTags;
+			delete [] mSurfaces;
 
 			return;
 		}
@@ -387,8 +410,11 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 		if (fread(mShaders, sizeof(md3Shader_t) * numShaders, 1, md3File) <= 0)
 		{
 			S_LOG_INFO("Failed to read surface shaders.");
+			fclose(md3File);
+			delete [] mFrames;
+			delete [] mTags;
+			delete [] mSurfaces;
 			delete [] mShaders;
-			_clean();
 
 			return;
 		}
@@ -429,7 +455,11 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 		// Read Triangles
 		if (!mSurfaces[i].allocateIndices(readLEInt(tempSurface.numTris)))
 		{
-			_clean();
+			fclose(md3File);
+			delete [] mFrames;
+			delete [] mTags;
+			delete [] mSurfaces;
+
 			return;
 		}
 
@@ -440,7 +470,11 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 			if (fread(&tempTriangle, sizeof(md3Triangle_t), 1, md3File) <= 0)
 			{
 				S_LOG_INFO("Failed to read surface triangle.");
-				_clean();
+			
+				fclose(md3File);
+				delete [] mFrames;
+				delete [] mTags;
+				delete [] mSurfaces;
 
 				return;
 			}
@@ -449,12 +483,15 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 		}
 
 		// The right number of indices gets multiplied by 3 (we have the number of tris)
-		mSurfaces[i].setIndexCount(mSurfaces[i].getIndicesCount() * 3);
+		mSurfaces[i].setIndexCount(readLEInt(tempSurface.numTris) * 3);
 
 		// allocate uv's
 		if (!mSurfaces[i].allocateUVs(readLEInt(tempSurface.numVerts)))
 		{
-			_clean();
+			fclose(md3File);
+			delete [] mFrames;
+			delete [] mTags;
+			delete [] mSurfaces;
 			return;
 		}
 
@@ -466,7 +503,11 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 			if (fread(&tempUV, sizeof(md3TexCoord_t), 1, md3File) <= 0)
 			{
 				S_LOG_INFO("Failed to read surface uv.");
-				_clean();
+			
+				fclose(md3File);
+				delete [] mFrames;
+				delete [] mTags;
+				delete [] mSurfaces;
 
 				return;
 			}
@@ -478,7 +519,10 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 		unsigned int tempVertexCount = readLEInt(tempSurface.numVerts) * readLEInt(tempSurface.numFrames);
 		if (!mSurfaces[i].allocateVertices(tempVertexCount))
 		{
-			_clean();
+			fclose(md3File);
+			delete [] mFrames;
+			delete [] mTags;
+			delete [] mSurfaces;
 			return;
 		}
 
@@ -492,7 +536,10 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 		catch (...)
 		{
 			S_LOG_INFO("Failed to allocate surface temporary vertices.");
-			_clean();
+			fclose(md3File);
+			delete [] mFrames;
+			delete [] mTags;
+			delete [] mSurfaces;
 
 			return;
 		}
@@ -502,9 +549,13 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 		if (fread(tempVertices, sizeof(md3Vertex_t), tempVertexCount, md3File) <= 0)
 		{
 			S_LOG_INFO("Failed to read surface temporary vertices.");
-			_clean();
 
+			fclose(md3File);
+			delete [] mFrames;
+			delete [] mTags;
+			delete [] mSurfaces;
 			delete [] tempVertices;
+
 			return;
 		}
 
@@ -529,6 +580,8 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 		// FrameCount
 		mSurfaces[i].setFrameCount(readLEInt(tempSurface.numFrames));
 	}
+
+	S_LOG_INFO("MD3 Model " + filename + " loaded.");
 }
 		
 md3Surface* md3model::getSurface(unsigned int index)
@@ -666,14 +719,17 @@ void md3model::attachDraw()
 		return;
 
 	matrix3 rotationMatrix = mAttachedTo->mRotation * mAttachConnection->mRotation;
-	rotationMatrix.toAxisAngle(mAttachedTo->mAA_Angle, mAttachedTo->mAA_Axis);
+
+	vec_t angle = 0;
+	vector3 axis;
+	rotationMatrix.toAxisAngle(angle, axis);
 
 	vector3 mTranslation = mAttachedTo->mOrigin - mAttachConnection->mOrigin;
 	mPosition = mTranslation;
 		
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 	rs->translateScene(mTranslation.x, mTranslation.y, mTranslation.z);
-	rs->rotateScene(mAttachedTo->mAA_Angle, mAttachedTo->mAA_Axis.x, mAttachedTo->mAA_Axis.y, mAttachedTo->mAA_Axis.z);
+	rs->rotateScene(angle, axis.x, axis.y, axis.z);
 
 	for (unsigned int i = 0; i < mSurfacesCount; i++)
 		getSurface(i)->draw((uint32_t)mCurrentAnimFrame);
@@ -765,6 +821,9 @@ md3Animation_t* md3model::createAnimation(const std::string& name)
 		newAnim->name = name;
 
 		mAnimations[nameHash] = newAnim;
+	
+		S_LOG_INFO("Attached animation " + name + " to model.");
+
 		return newAnim;
 	}
 
@@ -789,6 +848,8 @@ bool md3model::insertAnimation(md3Animation_t* anim)
 	}
 
 	mAnimations[nameHash] = anim;
+	S_LOG_INFO("Attached animation " + anim->name + " to model.");
+
 	return true;
 }
 		
