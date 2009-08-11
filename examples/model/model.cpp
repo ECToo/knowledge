@@ -97,11 +97,16 @@ int main(int argc, char** argv)
 
 	// k::light::light* tempLight = NULL;
 	k::light::light* tempLight = mRenderer->createPointLight();
-	if (tempLight)
+	k::light::light* tempLight2 = mRenderer->createPointLight();
+	if (tempLight && tempLight)
 	{
 		tempLight->setAmbient(k::color(0.0, 0.0, 0.0, 1.0));
-		tempLight->setDiffuse(k::color(0.0, 0.2, 1.0, 1.0));
-		tempLight->setSpecular(k::color(0.8, 0.8, 0.8, 1.0));
+		tempLight->setDiffuse(k::color(0.0, 0.0, 1.0, 1.0));
+		tempLight->setSpecular(k::color(1.0, 1.0, 1.0, 1.0));
+
+		tempLight2->setAmbient(k::color(0.0, 0.0, 0.0, 1.0));
+		tempLight2->setDiffuse(k::color(1.0, 0.0, 0.0, 1.0));
+		tempLight2->setSpecular(k::color(1.0, 1.0, 1.0, 1.0));
 	}
 
 	// md5 Model
@@ -129,7 +134,6 @@ int main(int argc, char** argv)
 		*/
 
 		// Uncomment this out for goku =]
-		/*
 		newModel = new k::md5model("model/goku.md5mesh");
 		newModel->attachAnimation("model/idle.md5anim", "idle");
 		newModel->attachAnimation("model/fly_f.md5anim", "runf");
@@ -138,7 +142,6 @@ int main(int argc, char** argv)
 		newModel->setAnimation("runf");
 		newModel->setAnimationFrame(10);
 		mRenderer->push3D(newModel);
-		*/
 
 		/*
 		 * If you want to see a Quake 3 Arena(tm) model working
@@ -150,7 +153,6 @@ int main(int argc, char** argv)
 		 * material xaeroBody { texture { filename "model/xaero/red.tga" } }
 		 * material xaeroHead { texture { filename "model/xaero/red_h.tga" } }
 		 *
-		 */
 		q3Model = new k::md3model("model/monster/lower.md3");
 		for (unsigned int i = 0; i < q3Model->getSurfaceCount(); i++)
 			q3Model->getSurface(i)->setMaterial("monsterBody");
@@ -176,6 +178,7 @@ int main(int argc, char** argv)
 		q3ModelUpper->setFrame(100);
 
 		mRenderer->push3D(q3Model);
+		*/
 
 		/* 
 		 * Show Bounding?
@@ -285,6 +288,9 @@ int main(int argc, char** argv)
 			// Set Inverted wireframe
 			if (tempLight)
 				tempLight->setEnabled(tempLight->getEnabled() ^ 1);
+
+			if (tempLight2)
+				tempLight2->setEnabled(tempLight2->getEnabled() ^ 1);
 		}
 
 		// Bounding Boxes
@@ -436,7 +442,10 @@ int main(int argc, char** argv)
 		}
 
 		if (tempLight)
-			tempLight->setPosition(k::vector3(0, 0, 50) + modelPosition);
+			tempLight->setPosition(k::vector3(20, 0, 50) + modelPosition);
+
+		if (tempLight2)
+			tempLight2->setPosition(k::vector3(-20, 0, 50) + modelPosition);
 
 		std::stringstream fpsT;
 		fpsT << "fps: " << mRenderer->getLastFps();

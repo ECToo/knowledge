@@ -649,11 +649,10 @@ void md3model::draw()
 
 	// Rotate and Translate
 	vector3 finalPos = getAbsolutePosition();
-	quaternion finalOrientation = getAbsoluteOrientation();
 
 	vec_t angle;
 	vector3 axis;
-	finalOrientation.toAxisAngle(angle, axis);
+	getAbsoluteOrientation().toAxisAngle(angle, axis);
 			
 	camera* haveCamera = root::getSingleton().getRenderer()->getCamera();
 	if (!haveCamera)

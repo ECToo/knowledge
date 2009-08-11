@@ -21,7 +21,7 @@
 
 #include "rendersystem.h"
 
-#define DEFAULT_FIFO_SIZE (4 * 1024*1024)
+#define DEFAULT_FIFO_SIZE (512 * 1024)
 #define MAX_WII_TEXTURES 8
 
 namespace k 
@@ -139,6 +139,12 @@ namespace k
 			 * Render To Texture buffer
 			 */
 			char* mRttBuffer;
+
+			/**
+			 * The 8 supported lights.
+			 */
+			GXLightObj mLights[8];
+			unsigned int mEnabledLights;
 
 			void _cleanTextures();
 
