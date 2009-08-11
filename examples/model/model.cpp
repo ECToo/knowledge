@@ -144,6 +144,10 @@ int main(int argc, char** argv)
 		mRenderer->push3D(newModel);
 
 		/*
+		 * You can uncomment those following lines to get MD3 working.
+		 * I suggest you to download the monster model from knowledge Downloads
+		 * section and try with it.
+		 *
 		 * If you want to see a Quake 3 Arena(tm) model working
 		 * here, replace every occurrence of monster by xaero
 		 * and copy over the xaero folder from pak0.pk3 (models/players/xaero)
