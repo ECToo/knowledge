@@ -183,6 +183,13 @@ void wiiRenderSystem::configure()
 	// Setup screen
 	mVideoMode = VIDEO_GetPreferredMode(NULL);
 
+	// Widescreen fix, thanks to libwiigui
+	if (CONF_GetAspectRatio() == CONF_ASPECT_16_9)
+	{
+		mVideoMode->viWidth = VI_MAX_WIDTH_PAL - 12;
+		mVideoMode->viXOrigin = ((VI_MAX_WIDTH_PAL - mVideoMode->viWidth) / 2) + 2;
+	}
+
 	// Framebuffers
 	mFrameBuffers[0] = MEM_K0_TO_K1(SYS_AllocateFramebuffer(mVideoMode));
 	mFrameBuffers[1] = MEM_K0_TO_K1(SYS_AllocateFramebuffer(mVideoMode));
@@ -619,11 +626,14 @@ void wiiRenderSystem::setOrthographic(vec_t left, vec_t right, vec_t bottom, vec
 	// Setup black borders
 	if (left == 0 && top == 0)
 	{
-		top = -40;
-		left = -20;
+		// Found those in libwiigui source, thanks to Tantric
+		guOrtho(ortho, 0, 479, 0, 639, nearP, farP);
+	}
+	else
+	{
+		guOrtho(ortho, top, bottom, left, right, nearP, farP);
 	}
 
-	guOrtho(ortho, top, bottom, left, right, nearP, farP);
 	GX_LoadProjectionMtx(ortho, GX_ORTHOGRAPHIC);
 
 	switch (mActiveMatrix)
@@ -1090,38 +1100,80 @@ void wiiRenderSystem::screenshot(const char* filename)
 	free(textureData);
 }
 
-// TODO!!!
+const u8 getWiiLight(unsigned int i)
+{
+	switch (i)
+	{
+		case 0: return GX_LIGHT0;
+		case 1: return GX_LIGHT1;
+		case 2: return GX_LIGHT2;
+		case 3: return GX_LIGHT3;
+		case 4: return GX_LIGHT4;
+		case 5: return GX_LIGHT5;
+		case 6: return GX_LIGHT6;
+		case 7: return GX_LIGHT7;
+	};
+}
+
 bool wiiRenderSystem::isLightOn()
 {
-	return false;
+	return (mEnabledLights > 0);
 }
 
 void wiiRenderSystem::setLighting(bool status)
 {
+	if (status && mEnabledLights < 0)
+		mEnabledLights -= mEnabledLights;
+	else
+	if (status && mEnabledLights == 0)
+		mEnabledLights = 1;
+	else
+	if (!status && mEnabledLights > 0)
+		mEnabledLights -= mEnabledLights;
 }
 			
 void wiiRenderSystem::setLight(unsigned int i, bool status)
 {
+	kAssert(i < 8);
+	if (status && i > mEnabledLights)
+		mEnabledLights = i;
+
+	if (status)
+		GX_LoadLightObj(&mLights[i], getWiiLight(i));
 }
 
 void wiiRenderSystem::setLightPosition(unsigned int i, const vector3& p, bool directional)
 {
+	kAssert(i < 8);
+	GX_InitLightPosv(&mLights[i], p.vec);
 }
 
 void wiiRenderSystem::setLightAmbient(unsigned int i, const color& a)
 {
+	// Not supported on Wii :(
 }
 
 void wiiRenderSystem::setLightSpecular(unsigned int i, const color& s)
 {
+	// Not supported on Wii :(
 }
 
 void wiiRenderSystem::setLightDiffuse(unsigned int i, const color& d)
 {
+	kAssert(i < 8);
+
+	GXColor clr;
+	clr.r = d.r * 255;
+	clr.g = d.g * 255;
+	clr.b = d.b * 255;
+	clr.a = d.a * 255;
+
+	GX_InitLightColor(&mLights[i], clr);
 }
 
 void wiiRenderSystem::setLightAttenuation(unsigned int i, const vector3& att)
 {
+	//TODO
 }
 			
 bool wiiRenderSystem::getPointSpriteSupport()
