@@ -10,8 +10,7 @@ or abra185 |at| yahoo |.| com
 
 To compile for wii just do make -f Makefile.wii
 with the proper DEVKITPPC and DEVKITPRO environment variables 
-set. The pc version is known to work on GNU/Linux. I havent tested
-it on windows yet, so your best choice is deal with it, c'mon, GNU/Linux is free.
+set. 
 
 == to build on MS Windows ==
 
@@ -26,6 +25,7 @@ ODE
 GLEW
 
 I compiled every one of them using codeblocks and it just worked. If you are having any problems, feel free to contact me.
+Those dependencies are included now with knowledge latest code, check it out ;)
 
 Sincerely,
 Romulo Fernandes.
