@@ -22,11 +22,6 @@
 #include "root.h"
 #include "loadscr.h"
 
-#ifndef __WII__
-#include <dirent.h>
-#include "tev.h"
-#endif
-
 namespace k {
 
 void resourceGroup::setRoot(const std::string& root)

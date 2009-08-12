@@ -594,26 +594,35 @@ void affector::setFactor(const vector3& factor)
 void affector::setFactor(vec_t factor)
 {
 	mFactor.x = factor;
+	mFactor.y = factor;
+	mFactor.z = factor;
+}
+			
+void affector::resetTimer()
+{
+	mTimer.reset();
 }
 
 void linearAffector::interact(particle* p)
 {
+	vector3 mActualFactor = mFactor * (mTimer.getMilliSeconds() / 1000.0f);
+
 	switch (mAffectedParameter)
 	{
 		case AFF_POS:
 			switch (mAffectedOperation)
 			{
 				case AFF_SUM:
-					p->setPosition(p->getRelativePosition() + mFactor);
+					p->setPosition(p->getRelativePosition() + mActualFactor);
 					break;
 				case AFF_SUB:
-					p->setPosition(p->getRelativePosition() - mFactor);
+					p->setPosition(p->getRelativePosition() - mActualFactor);
 					break;
 				case AFF_MUL:
-					p->setPosition(p->getRelativePosition() * mFactor.x);
+					p->setPosition(p->getRelativePosition() * mActualFactor.x);
 					break;
 				case AFF_DIV:
-					p->setPosition(p->getRelativePosition() / mFactor.x);
+					p->setPosition(p->getRelativePosition() / mActualFactor.x);
 					break;
 			}
 			break;
@@ -621,16 +630,16 @@ void linearAffector::interact(particle* p)
 			switch (mAffectedOperation)
 			{
 				case AFF_SUM:
-					p->setAcceleration(p->getAcceleration() + mFactor);
+					p->setAcceleration(p->getAcceleration() + mActualFactor);
 					break;
 				case AFF_SUB:
-					p->setAcceleration(p->getAcceleration() - mFactor);
+					p->setAcceleration(p->getAcceleration() - mActualFactor);
 					break;
 				case AFF_MUL:
-					p->setAcceleration(p->getAcceleration() * mFactor.x);
+					p->setAcceleration(p->getAcceleration() * mActualFactor.x);
 					break;
 				case AFF_DIV:
-					p->setAcceleration(p->getAcceleration() / mFactor.x);
+					p->setAcceleration(p->getAcceleration() / mActualFactor.x);
 					break;
 			}
 			break;
@@ -638,16 +647,16 @@ void linearAffector::interact(particle* p)
 			switch (mAffectedOperation)
 			{
 				case AFF_SUM:
-					p->setVelocity(p->getVelocity() + mFactor);
+					p->setVelocity(p->getVelocity() + mActualFactor);
 					break;
 				case AFF_SUB:
-					p->setVelocity(p->getVelocity() - mFactor);
+					p->setVelocity(p->getVelocity() - mActualFactor);
 					break;
 				case AFF_MUL:
-					p->setVelocity(p->getVelocity() * mFactor.x);
+					p->setVelocity(p->getVelocity() * mActualFactor.x);
 					break;
 				case AFF_DIV:
-					p->setVelocity(p->getVelocity() / mFactor.x);
+					p->setVelocity(p->getVelocity() / mActualFactor.x);
 					break;
 			}
 			break;
@@ -655,16 +664,16 @@ void linearAffector::interact(particle* p)
 			switch (mAffectedOperation)
 			{
 				case AFF_SUM:
-					p->setRadius(p->getRadius() + mFactor.x);
+					p->setRadius(p->getRadius() + mActualFactor.x);
 					break;
 				case AFF_SUB:
-					p->setRadius(p->getRadius() - mFactor.x);
+					p->setRadius(p->getRadius() - mActualFactor.x);
 					break;
 				case AFF_MUL:
-					p->setRadius(p->getRadius() * mFactor.x);
+					p->setRadius(p->getRadius() * mActualFactor.x);
 					break;
 				case AFF_DIV:
-					p->setRadius(p->getRadius() / mFactor.x);
+					p->setRadius(p->getRadius() / mActualFactor.x);
 					break;
 			}
 			break;
@@ -672,16 +681,16 @@ void linearAffector::interact(particle* p)
 			switch (mAffectedOperation)
 			{
 				case AFF_SUM:
-					p->setLifeTime(p->getLifeTime() + mFactor.x);
+					p->setLifeTime(p->getLifeTime() + mActualFactor.x);
 					break;
 				case AFF_SUB:
-					p->setLifeTime(p->getLifeTime() - mFactor.x);
+					p->setLifeTime(p->getLifeTime() - mActualFactor.x);
 					break;
 				case AFF_MUL:
-					p->setLifeTime(p->getLifeTime() * mFactor.x);
+					p->setLifeTime(p->getLifeTime() * mActualFactor.x);
 					break;
 				case AFF_DIV:
-					p->setLifeTime(p->getLifeTime() / mFactor.x);
+					p->setLifeTime(p->getLifeTime() / mActualFactor.x);
 					break;
 			}
 			break;
@@ -776,25 +785,25 @@ void system::cycle()
 		emIt->second->spawnParticles();
 	}
 
+	std::map<std::string, affector*>::const_iterator affIt;
 	std::vector<particle>::iterator pIt;
+
 	for (pIt = mParticles->begin(); pIt != mParticles->end(); pIt++)
 	{
 		if (!pIt->isVisible())
 			continue;
 
-		std::map<std::string, affector*>::const_iterator affIt;
 		for (affIt = mAffectors.begin(); affIt != mAffectors.end(); affIt++)
-		{ 
 			affIt->second->interact(&(*pIt));
-		}
 	}
+
+	// Reset Affectors Time
+	for (affIt = mAffectors.begin(); affIt != mAffectors.end(); affIt++)
+		affIt->second->resetTimer();
 
 	// Draw container
 	if (mIsVisible)
 		draw();
-
-	// testing bounds
-	// drawBounds();
 }
 
 void system::drawBounds()

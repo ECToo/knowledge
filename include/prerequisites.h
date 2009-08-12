@@ -50,47 +50,110 @@ extern "C"
 	#define ATTRIBUTE_PACKED __attribute__((packed))
 #endif
 
-#define byteSwap4(Y) (((Y & 0xff)<<24)|((Y & 0xff00) << 8)|((Y & 0xff0000) >> 8)|((Y & 0xff000000) >> 24))
-#define byteSwap2(Y) (((Y & 0xff) << 8)|((Y & 0xff00) >> 8))
-
 #ifdef __BIG_ENDIAN__
 
-	#define readLEShort(Y) (byteSwap2(Y))
-	#define readBEShort(Y) (Y)
-	#define readLEInt(Y) (byteSwap4(Y))
-	#define readBEInt(Y) (Y)
-	#define readBEFloat(Y) (Y)
+	static inline short readLEShort(const short num)
+	{
+		char b1, b2;
+
+		b1 = num & 0xff;
+		b2 = (num >> 8) & 0xff;
+
+		return (b1 << 8) + b2;
+	}
+	
+	static inline short readBEShort(const short num)
+	{	return num; }
+
+	static inline int readLEInt(const int num)
+	{
+		char b[4];
+
+		b[0] = num & 0xff;
+		b[1] = (num >> 8) & 0xff;
+		b[2] = (num >> 16) & 0xff;
+		b[3] = (num >> 24) & 0xff;
+
+		return ((int)b[0] << 24) + ((int)b[1] << 16) + ((int)b[2] << 8) + b[3];
+	}
+	
+	static inline int readBEInt(const int num)
+	{ return num; }
  
+	static inline float readBEFloat(const float f)
+	{ return f; }
+
 	static inline float readLEFloat(const float f)
 	{
 		union 
 		{ 
 			float f; 
-			int i; 
-		} data;
+			char b[4]; 
+		} in, out;
 
-		data.i = readLEInt(data.i);
-		return data.f;
+		in.f = f;
+
+		out.b[0] = in.b[3];
+		out.b[1] = in.b[2];
+		out.b[2] = in.b[1];
+		out.b[3] = in.b[0];
+
+		return out.f;
 	}
 
 #else
 
-	#define readLEShort(Y) (Y)
-	#define readBEShort(Y) (byteSwap2(Y))
-	#define readLEInt(Y) (Y)
-	#define readBEInt(Y) (byteSwap4(Y))
-	#define readLEFloat(Y) (Y)
+	#ifdef __WII__
+	#error "Wii is not set as big endian, please define __BIG_ENDIAN__ !"
+	#endif
+
+	static inline short readBEShort(const short num)
+	{
+		char b1, b2;
+
+		b1 = num & 0xff;
+		b2 = (num >> 8) & 0xff;
+
+		return (b1 << 8) + b2;
+	}
+	
+	static inline short readLEShort(const short num)
+	{	return num; }
+
+	static inline int readBEInt(const int num)
+	{
+		char b[4];
+
+		b[0] = num & 0xff;
+		b[1] = (num >> 8) & 0xff;
+		b[2] = (num >> 16) & 0xff;
+		b[3] = (num >> 24) & 0xff;
+
+		return ((int)b[0] << 24) + ((int)b[1] << 16) + ((int)b[2] << 8) + b[3];
+	}
+	
+	static inline int readLEInt(const int num)
+	{ return num; }
+ 
+	static inline float readLEFloat(const float f)
+	{ return f; }
 
 	static inline float readBEFloat(const float f)
 	{
 		union 
 		{ 
 			float f; 
-			int i; 
-		} data;
+			char b[4]; 
+		} in, out;
 
-		data.i = readBEInt(data.i);
-		return data.f;
+		in.f = f;
+
+		out.b[0] = in.b[3];
+		out.b[1] = in.b[2];
+		out.b[2] = in.b[1];
+		out.b[3] = in.b[0];
+
+		return out.f;
 	}
 
 #endif

@@ -450,6 +450,8 @@ namespace particle
 			void setFactor(const vector3& factor);
 			void setFactor(vec_t factor);
 
+			void resetTimer();
+
 			virtual void interact(particle* p) = 0;
 	};
 

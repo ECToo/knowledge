@@ -160,6 +160,8 @@ void wiiRenderSystem::_cleanTextures()
 
 wiiRenderSystem::wiiRenderSystem()
 {
+	mEnabledLights = false;
+	mLastLightIndex = 0;
 }
 
 wiiRenderSystem::~wiiRenderSystem()
@@ -891,7 +893,7 @@ void wiiRenderSystem::drawArrays()
 		materialTextureUnits = mActiveMaterial->getStagesCount();
 
 	DCFlushRange((void*)mVertexArray, mVertexCount * sizeof(vec_t) * 3);
-	GX_SetArray(GX_VA_POS, (void*)mVertexArray, 3 * sizeof(vec_t));
+	GX_SetArray(GX_VA_POS, (void*)mVertexArray, 3 * sizeof(vec_t) + mVertexStride);
 
 	u8 tevStage = GX_TEVSTAGE0;
 	u8 texCoord = GX_TEXCOORDNULL;
@@ -925,7 +927,7 @@ void wiiRenderSystem::drawArrays()
 		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_F32, 0);
 
 		DCFlushRange((void*)mNormalArray, mVertexCount * sizeof(vec_t) * 3);
-		GX_SetArray(GX_VA_NRM, (void*)mNormalArray, 3 * sizeof(vec_t));
+		GX_SetArray(GX_VA_NRM, (void*)mNormalArray, 3 * sizeof(vec_t) + mNormalStride);
 	}
 
 	GX_SetTevOrder(GX_TEVSTAGE0, texCoord, texMap, tevColor);
@@ -1117,29 +1119,29 @@ const u8 getWiiLight(unsigned int i)
 
 bool wiiRenderSystem::isLightOn()
 {
-	return (mEnabledLights > 0);
+	return mEnabledLights;
 }
 
 void wiiRenderSystem::setLighting(bool status)
 {
-	if (status && mEnabledLights < 0)
-		mEnabledLights -= mEnabledLights;
-	else
-	if (status && mEnabledLights == 0)
-		mEnabledLights = 1;
-	else
-	if (!status && mEnabledLights > 0)
-		mEnabledLights -= mEnabledLights;
+	mEnabledLights = status;
 }
 			
 void wiiRenderSystem::setLight(unsigned int i, bool status)
 {
 	kAssert(i < 8);
-	if (status && i > mEnabledLights)
-		mEnabledLights = i;
-
+		
 	if (status)
+	{
 		GX_LoadLightObj(&mLights[i], getWiiLight(i));
+	
+		if ((i + 1) > mLastLightIndex)
+			mLastLightIndex = i + 1;
+	}
+	else
+	{
+		mLastLightIndex = 0;
+	}
 }
 
 void wiiRenderSystem::setLightPosition(unsigned int i, const vector3& p, bool directional)

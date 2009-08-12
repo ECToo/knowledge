@@ -19,7 +19,7 @@ particleSystem "bubbles"
 	{
 		param velocity
 		op sub
-		factorVector 0 0.1 0
+		factorVector 0 80 0
 	}
 
 	planeEmitter "windBubbles"

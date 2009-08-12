@@ -26,6 +26,7 @@ namespace k {
 glRenderSystem::glRenderSystem()
 {
 	mActiveMaterial = NULL;
+	mLastLightIndex = 0;
 }
 
 glRenderSystem::~glRenderSystem()

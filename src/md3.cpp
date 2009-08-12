@@ -32,6 +32,8 @@ md3Surface::md3Surface()
 	mVertices = NULL;
 	mIndices = NULL;
 	mUVs = NULL;
+
+	mDrawNormals = false;
 }
 
 md3Surface::~md3Surface()
@@ -57,7 +59,7 @@ void md3Surface::draw(short frameNum)
 	rs->setVertexArray(mVertices[frameNum * mVerticesCount].pos.vec, sizeof(md3RealVertex));
 	rs->setVertexCount(mVerticesCount);
 
-	rs->setTexCoordArray(mUVs[0].uv, sizeof(md3TexCoord_t));
+	rs->setTexCoordArray(mUVs[0].uv.vec);
 	rs->setNormalArray(mVertices[frameNum * mVerticesCount].normal.vec, sizeof(md3RealVertex));
 		
 	rs->setVertexIndex(mIndices[0].indices);
@@ -67,6 +69,27 @@ void md3Surface::draw(short frameNum)
 
 	if (mMaterial)
 		mMaterial->finish();
+	
+	if (mDrawNormals)
+	{
+		material* normalMaterial =  materialManager::getSingleton().getMaterial("k_base_white");
+		kAssert(normalMaterial);
+
+		normalMaterial->start();
+
+		// Draw Normals
+		for (unsigned int i = 0; i < mVerticesCount; i++)
+		{
+			rs->startVertices(VERTEXMODE_LINE);
+				rs->vertex(mVertices[i + (frameNum * mVerticesCount)].pos);
+				rs->vertex(mVertices[i + (frameNum * mVerticesCount)].pos + 
+						(mVertices[i + (frameNum * mVerticesCount)].normal * 2));
+
+			rs->endVertices();
+		}
+
+		normalMaterial->finish();
+	}
 }
 
 bool md3Surface::isOpaque() const
@@ -104,7 +127,7 @@ bool md3Surface::allocateIndices(unsigned int i)
 	try
 	{
 		// mIndices = new md3Triangle_t[i];
-		mIndices = (md3Triangle_t*) memalign(32, sizeof(md3Triangle_t) * i);
+		mIndices = (md3Triangle*) memalign(32, sizeof(md3Triangle) * i);
 	}
 
 	catch (...)
@@ -264,7 +287,10 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 	// Version
 	if (readLEInt(modelHeader.version) != 15)
 	{
-		S_LOG_INFO("Invalid md3 version, expected 15.");
+		std::stringstream msg;
+		msg << "Invalid md3 version (" << readLEInt(modelHeader.version) << "), expected 15.";
+		S_LOG_INFO(msg.str());
+
 		return;
 	}
 
@@ -865,6 +891,12 @@ void md3model::setAnimation(const std::string& name)
 	}
 
 	S_LOG_INFO("Animation " + name + " not found in model.");
+}
+		
+void md3model::setDrawNormals(bool draw)
+{
+	for (unsigned int i = 0; i < mSurfacesCount; i++)
+		getSurface(i)->setDrawNormals(draw);
 }
 
 }
