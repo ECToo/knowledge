@@ -118,17 +118,17 @@ namespace k
 				double epsilon = 0.01; 
 				double epsilon2 = 0.1;
 	
-				if ((abs(m[0][1] - m[1][0]) < epsilon) &&
-					(abs(m[0][2] - m[2][0]) < epsilon) &&
-					(abs(m[1][2] - m[2][1]) < epsilon)) 
+				if ((fabs(m[0][1] - m[1][0]) < epsilon) &&
+					(fabs(m[0][2] - m[2][0]) < epsilon) &&
+					(fabs(m[1][2] - m[2][1]) < epsilon)) 
 				{
 					// singularity found
 					// first check for identity matrix which must have +1 for all terms
 					//  in leading diagonaland zero in other terms
-					if ((abs(m[0][1] + m[1][0]) < epsilon2) &&
-						 (abs(m[0][2] + m[2][0]) < epsilon2) &&
-						 (abs(m[1][2] + m[2][1]) < epsilon2) &&
-						 (abs(m[0][0] + m[1][1]+m[2][2]-3) < epsilon2))
+					if ((fabs(m[0][1] + m[1][0]) < epsilon2) &&
+						 (fabs(m[0][2] + m[2][0]) < epsilon2) &&
+						 (fabs(m[1][2] + m[2][1]) < epsilon2) &&
+						 (fabs(m[0][0] + m[1][1]+m[2][2]-3) < epsilon2))
 					{
 						// this singularity is identity matrix so angle = 0
 						angle = 0;

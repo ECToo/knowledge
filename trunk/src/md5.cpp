@@ -29,6 +29,7 @@ md5mesh::md5mesh()
 	mNormalList = NULL;
 	mIndexList = NULL;
 	mIndexListSize = 0;
+	mDrawNormals = false;
 
 	mVIndex = 0;
 	mVCount = 0;
@@ -143,8 +144,7 @@ void md5mesh::pushVertex(const vector2& uv, const vector2& weight)
 	vert_t* newVertex = &mVertices[mVIndex++];
 	kAssert(newVertex);
 
-	newVertex->uv[0] = uv.x;
-	newVertex->uv[1] = uv.y;
+	newVertex->uv = uv;
 	newVertex->weight = weight;
 }
 
@@ -195,8 +195,9 @@ void md5mesh::compileVertices(std::vector<bone_t*>* boneList)
 		vert_t* vertex = &mVertices[vIt];
 		kAssert(vertex);
 
-		vertex->renderPos[0] = vertex->renderPos[1] = vertex->renderPos[2] = 0;
-		vertex->renderNormal = vector3(0, 0, 0);
+		vertex->renderPos = vector3::zero;
+		vertex->renderNormal = vertex->baseNormal;
+
 		for (int w = vertex->weight.x; w < vertex->weight.x+vertex->weight.y; w++)
 		{
 			vector3 tempPos;
@@ -209,22 +210,18 @@ void md5mesh::compileVertices(std::vector<bone_t*>* boneList)
 			kAssert(bone);
 
 			tempPos = bone->orientation.rotateVector(weight->pos);
-			vertex->renderPos[0] += (tempPos.x + bone->pos.x) * weight->value;
-			vertex->renderPos[1] += (tempPos.y + bone->pos.y) * weight->value;
-			vertex->renderPos[2] += (tempPos.z + bone->pos.z) * weight->value;
+			vertex->renderPos += (tempPos + bone->pos) * weight->value;
 
+			// This doesnt work, was supposed to?
 			// vertex->renderNormal += bone->orientation.rotateVector(vertex->baseNormal);
 		}
 
-		// TODO: Why this works?
-		vertex->renderNormal = vertex->baseNormal;
-
 		// Put on vertex list
-		mVertexList[vIt*3] = vertex->renderPos[0];
-		mVertexList[vIt*3 + 1] = vertex->renderPos[1];
-		mVertexList[vIt*3 + 2] = vertex->renderPos[2];
-		mUvList[vIt*2] = vertex->uv[0];
-		mUvList[vIt*2 + 1] = vertex->uv[1];
+		mVertexList[vIt*3] = vertex->renderPos.x;
+		mVertexList[vIt*3 + 1] = vertex->renderPos.y;
+		mVertexList[vIt*3 + 2] = vertex->renderPos.z;
+		mUvList[vIt*2] = vertex->uv.x;
+		mUvList[vIt*2 + 1] = vertex->uv.y;
 	}
 
 	// Copy the normals
@@ -244,7 +241,7 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 		vert_t* vertex = &mVertices[vIt];
 		kAssert(vertex);
 
-		vertex->basePos = vector3(0, 0, 0);
+		vertex->basePos = vector3::zero;
 		for (int w = vertex->weight.x; w < vertex->weight.x+vertex->weight.y; w++)
 		{
 			vector3 tempPos;
@@ -263,18 +260,16 @@ void md5mesh::compileBase(std::vector<bone_t*>* boneList)
 		mAABB.setTest(vertex->basePos);
 
 		// Copy final position
-		vertex->renderPos[0] = vertex->basePos.x;
-		vertex->renderPos[1] = vertex->basePos.y;
-		vertex->renderPos[2] = vertex->basePos.z;
+		vertex->renderPos = vertex->basePos;
 
 		// Put on vertex list
 		mVertexList[vIt*3] = vertex->basePos.x;
 		mVertexList[vIt*3 + 1] = vertex->basePos.y;
 		mVertexList[vIt*3 + 2] = vertex->basePos.z;
-		mUvList[vIt*2] = vertex->uv[0];
-		mUvList[vIt*2 + 1] = vertex->uv[1];
+		mUvList[vIt*2] = vertex->uv.x;
+		mUvList[vIt*2 + 1] = vertex->uv.y;
 
-		vertex->baseNormal = vector3(0, 0, 0);
+		vertex->baseNormal = vector3::zero;
 	}
 
 	// Triangles
@@ -401,6 +396,25 @@ void md5mesh::draw()
 	rs->drawArrays();
 
 	mMaterial->finish();
+
+	if (mDrawNormals)
+	{
+		material* normalMaterial =  materialManager::getSingleton().getMaterial("k_base_white");
+		kAssert(normalMaterial);
+
+		normalMaterial->start();
+
+		// Draw Normals
+		for (unsigned int i = 0; i < mVCount; i++)
+		{
+			rs->startVertices(VERTEXMODE_LINE);
+				rs->vertex(mVertices[i].renderPos);
+				rs->vertex(mVertices[i].renderPos + (mVertices[i].renderNormal * 2));
+			rs->endVertices();
+		}
+
+		normalMaterial->finish();
+	}
 }
 
 md5model::md5model(const std::string& filename)
@@ -1065,6 +1079,13 @@ void md5model::setAnimation(const std::string& name)
 
 		thisBone->currentAnim = destAnimation;
 	}
+}
+		
+void md5model::setDrawNormals(bool draw)
+{
+	std::list<md5mesh*>::iterator it;
+	for (it = mMeshes.begin(); it != mMeshes.end(); it++)
+		(*it)->setDrawNormals(draw);
 }
 
 void md5model::feedAnims()

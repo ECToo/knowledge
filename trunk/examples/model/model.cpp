@@ -134,6 +134,7 @@ int main(int argc, char** argv)
 		*/
 
 		// Uncomment this out for goku =]
+		/*
 		newModel = new k::md5model("model/goku.md5mesh");
 		newModel->attachAnimation("model/idle.md5anim", "idle");
 		newModel->attachAnimation("model/fly_f.md5anim", "runf");
@@ -142,6 +143,7 @@ int main(int argc, char** argv)
 		newModel->setAnimation("runf");
 		newModel->setAnimationFrame(10);
 		mRenderer->push3D(newModel);
+		*/
 
 		/*
 		 * You can uncomment those following lines to get MD3 working.
@@ -157,6 +159,7 @@ int main(int argc, char** argv)
 		 * material xaeroBody { texture { filename "model/xaero/red.tga" } }
 		 * material xaeroHead { texture { filename "model/xaero/red_h.tga" } }
 		 *
+		 */
 		q3Model = new k::md3model("model/monster/lower.md3");
 		for (unsigned int i = 0; i < q3Model->getSurfaceCount(); i++)
 			q3Model->getSurface(i)->setMaterial("monsterBody");
@@ -182,15 +185,6 @@ int main(int argc, char** argv)
 		q3ModelUpper->setFrame(100);
 
 		mRenderer->push3D(q3Model);
-		*/
-
-		/* 
-		 * Show Bounding?
-		q3Model->setDrawBoundingBox(true);
-		q3ModelUpper->setDrawBoundingBox(true);
-		q3ModelHead->setDrawBoundingBox(true);
-		newModel->setDrawBoundingBox(true);
-		*/
 	}
 	
 	catch (...)
@@ -298,7 +292,7 @@ int main(int argc, char** argv)
 		}
 
 		// Bounding Boxes
-		if (mInputManager->getKbdKeyDown(K_KBD_b))
+		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_2) || mInputManager->getKbdKeyDown(K_KBD_b))
 		{
 			B_Hold = true;
 		}
@@ -465,7 +459,7 @@ int main(int argc, char** argv)
 
 	delete fpsText;
 	delete resourceMgr;
-	delete appRoot;
+	// delete appRoot;
 
 	return 0;
 }

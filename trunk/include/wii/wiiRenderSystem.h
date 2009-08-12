@@ -144,7 +144,7 @@ namespace k
 			 * The 8 supported lights.
 			 */
 			GXLightObj mLights[8];
-			unsigned int mEnabledLights;
+			bool mEnabledLights;
 
 			void _cleanTextures();
 

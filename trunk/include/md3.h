@@ -119,16 +119,22 @@ typedef struct
 	int index;
 } md3Shader_t;
 
-class md3Triangle_t
+// Indices on wii are u16 so better use md3Triangle_t with unsigned int and then convert;)
+typedef struct 
+{
+	unsigned int indices[3];
+} md3Triangle_t;
+
+class md3Triangle
 {
 	public:
 		index_t indices[3];
 
-		inline md3Triangle_t operator = (const md3Triangle_t& tri)
+		inline md3Triangle operator = (const md3Triangle_t& tri)
 		{
-			indices[0] = readLEInt(tri.indices[0]);
-			indices[1] = readLEInt(tri.indices[1]);
-			indices[2] = readLEInt(tri.indices[2]);
+			indices[0] = (index_t)(readLEInt(tri.indices[0]));
+			indices[1] = (index_t)(readLEInt(tri.indices[1]));
+			indices[2] = (index_t)(readLEInt(tri.indices[2]));
 
 			return *this;
 		}
@@ -137,12 +143,12 @@ class md3Triangle_t
 class md3TexCoord_t
 {
 	public:
-		float uv[2];
+		vector2 uv;
 
 		inline md3TexCoord_t operator = (const md3TexCoord_t& u)
 		{
-			uv[0] = readLEFloat(u.uv[0]);
-			uv[1] = readLEFloat(u.uv[1]);
+			uv.x = readLEFloat(u.uv.x);
+			uv.y = readLEFloat(u.uv.y);
 
 			return *this;
 		}
@@ -236,7 +242,7 @@ class DLL_EXPORT md3Surface
 		unsigned int mIndicesCount;
 
 		// Indices array
-		md3Triangle_t* mIndices;
+		md3Triangle* mIndices;
 
 		// Number of Uv's
 		unsigned int mUVCount;
@@ -246,6 +252,9 @@ class DLL_EXPORT md3Surface
 
 		// Lower Y, for ajudsting
 		float mLowerY;
+
+		// Are We drawing normals?
+		bool mDrawNormals;
 
 	public:
 		md3Surface();
@@ -272,6 +281,22 @@ class DLL_EXPORT md3Surface
 		 * to have its bottom part on its lower (Y) vertex.
 		 */
 		void adjustVertices();
+
+		/**
+		 * Set if normals are drawn or not.
+		 */
+		void setDrawNormals(bool draw)
+		{
+			mDrawNormals = draw;
+		}
+
+		/**
+		 * Are we drawing normals?
+		 */
+		bool getDrawNormals() const
+		{
+			return mDrawNormals;
+		}
 
 		/**
 		 * Allocate indices
@@ -479,6 +504,11 @@ class DLL_EXPORT md3model : public drawable3D
 			mAttachParent = parent;
 			mAttachTag = tag;
 		}
+
+		/**
+		 * Set if submeshes normals are drawn or not.
+		 */
+		void setDrawNormals(bool draw);
 
 		/**
 		 * Get surface (mesh) index

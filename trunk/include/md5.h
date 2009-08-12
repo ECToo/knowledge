@@ -122,10 +122,10 @@ typedef struct
 
 typedef struct
 {
-	vec_t uv[2];
+	vector2 uv;
 	vector2 weight;
 
-	vec_t renderPos[3];
+	vector3 renderPos;
 	vector3 renderNormal;
 
 	// normal unasigned to a bone
@@ -162,6 +162,9 @@ class DLL_EXPORT md5mesh
 		// knowledge material
 		material* mMaterial;
 
+		// Are we drawing the normals?
+		bool mDrawNormals;
+
 		// Used to glDrawelements
 		vec_t* mVertexList;
 		vec_t* mUvList;
@@ -186,6 +189,22 @@ class DLL_EXPORT md5mesh
 
 		void setMaterial(material* mat);
 		void setMaterial(const std::string& matName);
+
+		/**
+		 * Set normal drawing
+		 */
+		void setDrawNormals(bool draw)
+		{
+			mDrawNormals = draw;
+		}
+
+		/**
+		 * Are we drawing normals?
+		 */
+		bool getDrawNormals() const
+		{
+			return mDrawNormals;
+		}
 
 		/**
 		 * Is this object opaque?
@@ -241,6 +260,11 @@ class DLL_EXPORT md5model : public drawable3D
 	public:
 		md5model(const std::string& filename);
 		~md5model();
+
+		/**
+		 * Ask submeshes to draw (or not) their normals.
+		 */
+		void setDrawNormals(bool draw);
 
 		/**
 		 * Clone this model, allocating a new one exactly like this.
