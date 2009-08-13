@@ -32,6 +32,7 @@
 
 namespace k
 {
+	extern bool isNumeric(const std::string& str);
 	extern std::string getExtension(const std::string& file);
 	extern unsigned int getHashKey(const std::string& filename);
 	class DLL_EXPORT root : public singleton<root>

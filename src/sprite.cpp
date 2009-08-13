@@ -167,6 +167,7 @@ void sprite::draw()
 	if (rs->getPointSpriteSupport())
 	{
 		mMaterial->start();
+		rs->setCulling(CULLMODE_NONE);
 
 		rs->setDepthMask(false);
 		rs->setPointSprite(true);
@@ -192,7 +193,9 @@ void sprite::draw()
 
 	// We dont need depth masking on this case
 	rs->setDepthMask(false);
+
 	mMaterial->start();
+	rs->setCulling(CULLMODE_NONE);
 
 	const vec_t uv[] ATTRIBUTE_ALIGN(32) = {0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0};
 	const vec_t vertex[] ATTRIBUTE_ALIGN(32) = {-mRadius, -mRadius, 0, mRadius, -mRadius, 0,

@@ -355,6 +355,80 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 				activeStage->setTexture(newTexture, stageTextures++);
 		}
 		else
+		if (token == "animname")
+		{
+			bool readingWords = false;
+			unsigned int numberOfImages = 0;
+			vec_t frameRate = 0;
+
+			std::string filename = file->getNextToken();
+			token = file->getNextToken();
+
+			if (!isNumeric(token))
+			{
+				// Register first filename
+				texture* tempTex = textureManager::getSingleton().allocateTexture(filename);
+				if (tempTex) activeStage->setTexture(tempTex, 0);
+
+				numberOfImages++;
+				readingWords = true;
+			}
+
+			if (isNumeric(token))
+			{
+				// We got the number of frames
+				numberOfImages = atoi(token.c_str());
+				frameRate = atof(file->getNextToken().c_str());
+
+				if (numberOfImages > K_MAX_STAGE_TEXTURES)
+					numberOfImages = K_MAX_STAGE_TEXTURES;
+			
+				std::string extension = getExtension(filename);
+				filename.erase(filename.length() - extension.length(), extension.length());
+
+				for (unsigned int i = 0; i < numberOfImages; i++)
+				{
+					texture* tempTex = NULL;
+					char numStr[3];
+	
+					sprintf(numStr, "_%d", i);
+					numStr[2] = 0;
+
+					std::string fullName = filename + numStr + extension;
+					tempTex = textureManager::getSingleton().allocateTexture(fullName);
+					if (tempTex)
+						activeStage->setTexture(tempTex, i);
+				}
+			}
+			else
+			while (!isNumeric(token))
+			{
+				if (token == "}")
+				{
+					openBraces--;
+					continue;
+				}
+
+				if (numberOfImages < K_MAX_STAGE_TEXTURES)
+				{
+					// We havent got the number of frames, so we are getting file names =]
+					texture* tempTex = textureManager::getSingleton().allocateTexture(token);
+					if (tempTex) activeStage->setTexture(tempTex, numberOfImages);
+				
+					numberOfImages++;
+				}
+
+				token = file->getNextToken();
+			}	
+
+			// We got the frameRate last =]
+			if (readingWords)
+				frameRate = atoi(token.c_str());
+
+			activeStage->setFrameRate(frameRate);
+			activeStage->setNumberOfFrames(numberOfImages);
+		}
+		else
 		if (token == "cubename")
 		{
 			token = file->getNextToken();

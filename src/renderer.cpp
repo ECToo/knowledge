@@ -568,7 +568,45 @@ void renderer::draw()
 	{
 		sprite* spr = (*it);
 		kAssert(spr);
+
+		if (mActiveCamera && !mActiveCamera->isPointInsideFrustum(spr->getPosition()))
+			continue;
+
+		bool lightFound = false;
+		unsigned int lightIndex = 0;
+
+		// loop lights
+		std::list<light::light*>::const_iterator lightIt;
+		for (lightIt = mLights.begin(); lightIt != mLights.end(); lightIt++)
+		{
+			if (!(*lightIt)->getEnabled() || !(*lightIt)->isInLightRange(spr->getPosition()))
+				continue;
+
+			if (lightIndex >= 8)
+				break;
+
+			// Light is valid for this object
+			if (!lightFound)
+			{
+				rs->setLighting(true);
+				lightFound = true;
+			}
+
+			// Lets Setup
+			rs->setLightPosition(lightIndex, (*lightIt)->getPosition(), false);
+			rs->setLightDiffuse(lightIndex, (*lightIt)->getDiffuse());
+			rs->setLightSpecular(lightIndex, (*lightIt)->getSpecular());
+			rs->setLightAmbient(lightIndex, (*lightIt)->getAmbient());
+			rs->setLightAttenuation(lightIndex, (*lightIt)->getAttenuation());
+			rs->setLight(lightIndex, true);
+
+			lightIndex++;
+		}
+
 		spr->draw();
+
+		if (lightFound)
+			rs->setLighting(false);
 	}
 
 	// Particles

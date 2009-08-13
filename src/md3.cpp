@@ -200,11 +200,8 @@ void md3Surface::setVertex(unsigned int index, const md3Vertex_t& v)
 	kAssert(index < mVerticesCount);
 	mVertices[index] = v;
 
-	float y = readLEShort(v.coord[2]) * 0.015625f;
-	if (index == 0)
-		mLowerY = y;
-	
-	if (y < mLowerY)
+	float y = mVertices[index].pos.y;
+	if (index == 0 || y < mLowerY)
 		mLowerY = y;
 }
 
@@ -263,20 +260,45 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 	mAttach.clear();
 
 	// Ok, start parsing file.
-	FILE* md3File = fopen(fullPath.c_str(), "rb");
-	if (!md3File)
+	unsigned long md3Index = 0;
+	char* md3String = NULL;
+	unsigned int md3StringLength = 0;
+
+	std::ifstream input;
+	input.open(fullPath.c_str(), std::ifstream::in | std::ifstream::binary);
+
+	if (input.is_open())
 	{
-		S_LOG_INFO("Failed to read md3 file " + fullPath);
+
+		input.seekg(0, std::ios::end);
+		md3StringLength = input.tellg();
+		input.seekg(0, std::ios::beg);
+
+		try
+		{
+			md3String = new char[md3StringLength + 1];
+			memset(md3String, 0, md3StringLength);
+			input.read(md3String, md3StringLength);
+			input.close();
+		}
+
+		catch (...)
+		{
+			S_LOG_INFO("Failed to allocate md3 file data.");
+			input.close();
+			return;
+		}
+	}
+	else
+	{
+		S_LOG_INFO("Failed to read md3 file.");
 		return;
 	}
 
 	// Get md3 header
 	md3Header_t modelHeader;
-	if (fread(&modelHeader, sizeof(md3Header_t), 1, md3File) <= 0)
-	{
-		S_LOG_INFO("Failed to read md3 header.");
-		return;
-	}
+	memcpy(&modelHeader, md3String, sizeof(md3Header_t));
+	md3Index = sizeof(md3Header_t);
 
 	if (strncmp(modelHeader.ident, "IDP3", 4))
 	{
@@ -309,18 +331,12 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 	}
 
 	// Read Frames
-	fseek(md3File, readLEInt(modelHeader.offsetFrames), SEEK_SET);
+	md3Index = readLEInt(modelHeader.offsetFrames);
 	for (unsigned int i = 0; i < mFramesCount; i++)
 	{
 		md3Frame_t tempFrame;
-		if (fread(&tempFrame, sizeof(md3Frame_t), 1, md3File) <= 0)
-		{
-			S_LOG_INFO("Failed to read md3 frame.");
-			delete [] mFrames;
-			fclose(md3File);
-
-			return;
-		}
+		memcpy(&tempFrame, md3String + md3Index, sizeof(md3Frame_t));
+		md3Index += sizeof(md3Frame_t);
 
 		float tmp = readLEFloat(tempFrame.mins[1]);
 		mFrames[i].mins[0] = readLEFloat(tempFrame.mins[0]);
@@ -354,25 +370,18 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 	{
 		S_LOG_INFO("Failed to allocate md3 tags.");
 		delete [] mFrames;
-		fclose(md3File);
+		// fclose(md3File);
 
 		return;
 	}
 
 	// Read Tags
-	fseek(md3File, readLEInt(modelHeader.offsetTags), SEEK_SET);
+	md3Index = readLEInt(modelHeader.offsetTags);
 	for (unsigned int i = 0; i < mTagsCount * mFramesCount; i++)
 	{
 		md3Tag_t tempTag;
-		if (fread(&tempTag, sizeof(md3Tag_t), 1, md3File) <= 0)
-		{
-			S_LOG_INFO("Failed to read tag from md3 file.");
-			fclose(md3File);
-			delete [] mFrames;
-			delete [] mTags;
-
-			return;
-		}
+		memcpy(&tempTag, md3String + md3Index, sizeof(md3Tag_t));
+		md3Index += sizeof(md3Tag_t);
 
 		mTags[i] = tempTag;
 	}
@@ -388,7 +397,6 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate md3 surfaces.");
-		fclose(md3File);
 		delete [] mFrames;
 		delete [] mTags;
 
@@ -396,22 +404,15 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 	}
 
 	// Read Surfaces
-	fseek(md3File, readLEInt(modelHeader.offsetSurfaces), SEEK_SET);
+	md3Index = readLEInt(modelHeader.offsetSurfaces);
 	for (unsigned int i = 0; i < mSurfacesCount; i++)
 	{
-		long int surfaceStartOffset = ftell(md3File);
+		// long int surfaceStartOffset = ftell(md3File);
+		long int surfaceStartOffset = md3Index;
 
 		md3Surface_t tempSurface;
-		if (fread(&tempSurface, sizeof(md3Surface_t), 1, md3File) <= 0)
-		{
-			S_LOG_INFO("Failed to read md3 surface.");
-			fclose(md3File);
-			delete [] mFrames;
-			delete [] mTags;
-			delete [] mSurfaces;
-
-			return;
-		}
+		memcpy(&tempSurface, md3String + md3Index, sizeof(md3Surface_t));
+		md3Index += sizeof(md3Surface_t);
 	
 		// Read Shaders
 		int numShaders = readLEInt(tempSurface.numShaders);
@@ -424,7 +425,8 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 		catch (...)
 		{
 			S_LOG_INFO("Failed to allocate surface shaders.");
-			fclose(md3File);
+			// fclose(md3File);
+
 			delete [] mFrames;
 			delete [] mTags;
 			delete [] mSurfaces;
@@ -432,18 +434,9 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 			return;
 		}
 	
-		fseek(md3File, surfaceStartOffset + readLEInt(tempSurface.offsetShaders), SEEK_SET);
-		if (fread(mShaders, sizeof(md3Shader_t) * numShaders, 1, md3File) <= 0)
-		{
-			S_LOG_INFO("Failed to read surface shaders.");
-			fclose(md3File);
-			delete [] mFrames;
-			delete [] mTags;
-			delete [] mSurfaces;
-			delete [] mShaders;
-
-			return;
-		}
+		md3Index = surfaceStartOffset + readLEInt(tempSurface.offsetShaders);
+		memcpy(mShaders, md3String + md3Index, sizeof(md3Shader_t) * numShaders);
+		md3Index += sizeof(md3Shader_t) * numShaders;
 
 		// For each shader, search a material containing the texture.
 		for (int shader = 0; shader < numShaders; shader++)
@@ -481,7 +474,7 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 		// Read Triangles
 		if (!mSurfaces[i].allocateIndices(readLEInt(tempSurface.numTris)))
 		{
-			fclose(md3File);
+			// fclose(md3File);
 			delete [] mFrames;
 			delete [] mTags;
 			delete [] mSurfaces;
@@ -489,21 +482,13 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 			return;
 		}
 
-		fseek(md3File, surfaceStartOffset + readLEInt(tempSurface.offsetTriangles), SEEK_SET);
+		// fseek(md3File, surfaceStartOffset + readLEInt(tempSurface.offsetTriangles), SEEK_SET);
+		md3Index = surfaceStartOffset + readLEInt(tempSurface.offsetTriangles);
 		for (unsigned int surf = 0; surf < mSurfaces[i].getIndicesCount(); surf++)
 		{
 			md3Triangle_t tempTriangle;
-			if (fread(&tempTriangle, sizeof(md3Triangle_t), 1, md3File) <= 0)
-			{
-				S_LOG_INFO("Failed to read surface triangle.");
-			
-				fclose(md3File);
-				delete [] mFrames;
-				delete [] mTags;
-				delete [] mSurfaces;
-
-				return;
-			}
+			memcpy(&tempTriangle, md3String + md3Index, sizeof(md3Triangle_t));
+			md3Index += sizeof(md3Triangle_t);
 
 			mSurfaces[i].setIndex(surf, tempTriangle);
 		}
@@ -514,7 +499,7 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 		// allocate uv's
 		if (!mSurfaces[i].allocateUVs(readLEInt(tempSurface.numVerts)))
 		{
-			fclose(md3File);
+			// fclose(md3File);
 			delete [] mFrames;
 			delete [] mTags;
 			delete [] mSurfaces;
@@ -522,21 +507,12 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 		}
 
 		// read uvs
-		fseek(md3File, surfaceStartOffset + readLEInt(tempSurface.offsetUV), SEEK_SET);
+		md3Index = surfaceStartOffset + readLEInt(tempSurface.offsetUV);
 		for (unsigned int uv = 0; uv < mSurfaces[i].getUVCount(); uv++)
 		{
 			md3TexCoord_t tempUV;
-			if (fread(&tempUV, sizeof(md3TexCoord_t), 1, md3File) <= 0)
-			{
-				S_LOG_INFO("Failed to read surface uv.");
-			
-				fclose(md3File);
-				delete [] mFrames;
-				delete [] mTags;
-				delete [] mSurfaces;
-
-				return;
-			}
+			memcpy(&tempUV, md3String + md3Index, sizeof(md3TexCoord_t));
+			md3Index += sizeof(md3TexCoord_t);
 
 			mSurfaces[i].setUV(uv, tempUV);
 		}
@@ -545,7 +521,7 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 		unsigned int tempVertexCount = readLEInt(tempSurface.numVerts) * readLEInt(tempSurface.numFrames);
 		if (!mSurfaces[i].allocateVertices(tempVertexCount))
 		{
-			fclose(md3File);
+			// fclose(md3File);
 			delete [] mFrames;
 			delete [] mTags;
 			delete [] mSurfaces;
@@ -562,7 +538,7 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 		catch (...)
 		{
 			S_LOG_INFO("Failed to allocate surface temporary vertices.");
-			fclose(md3File);
+			// fclose(md3File);
 			delete [] mFrames;
 			delete [] mTags;
 			delete [] mSurfaces;
@@ -571,19 +547,9 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 		}
 
 		// read temp vertices
-		fseek(md3File, surfaceStartOffset + readLEInt(tempSurface.offsetVertex), SEEK_SET);
-		if (fread(tempVertices, sizeof(md3Vertex_t), tempVertexCount, md3File) <= 0)
-		{
-			S_LOG_INFO("Failed to read surface temporary vertices.");
-
-			fclose(md3File);
-			delete [] mFrames;
-			delete [] mTags;
-			delete [] mSurfaces;
-			delete [] tempVertices;
-
-			return;
-		}
+		md3Index = surfaceStartOffset + readLEInt(tempSurface.offsetVertex);
+		memcpy(tempVertices, md3String + md3Index, sizeof(md3Vertex_t) * tempVertexCount);
+		md3Index += sizeof(md3Vertex_t) * tempVertexCount;
 
 		// Convert vertices
 		for (unsigned int vertex = 0; vertex < mSurfaces[i].getVertexCount(); vertex++)
@@ -608,6 +574,7 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 	}
 
 	S_LOG_INFO("MD3 Model " + filename + " loaded.");
+	delete [] md3String;
 }
 		
 md3Surface* md3model::getSurface(unsigned int index)

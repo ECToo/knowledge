@@ -105,6 +105,16 @@ long root::getGlobalTime()
 {
 	return mGlobalTimer.getMilliSeconds();
 }
+	
+bool isNumeric(const std::string& str)
+{
+	std::istringstream sStr(str);
+	double num;
+	sStr >> num;
+
+	if (!sStr) return false;
+	return (sStr.rdbuf()->in_avail() == 0);
+}
 
 } // namespace k
 
