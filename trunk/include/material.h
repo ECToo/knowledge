@@ -44,7 +44,7 @@ namespace k
 		TEXENV_MAX_ENV
 	};
 
-	#define K_MAX_STAGE_TEXTURES 8
+	#define K_MAX_STAGE_TEXTURES 16
 
 	class DLL_EXPORT materialStage
 	{
@@ -90,28 +90,152 @@ namespace k
 			 */
 			texture* mTextures[K_MAX_STAGE_TEXTURES];
 
+			/**
+			 * Last time this was called
+			 */
+			long mLastFeedTime;
+
+			/**
+			 * Number of frame in case this stage is animated.
+			 */
+			unsigned int mNumberOfFrames;
+
+			/**
+			 * Animation frame rate
+			 */
+			vec_t mFrameRate;
+
+			/**
+			 * Actual frame we are rendering
+			 */
+			vec_t mCurrentFrame;
+
 		public:
 
+			/**
+			 * Create a new material stage. Each stage will be drawn by
+			 * parent material ordered by their index.
+			 * @index The index of the new stage in material.
+			 */
 			materialStage(unsigned short index);
+
+			/**
+			 * Destroys the material stage, freeing used memory.
+			 */
 			virtual ~materialStage();
 
+			/**
+			 * Set texture environment function, @see TexEnvFunctions.
+			 *
+			 * @tev New texture environment function.
+			 */
 			void setEnv(unsigned int tev);
+
+			/**
+			 * Set type of texture coordinate generation. @see TextureCoordType.
+			 * @type The new texture coordinate generation type.
+			 */
 			void setCoordType(TextureCoordType type);
+
+			/**
+			 * Set stage blending.
+			 * @src Source Blending mode
+			 * @dst Destination Blending mode
+			 */
 			void setBlendMode(unsigned short src, unsigned short dst);
 
+			/**
+			 * Set the amount this stage texture scrolls in each direction (x,y) per second.
+			 * @scroll The amount texture scrolls in each direction.
+			 */
 			void setScroll(vector2 scroll);
+
+			/**
+			 * Set the amount this stage texture is scaled.
+			 * @scale The new stage texture scale
+			 */
 			void setScale(vector2 scale);
+
+			/**
+			 * Set the amount this stage texture is rotated per second.
+			 * @angle The angular velocity.
+			 */
 			void setRotate(float angle);
 
+			/**
+			 * Set the stage texture.
+			 * @tex A pointer to the texture.
+			 * @index Index of the texture, up K_MAX_STAGE_TEXTURES
+			 */
 			void setTexture(texture* tex, unsigned int index);
 
+			/**
+			 * Does this stage contains the texture?
+			 * @name The name of the texture we are checking against.
+			 */
 			bool containsTexture(const std::string& name) const;
+
+			/**
+			 * Does this stage contains opaque textures?
+			 */
 			bool isOpaque() const;
 
+			/**
+			 * Used internally to force current frame calculation.
+			 */
+			void feedAnims();
+
+			/**
+			 * Is this stage animated?
+			 */
+			bool isAnimated() const
+			{
+				return mNumberOfFrames > 0;
+			}
+
+			/**
+			 * Set the number of frames on the stage.
+			 */
+			void setNumberOfFrames(unsigned int i)
+			{
+				mNumberOfFrames = i;
+			}
+
+			/**
+			 * Set animation frame rate
+			 */
+			void setFrameRate(vec_t framerate)
+			{
+				mFrameRate = framerate;
+			}
+
+			/**
+			 * Get animation frame rate
+			 */
+			vec_t getFrameRate() const
+			{
+				return mFrameRate;
+			}
+
+			/**
+			 * Return stage texture width.
+			 */
 			unsigned int getWidth() const;
+
+			/**
+			 * Return stage texture height.
+			 */
 			unsigned int getHeight() const;
+
+			/**
+			 * Return the number of images this stage has.
+			 */
 			unsigned int getImagesCount() const;
 
+			/** 
+			 * Get a material texture by index.
+			 * @index Texture index.
+			 */
 			const texture* getTexture(unsigned int index) const;
 
 			void draw();

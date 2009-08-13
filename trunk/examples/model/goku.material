@@ -2,7 +2,7 @@ material gokuSkin
 {
 	texture
 	{
-		filename model/goku.png
+		animname model/goku.png model/goku.png model/goku.png model/goku.png model/goku.png model/goku.png model/goku_blink.png 7
 		texcoord uv
 	}
 }

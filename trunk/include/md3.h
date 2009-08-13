@@ -122,7 +122,7 @@ typedef struct
 // Indices on wii are u16 so better use md3Triangle_t with unsigned int and then convert;)
 typedef struct 
 {
-	unsigned int indices[3];
+	int indices[3];
 } md3Triangle_t;
 
 class md3Triangle
@@ -132,9 +132,14 @@ class md3Triangle
 
 		inline md3Triangle operator = (const md3Triangle_t& tri)
 		{
-			indices[0] = (index_t)(readLEInt(tri.indices[0]));
-			indices[1] = (index_t)(readLEInt(tri.indices[1]));
-			indices[2] = (index_t)(readLEInt(tri.indices[2]));
+			int nindices[3];
+			nindices[0] = readLEInt(tri.indices[0]);
+			nindices[1] = readLEInt(tri.indices[1]);
+			nindices[2] = readLEInt(tri.indices[2]);
+
+			indices[0] = (index_t)nindices[0];
+			indices[1] = (index_t)nindices[1];
+			indices[2] = (index_t)nindices[2];
 
 			return *this;
 		}

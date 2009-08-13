@@ -39,7 +39,7 @@ void materialStage::draw()
 		return;
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	rs->bindTexture(getTexture(0)->getPointer(), mIndex);
+	rs->bindTexture(getTexture((uint32_t)mCurrentFrame)->getPointer(), mIndex);
 
 	switch (mTexEnv)
 	{

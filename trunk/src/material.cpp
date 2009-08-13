@@ -140,7 +140,10 @@ void material::start()
 	// Cycle through textures
 	std::vector<materialStage*>::const_iterator it;
 	for (it = mStages.begin(); it != mStages.end(); it++)
+	{
+		(*it)->feedAnims();
 		(*it)->draw();
+	}
 }
 
 void material::finish()
@@ -164,7 +167,7 @@ void material::finish()
 	for (it = mStages.begin(); it != mStages.end(); it++)
 		(*it)->finish();
 }
-
+			
 materialStage::materialStage(unsigned short index)
 {
 	mIndex = index;
@@ -174,6 +177,11 @@ materialStage::materialStage(unsigned short index)
 	mRotate = 0;
 	mScroll.x = 0;
 	mScroll.y = 0;
+	
+	mLastFeedTime = root::getSingleton().getGlobalTime();
+	mNumberOfFrames = 0;
+	mCurrentFrame = 0;
+	mFrameRate = 0;
 
 	mTexEnv = TEXENV_REPLACE;
 	mCoordType = TEXCOORD_UV;
@@ -194,6 +202,20 @@ void materialStage::setBlendMode(unsigned short src, unsigned short dst)
 {
 	mBlendSrc = src;
 	mBlendDst = dst;
+}
+
+void materialStage::feedAnims()
+{
+	if (mNumberOfFrames == 0)
+		return;
+
+	long timeNow = root::getSingleton().getGlobalTime();
+
+	mCurrentFrame += (mFrameRate * (timeNow - mLastFeedTime)) / 1000.0f;
+	mLastFeedTime = timeNow;
+
+	while ((uint32_t)mCurrentFrame >= mNumberOfFrames)
+		mCurrentFrame -= mNumberOfFrames;
 }
 			
 void materialStage::setTexture(texture* tex, unsigned int index)
