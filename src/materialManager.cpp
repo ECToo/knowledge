@@ -389,10 +389,10 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 				for (unsigned int i = 0; i < numberOfImages; i++)
 				{
 					texture* tempTex = NULL;
-					char numStr[3];
+					char numStr[6];
 	
+					memset(numStr, 0, 6);
 					sprintf(numStr, "_%d", i);
-					numStr[2] = 0;
 
 					std::string fullName = filename + numStr + extension;
 					tempTex = textureManager::getSingleton().allocateTexture(fullName);
