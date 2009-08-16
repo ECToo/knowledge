@@ -28,8 +28,8 @@ camera::camera()
 	// Set the default rendering options
 	// like fov, aspect ratio.
 	mFov = 90;
-	mTanFov = tan(mFov * 0.5f);
-	mAspectRatio = 1.333f;
+	mTanFov = tan(DEG_TO_RAD(mFov * 0.5f));
+	mAspectRatio = 1.3333f;
 	mNearPlane = 0.1;
 	mFarPlane = 5000;
 }
@@ -40,7 +40,7 @@ void camera::setFov(unsigned int fov)
 		S_LOG_INFO("Warning: Setting camera fov to 0!");
 
 	mFov = fov;
-	mTanFov = tan(mFov * 0.5f);
+	mTanFov = tan(DEG_TO_RAD(mFov * 0.5f));
 }
 
 void camera::setAspectRatio(vec_t ar)
@@ -219,10 +219,15 @@ void camera::setView()
  *
  * coords are in local screen coordinates from (0.0 to 1.0f)
  */
-const vector3 camera::projectRayFrom2D(const vector2& coords) const
+const ray camera::projectRayFrom2D(const vector2& coords) const
 {
-	vec_t dx = mTanFov * ((coords.x * 2.0f - 1.0f) / mAspectRatio);
-	vec_t dy = mTanFov * ((coords.y * 2.0f - 1.0f) / -mAspectRatio);
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	vec_t width = (vec_t)rs->getScreenWidth();
+	vec_t height = (vec_t)rs->getScreenHeight();
+
+	// mTanFov is the tangent of half of the fov.
+	vec_t dx = mTanFov * (coords.x / (width * 0.5f) - 1.0f) * mAspectRatio;
+	vec_t dy = mTanFov * (1.0f - coords.y / (height * 0.5f));
 
 	vector3 farP = vector3(dx * mFarPlane, dy * mFarPlane, -mFarPlane);
 	vector3 nearP = vector3(dx * mNearPlane, dy * mNearPlane, -mNearPlane);
@@ -230,7 +235,7 @@ const vector3 camera::projectRayFrom2D(const vector2& coords) const
 	vector3 result = mFinalInverse * (farP - nearP);
 	result.normalize();
 
-	return result;
+	return ray(mPosition, result);
 }
 
 void camera::copyView() const

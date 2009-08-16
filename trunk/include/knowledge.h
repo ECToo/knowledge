@@ -39,6 +39,7 @@
 #include "physicsManager.h"
 #include "prerequisites.h"
 #include "quaternion.h"
+#include "ray.h"
 #include "renderer.h"
 #include "rendersystem.h"
 #include "resourceManager.h"

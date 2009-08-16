@@ -123,6 +123,7 @@ int main(int argc, char** argv)
 	k::md3model* q3Model = NULL;
 	k::md3model* q3ModelUpper = NULL;
 	k::md3model* q3ModelHead = NULL;
+
 	try
 	{
 		// Uncomment this out for marvin =]
@@ -140,6 +141,7 @@ int main(int argc, char** argv)
 		*/
 
 		// Uncomment this out for goku =]
+		/*
 		newModel = new k::md5model("model/goku.md5mesh");
 		newModel->attachAnimation("model/idle.md5anim", "idle");
 		newModel->attachAnimation("model/fly_f.md5anim", "runf");
@@ -148,6 +150,7 @@ int main(int argc, char** argv)
 		newModel->setAnimation("runf");
 		newModel->setAnimationFrame(10);
 		mRenderer->push3D(newModel);
+		*/
 
 		/*
 		 * You can uncomment those following lines to get MD3 working.
@@ -163,6 +166,7 @@ int main(int argc, char** argv)
 		 * material xaeroBody { texture { filename "model/xaero/red.tga" } }
 		 * material xaeroHead { texture { filename "model/xaero/red_h.tga" } }
 		 *
+		 */
 		q3Model = new k::md3model("model/monster/lower.md3");
 		for (unsigned int i = 0; i < q3Model->getSurfaceCount(); i++)
 			q3Model->getSurface(i)->setMaterial("monsterBody");
@@ -188,7 +192,6 @@ int main(int argc, char** argv)
 		q3ModelUpper->setFrame(100);
 
 		mRenderer->push3D(q3Model);
-		*/
 	}
 	
 	catch (...)
@@ -392,7 +395,7 @@ int main(int argc, char** argv)
 
 		lastX = mousePos.x;
 		lastY = mousePos.y;
-
+			
 		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_A))
 		{
 			rX += dX;

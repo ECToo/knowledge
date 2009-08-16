@@ -23,6 +23,7 @@
 #include "vector3.h"
 #include "quaternion.h"
 #include "drawable.h"
+#include "ray.h"
 
 namespace k
 {
@@ -155,7 +156,7 @@ namespace k
 			 * Generate a unit vector from camera position
 			 * to where pointer coords are.
 			 */
-			const vector3 projectRayFrom2D(const vector2& coords) const;
+			const ray projectRayFrom2D(const vector2& coords) const;
 
 			// Translations
 			void setPosition(vector3 pos);

@@ -473,6 +473,8 @@ namespace k
 			{
 				printf("X: %f - Y: %f - Z: %f - W: %f\n", x, y, z, w);
 			}		
+
+			static const quaternion identity;
 	};	
 }
 
