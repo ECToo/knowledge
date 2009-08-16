@@ -25,6 +25,7 @@
 #include "drawable.h"
 #include "material.h"
 #include "timer.h"
+#include "ray.h"
 
 namespace k {
 
@@ -431,6 +432,11 @@ class DLL_EXPORT md3Surface
 		 *	This function will call material manager to retrieve the material pointer.
 		 */
 		void setMaterial(const std::string& matName);
+
+		/**
+		 * Trace against this meshe triangles.
+		 */
+		void trace(ray& traceRay, short frameNum) const;
 };
 
 class DLL_EXPORT md3model : public drawable3D
@@ -600,6 +606,13 @@ class DLL_EXPORT md3model : public drawable3D
 		 * must be pre-registered with insertAnimation()
 		 */
 		void setAnimation(const std::string& name);
+
+		/**
+		 * Trace against this model. If this ray collides
+		 * with some triangle the ray mFraction (getFraction()) 
+		 * will be different than 0
+		 */
+		void trace(ray& traceRay);
 
 		bool isOpaque() const;
 		void draw();

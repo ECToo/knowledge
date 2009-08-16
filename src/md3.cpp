@@ -91,6 +91,19 @@ void md3Surface::draw(short frameNum)
 		normalMaterial->finish();
 	}
 }
+		
+void md3Surface::trace(ray& traceRay, short frameNum) const
+{
+	for (unsigned int i = 0; i < mIndicesCount; i += 3)
+	{
+		if (traceRay.intersect(mVertices[i + (frameNum * mVerticesCount)].pos, 
+					mVertices[i + 1 + (frameNum * mVerticesCount)].pos, 
+					mVertices[i + 2 + (frameNum * mVerticesCount)].pos))
+		{
+			return;
+		}
+	}
+}
 
 bool md3Surface::isOpaque() const
 {
@@ -864,6 +877,18 @@ void md3model::setDrawNormals(bool draw)
 {
 	for (unsigned int i = 0; i < mSurfacesCount; i++)
 		getSurface(i)->setDrawNormals(draw);
+}
+		
+void md3model::trace(ray& traceRay)
+{
+	traceRay.setOrientation(mOrientation);
+
+	for (unsigned int i = 0; i < mSurfacesCount; i++)
+	{
+		getSurface(i)->trace(traceRay, (uint32_t)mCurrentAnimFrame);
+		if (traceRay.getFraction() != 0)
+			break;
+	}
 }
 
 }

@@ -20,9 +20,11 @@ libknowledge_la_SOURCES = drawable.cpp\
 								  sticker.cpp\
 								  sprite.cpp\
 								  pthread.cpp\
+								  quaternion.cpp\
 								  loadscr.cpp\
 								  particle.cpp\
 								  logger.cpp\
+								  ray.cpp\
 								  root.cpp\
 								  tinystr.cpp\
 								  tinyxml.cpp\
@@ -67,6 +69,7 @@ pkginclude_HEADERS = @top_srcdir@/include/bsp46.h \
 @top_srcdir@/include/pngu.h \
 @top_srcdir@/include/prerequisites.h \
 @top_srcdir@/include/quaternion.h \
+@top_srcdir@/include/ray.h \
 @top_srcdir@/include/renderer.h \
 @top_srcdir@/include/rendersystem.h \
 @top_srcdir@/include/resourceManager.h \
