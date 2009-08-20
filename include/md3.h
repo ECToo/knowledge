@@ -96,6 +96,34 @@ class md3Tag
 
 			return *this;
 		}
+
+		/**
+		 * Copy tag from a tag pointer (already converted to machine endianess)
+		 */
+		md3Tag operator = (const md3Tag_t* tag)
+		{
+			mName = tag->name;
+
+			mOrigin.x = tag->origin[0];
+			mOrigin.y = tag->origin[2];
+			mOrigin.z = -tag->origin[1];
+
+			mRotation.m[0][0] = tag->axis[0][0];
+			mRotation.m[0][1] = tag->axis[0][1];
+			mRotation.m[0][2] = tag->axis[0][2];
+
+			mRotation.m[1][0] = tag->axis[1][0];
+			mRotation.m[1][1] = tag->axis[1][1];
+			mRotation.m[1][2] = tag->axis[1][2];
+
+			mRotation.m[2][0] = tag->axis[2][0];
+			mRotation.m[2][1] = tag->axis[2][1];
+			mRotation.m[2][2] = tag->axis[2][2];
+
+			mRotation.toAxisAngle(mAA_Angle, mAA_Axis);
+
+			return *this;
+		}
 };
 
 typedef struct
@@ -489,13 +517,43 @@ class DLL_EXPORT md3model : public drawable3D
 		 */
 		long mLastFeedTime;
 
+		/**
+		 * In case we are sharing meshes with other md3model
+		 */
+		const md3model* mShared;
+
 	public:
 		md3model(const std::string& filename, bool adjustVertices = false);
+		md3model(const md3model* shared);
 
 		/**
 		 * Clean allocated structures
 		 */
 		~md3model();
+
+		/**
+		 * Return the mesh we are sharing
+		 */
+		const md3model* getShared() const
+		{
+			return mShared;
+		}
+
+		/**
+		 * Get Tag Count
+		 */
+		unsigned int getTagsCount() const
+		{
+			return mTagsCount;
+		}
+
+		/**
+		 * Get model tags
+		 */
+		const md3Tag* getTags() const
+		{
+			return mTags;
+		}
 
 		/**
 		 * Set to wich tag this model is attached to.
@@ -514,12 +572,35 @@ class DLL_EXPORT md3model : public drawable3D
 		/**
 		 * Get surface (mesh) index
 		 */
-		md3Surface* getSurface(unsigned int index);
+		md3Surface* getSurface(unsigned int index) const
+		{
+			if (mShared)
+				return mShared->getSurface(index);
+			else
+				return &mSurfaces[index];
+		}
+
+		/**
+		 * Get the surfaces
+		 */
+		md3Surface* getSurfaces() const
+		{
+			if (mShared)
+				return mShared->getSurfaces();
+			else
+				return mSurfaces;
+		}
 
 		/**
 		 * Get the number of surfaces (meshes)
 		 */
-		const unsigned int getSurfaceCount() const;
+		const unsigned int getSurfacesCount() const
+		{
+			if (mShared)
+				return mShared->getSurfacesCount();
+			else
+				return mSurfacesCount;
+		}
 
 		/**
 		 * Define if the model animations
@@ -561,6 +642,14 @@ class DLL_EXPORT md3model : public drawable3D
 		 * Return the number of frames
 		 */
 		int getFramesCount() const;
+
+		/**
+		 * Return the frames themselves
+		 */
+		md3Frame_t* getFrames() const
+		{
+			return mFrames;
+		}
 
 		/**
 		 * Attach another md3model to a tag of this one.
