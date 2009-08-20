@@ -136,14 +136,8 @@ bool md3Surface::allocateIndices(unsigned int i)
 		free(mIndices);
 
 	mIndicesCount = i;
-
-	try
-	{
-		// mIndices = new md3Triangle_t[i];
-		mIndices = (md3Triangle*) memalign(32, sizeof(md3Triangle) * i);
-	}
-
-	catch (...)
+	mIndices = (md3Triangle*) memalign(32, sizeof(md3Triangle) * i);
+	if (!mIndices)
 	{
 		S_LOG_INFO("Failed to allocate surface indices.");
 		return false;
@@ -161,14 +155,8 @@ bool md3Surface::allocateVertices(unsigned int i)
 		free(mVertices);
 
 	mVerticesCount = i;
-
-	try
-	{
-		// mVertices = new md3RealVertex[i];
-		mVertices = (md3RealVertex*) memalign(32, sizeof(md3RealVertex) * i);
-	}
-
-	catch (...)
+	mVertices = (md3RealVertex*) memalign(32, sizeof(md3RealVertex) * i);
+	if (!mVertices)
 	{
 		S_LOG_INFO("Failed to allocate surface vertices.");
 		return false;
@@ -186,14 +174,8 @@ bool md3Surface::allocateUVs(unsigned int i)
 		free(mUVs);
 
 	mUVCount = i;
-
-	try
-	{
-		// mUVs = new md3TexCoord_t[i];
-		mUVs = (md3TexCoord_t*) memalign(32, sizeof(md3TexCoord_t) * i);
-	}
-
-	catch (...)
+	mUVs = (md3TexCoord_t*) memalign(32, sizeof(md3TexCoord_t) * i);
+	if (!mUVs)
 	{
 		S_LOG_INFO("Failed to allocate surface uvw's.");
 		return false;
@@ -213,7 +195,7 @@ void md3Surface::setVertex(unsigned int index, const md3Vertex_t& v)
 	kAssert(index < mVerticesCount);
 	mVertices[index] = v;
 
-	float y = mVertices[index].pos.y;
+	const float y = mVertices[index].pos.y;
 	if (index == 0 || y < mLowerY)
 		mLowerY = y;
 }

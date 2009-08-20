@@ -25,7 +25,7 @@ INCLUDES	:= include include/wii
 # options for code generation
 #---------------------------------------------------------------------------------
 
-CFLAGS	= -g -O2 -DDEBUG_NET $(MACHDEP) -D__WII__ -D__BIG_ENDIAN__ $(INCLUDE) 
+CFLAGS	= -g -O0 -DDEBUG_NET $(MACHDEP) -D__WII__ -D__BIG_ENDIAN__ $(INCLUDE) 
 CXXFLAGS	= -save-temps -Xassembler -aln=$@.lst $(CFLAGS)
 
 LDFLAGS	=	-g -DDEBUG_NET $(MACHDEP) -Wl,-Map,$(notdir $@).map

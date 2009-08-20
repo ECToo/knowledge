@@ -893,7 +893,11 @@ void wiiRenderSystem::drawArrays()
 		materialTextureUnits = mActiveMaterial->getStagesCount();
 
 	DCFlushRange((void*)mVertexArray, mVertexCount * sizeof(vec_t) * 3);
-	GX_SetArray(GX_VA_POS, (void*)mVertexArray, 3 * sizeof(vec_t) + mVertexStride);
+
+	if (mVertexStride)
+		GX_SetArray(GX_VA_POS, (void*)mVertexArray, mVertexStride);
+	else
+		GX_SetArray(GX_VA_POS, (void*)mVertexArray, 3 * sizeof(vec_t));
 
 	u8 tevStage = GX_TEVSTAGE0;
 	u8 texCoord = GX_TEXCOORDNULL;
@@ -909,7 +913,11 @@ void wiiRenderSystem::drawArrays()
 			GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0 + i, GX_TEX_ST, GX_F32, 0);
 
 			DCFlushRange((void*)mTexCoordArray[i], mVertexCount * sizeof(vec_t) * 2);
-			GX_SetArray(GX_VA_TEX0 + i, (void*)mTexCoordArray[i], 2 * sizeof(vec_t) + mTexCoordStride[i]);
+
+			if (mTexCoordStride[i])
+				GX_SetArray(GX_VA_TEX0 + i, (void*)mTexCoordArray[i], mTexCoordStride[i]);
+			else
+				GX_SetArray(GX_VA_TEX0 + i, (void*)mTexCoordArray[i], 2 * sizeof(vec_t));
 		}
 			
 		texCoord = GX_TEXCOORD0;
@@ -927,7 +935,11 @@ void wiiRenderSystem::drawArrays()
 		GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_F32, 0);
 
 		DCFlushRange((void*)mNormalArray, mVertexCount * sizeof(vec_t) * 3);
-		GX_SetArray(GX_VA_NRM, (void*)mNormalArray, 3 * sizeof(vec_t) + mNormalStride);
+
+		if (mNormalStride)
+			GX_SetArray(GX_VA_NRM, (void*)mNormalArray, mNormalStride);
+		else
+			GX_SetArray(GX_VA_NRM, (void*)mNormalArray, 3 * sizeof(vec_t));
 	}
 
 	GX_SetTevOrder(GX_TEVSTAGE0, texCoord, texMap, tevColor);
