@@ -32,19 +32,11 @@ namespace k
 			// Allow us to access like packed data.
 			union
 			{
-				#ifdef __HAVE_SSE3__
-				struct 
-				{
-					vec_t x, y, z, w;
-				};
-				vec_t vec[4];
-				#else
 				struct 
 				{
 					vec_t x, y, z;
 				};
 				vec_t vec[3];
-				#endif
 			};
 
 			/**
@@ -54,10 +46,6 @@ namespace k
 			vector3()
 			{ 
 				x = y = z = 0;
-
-				#ifdef __HAVE_SSE3__
-				w = 0;
-				#endif
 			}
 
 			vector3(const vector3& in)
@@ -65,10 +53,6 @@ namespace k
 				x = in.x;
 				y = in.y;
 				z = in.z;
-
-				#ifdef __HAVE_SSE3__
-				w = 0;
-				#endif
 			}
 			
 			/**
@@ -82,10 +66,6 @@ namespace k
 				x = xx;
 				y = yy;
 				z = zz;
-
-				#ifdef __HAVE_SSE3__
-				w = 0;
-				#endif
 			}
 
 			/**
@@ -95,10 +75,6 @@ namespace k
 			vector3(const std::string& str)
 			{
 				x = y = z = 0;
-
-				#ifdef __HAVE_SSE3__
-				w = 0;
-				#endif
 
 				if (str.length())
 					sscanf(str.c_str(), "%f %f %f", &x, &y, &z);
@@ -272,22 +248,7 @@ namespace k
 	 		 */
 			inline const vec_t dotProduct(const vector3& newVec) const
 			{
-				#ifdef __HAVE_SSE3__
-				float d = 0.0f;
-				__asm__ __volatile__( 
-				"movups (%[vec1]), %%xmm0\n"
-				"movups (%[vec2]), %%xmm1\n"
-				"mulps %%xmm0, %%xmm1\n"
-				"haddps %%xmm1, %%xmm1\n"
-				"haddps %%xmm1, %%xmm1\n"
-				"movss %%xmm1, %[output]"
-				: [output] "=m"(d)
-				: [vec1] "r" (vec), [vec2] "r" (newVec.vec)
-				: "memory", "%xmm0", "%xmm1");
-				return d;
-				#else
 				return ((x * newVec.x) + (y * newVec.y) + (z * newVec.z));
-				#endif
 			}
 
 			/**

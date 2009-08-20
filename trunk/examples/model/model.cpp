@@ -165,7 +165,6 @@ int main(int argc, char** argv)
 		 *
 		 * material xaeroBody { texture { filename "model/xaero/red.tga" } }
 		 * material xaeroHead { texture { filename "model/xaero/red_h.tga" } }
-		 *
 		 */
 		q3Model = new k::md3model("model/monster/lower.md3");
 		for (unsigned int i = 0; i < q3Model->getSurfaceCount(); i++)

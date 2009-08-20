@@ -72,7 +72,7 @@ class md3Tag
 		vec_t mAA_Angle;
 		vector3 mAA_Axis;
 
-		inline md3Tag operator = (const md3Tag_t& tag)
+		md3Tag operator = (const md3Tag_t& tag)
 		{
 			mName = tag.name;
 
@@ -131,16 +131,11 @@ class md3Triangle
 	public:
 		index_t indices[3];
 
-		inline md3Triangle operator = (const md3Triangle_t& tri)
+		md3Triangle operator = (const md3Triangle_t& tri)
 		{
-			int nindices[3];
-			nindices[0] = readLEInt(tri.indices[0]);
-			nindices[1] = readLEInt(tri.indices[1]);
-			nindices[2] = readLEInt(tri.indices[2]);
-
-			indices[0] = (index_t)nindices[0];
-			indices[1] = (index_t)nindices[1];
-			indices[2] = (index_t)nindices[2];
+			indices[0] = (index_t)readLEInt(tri.indices[0]);
+			indices[1] = (index_t)readLEInt(tri.indices[1]);
+			indices[2] = (index_t)readLEInt(tri.indices[2]);
 
 			return *this;
 		}
@@ -151,7 +146,7 @@ class md3TexCoord_t
 	public:
 		vector2 uv;
 
-		inline md3TexCoord_t operator = (const md3TexCoord_t& u)
+		md3TexCoord_t operator = (const md3TexCoord_t& u)
 		{
 			uv.x = readLEFloat(u.uv.x);
 			uv.y = readLEFloat(u.uv.y);
@@ -184,16 +179,11 @@ typedef struct
  */
 class md3RealVertex
 {
-	/*
-	float pos[3];
-	float normal[3];
-	*/
-
 	public:
 		vector3 pos;
 		vector3 normal;
 
-		inline md3RealVertex operator = (const md3Vertex_t& t)
+		md3RealVertex operator = (const md3Vertex_t& t)
 		{
 			const float vertexMultiplier = 0.015625f;
 	 		const float lat = t.normal[1] * (2.0f * M_PI) / 255.0f;
