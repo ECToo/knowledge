@@ -141,7 +141,6 @@ int main(int argc, char** argv)
 		*/
 
 		// Uncomment this out for goku =]
-		/*
 		newModel = new k::md5model("model/goku.md5mesh");
 		newModel->attachAnimation("model/idle.md5anim", "idle");
 		newModel->attachAnimation("model/fly_f.md5anim", "runf");
@@ -150,7 +149,6 @@ int main(int argc, char** argv)
 		newModel->setAnimation("runf");
 		newModel->setAnimationFrame(10);
 		mRenderer->push3D(newModel);
-		*/
 
 		/*
 		 * You can uncomment those following lines to get MD3 working.
@@ -165,19 +163,19 @@ int main(int argc, char** argv)
 		 *
 		 * material xaeroBody { texture { filename "model/xaero/red.tga" } }
 		 * material xaeroHead { texture { filename "model/xaero/red_h.tga" } }
-		 */
+		 *
 		q3Model = new k::md3model("model/monster/lower.md3");
-		for (unsigned int i = 0; i < q3Model->getSurfaceCount(); i++)
+		for (unsigned int i = 0; i < q3Model->getSurfacesCount(); i++)
 			q3Model->getSurface(i)->setMaterial("monsterBody");
 
 		q3ModelUpper = new k::md3model("model/monster/upper.md3");
-		for (unsigned int i = 0; i < q3ModelUpper->getSurfaceCount(); i++)
+		for (unsigned int i = 0; i < q3ModelUpper->getSurfacesCount(); i++)
 			q3ModelUpper->getSurface(i)->setMaterial("monsterBody");
 
 		q3ModelHead = new k::md3model("model/monster/head.md3");
-		for (unsigned int i = 0; i < q3ModelHead->getSurfaceCount(); i++)
+		for (unsigned int i = 0; i < q3ModelHead->getSurfacesCount(); i++)
 			q3ModelHead->getSurface(0)->setMaterial("monsterHead");
-
+		
 		// Got this from monster animation.cfg =]
 		k::md3Animation_t* lowerAnim = q3Model->createAnimation("run");
 		lowerAnim->firstFrame = 110;
@@ -191,6 +189,7 @@ int main(int argc, char** argv)
 		q3ModelUpper->setFrame(100);
 
 		mRenderer->push3D(q3Model);
+		*/
 	}
 	
 	catch (...)

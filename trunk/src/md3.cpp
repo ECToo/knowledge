@@ -232,6 +232,58 @@ md3model::~md3model()
 	mAnimations.clear();
 }
 
+md3model::md3model(const md3model* shared)
+{
+	kAssert(shared);
+	mShared = shared;
+
+	mFrames = NULL;
+	mFramesCount = 0;
+
+	mSurfaces = NULL;
+	mSurfacesCount = 0;
+
+	mCurrentAnimFrame = 0;
+
+	mAutoFeedAnims = true;
+	mActiveAnimation = NULL;
+	mAnimations.clear();
+	mLastFeedTime = 0;
+	
+	// Tags
+	mDrawTags = false;
+	mAttachParent = NULL;
+	mAttach.clear();
+
+	// Copy Tags from shared
+	mTagsCount = mShared->getTagsCount();
+	mTags = NULL;
+
+	if (!mTagsCount)
+		return;
+
+	try
+	{
+		mTags = new md3Tag[mTagsCount * mShared->getFramesCount()];
+
+		const md3Tag* sharedTags = mShared->getTags();
+		for (unsigned int i = 0; i < (mTagsCount * mShared->getFramesCount()); i++)
+		{
+			mTags[i].mName = sharedTags[i].mName;
+			mTags[i].mOrigin = sharedTags[i].mOrigin;
+	
+			mTags[i].mRotation = sharedTags[i].mRotation;
+			mTags[i].mRotation.toAxisAngle(mTags[i].mAA_Angle, mTags[i].mAA_Axis);
+		}
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate md3 tags.");
+		return;
+	}
+}
+
 md3model::md3model(const std::string& filename, bool adjustVertices)
 {
 	// Get file full path if resource manager is available.
@@ -244,6 +296,7 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 	mTags = NULL;
 	mSurfaces = NULL;
 	mCurrentAnimFrame = 0;
+	mShared = NULL;
 
 	mAutoFeedAnims = true;
 	mActiveAnimation = NULL;
@@ -572,25 +625,17 @@ md3model::md3model(const std::string& filename, bool adjustVertices)
 	delete [] md3String;
 }
 		
-md3Surface* md3model::getSurface(unsigned int index)
-{
-	return &mSurfaces[index];
-}
-		
-const unsigned int md3model::getSurfaceCount() const
-{
-	return mSurfacesCount;
-}
-
 void md3model::setFrame(unsigned short i)
 {
-	if (i < mFramesCount)
+	if (i < getFramesCount())
+	{
 		mCurrentAnimFrame = i;
+	}
 	else
 	{
 		std::stringstream msg;
 		msg << "Frame desired(" << i << ") is greater than maximum number of frames(" 
-		<< mFramesCount << ")";
+		<< getFramesCount() << ")";
 
 		S_LOG_INFO(msg.str());
 	}
@@ -598,14 +643,17 @@ void md3model::setFrame(unsigned short i)
 
 int md3model::getFramesCount() const
 {
-	return mFramesCount;
+	if (mShared)
+		return mShared->getFramesCount();
+	else	
+		return mFramesCount;
 }
 
 bool md3model::isOpaque() const
 {
-	for (unsigned int i = 0; i < mSurfacesCount; i++)
+	for (unsigned int i = 0; i < getSurfacesCount(); i++)
 	{
-		if (!mSurfaces[i].isOpaque())
+		if (!getSurface(i)->isOpaque())
 			return false;
 	}
 
@@ -627,7 +675,7 @@ void md3model::feedAnims()
 	while ((uint32_t)mCurrentAnimFrame >= (mActiveAnimation->firstFrame + mActiveAnimation->numFrames))
 		mCurrentAnimFrame -= mActiveAnimation->numFrames;
 }
-		
+
 void md3model::draw()
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
@@ -657,8 +705,8 @@ void md3model::draw()
 	rs->rotateScene(angle, axis.x, axis.y, axis.z);
 	rs->scaleScene(mScale.x, mScale.y, mScale.z);
 
-	for (unsigned int i = 0; i < mSurfacesCount; i++)
-		mSurfaces[i].draw((uint32_t)mCurrentAnimFrame);
+	for (unsigned int i = 0; i < getSurfacesCount(); i++)
+		getSurface(i)->draw((uint32_t)mCurrentAnimFrame);
 
 	if (getDrawBoundingBox())
 		getAABoundingBox().draw();
@@ -718,7 +766,7 @@ void md3model::attachDraw()
 	rs->translateScene(mTranslation.x, mTranslation.y, mTranslation.z);
 	rs->rotateScene(angle, axis.x, axis.y, axis.z);
 
-	for (unsigned int i = 0; i < mSurfacesCount; i++)
+	for (unsigned int i = 0; i < getSurfacesCount(); i++)
 		getSurface(i)->draw((uint32_t)mCurrentAnimFrame);
 
 	if (getDrawBoundingBox())
@@ -730,6 +778,9 @@ void md3model::attachDraw()
 
 boundingBox md3model::getAABoundingBox() const
 {
+	if (mShared)
+		return mShared->getAABoundingBox();
+
 	vector3 mins = vector3(mFrames[(uint32_t)mCurrentAnimFrame].mins[0],
 			mFrames[(uint32_t)mCurrentAnimFrame].mins[1],
 			mFrames[(uint32_t)mCurrentAnimFrame].mins[2]);
@@ -742,6 +793,9 @@ boundingBox md3model::getAABoundingBox() const
 
 boundingBox md3model::getBoundingBox() const
 {
+	if (mShared)
+		return mShared->getBoundingBox();
+
 	vector3 mins = vector3(mFrames[(uint32_t)mCurrentAnimFrame].mins[0],
 			mFrames[(uint32_t)mCurrentAnimFrame].mins[1],
 			mFrames[(uint32_t)mCurrentAnimFrame].mins[2]);
@@ -778,13 +832,13 @@ void md3model::attach(md3model* model, const std::string& tag)
 md3Tag* md3model::getTag(const std::string& name)
 {
 	unsigned int tagIndex;
-	for (tagIndex = 0; tagIndex < mTagsCount * mFramesCount; tagIndex++)
+	for (tagIndex = 0; tagIndex < mTagsCount * getFramesCount(); tagIndex++)
 	{
 		if (mTags[tagIndex].mName == name)
 			break;
 	}
 	
-	if (tagIndex == (mTagsCount * mFramesCount))
+	if (tagIndex == (mTagsCount * getFramesCount()))
 		return NULL;
 
 	return &mTags[tagIndex + ((uint32_t)mCurrentAnimFrame * mTagsCount)];
@@ -857,7 +911,7 @@ void md3model::setAnimation(const std::string& name)
 		
 void md3model::setDrawNormals(bool draw)
 {
-	for (unsigned int i = 0; i < mSurfacesCount; i++)
+	for (unsigned int i = 0; i < getSurfacesCount(); i++)
 		getSurface(i)->setDrawNormals(draw);
 }
 		
@@ -865,7 +919,7 @@ void md3model::trace(ray& traceRay)
 {
 	traceRay.setOrientation(mOrientation);
 
-	for (unsigned int i = 0; i < mSurfacesCount; i++)
+	for (unsigned int i = 0; i < getSurfacesCount(); i++)
 	{
 		getSurface(i)->trace(traceRay, (uint32_t)mCurrentAnimFrame);
 		if (traceRay.getFraction() != 0)
