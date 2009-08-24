@@ -56,6 +56,7 @@ pkginclude_HEADERS = @top_srcdir@/include/bsp46.h \
 @top_srcdir@/include/inputManager.h \
 @top_srcdir@/include/keysyms.h \
 @top_srcdir@/include/knowledge.h \
+@top_srcdir@/include/light.h \
 @top_srcdir@/include/loadscr.h \
 @top_srcdir@/include/logger.h \
 @top_srcdir@/include/material.h \
