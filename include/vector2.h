@@ -105,7 +105,24 @@ namespace k
 				return *this;				
 			}
 			
-			inline vector2 operator - (const vector2 &newVec) const
+
+			inline vector2& operator *= (const vec_t& newVec)
+			{
+				x *= newVec;
+				y *= newVec;
+
+				return *this;				
+			}
+
+			inline vector2& operator /= (const vec_t& newVec)
+			{
+				x /= newVec;
+				y /= newVec;
+
+				return *this;				
+			}
+			
+			inline vector2 operator - (const vector2& newVec) const
 			{
 				vector2 tempVec(x - newVec.x , y - newVec.y);
 				return tempVec;				

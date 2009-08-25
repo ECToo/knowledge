@@ -159,11 +159,11 @@ namespace k
 			const ray projectRayFrom2D(const vector2& coords) const;
 
 			// Translations
-			void setPosition(vector3 pos);
+			void setPosition(const vector3& pos);
 			const vector3& getPosition() const;
 
 			// Orientation
-			void setOrientation(quaternion ori);
+			void setOrientation(const quaternion& ori);
 			const quaternion& getOrientation() const;
 
 			// Get the inverse transpose matrix

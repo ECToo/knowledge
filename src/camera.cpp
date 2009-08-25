@@ -222,20 +222,21 @@ void camera::setView()
 const ray camera::projectRayFrom2D(const vector2& coords) const
 {
 	renderSystem* rs = root::getSingleton().getRenderSystem();
-	vec_t width = (vec_t)rs->getScreenWidth();
-	vec_t height = (vec_t)rs->getScreenHeight();
+	vector2 halfScreenSize(rs->getScreenWidth(), rs->getScreenHeight());
+	halfScreenSize *= 0.5f;
 
 	// mTanFov is the tangent of half of the fov.
-	vec_t dx = mTanFov * (coords.x / (width * 0.5f) - 1.0f) * mAspectRatio;
-	vec_t dy = mTanFov * (1.0f - coords.y / (height * 0.5f));
+	// Real coordinates [-1,1] - Notice that the article
+	// is wrong and you must divide dy by aspect ratio, not X.
+	// Otherwise Height will have the same dimension as width.
+	vec_t dx = mTanFov * ((coords.x / halfScreenSize.x) - 1.0f);
+	vec_t dy = mTanFov * (1.0f - (coords.y / halfScreenSize.y)) / mAspectRatio;
 
-	vector3 farP = vector3(dx * mFarPlane, dy * mFarPlane, -mFarPlane);
-	vector3 nearP = vector3(dx * mNearPlane, dy * mNearPlane, -mNearPlane);
+	vec_t farNearDiff = mFarPlane - mNearPlane;
+	vector3 direction = mFinalInverse * vector3(dx * farNearDiff, dy * farNearDiff, -farNearDiff);
+	direction.normalize();
 
-	vector3 result = mFinalInverse * (farP - nearP);
-	result.normalize();
-
-	return ray(mPosition, result);
+	return ray(mPosition, direction);
 }
 
 void camera::copyView() const
@@ -257,7 +258,7 @@ const matrix4& camera::getRotInverseTranspose() const
 	return mOrientationInverse;
 }
 
-void camera::setPosition(vector3 pos)
+void camera::setPosition(const vector3& pos)
 {
 	mPosition = pos;
 	setView();
@@ -269,7 +270,7 @@ const vector3& camera::getPosition() const
 }
 
 // Orientation
-void camera::setOrientation(quaternion ori)
+void camera::setOrientation(const quaternion& ori)
 {
 	mOrientation = ori;
 	setView();
@@ -282,17 +283,26 @@ const quaternion& camera::getOrientation() const
 			
 const vector3 camera::getDirection() const
 {
-	return vector3(-mFinal.m[0][2], -mFinal.m[1][2], -mFinal.m[2][2]);
+	vector3 direction(-mFinal.m[0][2], -mFinal.m[1][2], -mFinal.m[2][2]);
+	direction.normalize();
+
+	return direction;
 }
 			
 const vector3 camera::getUp() const
 {
-	return vector3(mFinal.m[0][1], mFinal.m[1][1], mFinal.m[2][1]);
+	vector3 direction(mFinal.m[0][1], mFinal.m[1][1], mFinal.m[2][1]);
+	direction.normalize();
+
+	return direction;
 }
 
 const vector3 camera::getRight() const
 {
-	return vector3(mFinal.m[0][0], mFinal.m[1][0], mFinal.m[2][0]);
+	vector3 direction(mFinal.m[0][0], mFinal.m[1][0], mFinal.m[2][0]);
+	direction.normalize();
+
+	return direction;
 }
 
 }
