@@ -290,6 +290,9 @@ bool materialStage::containsTexture(const std::string& name) const
 {
 	for (int i = 0; i < K_MAX_STAGE_TEXTURES; i++)
 	{
+		if (!mTextures[i])
+			break;
+
 		if (mTextures[i]->containsFilename(name))
 			return true;
 	}
