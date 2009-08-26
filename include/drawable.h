@@ -43,7 +43,7 @@ namespace k
 
 			// Another Drawable this one
 			// is attached to
-			const drawable2D* mAttach;
+			const drawable2D* mDrawableAttach;
 
 		public:
 			drawable2D();
@@ -110,7 +110,7 @@ namespace k
 
 			// Another Drawable this one
 			// is attached to
-			const drawable3D* mAttach;
+			const drawable3D* mDrawableAttach;
 
 		public:
 			drawable3D();

@@ -69,6 +69,9 @@ bitmapText::bitmapText(const std::string& datName, const std::string& matName)
 		return;
 	}
 
+	// No Parent
+	mDrawableAttach = NULL;
+
 	std::string fullPath = datName;
 	resourceManager* rsc = &resourceManager::getSingleton();
 	if (rsc) fullPath = rsc->getRoot() + datName;

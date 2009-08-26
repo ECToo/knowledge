@@ -237,6 +237,7 @@ md3model::md3model(const md3model* shared)
 	kAssert(shared);
 	mShared = shared;
 
+	mDrawableAttach = NULL;
 	mFrames = NULL;
 	mFramesCount = 0;
 
@@ -924,6 +925,13 @@ void md3model::trace(ray& traceRay)
 		getSurface(i)->trace(traceRay, (uint32_t)mCurrentAnimFrame);
 		if (traceRay.getFraction() != 0)
 			break;
+	}
+
+	if (traceRay.getFraction() != 0)
+	{
+		// We got something, re-orient the ray to world space
+		traceRay.setOrigin(traceRay.getOrigin() + getAbsolutePosition());
+		traceRay.setOrientation(quaternion::identity);
 	}
 }
 
