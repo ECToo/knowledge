@@ -65,6 +65,16 @@ namespace k
 				mOrientation = oldRay.getOrientation();
 			}
 
+			void setOrigin(const vector3& origin)
+			{
+				mOrigin = origin;
+			}
+
+			void setDirection(const vector3& dir)
+			{
+				mDirection = dir;
+			}
+
 			void setOrientation(const quaternion& quat)
 			{
 				mOrientation = quat;

@@ -24,7 +24,7 @@ namespace k {
 
 drawable2D::drawable2D()
 {
-	mAttach = NULL;
+	mDrawableAttach = NULL;
 }
 drawable2D::~drawable2D() {}
 
@@ -59,26 +59,26 @@ const vec_t drawable2D::getZ() const
 void drawable2D::attach(const drawable2D* target)
 {
 	kAssert(target);
-	mAttach = target;
+	mDrawableAttach = target;
 }
 
 const drawable2D* drawable2D::getRoot() const
 {
-	return mAttach;
+	return mDrawableAttach;
 }
 
 vector2 drawable2D::getAbsolutePosition() const
 {
-	if (mAttach)
-		return mAttach->getAbsolutePosition() + mPosition;
+	if (mDrawableAttach)
+		return mDrawableAttach->getAbsolutePosition() + mPosition;
 	else
 		return mPosition;
 }
 
 vec_t drawable2D::getAbsoluteRotation() const
 {
-	if (mAttach)
-		return mAttach->getAbsoluteRotation() + mRotation;
+	if (mDrawableAttach)
+		return mDrawableAttach->getAbsoluteRotation() + mRotation;
 	else
 		return mRotation;
 }
@@ -277,16 +277,16 @@ const vector3& drawable3D::getScale() const
 
 vector3 drawable3D::getAbsolutePosition() const
 {
-	if (mAttach)
-		return mAttach->getAbsolutePosition() + mPosition;
+	if (mDrawableAttach)
+		return mDrawableAttach->getAbsolutePosition() + mPosition;
 	else
 		return mPosition;
 }
 		
 quaternion drawable3D::getAbsoluteOrientation() const
 {
-	if (mAttach)
-		return mAttach->getAbsoluteOrientation() * mOrientation;
+	if (mDrawableAttach)
+		return mDrawableAttach->getAbsoluteOrientation() * mOrientation;
 	else
 		return mOrientation;
 }
@@ -304,7 +304,7 @@ const quaternion& drawable3D::getRelativeOrientation() const
 drawable3D::drawable3D()
 {
 	mDrawAABB = false;
-	mAttach = NULL;
+	mDrawableAttach = NULL;
 	mScale = vector3(1, 1, 1);
 }
 
@@ -324,12 +324,12 @@ bool drawable3D::getDrawBoundingBox() const
 
 void drawable3D::attach(const drawable3D* target)
 {
-	mAttach = target;
+	mDrawableAttach = target;
 }
 
 const drawable3D* drawable3D::getRoot() const
 {
-	return mAttach;
+	return mDrawableAttach;
 }
 
 }

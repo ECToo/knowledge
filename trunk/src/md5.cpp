@@ -425,6 +425,7 @@ md5model::md5model(const std::string& filename)
 	mBones.clear();
 
 	// Auto feed is on by default
+	mDrawableAttach = NULL;
 	mAutoFeedAnims = true;
 
 	// Get Path from resource manager (if any)
