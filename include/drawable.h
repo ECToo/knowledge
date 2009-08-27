@@ -45,6 +45,9 @@ namespace k
 			// is attached to
 			const drawable2D* mDrawableAttach;
 
+			// Is this drawable ignored by pipeline?
+			bool mDrawableVisible;
+
 		public:
 			drawable2D();
 			virtual ~drawable2D();
@@ -53,6 +56,16 @@ namespace k
 			void setRotation(const vec_t rot);
 			void setScale(const vector2& size);
 			void setZ(vec_t z);
+
+			void setVisible(bool vis)
+			{
+				mDrawableVisible = vis;
+			}
+
+			bool isVisible() const
+			{
+				return mDrawableVisible;
+			}
 
 			void attach(const drawable2D* target);
 			const drawable2D* getRoot() const;
@@ -112,6 +125,9 @@ namespace k
 			// is attached to
 			const drawable3D* mDrawableAttach;
 
+			// Is this drawable ignored by pipeline?
+			bool mDrawableVisible;
+
 		public:
 			drawable3D();
 			virtual ~drawable3D();
@@ -120,6 +136,16 @@ namespace k
 			void setScale(const vector3& scale);
 			void setScale(const vec_t scale);
 			void setPosition(const vector3& pos);
+
+			void setVisible(bool vis)
+			{
+				mDrawableVisible = vis;
+			}
+
+			bool isVisible() const
+			{
+				return mDrawableVisible;
+			}
 
 			void attach(const drawable3D* target);
 			const drawable3D* getRoot() const;
