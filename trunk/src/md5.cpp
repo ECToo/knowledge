@@ -417,7 +417,7 @@ void md5mesh::draw()
 	}
 }
 
-md5model::md5model(const std::string& filename)
+md5model::md5model(const std::string& filename) : drawable3D()
 {
 	// Clear Lists/Maps/Vectors
 	mAnimations.clear();

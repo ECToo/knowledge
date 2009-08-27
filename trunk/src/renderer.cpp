@@ -525,6 +525,9 @@ void renderer::draw()
 		drawable3D* obj = *it;
 		kAssert(obj);
 
+		if (!obj->isVisible())
+			continue;
+
 		// Frustum test obj against camera
 		if (mActiveCamera && !mActiveCamera->isBoxInsideFrustum(obj->getAABoundingBox()))
 			continue;
@@ -624,7 +627,10 @@ void renderer::draw()
 		for (std::list<drawable2D*>::const_iterator dit = m2DObjects.begin(); dit != m2DObjects.end(); dit++)
 		{
 			drawable2D* obj = (*dit);
-			kAssert(obj != NULL);
+			kAssert(obj);
+		
+			if (!obj->isVisible())
+				continue;
 
 			rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 			rs->identityMatrix();

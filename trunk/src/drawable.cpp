@@ -25,6 +25,7 @@ namespace k {
 drawable2D::drawable2D()
 {
 	mDrawableAttach = NULL;
+	mDrawableVisible = true;
 }
 drawable2D::~drawable2D() {}
 
@@ -306,6 +307,7 @@ drawable3D::drawable3D()
 	mDrawAABB = false;
 	mDrawableAttach = NULL;
 	mScale = vector3(1, 1, 1);
+	mDrawableVisible = true;
 }
 
 drawable3D::~drawable3D()

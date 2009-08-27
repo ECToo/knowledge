@@ -232,7 +232,7 @@ md3model::~md3model()
 	mAnimations.clear();
 }
 
-md3model::md3model(const md3model* shared)
+md3model::md3model(const md3model* shared) : drawable3D()
 {
 	kAssert(shared);
 	mShared = shared;
