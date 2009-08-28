@@ -64,6 +64,11 @@ namespace k
 			 */
 			void calculateTransPos();
 
+			/**
+			 * Is this sprite visible?
+			 */
+			bool mSpriteVisible;
+
 		public:
 			sprite();
 			sprite(material* mat, vec_t radi);
@@ -72,6 +77,16 @@ namespace k
 
 			material* getMaterial() const;
 			const vec_t getRadius() const;
+
+			void setVisible(bool vis)
+			{
+				mSpriteVisible = vis;
+			}
+
+			bool isVisible() const
+			{
+				return mSpriteVisible;
+			}
 
 			void setMaterial(material* mat);
 			void setMaterial(const std::string& mat);

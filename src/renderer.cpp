@@ -491,7 +491,8 @@ void renderer::draw()
 			std::list<sprite*>::const_iterator it;
 			for (it = mSprites.begin(); it != mSprites.end(); it++)
 			{
-				(*it)->invalidate();
+				if ((*it)->isVisible())
+					(*it)->invalidate();
 			}
 		}
 	}
@@ -571,6 +572,9 @@ void renderer::draw()
 	{
 		sprite* spr = (*it);
 		kAssert(spr);
+				
+		if (!(*it)->isVisible())
+			continue;
 
 		if (mActiveCamera && !mActiveCamera->isPointInsideFrustum(spr->getPosition()))
 			continue;

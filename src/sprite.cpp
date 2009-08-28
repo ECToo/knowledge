@@ -27,6 +27,7 @@ sprite::sprite()
 	mRadius = 0;
 	mMaterial = NULL;	
 	mInvalidTransPos = false;
+	mSpriteVisible = true;
 }
 
 sprite::sprite(material* mat, vec_t radi)
@@ -36,6 +37,7 @@ sprite::sprite(material* mat, vec_t radi)
 	mRadius = radi;
 	mMaterial = mat;	
 	mInvalidTransPos = false;
+	mSpriteVisible = true;
 
 	// Generate mTransPos
 	calculateTransPos();
@@ -46,6 +48,7 @@ sprite::sprite(const std::string& mat, vec_t radi)
 	mRadius = radi;
 	mMaterial = materialManager::getSingleton().getMaterial(mat);	
 	mInvalidTransPos = false;
+	mSpriteVisible = true;
 
 	// Generate mTransPos
 	calculateTransPos();
