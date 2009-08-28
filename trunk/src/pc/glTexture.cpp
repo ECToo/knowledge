@@ -44,6 +44,8 @@ texture::texture(const std::string& filename, int flags)
 	int imgFlags = 0;
 	if (imgFormat == FIF_JPEG)
 		imgFlags = JPEG_ACCURATE;
+	if (imgFormat == FIF_PNG)
+		imgFlags |= PNG_IGNOREGAMMA;
 
 	FIBITMAP* image = FreeImage_Load(imgFormat, filename.c_str(), imgFlags);
 	if (!image)
