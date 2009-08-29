@@ -39,9 +39,7 @@ guiManager::~guiManager()
 {
 	if (mCursor)
 	{
-		renderer* rs = root::getSingleton().getRenderer();
-
-		rs->pop2D(mCursor);
+		renderer::getSingleton().pop2D(mCursor);
 		delete mCursor;
 	}
 }
@@ -52,9 +50,9 @@ void guiManager::setCursor(const std::string& mat, const vector2& scale)
 	{
 		mCursor = new sticker(mat);
 		mCursor->setScale(scale);
-		mCursor->setZ(-1.0f);
+		mCursor->setZ(9999);
 
-		root::getSingleton().getRenderer()->push2D(mCursor);
+		renderer::getSingleton().push2D(mCursor);
 		root::getSingleton().getRenderSystem()->showCursor(false);
 	}
 	
