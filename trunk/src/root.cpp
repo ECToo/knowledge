@@ -34,8 +34,8 @@ root::~root()
 {
 	delete mActiveRS;
 	delete mInputManager;
-	delete mRenderer;
 	delete mGuiManager;
+	delete mRenderer;
 	delete mTextureManager;
 	delete mMaterialManager;
 	delete mParticleManager;

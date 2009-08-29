@@ -227,7 +227,7 @@ static inline bool compare2D(drawable2D* first, drawable2D* second)
 	kAssert(first);
 	kAssert(second);
 
-	if (first->getZ() > second->getZ())
+	if (first->getZ() < second->getZ())
 		return true;
 	else
 		return false;
@@ -251,7 +251,7 @@ void renderer::pop2D(drawable2D* object)
 	kAssert(object);
 
 	std::list<drawable2D*>::iterator it;
-	for (it = m2DObjects.begin(); it != m2DObjects.end(); )
+	for (it = m2DObjects.begin(); it != m2DObjects.end(); it++)
 	{
 		if (object == (*it))
 		{
