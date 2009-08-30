@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" 
+   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" >
+<head>
+<title>Knowledge Documentation - Materials</title>
+<style type='text/css'>
+.titleBox
+{
+	margin-left: auto;
+	margin-right: auto;
+	height: 35px;
+	line-height: 35px;
+	background-color: #444444;
+	border-color: black;
+	border-width: 1px;
+	border-style: solid;
+	text-align: center;
+	font-size: 18px;
+	color: white;
+}
+
+.subTitleBox
+{
+	margin-left: auto;
+	margin-right: auto;
+	height: 35px;
+	line-height: 35px;
+	background-color: #444444;
+	border-color: black;
+	border-width: 1px;
+	border-style: solid;
+	text-align: left;
+	font-size: 16px;
+	color: white;
+}
+
+.codeBox
+{
+	border-color: #222222;
+	border-width: 1px;
+	border-style: solid;
+	background-color: #dadada;
+	color: black;
+}
+
+table
+{
+	border-collapse: collapse;
+}
+
+table td
+{
+	text-align: center;
+	padding: 10px;
+}
+
+</style>
+</head>
+<body>
+
+<div class='titleBox'>
+Materials
+</div>
+
+<p>
+Materials are one of the most important part of knowledge, through them you can define how an object will display. A material can be defined inside a script (a file with the extension .material) and have the following format:
+</p>
+
+<pre class='codeBox'>
+material globalTerrain
+{
+	cull none
+	texture
+	{
+		filename common/terrain.png
+		texcoord uv
+	}
+
+	texture
+	{
+		filename common/shadows.png
+		texcoord uv
+		blendfunc srcalpha invsrcalpha
+		texEnv modulate
+	}
+}
+</pre>
+
+First, you define the material name after the keyword "material" (keep in mind that EVERY keyword in knowledge is case sensitive, so "MaTeRiAl" is very different from "material"). Every material name is unique and can't be duplicated, in case of duplication only the first named material will be created and an error will be written to the log. The next thing you might be interested are the material properties, wich are the follow:
+
+<br><br>
+<div class='subTitleBox'>
+&nbsp;Material properties
+</div>
+<br><br>
+
+<b>nodraw</b><br>
+The object is ignored by the renderer and its not drawn.
+
+<br>
+<br>
+
+<b>receiveLight (default is on, options are: off | false | no)</b><br>
+When lights are enabled, the object automatically receives light, if you specify this parameter to one of the options object will ignore lights and will be fully lit.
+
+<br>
+<br>
+
+<b>ambient (default is "0 0 0")</b><br>
+Set the material ambient property to the color specified (example: "255 0 0" - for red, "255 255 255" - for white)
+
+<br>
+<br>
+
+<b>specular (default is "0 0 0")</b><br>
+Set the material specular property to the color specified (example: "255 0 0" - for red, "255 255 255" - for white)
+
+<br>
+<br>
+
+<b>diffuse (default is "0 0 0")</b><br>
+Set the material diffuse property to the color specified (example: "255 0 0" - for red, "255 255 255" - for white)
+
+<br>
+<br>
+
+<b>cull (default is "back", options are: "back" | "front" | "none" or "disabled" | "both")</b><br>
+Cull the specified faces so they are not drawn, let "back" if you want maximum performance.
+
+<br>
+<br>
+
+<b>depthTest (default is "on", options are: "true", "on" or "yes" | "false", "off" or "no")</b><br>
+Forces the renderer to compare the depth of objects when drawing.
+
+<br>
+<br>
+
+<b>depthWrite (default is "on", options are: "true", "on" or "yes" | "false", "off" or "no")</b><br>
+Forces the renderer to write to the depth buffer when drawing the object with this material.
+
+<br>
+<br>
+
+<b>texture {}</b><br>
+Define a new material stage (up to 8)
+
+<br>
+<br>
+
+<div class='subTitleBox'>
+&nbsp;Texture Section
+</div>
+
+<p>
+The texture section is where you will define the texture layers (up to 8 layers) and how they will blend between themselves. There are some keywords on this section that define how the texture will behave and blend.
+</p>
+
+<b>filename (options are: "a string with the path of the texture, related to the resources.cfg file" - example: "common/test.png")</b><br>
+The filename of the texture to be loaded.
+
+<br><br>
+
+<b>animname (options are: "baseFileName numberOfImages frameRate" | "fileName fileName2 ... fileName3 frameRate")</b><br>
+There are two ways you can define animated textures:
+
+<br><br>
+
+1) You define a base filename, the number of images and the framerate:
+super/ballRolling0.png 10 16 - Will load the images super/ballRolling0.png, super/ballRolling1.png ... super/ballRolling9.png and will animate through those 10 frames at the rate of 16 frames per second. You can specify at max 16 frames per animation.
+
+2) You define all the images of the animation and at the end, specify the frameRate:
+test/3Frames0.png test/3Frames1.png test/3Frames2.png 3 - Will load the three images and at the end will animate through those 3 frames at the rate of 3 frames per second. You can specify at max 16 frames per animation.
+
+<b>cubename (options are: "the base filename for the cube faces")</b><br>
+The base filename to load the cube faces. Example: (test/cube.png - Will load the cube faces like test/cube_front.png, test/cube_up.png ... test/cube_left.png)
+
+<br><br>
+
+<b>texenv (default is "replace", options are: "replace" | "modulate" | "add" | "decal" | "blend")</b><br>
+Define the type of texture generation for the texture. Those functions should work like the OpenGL ones, from the manual:
+
+<br><br>
+<table border=1 align=center>
+<tr>
+<td style='width: 100px; text-align: center'>Internal Format</td>
+<td><b>modulate</b></td><td><b>decal</b></td><td><b>blend</b></td><td><b>replace</b></td>
+</tr>
+<!-- RGB -->
+<tr>
+<td>RGB</td>
+<td>Cv = CtCf<br>Av = Af</td>
+<td>Cv = Ct<br>Av = Af</td>
+<td>Cv = (1 - Ct) Cf+CtCc<br>Av = Af</td>
+<td>Cv = Ct<br>Av = Af</td>
+</tr>
+<!-- RGBA -->
+<tr>
+<td>RGBA</td>
+<td>Cv = CtCf<br>Av = Af</td>
+<td>Cv = (1 - At) Cf + AtCt<br>Av = Af</td>
+<td>Cv = (1 - Ct) Cf+CtCc<br>Av = AtAf</td>
+<td>Cv = Ct<br>Av = Af</td>
+</tr>
+</table>
+<br><br>
+
+<b>scale (default is: "0 0", options are: "a two component vector with the desired scale" - example: "5 10")</b><br>
+Defines the scalling of the texture, first parameter is the Horizonte scalling, second is the Vertical one.
+
+<br><br>
+
+<b>scroll (default is: "0 0", options are: "a two component vector with the desired scrolling" - example: "20 10")</b><br>
+Defines the amount of pixels the texture is scrolling per frame, first parameter is the Horizonte scrolling, second is the Vertical one.
+
+<br><br>
+
+<b>rotate (default is: 0, options are: "the angular velocity of the texture")</b><br>
+Defines the angular velocity of the texture, making it rotate by frame.
+
+<br><br>
+
+<b>texcoord (default is: "uv", options are: "uv" | "pos" | "sphere" | "cubemap" | "eyeLinear" | "normal" | "binormal" | "tangent")</b><br>
+Defines the texture coordinate generation. Each option is explained below:
+
+<br><br>
+<table border=1 align=center>
+<tr><td>Function&nbsp;</td><td>Details</td></tr>
+<tr><td>"uv"</td><td>Coordinate follows the defined UVW coordinates on the model.</td></tr>
+<tr><td>"sphere"</td><td>Coordinates are generated from a sphere map.</td></tr>
+</table><br>
+
+All other coordinate functions are not implemented yet or are work in progress.
+
+<br><br>
+
+<b>blendfunc</b><br>
+Defines the blending function on the texture. Each blending function is explained below as a scale factor to the image colors:
+
+<br>
+<pre>
+kr, kg, kb and ka - Are defined as kc = 2^(mc) - 1, where mc is the number of the color bitplanes (mr for red, mg for green, mb for blue, ma for alpha)
+Rs, Gs, Bs, As -> Source Colors
+Rd, Gd, Bd, Ad -> Destination Colors
+</pre>
+
+<table border=1 align=center>
+<tr><td><b>Component</b></td><td><b>Scale</b></td></tr>
+<tr><td>"zero"</td><td>0, 0, 0</td></tr>
+<tr><td>"one"</td><td> (1, 1, 1)</td></tr>
+<tr><td>"srcclr"</td><td> (Rs/kr, Gs/kg, Bs/kb, As/ka)</td></tr>
+<tr><td>"invsrcclr"</td><td> (1, 1, 1, 1) - (Rs/kr, Gs/kg, Bs/kb, As/ka)</td></tr>
+<tr><td>"dstclr"</td><td> (Rd/kr, Gd/kg, Bd/kb, Ad/ka)</td></tr>
+<tr><td>"invdstclr"</td><td> (1, 1, 1, 1) - (Rd/kr, Gd/kg, Bd/kb, Ad/ka)</td></tr>
+<tr><td>"srcalpha"</td><td> (As/ka, As/ka, As/ka, As/ka)</td></tr>
+<tr><td>"invscralpha"</td><td> (1, 1, 1, 1) - (As/ka, As/ka, As/ka, As/ka)</td></tr>
+<tr><td>"dstalpha"</td><td> (Ad/ka, Ad/ka, Ad/ka, Ad/ka)</td></tr>
+<tr><td>"invdstalpha"</td><td> (1, 1, 1, 1) - (Ad/ka, Ad/ka, Ad/ka, Ad/ka)</td></tr>
+</table>
+<br><br>
+
+You can check more about those functions on the OpenGL documentation, on the glBlendFunc() function.
+If you just want to use transparent images (with alpha channel), you better use "blendfunc srcalpha invsrcalpha"
+
+<br><br>
+<div class='titleBox'>&nbsp;</div>
+
+</body>
+</html>

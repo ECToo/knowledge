@@ -361,7 +361,16 @@ namespace k
 			{ return mNoDraw; }
 
 			bool isOpaque() const
-			{ return mIsOpaque; }
+			{ 
+				std::vector<materialStage*>::const_iterator it;
+				for (it = mStages.begin(); it != mStages.end(); it++)
+				{
+					if (!(*it)->isOpaque())
+						return false;
+				}
+
+				return true; 
+			}
 
 			int getContentFlags() const
 			{ return mContentFlags; }
