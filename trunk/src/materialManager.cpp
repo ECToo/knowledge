@@ -638,7 +638,7 @@ void materialManager::parseMaterial(material* mat, parsingFile* file)
 			token = file->getNextToken();
 			b = atof(token.c_str());
 
-			mat->setAmbient(vector3(r, g, b));
+			mat->setAmbient(color(r, g, b));
 		}
 		else
 		if (token == "diffuse")
@@ -652,7 +652,7 @@ void materialManager::parseMaterial(material* mat, parsingFile* file)
 			token = file->getNextToken();
 			b = atof(token.c_str());
 
-			mat->setDiffuse(vector3(r, g, b));
+			mat->setDiffuse(color(r, g, b));
 		}
 		else
 		if (token == "specular")
@@ -666,7 +666,7 @@ void materialManager::parseMaterial(material* mat, parsingFile* file)
 			token = file->getNextToken();
 			b = atof(token.c_str());
 
-			mat->setSpecular(vector3(r, g, b));
+			mat->setSpecular(color(r, g, b));
 		}
 		else
 		if (token == "cull")

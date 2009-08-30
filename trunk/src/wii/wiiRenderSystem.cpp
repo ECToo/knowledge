@@ -697,7 +697,7 @@ void wiiRenderSystem::normal(const vector3& norm)
 	mNormals.push_back(norm);
 }
 
-void wiiRenderSystem::vcolor(const vector3& col)
+void wiiRenderSystem::vcolor(const color& col)
 {
 	if (mActiveMaterial && mActiveMaterial->getNoDraw())
 		return;
@@ -841,17 +841,17 @@ void wiiRenderSystem::endVertices()
 	GX_End();
 }
 
-void wiiRenderSystem::matAmbient(const vector3& color)
+void wiiRenderSystem::matAmbient(const color& color)
 {
 	//TODO
 }
 
-void wiiRenderSystem::matDiffuse(const vector3& color)
+void wiiRenderSystem::matDiffuse(const color& color)
 {
 	//TODO
 }
 
-void wiiRenderSystem::matSpecular(const vector3& color)
+void wiiRenderSystem::matSpecular(const color& color)
 {
 	//TODO
 }

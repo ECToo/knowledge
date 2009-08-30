@@ -23,6 +23,9 @@
 
 namespace k
 {
+	/**
+	 * Handles 3x3 matrixes. Still WIP
+	 */
 	class DLL_EXPORT matrix3
 	{
 		public:
@@ -37,10 +40,12 @@ namespace k
 				m[2][2] = 1.0f;
 			}
 
-			// Initialise our matrix. Keep in mind
-			// that we are using right hand coordinate
-			// system and therefore our matrix is column
-			// major.
+			/**
+			 * Initialise our matrix. Keep in mind
+			 * that we are using right hand coordinate
+			 * system and therefore our matrix is column
+			 * major.
+			 */
 			matrix3(vector3 x, vector3 y, vector3 z)
 			{
 				m[0][0] = x.x;	
@@ -56,7 +61,9 @@ namespace k
 				m[2][2] = z.z;	
 			}
 
-			// Get the transpose of this matrix
+			/**
+			 * Get the transpose of this matrix.
+			 */
 			matrix3 transpose() const
 			{
 				matrix3 newM;
@@ -84,6 +91,10 @@ namespace k
 				return *this;
 			}
 
+			/**
+			 * Multiply this matrix by another and save the
+			 * results on it.
+			 */
 			matrix3& operator*= (matrix3 mat)
 			{
 				matrix3 temp;
@@ -93,6 +104,10 @@ namespace k
 				return *this;
 			}
 
+			/**
+			 * Multiply this matrix by another and return a result
+			 * matrix.
+			 */
 			matrix3 operator* (matrix3 mat)
 			{
 				matrix3 result;
@@ -110,6 +125,7 @@ namespace k
 			}
 
 			/**
+			 * Convert matrix to axis angle.
 			 * Thanks to martin baker site for the formula and pseudo java code
 			 * wich this one is a port of.
 			 */
@@ -200,6 +216,9 @@ namespace k
 				}
 			}
 
+			/**
+			 * Get the determinant of this matrix.
+			 */
 			vec_t determinant()
 			{
 				vec_t fCofactor00 = m[1][1]*m[2][2] - m[1][2]*m[2][1];
@@ -209,6 +228,9 @@ namespace k
         		return m[0][0]*fCofactor00 + m[0][1]*fCofactor10 + m[0][2]*fCofactor20;
 			}
 
+			/**
+			 * Output matrix data.
+			 */
 			void cout() const
 			{
 				 printf("%f %f %f\n", m[0][0], m[1][0], m[2][0]);

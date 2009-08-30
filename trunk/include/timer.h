@@ -23,6 +23,9 @@
 
 namespace k
 {
+	/**
+	 * A high precision timer.
+	 */
 	class DLL_EXPORT timer
 	{
 		private:
@@ -34,12 +37,22 @@ namespace k
 			platformTimer start;
 
 		public:
+			/**
+			 * Starts the timer and reset its counter to zero.
+			 */
 			timer()
 			{
 				reset();
 			}
 
+			/**
+			 * Reset the time counter.
+			 */
 			void reset();
+
+			/**
+			 * Return timer counter in milliseconds.
+			 */
 			long getMilliSeconds();
 	};
 }

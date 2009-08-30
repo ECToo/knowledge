@@ -90,6 +90,9 @@ namespace k
 				x = y = z = 0;
 			}
 			
+			/**
+			 * Create a quaternion from its parameters.
+	 		 */
 			quaternion(vec_t xx, vec_t yy, vec_t zz, vec_t ww)
 			{ 
 				x = xx;
@@ -98,6 +101,9 @@ namespace k
 				w = ww;
 			}
 
+			/**
+			 * Create a quaternion from a rotation matrix.
+			 */
 			quaternion(const matrix3& m)
 			{
 				if (m.m[0][0] + m.m[1][1] + m.m[2][2] > 0.0f) 
@@ -144,6 +150,9 @@ namespace k
 				}
 			}
 
+			/**
+			 * Create a quaternion from a vector3 (w = 0, x = vX, y = vY, z = vZ)
+			 */
 			quaternion(const vector3& newVec)
 			{
 				w = 0;
@@ -152,6 +161,9 @@ namespace k
 				z = newVec.z;
 			}
 			
+			/**
+			 * Create a quaternion from another quaternion.
+			 */
 			quaternion(const quaternion& newQuat)
 			{
 				w = newQuat.w;
@@ -163,6 +175,9 @@ namespace k
 			#define DEG_TO_RAD(T) ((T/180.0f) * M_PI)
 			#define RAD_TO_DEG(T) ((T/M_PI) * 180.0f)
 
+			/**
+			 * Create a quaternion from axis-angle rotations.
+			 */
 			inline quaternion(const vec_t angle, const vector3& axis)
 			{
 				vec_t r, s;
@@ -178,6 +193,9 @@ namespace k
 				normalize();
 			}
 
+			/**
+			 * Reset this quaternion.
+			 */
 			inline void clear()
 			{
 				w = 1;
@@ -290,6 +308,10 @@ namespace k
 				return output;
 			}
 
+			/**
+			 * Rotate a vector using this quaternion.
+			 * @param newVec A vector to be rotated.
+			 */
 			inline vector3 rotateVector (const vector3& newVec) const
 			{
 				quaternion qInv = duplicate().negate();
@@ -302,6 +324,9 @@ namespace k
 				return vector3(qFinal.x, qFinal.y, qFinal.z);
 			}
 
+			/**
+			 * Un-Rotate a vector rotated by this quaternion. (Get the inverse rotation)
+			 */
 			inline vector3 inverseVector (const vector3& newVec) const
 			{
 				quaternion qInv = duplicate().negate();
@@ -314,6 +339,9 @@ namespace k
 				return vector3(qFinal.x, qFinal.y, qFinal.z);
 			}
 
+			/**
+			 * Normalize the quaternion.
+			 */
 			inline void normalize()
 			{
 				vec_t magnitude = sqrt(w*w + x*x + y*y + z*z);
@@ -328,6 +356,9 @@ namespace k
 				}
 			}
 
+			/**
+			 * Get a 4x4 matrix out of this quaternion.
+			 */
 			matrix4 toMatrix() const
 			{
 				matrix4 mat;
@@ -377,6 +408,10 @@ namespace k
 				return mat;
 			}
 
+			/**
+			 * Get a 4x4 matrix out of this quaternion.
+			 * @param[out] matrix An array of 16 floats to get the resulting matrix.
+			 */
 			void toMatrix(vec_t matrix[]) const
 			{
 				assert(matrix != NULL);
@@ -411,6 +446,11 @@ namespace k
 				matrix[15] = 1.0f;
 			}
 
+			/**
+			 * Extract axis-angle information from this quaternion.
+			 * @param[out] angle Result Angle (output).
+			 * @param[out] axis Result Axis (output).
+			 */
 			void toAxisAngle(vec_t& angle, vector3& axis) 
 			{
 				if (w > 1)
@@ -434,6 +474,9 @@ namespace k
 				}
 			}
 
+			/**
+			 * Calculate the W of this quaternion, from its x, y and z.
+			 */
 			inline void computeW()
 			{
 				vec_t temp = 1.0f - x*x - y*y - z*z;
@@ -444,6 +487,9 @@ namespace k
 					w = -(vec_t)sqrt(temp);
 			}
 
+			/**
+			 * Negate the quaternion.
+			 */
 			inline quaternion& negate()
 			{
 				x = -x;
@@ -453,6 +499,10 @@ namespace k
 				return *this;
 			}
 
+			/**
+			 * Get the quaternion direction considering that the
+			 * default direction is -Z -> (0, 0, -1)
+			 */
 			inline vector3 getDirection() const
 			{
 				// Lets Consider here the
@@ -461,19 +511,25 @@ namespace k
 				return rotateVector(vector3(0, 0, -1));
 			}
 
+			/**
+			 * Duplicate the quaternion.
+			 */
 			inline quaternion duplicate() const
 			{
 				return quaternion(x, y, z, w);
 			}
 			
 			/**
-	 		 * Print Quaternion information
+	 		 * Output Quaternion data
 	 		 */
 			inline void cout() const
 			{
 				printf("X: %f - Y: %f - Z: %f - W: %f\n", x, y, z, w);
 			}		
 
+			/**
+			 * Identity quaternion.
+			 */
 			static const quaternion identity;
 	};	
 }

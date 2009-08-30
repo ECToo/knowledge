@@ -30,6 +30,10 @@ namespace k
 	{ return ((n & (n-1)) == 0); }
 
 	typedef std::map<int, texture*> textureHash;
+
+	/**
+	 * The textureManager is responsible for handling texture loading and data allocation.
+	 */
 	class DLL_EXPORT textureManager : public singleton<textureManager>
 	{
 		private:
@@ -39,24 +43,27 @@ namespace k
 			textureManager();
 			~textureManager();
 
+			/**
+			 * Returns an instance to the textureManager singleton.
+			 */
 			static textureManager& getSingleton();
 
+			/**
+			 * Allocate a texture by file path.
+			 * @param filename The full path of texture filename.
+			 */
 			texture* allocateTexture(const std::string& filename, int wrapBits = DEFAULT_WRAP);
+
+			/**
+			 * Get a texture by file path.
+			 * @param filename The full path of texture filename.
+			 */
 			texture* getTexture(const std::string& filename);
 
 			/**
 			 * Create system textures. (k_base_white, k_base_black, k_base_null)
 			 */
 			void createSystemTextures();
-
-			/*
-			textureStage* createStage(unsigned short index);
-			void setStageTexture(textureStage* newStage, const std::string& filename, int wrapBits = DEFAULT_WRAP);
-			void setStageCubicTexture(textureStage* newStage, const std::string& filename, int wrapBits = DEFAULT_WRAP);
-
-			textureStage* createCubicTexture(const std::string& filename, unsigned short index, int wrapBits = DEFAULT_WRAP);
-			textureStage* createTexture(const std::string& filename, unsigned short index, int wrapBits = DEFAULT_WRAP);
-			*/
 	};
 }
 

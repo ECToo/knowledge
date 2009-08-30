@@ -95,21 +95,74 @@ namespace k
 			renderer();
 			~renderer();
 
+			/**
+			 * Returns the renderer singleton instance.
+			 */
 			static renderer& getSingleton();
 
+			/**
+			 * Push a 3D drawable into renderer list. Opaque objects will be drawn
+			 * first and transparent objects will be drawn last.
+			 */
 			void push3D(drawable3D* object);
+
+			/**
+			 * Remove a 3D object from renderer list.
+			 */
 			void pop3D(drawable3D* object);
 
+			/**
+			 * Push a 2D drawable into renderer list. 2D Objects will be sorted by
+			 * their Z factor (@see drawable2D)
+			 */
 			void push2D(drawable2D* object);
+
+			/**
+			 * Remove a 2D object from renderer list.
+			 */
 			void pop2D(drawable2D* object);
+
+			/**
+			 * Force sorting of 2D objects.
+			 */
 			void sort2D();
 
+			/**
+			 * Set renderer skybox by material name.
+			 * @param matName The skybox material.
+			 */
 			void setSkyBox(const std::string& matName);
+
+			/**
+			 * Set renderer skybox by material pointer.
+			 * @param mat A pointer to skybox material.
+			 */
 			void setSkyBox(material* mat);
+
+			/**
+			 * Set renderer skyplane by material name.
+			 * @param matName The skyplane material.
+			 */
 			void setSkyPlane(const std::string& matName);
+
+			/**
+			 * Set renderer skyplane by material pointer.
+			 * @param mat A pointer to skyplane material.
+			 */
 			void setSkyPlane(material* mat);
+
+			/**
+			 * Set a sub-world of the renderer. This might be interesting
+			 * when you have octrees or any advanced scene rendering and want
+			 * renderer to draw it before 3D and 2D objects.
+			 *
+			 * @param w A pointer to the world.
+			 */
 			void setWorld(world* w);
 
+			/**
+			 * Asks the renderer to draw the full scene.
+			 */
 			void draw();
 
 			/**
@@ -148,15 +201,35 @@ namespace k
 			 */
 			void fullRemoveSprite(sprite* spr);
 
+			/**
+			 * Return the renderer active camera
+			 */
 			camera* getCamera();
+
+			/**
+			 * Set renderer active camera.
+			 * @param cam A pointer to the active camera.
+			 */
 			void setCamera(camera* cam);
 
-			// Get renderer time
+			/**
+			 * Get renderer time (in milliseconds)
+			 */
 			long getTimeNow();
 
-			// Fps Counter
+			/**
+			 * Set whenever renderer will count frames or not.
+			 */
 			void setFpsCounter(bool status);
+
+			/**
+			 * Get scene FPS
+			 */
 			unsigned int getFps();
+			
+			/**
+			 * Get scene last FPS
+			 */
 			unsigned int getLastFps();
 	};
 }

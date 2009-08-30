@@ -101,7 +101,7 @@ void glRenderSystem::configure()
 
 	// Set Depth
 	setClearDepth(1.0f);
-	setClearColor(color(0, 0, 0));
+	setClearColor(color(0, 0, 0, 0));
 	setDepthTest(true);
 
 	glDepthFunc(GL_LEQUAL);
@@ -433,12 +433,12 @@ void glRenderSystem::normal(const vector3& norm)
 	glNormal3f(norm.x, norm.y, norm.z);
 }
 
-void glRenderSystem::vcolor(const vector3& col)
+void glRenderSystem::vcolor(const color& col)
 {
 	if (mActiveMaterial && mActiveMaterial->getNoDraw())
 		return;
 	
-	glColor3f(col.x, col.y, col.z);
+	glColor4f(col.r, col.g, col.b, col.a);
 }
 			
 void glRenderSystem::texCoord(const vector2& coord)
@@ -470,40 +470,19 @@ void glRenderSystem::endVertices()
 	glEnd();
 }
 
-void glRenderSystem::matAmbient(const vector3& color)
+void glRenderSystem::matAmbient(const color& col)
 {
-	float v[4];
-
-	v[0] = color.x;
-	v[1] = color.y;
-	v[2] = color.z;
-	v[3] = 1.0f;
-
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, v);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, col.c);
 }
 
-void glRenderSystem::matDiffuse(const vector3& color)
+void glRenderSystem::matDiffuse(const color& col)
 {
-	float v[4];
-
-	v[0] = color.x;
-	v[1] = color.y;
-	v[2] = color.z;
-	v[3] = 1.0f;
-
-	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, v);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, col.c);
 }
 
-void glRenderSystem::matSpecular(const vector3& color)
+void glRenderSystem::matSpecular(const color& col)
 {
-	float v[4];
-
-	v[0] = color.x;
-	v[1] = color.y;
-	v[2] = color.z;
-	v[3] = 1.0f;
-
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, v);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, col.c);
 }
 			
 void glRenderSystem::genTexture(uint32_t w, uint32_t h, uint32_t bpp, platformTexturePointer* tex)

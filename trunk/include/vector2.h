@@ -77,6 +77,9 @@ namespace k
 					sscanf(str.c_str(), "%f %f", &x, &y);
 			}
 
+			/**
+			 * Reflect this vector over a normal.
+			 */
 			vector2 reflect(const vector2& normal)
 			{
 				vector2 out;
@@ -164,11 +167,17 @@ namespace k
 				return !((x == newVec.x) && (y == newVec.y));
 			}
 			
+			/**
+			 * Returns a negate'd copy of this vector
+			 */
 			inline vector2 negate() const
 			{
 				return vector2(-x, -y);
 			}
 
+			/**
+			 * Negate this vector.
+			 */
 			inline vector2 negateItself() 
 			{
 				x = -x;

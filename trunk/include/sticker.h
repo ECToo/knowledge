@@ -24,6 +24,9 @@
 
 namespace k
 {
+	/**
+	 * \brief The sticker is a 2D element with a texture.
+	 */
 	class DLL_EXPORT sticker : public drawable2D
 	{
 		protected:
@@ -36,10 +39,23 @@ namespace k
 			vec_t mZ;
 
 		public:
+			/**
+			 * Create the sticker with a material. Keep in mind that after creating
+			 * the sticker, you might want to set its dimensions with setScale() and
+			 * its position with setPosition().
+			 * @param matName The sticker material.
+			 */
 			sticker(const std::string& matName);
 			~sticker();
 
+			/**
+			 * Returns the sticker material.
+			 */
 			material* getMaterial();
+
+			/**
+			 * Draw the sticker.
+			 */
 			void draw();
 	};
 }

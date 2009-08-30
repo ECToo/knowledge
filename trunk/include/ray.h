@@ -50,6 +50,11 @@ namespace k
 		public:
 			ray() {}
 
+			/**
+			 * Create a ray from a position and direction.
+			 * @param origin The ray origin.
+			 * @param dir The ray direction.
+			 */
 			ray(vector3 origin, vector3 dir)
 			{
 				mOrigin = origin;
@@ -57,6 +62,9 @@ namespace k
 				mFraction = 0;
 			}
 
+			/**
+			 * Create a ray from another ray (copying).
+			 */
 			ray(const ray& oldRay)
 			{
 				mOrigin = oldRay.getOrigin();
@@ -65,47 +73,82 @@ namespace k
 				mOrientation = oldRay.getOrientation();
 			}
 
+			/**
+			 * Set ray origin.
+			 * @param origin The new ray origin.
+			 */
 			void setOrigin(const vector3& origin)
 			{
 				mOrigin = origin;
 			}
 
+			/**
+			 * Set ray direction.
+			 * @param dir The new ray direction.
+			 */
 			void setDirection(const vector3& dir)
 			{
 				mDirection = dir;
 			}
 
+			/**
+			 * Set ray orientation. In case we want to check the ray
+			 * against some oriented surface, we need to orient it with the 
+			 * surfaces orientation.
+			 *
+			 * @param quat The new ray orientation.
+			 */
 			void setOrientation(const quaternion& quat)
 			{
 				mOrientation = quat;
 			}
 
+			/**
+			 * Reset ray orientation to world space.
+			 */
 			void resetOrientation()
 			{
 				mOrientation.w = 1;
 				mOrientation.x = mOrientation.y = mOrientation.z = 0;
 			}
 
+			/**
+			 * Returns ray origin.
+			 */
 			const vector3& getOrigin() const
 			{
 				return mOrigin;
 			}
 
+			/**
+			 * Returns ray Direction.
+			 */
 			const vector3& getDirection() const
 			{
 				return mDirection;
 			}
 
+			/**
+			 * Returns ray orientation.
+			 */
 			const quaternion& getOrientation() const
 			{
 				return mOrientation;
 			}
 
+			/**
+			 * Returns how far the ray collided from getOrigin() in getDirection()
+			 * In case the ray collided with something, getFraction()
+			 * will return a value != 0.
+			 */
 			const vec_t getFraction() const
 			{
 				return mFraction;
 			}
 
+			/**
+			 * Returns the contact point in case of ray collision.
+			 */
 			const vector3 getContactPoint() const
 			{
 				return mOrigin + mDirection * mFraction;

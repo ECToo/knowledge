@@ -126,7 +126,7 @@ namespace k
 			 */
 			std::list<vector3> mVertices;
 			std::vector<vector3> mNormals;
-			std::vector<vector3> mColors;
+			std::vector<color> mColors;
 			std::vector<vector2> mTexCoords;
 			VertexMode mRenderingMode;
 
@@ -203,13 +203,13 @@ namespace k
 			void startVertices(VertexMode mode);
 			void vertex(const vector3& vert);
 			void normal(const vector3& norm);
-			void vcolor(const vector3& col);
+			void vcolor(const color& col);
 			void texCoord(const vector2& coord);
 			void endVertices();
 
-			void matAmbient(const vector3& color);
-			void matDiffuse(const vector3& color);
-			void matSpecular(const vector3& color);
+			void matAmbient(const color& color);
+			void matDiffuse(const color& color);
+			void matSpecular(const color& color);
 
 			void genTexture(uint32_t w, uint32_t h, uint32_t bpp, platformTexturePointer* tex);
 			void bindTexture(platformTexturePointer* tex, int chan);

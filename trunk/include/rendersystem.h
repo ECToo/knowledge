@@ -85,6 +85,14 @@ namespace k
 	};
 
 	#define MAX_TEXCOORD 8
+
+	/**
+	 * \brief renderSystem is responsible for low level interaction with OS/Hardware.
+	 * The renderSystem is the part of the engine that communicates and operate
+	 * the hardware or the OS functions to display and collect visual data. It has a number
+	 * of functions to make this task easy and totally cross platform. Each OS or Hardware should
+	 * implement their own renderSystem 's.
+	 */
 	class DLL_EXPORT renderSystem
 	{
 		protected:
@@ -127,49 +135,137 @@ namespace k
 			virtual ~renderSystem() {}
 			
 			/**
-			 * Memory allocation, configurations set
+			 * Initialize the render system, allocating necessary memory and initializing hardware.
 			 */
 			virtual void initialize() = 0;
+
+			/**
+			 * Deinitialize hardware and free allocate data.
+			 */
 			virtual void deinitialize() = 0;
+
+			/**
+			 * Ask the render system to configure itself.
+			 */
 			virtual void configure() = 0;
 
+			/**
+			 * Create (if possible) a render window and drawing context.
+			 */
 			virtual void createWindow(const int w, const int h) = 0;
+			
+			/**
+			 * Destroy (if created) render window.
+			 */
 			virtual void destroyWindow() = 0;
+
+			/**
+			 * Set the created window title. If window doesnt exists, this function will do nothing.
+			 *
+			 * @param title The new window title.
+			 */
 			virtual void setWindowTitle(const std::string& title) = 0;
 
+			/**
+			 * Make the OS show or not its cursor.
+			 */
 			virtual void showCursor(bool show) = 0;
 
+			/**
+			 * This function needs to be called before drawing each frame.
+			 */
 			virtual void frameStart() = 0;
+
+			/**
+			 * This function needs to be called after drawing each frame.
+			 */
 			virtual void frameEnd() = 0;
+
+			/**
+			 * Set if this rendersystem is outputing in wireframe or not.
+			 */
 			virtual void setWireFrame(bool wire) = 0;
 
+			/**
+			 * Set Render to Texture Target
+			 * @param tex A valid pointer to the texture target.
+			 */
 			virtual void setRttTarget(platformTexturePointer* tex)
 			{
 				kAssert(tex);
 				mRttTarget = tex;
 			}
 			
+			/**
+			 * Set render to texture output dimensions.
+			 * @param width The RTT width.
+			 * @param height The RTT height.
+			 */
 			virtual void setRttSize(unsigned int width, unsigned int height)
 			{
 				mRttDimensions[0] = width;
 				mRttDimensions[1] = height;
 			}
 
+			/**
+			 * Set if next frame is going to be drawn to the target texture (RTT)
+			 */
 			virtual void setRenderToTexture(bool rtt)
 			{
 				mRenderToTexture = rtt;
 			}
 
+			/**
+			 * Set clear color.
+			 *
+			 * @param cl The new clear color
+			 */
 			virtual void setClearColor(const color& cl) = 0;
+
+			/**
+			 * Set clear depth.
+			 *
+			 * @param amount The new clear depth. 
+			 */
 			virtual void setClearDepth(const vec_t amount) = 0;
+
+			/**
+			 * Set if we are doing depth test or not.
+			 */
 			virtual void setDepthTest(bool test) = 0;
+			
+			/** 
+			 * Set if we are doing depth mask (writing to the depth buffer) or not.
+			 */
 			virtual void setDepthMask(bool mask) = 0;
 
+			/**
+			 * Set the renderSystem shade model. @see ShadeModel
+			 *
+			 * @param model The new shade model.
+			 */
 			virtual void setShadeModel(ShadeModel model) = 0;
 
+			/**
+			 * Set the renderSystem matrix mode. @see MatrixMode
+			 *
+			 * @param mode The new matrix mode.
+			 */
 			virtual void setMatrixMode(MatrixMode mode) = 0;
+
+			/**
+			 * Push current matrix to the stack.
+			 */
 			virtual void pushMatrix() = 0;
+
+			/**
+			 * Pop current matrix from the stack.
+			 */
 			virtual void popMatrix() = 0;
+
+			/**
+			 * Copy the identity matrix over the current matrix. @see MatrixMode
+			 */
 			virtual void identityMatrix() = 0;
 
 			/**
@@ -198,51 +294,193 @@ namespace k
 			 */
 			virtual void setColorChannels(int i) = 0;
 
-			// Should be valid on wii and another platforms
-			// wich needs a inverse transposed modelview
+			/**
+			 * Sets the inverse transpose modelview matrix. 
+			 */
 			virtual void setInverseTransposeModelview(const matrix4& mat) = 0;
 
+			/**
+			 * Copy the source matrix over the current matrix.
+			 *
+			 * @param mat The source matrix.
+			 */
 			virtual void copyMatrix(const matrix4& mat) = 0;
+
+			/**
+			 * Multiply the source matrix by the current matrix.
+			 *
+			 * @param mat The source matrix.
+			 */
 			virtual void multMatrix(const matrix4& mat) = 0;
 
+			/**
+			 * Returns the modelview matrix.
+			 */
 			virtual matrix4 getModelView() = 0;
+
+			/**
+			 * Returns the modelview matrix to an array of 16 floats.
+			 *
+			 * @param mat The array of 16 floats.
+			 */
 			virtual void getModelView(float mat[][4]) = 0;
 
+			/**
+			 * Translate the current matrix by x, y, z.
+			 */
 			virtual void translateScene(vec_t x, vec_t y, vec_t z) = 0;
+
+			/**
+			 * Rotate the current matrix by angle on the axis x, y, z
+			 */
 			virtual void rotateScene(vec_t angle, vec_t x, vec_t y, vec_t z) = 0;
+
+			/**
+			 * Scales the current matrix by x, y, z
+			 */
 			virtual void scaleScene(vec_t x, vec_t y, vec_t z) = 0;
 
+			/**
+			 * Set viewport rectangle.
+			 *
+			 * @param x The viewport X
+			 * @param y The viewport Y
+			 * @param w The viewport width
+			 * @param h The viewport height
+			 */
 			virtual void setViewPort(int x, int y, int w, int h) = 0;
+
+			/**
+			 * Set the perspective matrix on the renderSystem.
+			 * @param fov The new Field of View.
+			 * @param aspect The new aspect ratio.
+			 * @param nearP The new near plane distance.
+			 * @param farP The new far plane distance.
+			 */
 			virtual void setPerspective(vec_t fov, vec_t aspect, vec_t nearP, vec_t farP) = 0;
+			
+			/**
+			 * Set the orthographic matrix on the renderSystem.
+			 * @param left The leftmost edge of the projection.
+			 * @param right The rightmost edge of the projection.
+			 * @param top The top of the projection.
+			 * @param bottom The bottom of the projection.
+			 * @param nearP The near plane distance.
+			 * @param farP The far plane distance.
+			 */
 			virtual void setOrthographic(vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t nearP, vec_t farP) = 0;
 
+			/**
+			 * Set culling mode. @see CullMode
+			 * @param culling The new culling mode.
+			 */
 			virtual void setCulling(CullMode culling) = 0;
 
+			/**
+			 * Start drawing vertices. @see VertexMode
+			 * @param mode The vertex drawing mode.
+			 */
 			virtual void startVertices(VertexMode mode) = 0;
+
+			/**
+			 * Draw a vertex, must be called between startVertices() and endVertices() calls.
+			 * @param vert The vertex to be drawn.
+			 */
 			virtual void vertex(const vector3& vert) = 0;
+
+			/**
+			 * Draw a normal, must be called between startVertices() and endVertices() calls.
+			 * @param norm The normal to be drawn.
+			 */
 			virtual void normal(const vector3& norm) = 0;
-			virtual void vcolor(const vector3& col) = 0;
+
+			/**
+			 * Draw a vertex color, must be called between startVertices() and endVertices() calls.
+			 * @param col The color to be drawn.
+			 */
+			virtual void vcolor(const color& col) = 0;
+
+			/**
+			 * Draw a texture coordinate, must be called between startVertices() and endVertices() calls.
+			 * @param coord The texture coordinate to be drawn.
+			 */
 			virtual void texCoord(const vector2& coord) = 0;
+
+			/**
+			 * End drawing vertices started with startVertices().
+			 */
 			virtual void endVertices() = 0;
 
-			virtual void matAmbient(const vector3& ambient) = 0;
-			virtual void matDiffuse(const vector3& diffuse) = 0;
-			virtual void matSpecular(const vector3& specular) = 0;
+			/**
+			 * Set current object material ambient component.
+			 * @param ambient Ambient component.
+			 */
+			virtual void matAmbient(const color& ambient) = 0;
 
+			/**
+			 * Set current object material diffuse component.
+			 * @param diffuse Diffuse component.
+			 */
+			virtual void matDiffuse(const color& diffuse) = 0;
+
+			/**
+			 * Set current object material specular component.
+			 * @param specular Specular component.
+			 */
+			virtual void matSpecular(const color& specular) = 0;
+
+			/**
+			 * Bind a material to the drawing object.
+			 * @param mat A valid pointer to the object material.
+			 */
 			void bindMaterial(material* mat)
 			{
 				mActiveMaterial = mat;
 			}
 
+			/**
+			 * Create and allocate a texture.
+			 * @param w Texture width.
+			 * @param h Texture height.
+			 * @param bpp Texture Bytes Per Pixel.
+			 * @param[out] tex The returning created texture.
+			 */
 			virtual void genTexture(unsigned int w, unsigned int h, unsigned int bpp, platformTexturePointer* tex) = 0;
+
+			/**
+			 * Bind a texture to a channel (max 8 texture channels).
+			 * @param tex A valid texture pointer.
+			 * @param chan A valid channel [0,7]
+			 */
 			virtual void bindTexture(platformTexturePointer* tex, int chan) = 0;
+
+			/**
+			 * Unbind texture from a channel. If theres no texture binded, nothing happens.
+			 * @param chan A valid channel [0,7]
+			 */
 			virtual void unBindTexture(int chan) = 0;
 
+			/**
+			 * Set objects blend mode. See the material documentation to know more about
+			 * blending modes.
+			 */
 			virtual void setBlendMode(unsigned short src, unsigned short dst) = 0;
+
+			/**
+			 * Set if blending is enabled or not.
+			 */
 			virtual void setBlend(bool state) = 0;
 
+			/**
+			 * Copy the current rendersystem buffer to destination texture.
+			 * @param[out] tex The destination texture.
+			 */
 			virtual void copyToTexture(platformTexturePointer* tex) = 0;
 
+			/**
+			 * Clear array descriptions, must be called before each array drawing.
+			 * @see VertexMode
+			 */
 			virtual void clearArrayDesc(VertexMode drawMode = VERTEXMODE_TRIANGLES)
 			{
 				mVertexCount = 0;
@@ -266,6 +504,10 @@ namespace k
 				mUsingVBO = false;
 			}
 
+			/**
+			 * Set if we are drawing with vertex buffer objects or not.
+			 * In case VBOS arent supported, this function does nothing.
+			 */
 			virtual bool setVBO(bool enabled)
 			{
 				mUsingVBO = enabled;
@@ -287,6 +529,11 @@ namespace k
 					return false;
 			}
 
+			/**
+			 * Set the vertex array and its stride.
+			 * @param vertices A valid pointer to vertex array.
+			 * @param stride The vertex stride (Distance in bytes between vertexes)
+			 */
 			virtual void setVertexArray(const vec_t* vertices, unsigned int stride = 0)
 			{
 				if (mActiveMaterial && mActiveMaterial->getNoDraw())
@@ -302,6 +549,11 @@ namespace k
 				mVertexStride = stride;
 			}
 
+			/**
+			 * Set the vertex array and its stride. Use this function if you are drawing with VBOS
+			 * @param vertices A valid index to vertex array.
+			 * @param stride The vertex stride (Distance in bytes between vertexes)
+			 */
 			virtual void setVertexArray(const unsigned int vertices, unsigned int stride = 0)
 			{
 				if (mActiveMaterial && mActiveMaterial->getNoDraw())
@@ -314,6 +566,10 @@ namespace k
 				}
 			}
 
+			/**
+			 * Set array vertex count.
+			 * @param count The vertex array vertex count.
+			 */
 			virtual void setVertexCount(unsigned int count)
 			{
 				if (mActiveMaterial && mActiveMaterial->getNoDraw())
@@ -323,6 +579,12 @@ namespace k
 				mVertexCount = count;
 			}
 
+			/**
+			 * Set texture coordinate array and its stride.
+			 * @param coords A valid pointer to texture coordinate array.
+			 * @param stride The array stride.
+			 * @param slot The texture coordinate slot [0,7] for the array.
+			 */
 			virtual void setTexCoordArray(const vec_t* coords, unsigned int stride = 0, int slot = 0)
 			{
 				if (mActiveMaterial && mActiveMaterial->getNoDraw())
@@ -344,6 +606,12 @@ namespace k
 				mTexCoordStride[slot] = stride;
 			}
 
+			/**
+			 * Set texture coordinate array and its stride. Use this if you are drawing with VBOS
+			 * @param coords A valid index to texture coordinate array.
+			 * @param stride The array stride.
+			 * @param slot The texture coordinate slot [0,7] for the array.
+			 */
 			virtual void setTexCoordArray(const unsigned int coords, unsigned int stride = 0, int slot = 0)
 			{
 				if (mActiveMaterial && mActiveMaterial->getNoDraw())
@@ -363,6 +631,11 @@ namespace k
 				}
 			}
 
+			/**
+			 * Set normal array and its stride. 
+			 * @param normals A valid pointer to normal array.
+			 * @param stride The array stride.
+			 */
 			virtual void setNormalArray(const vec_t* normals, unsigned int stride = 0)
 			{
 				if (mActiveMaterial && mActiveMaterial->getNoDraw())
@@ -378,6 +651,11 @@ namespace k
 				mNormalStride = stride;
 			}
 
+			/**
+			 * Set normal array and its stride. Use this if you are drawing with VBOS
+			 * @param normals A valid index to normal array.
+			 * @param stride The array stride.
+			 */
 			virtual void setNormalArray(const unsigned int normals, unsigned int stride = 0)
 			{
 				if (mActiveMaterial && mActiveMaterial->getNoDraw())
@@ -390,6 +668,10 @@ namespace k
 				}
 			}
 
+			/**
+			 * Set the indexes array.
+			 * @param indexes A valid pointer to the indexes array.
+			 */
 			virtual void setVertexIndex(const index_t* indexes)
 			{
 				if (mActiveMaterial && mActiveMaterial->getNoDraw())
@@ -404,6 +686,10 @@ namespace k
 				mIndexArray = indexes;
 			}
 
+			/**
+			 * Set the indexes array. Use this if you are drawing with VBOS
+			 * @param indexes A valid index to the indexes array.
+			 */
 			virtual void setVertexIndex(const unsigned int indexes)
 			{
 				if (mActiveMaterial && mActiveMaterial->getNoDraw())
@@ -413,6 +699,9 @@ namespace k
 					mIndexOffset = indexes;
 			}
 
+			/**
+			 * Set the number of indices on the array.
+			 */
 			virtual void setIndexCount(unsigned int count)
 			{
 				if (mActiveMaterial && mActiveMaterial->getNoDraw())
@@ -422,6 +711,11 @@ namespace k
 				mIndexCount = count;
 			}
 
+			/**
+			 * Draw a 3D line between two points.
+			 * @param start The starting point.
+			 * @param end The ending point.
+			 */
 			virtual void draw3DLine(const vector3& start, const vector3& end)
 			{
 				if (mActiveMaterial && mActiveMaterial->getNoDraw())
@@ -433,6 +727,11 @@ namespace k
 				endVertices();
 			}
 
+			/**
+			 * Draw the edges of a box.
+			 * @param min The mins vector.
+			 * @param max The maxs vector.
+			 */
 			virtual void drawLineBox(const vector3& min, const vector3& max)
 			{
 				if (mActiveMaterial && mActiveMaterial->getNoDraw())
@@ -476,7 +775,21 @@ namespace k
 				endVertices();
 			}
 
+			/**
+			 * Draw previously set arrays.
+			 * @see clearArrayDesc 
+			 * @see setVertexArray
+			 * @see setVertexCount
+			 * @see setVertexIndex
+			 * @see setNormalArray
+			 * @see setTexCoordArray
+			 */
 			virtual void drawArrays() = 0;
+
+			/**
+			 * Takes a screenshot and saves on a file.
+			 * @param filename The destination file for the screenshot.
+			 */
 			virtual void screenshot(const char* filename) = 0;
 
 			/**
@@ -595,7 +908,14 @@ namespace k
 			 */
 			virtual void delVBO(platformVBO* target) = 0;
 
+			/**
+			 * Get the screen width.
+			 */
 			virtual unsigned int getScreenWidth() = 0;
+
+			/**
+			 * Get the screen height.
+			 */
 			virtual unsigned int getScreenHeight() = 0;
 	};
 }

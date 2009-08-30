@@ -28,6 +28,9 @@
 
 namespace k
 {
+	/**
+	 * This class handles 4x4 matrixes. Still WIP
+	 */
 	class DLL_EXPORT matrix4
 	{
 		public:
@@ -43,6 +46,10 @@ namespace k
 				m[3][3] = 1.0f;
 			}
 
+			/**
+			 * Creates the matrix by each member. Keep in mind that we are
+			 * like OpenGL (Column Major).
+			 */
 			matrix4
 					(vec_t m00, vec_t m01, vec_t m02, vec_t m03,
 					vec_t m10, vec_t m11, vec_t m12, vec_t m13,
@@ -70,7 +77,9 @@ namespace k
 				m[3][3] = m33;
 			}
 
-			// Get the transpose of this matrix
+			/**
+			 * Get the transpose of this matrix.
+			 */
 			matrix4 transpose()
 			{
 				matrix4 newM;
@@ -107,7 +116,10 @@ namespace k
 				return *this;
 			}
         
-			// From Ogre3D
+			/**
+			 * Rotate a vector by multiplying it with this matrix.
+			 * This function was borrowed from Ogre3D.
+			 */
 			inline vector3 operator * (const vector3& v) const
 			{
 				vector3 r;
@@ -121,7 +133,10 @@ namespace k
 				return r;
 			}
 
-			// From Ogre3D
+			/**
+			 * Return the inverse of this matrix.
+			 * This function was borrowed from Ogre3D.
+			 */
 			matrix4 inverse() const
 			{
 				vec_t m00 = m[0][0], m01 = m[0][1], m02 = m[0][2], m03 = m[0][3];
@@ -184,7 +199,10 @@ namespace k
 						d30, d31, d32, d33);
 			}
 
-			// From Ogre3D
+			/**
+			 * Multiply this matrix by another 4x4 matrix.
+			 * This function was borrowed from Ogre3D.
+			 */
 			matrix4 operator* (matrix4 m2)
 			{
 				matrix4 r;
@@ -220,6 +238,9 @@ namespace k
 					m.m[r0][c2] * (m.m[r1][c0] * m.m[r2][c1] - m.m[r2][c0] * m.m[r1][c1]);
 			}
 
+			/**
+			 * Return the determinant of this matrix.
+			 */
 			vec_t determinant()
 			{
 				return m[0][0] * MINOR(*this, 1, 2, 3, 1, 2, 3) -
@@ -249,6 +270,9 @@ namespace k
 			}
 			#endif
 
+			/**
+			 * Output matrix data.
+			 */
 			void cout() const
 			{
 				printf("%f %f %f %f\n", m[0][0], m[1][0], m[2][0], m[3][0]);
