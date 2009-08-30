@@ -35,6 +35,13 @@ namespace k
 	extern bool isNumeric(const std::string& str);
 	extern std::string getExtension(const std::string& file);
 	extern unsigned int getHashKey(const std::string& filename);
+
+	/**
+	 * \brief The root is the class responsible to look over other classes.
+	 * Basically the root is the class that spawns the many other needed classes
+	 * for knowledge. It is responsible to keep the pointers and give you references
+	 * to wich classes are working and allocate and deallocate them.
+	 */
 	class DLL_EXPORT root : public singleton<root>
 	{
 		private:
@@ -53,31 +60,54 @@ namespace k
 			timer mGlobalTimer;
 
 		public:
+			/**
+			 * Create the knowledge Root and initialize the log system
+			 * saving all the logs to a file.
+			 *
+			 * @param filename The log destination file path.
+			 */
 			root(const std::string& filename = "knowledge.log");
 			~root();
 
-			// Get Root Singleton
+			/**
+			 * Get root singleton instance.
+			 */
 			static root& getSingleton();
 
-			// Register the active render system
+			/**
+			 * Returns the active renderSystem.
+			 */
 			renderSystem* getRenderSystem();
 
-			// Renderer
+			/**
+			 * Returns the active renderer
+			 */
 			renderer* getRenderer();
 
-			// Materials
+			/**
+			 * Returns the materialmanager instance.
+			 */
 			materialManager* getMaterialManager();
 
-			// GUI
+			/**
+			 * Returns the guiManager instance.
+			 */
 			guiManager* getGuiManager();
 
-			// Input
+			/**
+			 * Returns the inputManager instance.
+			 */
 			inputManager* getInputManager();
 
-			// Particles
+			/**
+			 * Returns the particle::manager instance.
+			 */
 			particle::manager* getParticleManager();
 
-			// The Global Timer =]
+			/**
+			 * The global root timer.
+			 * @see timer
+			 */
 			long getGlobalTime();
 	};
 }

@@ -19,7 +19,7 @@
 #define _MATERIAL_H
 
 #include "prerequisites.h"
-#include "vector3.h"
+#include "color.h"
 #include "texture.h"
 #include "wii/tev.h"
 
@@ -46,6 +46,11 @@ namespace k
 
 	#define K_MAX_STAGE_TEXTURES 16
 
+	/**
+	 * \brief The material (texture) stage.
+	 * Each material has a number of sub-texture stages, wich
+	 * are responsible to draw textures and generate coordinates.
+	 */
 	class DLL_EXPORT materialStage
 	{
 		protected:
@@ -242,12 +247,16 @@ namespace k
 			void finish();
 	};
 
+	/**
+	 * \brief The material class.
+	 * Please check the material class documentation link for more information
+	 */
 	class DLL_EXPORT material
 	{
 		protected:
-			vector3 mAmbient;
-			vector3 mDiffuse;
-			vector3 mSpecular;
+			color mAmbient;
+			color mDiffuse;
+			color mSpecular;
 
 			CullMode mCull;
 
@@ -285,66 +294,122 @@ namespace k
 			 */
 			material(const std::string& filename);
 
-			void setAmbient(const vector3& color)
+			/**
+			 * Set Material ambient component
+			 * @param color The new component values.
+			 */
+			void setAmbient(const color& clr)
 			{
-				mAmbient = color;
+				mAmbient = clr;
 			}
 
-			void setDiffuse(const vector3& color)
+			/**
+			 * Set Material diffuse component
+			 * @param color The new component values.
+			 */
+			void setDiffuse(const color& clr)
 			{
-				mDiffuse = color;
+				mDiffuse = clr;
 			}
 
-			void setSpecular(const vector3& color)
+			/**
+			 * Set Material specular component
+			 * @param color The new component values.
+			 */
+			void setSpecular(const color& clr)
 			{
-				mSpecular = color;
+				mSpecular = clr;
 			}
 
+			/**
+			 * Set material culling mode, @see CullMode
+			 * @param cull The new culling mode.
+			 */
 			void setCullMode(CullMode cull)
 			{
 				mCull = cull;
 			}
 
+			/**
+			 * Set material depth test.
+			 */
 			void setDepthTest(bool test)
 			{
 				mDepthTest = test;
 			}
 
+			/**
+			 * Set material depth write.
+			 */
 			void setDepthWrite(bool test)
 			{
 				mDepthWrite = test;
 			}
 
+			/**
+			 * If you set this to false, material (and objects connected to it) will be ignored by the engine.
+			 * @param nd Whenever we should draw or not this material.
+			 */
 			void setNoDraw(bool nd)
 			{
 				mNoDraw = nd;
 			}
 
+			/**
+			 * Set material content flags, in case you want relate this material
+			 * with sounds or any other flag' able property.
+			 *
+			 * @param flags The new content flags.
+			 */
 			void setContentFlags(int flags)
 			{
 				mContentFlags = flags;
 			}
 
+			/**
+			 * Set material effect flags, in case you want relate this material
+			 * with sounds or any other flag' able property.
+			 *
+			 * @param flags The new effect flags.
+			 */
 			void setEffectFlags(int flags)
 			{
 				mEffectFlags = flags;
 			}
 
+			/**
+			 * Push an materialStage to this material.
+			 * @param stage The new stage, wich will be deallocated by material destructor.
+			 */
 			void pushStage(materialStage* stage)
 			{
 				mStages.push_back(stage);
 			}
 
+			/**
+			 * Get the number of stages in material.
+			 */
 			unsigned int getStagesCount() const
 			{
 				return mStages.size();
 			}
 
+			/**
+			 * Get an material stage by the index, note that the engine will not
+			 * check if the stage is valid, make sure to do so with getStagesCount()
+			 *
+			 * @param index The index of the desired stage.
+			 */
 			const materialStage* getStage(unsigned int index) const
 			{
 				return mStages[index];
 			}
 
+			/**
+			 * Returns true if material contains a texture.
+			 *
+			 * @param name The texture name.
+			 */
 			bool containsTexture(const std::string& name) const
 			{
 				std::vector<materialStage*>::const_iterator it;
@@ -357,9 +422,15 @@ namespace k
 				return false;
 			}
 
+			/**
+			 * Returns true if this material is not going to be drawn.
+			 */
 			bool getNoDraw() const
 			{ return mNoDraw; }
 
+			/**
+			 * Returns true if this material or any stage on it its not transparent.
+			 */
 			bool isOpaque() const
 			{ 
 				std::vector<materialStage*>::const_iterator it;
@@ -372,9 +443,15 @@ namespace k
 				return true; 
 			}
 
+			/**
+			 * Return the material content flags
+			 */
 			int getContentFlags() const
 			{ return mContentFlags; }
 			
+			/**
+			 * Return the material effect flags
+			 */
 			int getEffectFlags() const
 			{ return mEffectFlags; }
 

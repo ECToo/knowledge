@@ -28,6 +28,10 @@ namespace k
 	typedef std::list<std::string> materialList;
 	typedef std::map<std::string, material*> materialMap;
 
+	/**
+	 * \brief The material manager.
+	 * This class is responsible for handling material creation, loading and parsing.
+	 */
 	class DLL_EXPORT materialManager : public singleton<materialManager>
 	{
 		private:
@@ -37,20 +41,63 @@ namespace k
 			materialManager();
 			~materialManager();
 
+			/**
+			 * Returns the singleton instance of the materialManager
+			 */
 			static materialManager& getSingleton();
 
+			/**
+			 * Create a new material, if material exists, return existing material.
+			 * @param name The new material name.
+			 */
 			material* createMaterial(const std::string& name);
+
+			/**
+			 * Create a new material with a single texture stage, if it exists, return existing material.
+			 * @param name The new material name.
+			 * @param tex A valid pointer to a texture.
+			 */
 			material* createMaterial(const std::string& name, texture* tex);
+
+			/**
+			 * Create a new material with a texture on it, if it exists, return existing material.
+			 * @param name The new material name.
+			 * @param tex A full path to the texture file.
+			 */
 			material* createMaterial(const std::string& name, const std::string& filename);
 
+			/**
+			 * Returns an material by name.
+			 * @param name The material name.
+			 */
 			material* getMaterial(const std::string& name) const;
+
+			/**
+			 * Returns an material by file name.
+			 * @param name The material file name.
+			 */
 			material* getMaterialWithFilename(const std::string& filename) const;
 
+			/**
+			 * Deallocate (destroy) a material by name.
+			 * @param name The material name.
+			 */
 			void destroyMaterial(const std::string& name);
 
 			void parseTextureSection(material* mat, parsingFile* file, unsigned short index);
 
+			/**
+			 * Parse a material script by name.
+			 * @param filename The script path.
+			 * @param[out] map A list of loaded materials, in case you want to know what where loaded on the script.
+			 */
 			void parseMaterialScript(const std::string& filename, materialList* map = NULL);
+
+			/**
+			 * Parse a material script by parsingFile.
+			 * @param file The script in a parsingFile.
+			 * @param[out] map A list of loaded materials, in case you want to know what where loaded on the script.
+			 */
 			void parseMaterialScript(parsingFile* file, materialList* map = NULL);
 
 			void parseMaterial(material* mat, parsingFile* file);

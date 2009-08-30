@@ -23,10 +23,22 @@
 
 namespace k 
 {
+	/**
+	 * \brief A basic abstraction for a world handler.
+	 * This class should be a basic abstraction for world
+	 * handlers. You can for example create a world handler that uses
+	 * octree and insert it into the renderer so it will cull and process
+	 * based on camera position.
+	 */
 	class DLL_EXPORT world
 	{
 		public:
 			virtual ~world() {}
+
+			/**
+			 * Draw the world from the cameras position.
+			 * @param viewer The active camera on the renderer.
+			 */
 			virtual void draw(const camera* viewer) = 0;
 	};
 }

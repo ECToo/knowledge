@@ -65,7 +65,6 @@ void bgLoadScreen::loadBg(const std::string& filename)
 	{
 		S_LOG_INFO("Failed to create material for loading screen.");
 	}
-
 }
 
 void bgLoadScreen::update(const std::string& filename)
@@ -126,6 +125,7 @@ void imgLoadScreen::loadBg(const std::string& filename)
 		S_LOG_INFO("Failed to create material for loading screen.");
 	}
 
+	mBgColor = color(0, 0, 0, 1);
 }
 
 void imgLoadScreen::setBgColor(const color& clr)

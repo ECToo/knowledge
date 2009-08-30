@@ -80,6 +80,9 @@ namespace k
 					sscanf(str.c_str(), "%f %f %f", &x, &y, &z);
 			}
 
+			/**
+			 * Reflect this vector on a normal.
+			 */
 			vector3 reflect(const vector3& normal)
 			{
 				vec_t dot = -2 * dotProduct(normal);
@@ -266,6 +269,10 @@ namespace k
 				return tempVec;
 			}
 
+			/**
+			 * Cross product this vector and another and save
+			 * the results on this vector.
+			 */
 			inline vector3& cross(const vector3& newVec)
 			{
 				vector3 tempVec

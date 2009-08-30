@@ -76,6 +76,9 @@ namespace k
 		TEX_MAX_FORMATS
 	};
 
+	/**
+	 * \brief Holds a hardware texture or a collection of textures related to each other.
+	 */
 	class DLL_EXPORT texture
 	{
 		protected:
@@ -134,21 +137,38 @@ namespace k
 
 			/**
 			 * Needs platform specific implementations.
+			 * Set the texture flags, in case you want to relate the texture
+			 * with special effects or any other stuff you want ;)
 			 */
 			void setFlags(unsigned int flags);
 
+			/**
+			 * Returns the texture flags.
+			 */
 			const unsigned int getFlags() const
 			{ return mFlags; }
 
+			/**
+			 * Returns the texture pointer.
+			 */
 			platformTexturePointer* getPointer() const
 			{ return mPointer; }
 
+			/**
+			 * Returns raw texture data (pixel data).
+			 */
 			void* getRaw() const
 			{ return mRawData; }
 
+			/**
+			 * Returns the texture filename.
+			 */
 			const std::string& getFilename() const
 			{ return mFilename; }
 
+			/**
+			 * Check if the texture contains data from the filename.
+			 */
 			const bool containsFilename(const std::string& filename) const
 			{
 				if (mFilename.find(filename) != std::string::npos)
@@ -157,12 +177,21 @@ namespace k
 					return false;
 			}
 
+			/**
+			 * Return texture format. @see TextureFormats
+			 */
 			unsigned int getFormat() const
 			{ return mFormat; }
 
+			/**
+			 * Return texture width.
+			 */
 			unsigned int getWidth() const
 			{ return mWidth; }
 
+			/**
+			 * Return texture height.
+			 */
 			unsigned int getHeight() const
 			{ return mHeight; }
 	};

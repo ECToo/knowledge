@@ -35,6 +35,12 @@ namespace k
 		LOGMODE_BOTH
 	};
 
+	/**
+	 * \brief Logger class.
+	 * This singleton will be created at the creation of k::root and will have its
+	 * file path set to the file name passed on the root constructor. It can make logging
+	 * to files and to screen (STDOUT)
+	 */
 	class DLL_EXPORT logger : public singleton<logger>
 	{
 		private:
@@ -42,12 +48,35 @@ namespace k
 			logMode mLoggingMode;
 
 		public:
+			/**
+			 * Creates the loggin file, replacing it if it exists.
+			 *
+			 * @param logFilename The path of the log file.
+			 */
 			logger(const std::string& logFilename);
 
+			/**
+			 * Set the log mode.
+			 * @param log The Log mode, @see k::logMode
+			 */
 			void setLogMode(logMode log);
+			
+			/**
+			 * Outputs log information.
+			 * @param message The string to be outputed
+			 */
 			void info(const std::string& message);
+
+			/**
+			 * Outputs log information.
+			 * @param message The string to be outputed
+			 * @param args The arguments for the string.
+			 */
 			void infoArg(const char* message, va_list args);
 
+			/**
+			 * Returns the logger singleton instance.
+			 */
 			static logger& getSingleton();
 	};
 
