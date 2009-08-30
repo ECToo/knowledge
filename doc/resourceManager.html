@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" 
+   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" >
+<head>
+<title>Knowledge Documentation - Materials</title>
+<style type='text/css'>
+.titleBox
+{
+	margin-left: auto;
+	margin-right: auto;
+	height: 35px;
+	line-height: 35px;
+	background-color: #444444;
+	border-color: black;
+	border-width: 1px;
+	border-style: solid;
+	text-align: center;
+	font-size: 18px;
+	color: white;
+}
+
+.subTitleBox
+{
+	margin-left: auto;
+	margin-right: auto;
+	height: 35px;
+	line-height: 35px;
+	background-color: #444444;
+	border-color: black;
+	border-width: 1px;
+	border-style: solid;
+	text-align: left;
+	font-size: 16px;
+	color: white;
+}
+
+.codeBox
+{
+	border-color: #222222;
+	border-width: 1px;
+	border-style: solid;
+	background-color: #dadada;
+	color: black;
+}
+
+table
+{
+	border-collapse: collapse;
+}
+
+table td
+{
+	text-align: center;
+	padding: 10px;
+}
+
+</style>
+</head>
+<body>
+
+<div class='titleBox'>
+Resource Manager
+</div>
+
+<p>
+The resource manager is a fundamental part of knowledge, it is used to load every single file for the engine. When you are allocating the resource manager you pass as the argument the path of the file resources.cfg, example:
+
+<pre class='codeBox'>
+&nbsp;k::resourceManager* rscMgr = new k::resourceManager("./media/resources.cfg");
+</pre>
+
+<div class='codeBox' style='background-color: #e09f9f; margin-left: auto; margin-right: auto; width: 750px; text-align: center'>
+When the resource manager instance gets created, every file load in the engine will use the root path as the resources.cfg path.
+</div>
+
+</p>
+<br><br>
+
+
+<div class='subTitleBox'>
+&nbsp;Resources.cfg File
+</div>
+
+<p>
+The resources.cfg file structure is very basic. Like every other script in the engine, keywords are separated by spaces or tabs. The file is separated in sections as following:
+</p>
+<br>
+
+<b>group</b><br>
+A group is a resouce manager unit you can refer to automatically load resources on a directory. The Group have the following properties:
+<br><br>
+
+<b>root (options are: "the directory path, like ./")</b><br>
+The root directory where the group is going to start looking for resources in relation to the root directory of resources.cfg
+<br><br>
+
+<b>recursive (default: "true", options are: "true" | "false")</b><br>
+If the resource manager should look on subdirectories.
+<br><br>
+
+<b>loadModels (default: "true, options are: "true" | "false")</b><br>
+If the resource manager should auto-load md3 and md5 models.
+<br><br>
+
+<b>loadTextures (default: "true, options are: "true" | "false")</b><br>
+If the resource manager should auto-load textures.
+<br><br>
+
+<b>loadScripts (default: "true, options are: "true" | "false")</b><br>
+If the resource manager should auto-load tev scripts.
+<br><br>
+
+<b>loadMaterials (default: "true, options are: "true" | "false")</b><br>
+If the resource manager should auto-load materials.
+<br><br>
+
+<div class='subTitleBox'>&nbsp;Example Resource File:</div>
+<br>
+
+<pre>
+group common
+{
+	root ./
+	recursive false
+}
+
+group lightmap
+{
+	root ./lightmap/
+	recursive true
+}
+
+group skies
+{
+	root ./skies/
+	recursive false
+}
+
+group model
+{
+	root ./model/
+	recursive true
+}
+</pre>
+
+<br><br>
+<div class='titleBox'>&nbsp;</div>
+
+</body>
+</html>
+
