@@ -23,7 +23,7 @@
 namespace k
 {
 	/**
-	 * Holds a color.
+	 * Holds a 4 component (R,G,B,A) color.
 	 */
 	class DLL_EXPORT color
 	{
@@ -38,13 +38,18 @@ namespace k
 				vec_t c[4];
 			};
 
-			// White
+			/**
+			 * Create a white color.
+			 */
 			color()
 			{
 				r = g = b = a = 1.0f;
 			}
 
-			// Create color from hex string (like HTML colors - MUST be 6 or 8 characters length)
+			/**
+			 * Create color from hex string 			 
+			 * @param name The color in hex (like HTML colors - MUST be 6 or 8 characters length)
+			 */
 			color(const std::string& name)
 			{
 				if (name.length() == 6)
@@ -64,6 +69,13 @@ namespace k
 				}
 			}
 
+			/**
+			 * Create color from separated components.
+			 * @param rc Red Component
+			 * @param gc Green Component
+			 * @param bc Blue Component
+			 * @param ac Alpha Component (defaults to 1.0f)
+			 */
 			color(float rc, float gc, float bc, float ac = 1.0f)
 			{
 				r = rc;
@@ -72,6 +84,10 @@ namespace k
 				a = ac;
 			}
 
+			/**
+			 * Copy a color over this one.
+			 * @param c The color to copy from.
+			 */
 			inline color& operator = (const color& c)
 			{
 				r = c.r;
@@ -82,6 +98,10 @@ namespace k
 				return *this;
 			}
 
+			/**
+			 * Sum a color whit this one.
+			 * @param c The color to sum.
+			 */
 			inline color& operator += (const color& c)
 			{
 				r += c.r;
@@ -93,7 +113,7 @@ namespace k
 			}
 
 			/**
-	 		 * Print Vector information
+	 		 * Print Vector information.
 	 		 */
 			inline void cout() const
 			{

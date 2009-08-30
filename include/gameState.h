@@ -24,18 +24,40 @@
 namespace k 
 {
 
+/**
+ * A class to make game states. Shouldn't be used by itself, only derived.
+ */
 class gameState 
 {
 	public:
 		virtual ~gameState() {}
 
+		/**
+		 * This function gets called when the state gets active.
+		 */
 		virtual void start() = 0;
+
+		/**
+		 * This function gets called when the state gets inactive.
+		 */
 		virtual void end() = 0;
 
+		/**
+		 * Called at each frame start
+		 */
 		virtual void frameStart() = 0;
+
+		/**
+		 * Called at each frame end
+		 */
 		virtual void frameEnd() = 0;
 };
 
+
+/**
+ * \brief The stateManager singleton.
+ * This class is used to handle gameState 's.
+ */
 class stateManager : public k::singleton<stateManager>
 {
 	protected:
@@ -46,15 +68,46 @@ class stateManager : public k::singleton<stateManager>
 		stateManager();
 		~stateManager();
 
+		/**
+		 * Returns an instance of the state manager class.
+		 */
 		static stateManager& getSingleton();
 
-		gameState* findState(const std::string&);
-		void setState(const std::string&);
+		/**
+		 * Find a game state by name.
+		 * @param name The state name.
+		 */
+		gameState* findState(const std::string& name);
 
-		void pushState(const std::string&, gameState*);
-		void popState(const std::string&);
+		/**
+		 * Set a state wich have been pushed to be active.
+		 * @param name The state name.
+		 */
+		void setState(const std::string& name);
 
+		/**
+		 * Push an state to stateManager list of states.
+		 * @param name The State name.
+		 * @param ptr A pointer to gameState.
+		 */
+		void pushState(const std::string& name, gameState* ptr);
+		
+		/**
+		 * Remove an state (by name) from stateManager list.
+		 * @param name The name of the state to be removed.
+		 */
+		void popState(const std::string& name);
+
+		/**
+		 * This function should be called on your engine frame start, it will
+		 * then call the active state frameStart() method.
+		 */
 		void frameStart();
+
+		/**
+		 * This function should be called on your engine frame end, it will
+		 * then call the active state frameEnd() method.
+		 */
 		void frameEnd();
 };
 

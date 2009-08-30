@@ -24,30 +24,84 @@
 
 namespace k {
 
+/**
+ * A class to parse script files.
+ * This class will parse a script (ascii text mode) file in wich
+ * components are separated by white spaces, new line or tabs. The parser
+ * will ignore // comments.
+ */
 class DLL_EXPORT parsingFile
 {
 	private:
+		/**
+		 * Filename of the script we are parsing.
+		 */
 		std::string mFilename;
 
+		/**
+		 * Are we in the end of the file?
+		 */
 		unsigned long feof;
+
+		/**
+		 * Were we are in the file
+		 */
 		unsigned long index;
+
+		/**
+		 * The whole file contents are saved here.
+		 */
 		char* string;
 	
 	public:
+		/**
+		 * Creates a parsingFile with the specified filename.
+		 *
+		 * @param filename The name of the file to be parsed.
+		 */
 		parsingFile(const std::string& filename);
-		parsingFile(char* string);
 
+		/**
+		 * Creates a parsingFile with the specified file contents.
+		 *
+		 * @param string The file contents in a string.
+		 */
+		parsingFile(char* string);
 		~parsingFile();
 
+		/**
+		 * Returns true if we reached the end of file, false otherwise.
+		 */
 		bool eof();
+
+		/**
+		 * Returns true if the file can be parsed, false otherwise.
+		 */
 		bool isReady();
 
+		/**
+		 * Ignores the next token in the file.
+		 */
 		void skipNextToken();
+
+		/**
+		 * Get the next token of the file.
+		 */
 		std::string getNextToken();
 
+		/**
+		 * Returns a vector2 from the next token, skipping it.
+		 */
 		vector2 getVector2();
+
+		/**
+		 * Returns a vector3 from the next token, skipping it.
+		 */
 		vector3 getVector3();
 
+		/**
+		 * Returns the path of the file we are parsing.
+		 */
 		const std::string& getFilename();
 };
 

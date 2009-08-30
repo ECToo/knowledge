@@ -222,7 +222,7 @@ void wiiRenderSystem::configure()
 	GX_Init(mFifo, DEFAULT_FIFO_SIZE);
 
 	// Set Default Clear Color to black
-	setClearColor(vector3(0, 0, 0));
+	setClearColor(color(0, 0, 0));
 	setClearDepth(0x00ffffff);
 	GX_SetCopyClear(mClearColor, mClearDepth);
 
@@ -375,12 +375,12 @@ void wiiRenderSystem::setWireFrame(bool wire)
 	// TODO
 }
 
-void wiiRenderSystem::setClearColor(const vector3& color)
+void wiiRenderSystem::setClearColor(const color& clr)
 {
-	mClearColor.r = color.x*255;
-	mClearColor.g = color.y*255;
-	mClearColor.b = color.z*255;
-	mClearColor.a = 255;
+	mClearColor.r = clr.r*255;
+	mClearColor.g = clr.g*255;
+	mClearColor.b = clr.b*255;
+	mClearColor.a = clr.a*255;
 	GX_SetCopyClear(mClearColor, mClearDepth);
 }
 

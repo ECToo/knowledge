@@ -20,6 +20,7 @@
 
 #include "prerequisites.h"
 #include "material.h"
+#include "color.h"
 
 namespace k
 {
@@ -53,7 +54,17 @@ namespace k
 				delete mBackground;
 			}
 
+			/**
+			 * Load a background image with path set to filename.
+			 * @param filename The path to the image to be loaded, 
+			 * keep in mind that path will check root in resourceManager
+			 */
 			void loadBg(const std::string& filename);
+
+			/**
+			 * Force redraw of the load screen parsing the last file loaded.
+			 * @param[in] filename The last file loaded by the resouce manager.
+			 */
 			void update(const std::string& filename);
 	};
 
@@ -64,7 +75,7 @@ namespace k
 	{
 		protected:
 			material* mImgMaterial;
-			vector3 mBgColor;
+			color mBgColor;
 			vector2 mDimension;
 
 		public:
@@ -77,10 +88,29 @@ namespace k
 				delete mImgMaterial;
 			}
 
-
+			/**
+			 * Set the image dimensions in pixels
+			 * @param dimension The dimensions of the new centered screen image.
+			 */
 			void setImgDimension(const vector2& dimension);
-			void setBgColor(const vector3& color);
+
+			/**
+			 * Set the color of background.
+			 * @param clr The Background color.
+			 */
+			void setBgColor(const color& clr);
+
+			/**
+			 * Load a background image with path set to filename.
+			 * @param filename The path to the image to be loaded, 
+			 * keep in mind that path will check root in resourceManager
+			 */
 			void loadBg(const std::string& filename);
+
+			/**
+			 * Force redraw of the load screen parsing the last file loaded.
+			 * @param[in] filename The last file loaded by the resouce manager.
+			 */
 			void update(const std::string& filename);
 	};
 }

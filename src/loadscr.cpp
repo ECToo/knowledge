@@ -128,9 +128,9 @@ void imgLoadScreen::loadBg(const std::string& filename)
 
 }
 
-void imgLoadScreen::setBgColor(const vector3& color)
+void imgLoadScreen::setBgColor(const color& clr)
 {
-	mBgColor = color;
+	mBgColor = clr;
 }
 
 void imgLoadScreen::setImgDimension(const vector2& dimension)

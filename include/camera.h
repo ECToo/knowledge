@@ -39,6 +39,10 @@ namespace k
 		MAX_PLANES
 	};
 
+	/**
+	 * Camera class, controls the transformation and views
+	 * of active renderer scenes. @see k::renderer
+	 */
 	class DLL_EXPORT camera
 	{
 		private:
@@ -94,25 +98,36 @@ namespace k
 			vec_t mFrustumDs[MAX_PLANES];
 
 		public:
+			/**
+			 * Creates a default camera with the following options
+			 * fov = 90, aspect ratio = 1.3333f, near plane = 0.1f, far plane = 5000
+			 */
 			camera();
 
-			// Copy the camera matrix to the current
-			// modelview matrix. Needs to be called
-			// before drawing each object.
+			/**
+			 * Copy the camera matrix to the current
+			 * modelview matrix. Needs to be called 
+			 * before drawing each object, handled by
+			 * renderer. @see k::renderer
+			 */
 			void copyView() const;
 
-			// Apply the modelview matrix to the scene
+			/**
+			 * Apply the camera modelview over the scene modelview.
+			 */
 			void setView();
 
 			/**
-			 * Set camera Field of View
+			 * Set camera Field of View (in degrees)
 			 * @see mFov
+			 * @param fov The new camera field of view.
 			 */
 			void setFov(unsigned int fov);
 
 			/**
 			 * Set the camera aspect ratio
 			 * @see mAspectRatio
+			 * @param ar The new camera aspect ratio.
 			 */
 			void setAspectRatio(vec_t ar);
 
@@ -120,6 +135,8 @@ namespace k
 			 * Set camera planes.
 			 * @see mNearPlane
 			 * @see mFarPlane
+			 * @param nearP The new near plane distace.
+			 * @param farP The new far plane distace.
 			 */
 			void setPlanes(vec_t nearP, vec_t farP);
 
@@ -129,45 +146,108 @@ namespace k
 			 * @see mAspectRatio
 			 * @see mNearPlane
 			 * @see mFarPlane
+			 * @param fov The new camera field of view.
+			 * @param ar The new camera aspect ratio.
+			 * @param nearP The new near plane distance.
+			 * @param farP The new far plane distance.
 			 */
 			void setPerspective(unsigned int fov, vec_t ar, vec_t nearP, vec_t farP);
 
 			/**
 			 * Called from the renderer to apply the camera
-			 * perspective settings to the scene.
+			 * perspective settings to the scene. @see k::renderer
 			 */
 			void setPerspective();
 
 			/**
 			 * Check if a point is inside the view
-			 * frustum
+			 * frustum.
+			 *
+			 * @param point The point to be tested
 			 */
 			bool isPointInsideFrustum(const vector3& point) const;
+
+			/**
+			 * Check if a sphere is inside the view
+			 * frustum.
+			 *
+			 * @param center The center of the sphere.
+			 * @param radius The sphere radius
+			 */
 			bool isSphereInsideFrustum(const vector3& center, vec_t radius) const;
+
+			/**
+			 * Check if a axis aligned box is inside the view
+			 * frustum.
+			 *
+			 * @param AABB The axis aligned box edges.
+			 */
 			bool isBoxInsideFrustum(const boundingBox& AABB) const;
 
-			// Look at the vector dest
+			/**
+			 * Changes the camera orientation to face a point.
+			 *
+			 * @param dest The looking point.
+			 */
 			void lookAt(vector3 dest);
+
+			/**
+			 * Get the direction camera is pointing at.
+			 */
 			const vector3 getDirection() const;
+
+			/**
+			 * Get the camera up vector.
+			 */
 			const vector3 getUp() const;
+
+			/**
+			 * Get the camera right vector.
+			 */
 			const vector3 getRight() const;
 
 			/**
 			 * Generate a unit vector from camera position
-			 * to where pointer coords are.
+			 * to where pointer coords are. Note that the coordinates
+			 * will be normalized to frustum coordinates (-1, 1) so you 
+			 * only need to pass standards coordinate (0, getScreenWidth() / getScreenHeight)
+			 *
+			 * @param coords Coordinates of the pointer. 
 			 */
 			const ray projectRayFrom2D(const vector2& coords) const;
 
-			// Translations
+			/**
+			 * Set camera position.
+			 *
+			 * @param pos The new camera position.
+			 */
 			void setPosition(const vector3& pos);
+
+			/**
+			 * Get the camera position.
+			 */
 			const vector3& getPosition() const;
 
-			// Orientation
+			/**
+			 * Set camera orientation.
+			 *
+			 * @param ori The new camera orientation
+			 */
 			void setOrientation(const quaternion& ori);
+
+			/**
+			 * Get the camera orientation
+			 */
 			const quaternion& getOrientation() const;
 
-			// Get the inverse transpose matrix
+			/**
+			 * Get the inverse transpose matrix of the cameras orientation.
+			 */
 			const matrix4& getRotInverseTranspose() const;
+
+			/**
+			 * Get the inverse transpose matrix of the camera.
+			 */
 			const matrix4& getInverseTranspose() const;
 	};
 }

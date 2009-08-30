@@ -165,7 +165,7 @@ namespace k
 			void frameEnd();
 			void setWireFrame(bool wire);
 
-			void setClearColor(const vector3& color);
+			void setClearColor(const color& clr);
 			void setClearDepth(const vec_t amount);
 			void setDepthTest(bool test);
 			void setDepthMask(bool test);

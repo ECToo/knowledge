@@ -25,6 +25,10 @@
 
 namespace k
 {
+
+	/**
+	 * @deprecated I will replace this with a full GUI solution.
+	 */
 	class DLL_EXPORT guiManager : public singleton<guiManager>
 	{
 		protected:
