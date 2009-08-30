@@ -253,7 +253,10 @@ unsigned int materialStage::getHeight() const
 
 bool materialStage::isOpaque() const
 {
-	return (mBlendSrc || mBlendDst);
+	if (!mBlendDst && !mBlendSrc)
+		return true;
+	else
+		return false;
 }
 			
 void materialStage::setCoordType(TextureCoordType type)
