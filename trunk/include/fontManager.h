@@ -43,7 +43,7 @@ namespace k
 	} doom3Glyph;
 
 	/**
-	 * Base class, where to 
+	 * Base class for text drawing, where we 
 	 * derive the providers from.
 	 */
 	class DLL_EXPORT baseText
@@ -52,6 +52,9 @@ namespace k
 			void setText(const std::string& text) {}
 	};
 
+	/**
+	 * A 2D text drawer based on iD Software Doom 3 bitmap font format.
+	 */
 	class DLL_EXPORT bitmapText : public baseText, public drawable2D
 	{
 		private:
@@ -64,10 +67,25 @@ namespace k
 			vec_t _drawChar(vec_t x, vec_t y, char c);
 
 		public:
+			/**
+			 * Creates a bitmapText using a .dat file and a material for images.
+			 *
+			 * @param datName The name of the *.dat containing the font definitions.
+			 * @param matName The name of the material containing the image for the font.
+			 */
 			bitmapText(const std::string& datName, const std::string& matName);
 			~bitmapText();
 
+			/**
+			 * Set the bitmapText contents.
+			 *
+			 * @param text The new bitmapText content.
+			 */
 			void setText(const std::string& text);
+
+			/**
+			 * Draw the bitmapText
+			 */
 			void draw();
 	};
 

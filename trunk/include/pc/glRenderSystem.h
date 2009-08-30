@@ -50,7 +50,7 @@ namespace k
 			void frameStart();
 			void frameEnd();
 
-			void setClearColor(const vector3& color);
+			void setClearColor(const color& clr);
 			void setClearDepth(const vec_t amount);
 			void setDepthTest(bool test);
 			void setDepthMask(bool test);

@@ -160,7 +160,7 @@ namespace k
 				mRenderToTexture = rtt;
 			}
 
-			virtual void setClearColor(const vector3& cl) = 0;
+			virtual void setClearColor(const color& cl) = 0;
 			virtual void setClearDepth(const vec_t amount) = 0;
 			virtual void setDepthTest(bool test) = 0;
 			virtual void setDepthMask(bool mask) = 0;

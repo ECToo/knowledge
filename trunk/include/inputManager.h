@@ -25,6 +25,10 @@
 
 namespace k
 {
+	/**
+	 * The current input manager, it will be replaced later by a full input manager solution.
+	 * @deprecated
+	 */
 	class DLL_EXPORT inputManager : public singleton<inputManager>
 	{
 		private:

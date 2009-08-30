@@ -101,7 +101,7 @@ void glRenderSystem::configure()
 
 	// Set Depth
 	setClearDepth(1.0f);
-	setClearColor(vector3(0, 0, 0));
+	setClearColor(color(0, 0, 0));
 	setDepthTest(true);
 
 	glDepthFunc(GL_LEQUAL);
@@ -243,9 +243,9 @@ void glRenderSystem::frameEnd()
 	mActiveMaterial = NULL;
 }
 
-void glRenderSystem::setClearColor(const vector3& color)
+void glRenderSystem::setClearColor(const color& clr)
 {
-	glClearColor(color.x, color.y, color.z, 1.0f);
+	glClearColor(clr.r, clr.g, clr.b, clr.a);
 }
 
 void glRenderSystem::setClearDepth(const vec_t amount)

@@ -36,7 +36,7 @@ int main(int argc, char** argv)
 	// Doesnt matter on wii
 	mRenderSystem->createWindow(800, 600);
 	mRenderSystem->setWindowTitle("knowledge, the power of mind");
-	mRenderSystem->setClearColor(k::vector3(0.125, 0.349, 0.505));
+	mRenderSystem->setClearColor(k::color(0.125, 0.349, 0.505));
 
 	// Common library
 	#ifdef __WII__
