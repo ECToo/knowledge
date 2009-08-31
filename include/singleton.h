@@ -33,18 +33,27 @@ namespace k
 			static T* singleton_instance;
 
     	public:
+			/**
+			 * Constructor.
+			 */
 			singleton()
 			{
 				assert (!singleton_instance);	
 				singleton_instance = static_cast<T*>(this);
 			}
 
+			/**
+			 * Destructor.
+			 */
 			~singleton()
         	{
 				assert(singleton_instance);
 				singleton_instance = 0;
 			}
 
+			/**
+			 * Returns an instance of the singleton class.
+			 */
         	static T& getSingleton()
 			{		
 				assert(singleton_instance);

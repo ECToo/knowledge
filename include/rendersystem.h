@@ -28,18 +28,27 @@
 
 namespace k 
 {
+	/**
+	 * Shade models
+	 */
 	enum ShadeModel
 	{
 		SHADEMODEL_FLAT,
 		SHADEMODEL_SMOOTH
 	};
 
+	/**
+	 * Matrix modes
+	 */
 	enum MatrixMode
 	{
 		MATRIXMODE_PROJECTION,
 		MATRIXMODE_MODELVIEW
 	};
 
+	/**
+	 * Vertex modes
+	 */
 	enum VertexMode
 	{
 		VERTEXMODE_LINE,
@@ -49,6 +58,9 @@ namespace k
 		VERTEXMODE_QUAD
 	};
 
+	/**
+	 * Gamma modes
+	 */
 	enum GammaModes
 	{
 		GAMMA_1_0,
@@ -56,12 +68,18 @@ namespace k
 		GAMMA_2_2
 	};
 
+	/**
+	 * Types of VBO Arrays
+	 */
 	enum VBOArrayType
 	{
 		VBO_ARRAY,
 		VBO_ELEMENT_ARRAY
 	};
 
+	/**
+	 * Types of VBO Usages
+	 */
 	enum VBOUsage
 	{
 		VBO_STATIC_DRAW,
@@ -75,6 +93,9 @@ namespace k
 		VBO_STREAM_COPY
 	};
 
+	/**
+	 * Texture environment modes
+	 */
 	enum texEnvMode
 	{
 		TEX_ENV_MODULATE,

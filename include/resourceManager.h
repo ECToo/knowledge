@@ -28,6 +28,9 @@
 
 namespace k
 {
+	/**
+	 * Group loading types
+	 */
 	enum groupLoading
 	{
 		LOAD_TEXTURES,
@@ -50,15 +53,39 @@ namespace k
 			std::map<std::string, md5model*> mModels;
 
 		public:
+			/**
+			 * Destructor.
+			 */
 			~resourceGroup();
 
+			/**
+			 * Return the root path of this resourceGroup
+			 */
 			const std::string& getRoot();
+
+			/**
+			 * Return true if this group looks recursively for data.
+			 */
 			bool getRecursivity();
 
+			/**
+			 * Set group root path.
+			 */
 			void setRoot(const std::string& root);
+			
+			/**
+			 * Set the group recursivity.
+			 */
 			void setRecursivity(bool recursive);
+
+			/**
+			 * Set group load options. @see groupLoading
+			 */
 			void setLoadOptions(char opt);
 
+			/**
+			 * Scan a directory, following options it will allocate found data.
+			 */
 			void scanDir(std::string dir, bool recursive, bool materialParsing);
 			void filterResource(const std::string& path, bool material);
 	};
@@ -92,21 +119,68 @@ namespace k
 			unsigned long mUsedMemory;
 
 		public:
+			/**
+			 * Constructor. You need to pass the resource manager the full path
+			 * of the resources file, and this path will turn to the global looking path.
+			 *
+			 * @param[in] resourceCfg The full path to the resources file.
+			 */
 			resourceManager(const std::string& resourceCfg = "./resources.cfg");
+
+			/**
+			 * Destructor.
+			 */
 			~resourceManager();
 
+			/**
+			 * Return an instance of this resourceManager singleton.
+			 */
 			static resourceManager& getSingleton();
 
+			/**
+			 * Load a resource group by name.
+			 * @param[in] name The name of the group to be loaded.
+			 */
 			void loadGroup(const std::string& name);
+
+			/**
+			 * Unload a resource group by name.
+			 * @param[in] name The name of the group to be unloaded.
+			 */
 			void unloadGroup(const std::string& name);
 
+			/**
+			 * Add some amount of memory to the memory usage counter.
+			 *
+			 * @param[in] m The amoun to add to the counter.
+			 */
 			void addMemoryUse(unsigned long m);
+
+			/**
+			 * Return the memory usage of resource manager allocated data.
+			 */
 			unsigned long getMemoryUsage();
 
+			/**
+			 * Return the active loading screen if theres one, otherwise returns NULL.
+			 */
 			loadScreen* getLoadingScreen();
+
+			/**
+			 * Set the active loading screen.
+			 *
+			 * @param[in] scr A valid pointer to the active loading screen.
+			 */
 			void setLoadingScreen(loadScreen* scr);
+
+			/**
+			 * Unset the loading screen internal pointers.
+			 */
 			void unsetLoadingScreen();
 
+			/**
+			 * Return full path of the resourceManager root. Please check the resourceManager documentation.
+			 */
 			const std::string& getRoot();
 	};
 }

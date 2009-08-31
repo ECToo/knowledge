@@ -182,17 +182,59 @@ class DLL_EXPORT md5mesh
 		boundingBox mAABB;
 
 	public:
+		/**
+		 * Constructor.
+		 */
 		md5mesh();
+
+		/**
+		 * Destructor, deallocate used data.
+		 */
 		~md5mesh();
 
+		/**
+		 * Allocate vertex data.
+		 * @param size The number of vertexes to allocate.
+		 */
 		void prepareVertices(unsigned int size);
+
+		/**
+		 * Allocate triangle data.
+		 * @param size The number of triangles to allocate.
+		 */
 		void prepareTriangles(unsigned int size);
+
+		/**
+		 * Allocate weight data.
+		 * @param size The number of weights to allocate.
+		 */
 		void prepareWeights(unsigned int size);
+
+		/**
+		 * Push a vertex to vertexes list
+		 */
 		void pushVertex(const vector2& uv, const vector2& weight);
+
+		/**
+		 * Push a triangle to triangles list
+		 */
 		void pushTriangle(const vector3& tri);
+
+		/**
+		 * Push a weight to weights list
+		 */
 		void pushWeight(const vector2& joint, const vector3& pos);
 
+		/**
+		 * Set this surface material.
+		 * @param[in] mat A valid pointer to a material.
+		 */
 		void setMaterial(material* mat);
+
+		/**
+		 * Set this surface material.
+		 * @param[in] matName The material name.
+		 */
 		void setMaterial(const std::string& matName);
 
 		/**
@@ -231,6 +273,10 @@ class DLL_EXPORT md5mesh
 		 */
 		void compileVertices(std::vector<bone_t*>* boneList);
 
+
+		/**
+		 * Draw this surface
+		 */
 		void draw();
 };
 
@@ -266,7 +312,15 @@ class DLL_EXPORT md5model : public drawable3D
 		bool mAutoFeedAnims;
 
 	public:
+		/**
+		 * Constructor. The model will be allocated from the full path (from the resourceManager root).
+		 * @param[in] filename The model full path.
+		 */
 		md5model(const std::string& filename);
+
+		/**
+		 * Destructor, free allocated data.
+		 */
 		~md5model();
 
 		/**

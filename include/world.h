@@ -33,6 +33,9 @@ namespace k
 	class DLL_EXPORT world
 	{
 		public:
+			/**
+			 * Virtual destructor
+			 */
 			virtual ~world() {}
 
 			/**

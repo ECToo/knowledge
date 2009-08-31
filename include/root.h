@@ -32,8 +32,19 @@
 
 namespace k
 {
+	/**
+	 * Helper function, returns if an string represents a number or not.
+	 */
 	extern bool isNumeric(const std::string& str);
+	
+	/**
+	 * Helper function, returns a file extension.
+	 */
 	extern std::string getExtension(const std::string& file);
+
+	/**
+	 * Helper function, returns the hash key for a filename
+	 */
 	extern unsigned int getHashKey(const std::string& filename);
 
 	/**
@@ -67,6 +78,10 @@ namespace k
 			 * @param filename The log destination file path.
 			 */
 			root(const std::string& filename = "knowledge.log");
+
+			/**
+			 * Destructor.
+			 */
 			~root();
 
 			/**

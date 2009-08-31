@@ -27,6 +27,9 @@
 
 namespace k
 {
+	/**
+	 * Doom 3 glyph structure.
+	 */
 	typedef struct
 	{
 		int height;
@@ -48,6 +51,9 @@ namespace k
 	class DLL_EXPORT baseText
 	{
 		public:
+			/**
+			 * Set the text contents
+			 */
 			void setText(const std::string& text) {}
 	};
 
@@ -73,6 +79,10 @@ namespace k
 			 * @param matName The name of the material containing the image for the font.
 			 */
 			bitmapText(const std::string& datName, const std::string& matName);
+			
+			/**
+			 * Destructor
+			 */
 			~bitmapText();
 
 			/**

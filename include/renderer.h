@@ -97,7 +97,15 @@ namespace k
 			world* mActiveWorld;
 
 		public:
+			/**
+			 * Constructor.
+			 */
 			renderer();
+
+			/**
+			 * Destructor. 
+			 * Note: Doesnt free anything.
+			 */
 			~renderer();
 
 			/**

@@ -27,6 +27,9 @@
 namespace k {
 namespace light {
 
+/**
+ * Light attenuation parameters.
+ */
 enum attenuationParameters
 {
 	ATT_CONSTANT,
@@ -34,6 +37,9 @@ enum attenuationParameters
 	ATT_QUADRATIC
 };
 
+/**
+ * Types of light sources.
+ */
 enum lightSources
 {
 	POSITIONAL,

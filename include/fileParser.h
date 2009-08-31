@@ -67,6 +67,10 @@ class DLL_EXPORT parsingFile
 		 * @param string The file contents in a string.
 		 */
 		parsingFile(char* string);
+
+		/**
+		 * Destructor, deallocating file string.
+		 */
 		~parsingFile();
 
 		/**

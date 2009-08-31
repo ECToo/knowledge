@@ -65,7 +65,14 @@ class DLL_EXPORT stateManager : public k::singleton<stateManager>
 		gameState* mActiveState;
 
 	public:
+		/**
+		 * Constructor
+		 */
 		stateManager();
+
+		/**
+		 * Destructor
+		 */
 		~stateManager();
 
 		/**

@@ -75,6 +75,10 @@ class DLL_EXPORT md3Tag
 		vec_t mAA_Angle;
 		vector3 mAA_Axis;
 
+		/**
+		 * copy source tag to this one.
+		 * @param[in] tag source tag
+		 */
 		md3Tag operator = (const md3Tag_t& tag)
 		{
 			mName = tag.name;
@@ -165,6 +169,10 @@ class DLL_EXPORT md3Triangle
 	public:
 		index_t indices[3];
 
+		/**
+		 * copy source index to this one.
+		 * @param[in] tri source index
+		 */
 		md3Triangle operator = (const md3Triangle_t& tri)
 		{
 			indices[0] = (index_t)readLEInt(tri.indices[0]);
@@ -183,6 +191,10 @@ class DLL_EXPORT md3TexCoord_t
 	public:
 		vector2 uv;
 
+		/**
+		 * copy source uv to this one.
+		 * @param[in] u source uv
+		 */
 		md3TexCoord_t operator = (const md3TexCoord_t& u)
 		{
 			uv.x = readLEFloat(u.uv.x);
@@ -221,6 +233,11 @@ class DLL_EXPORT md3RealVertex
 		vector3 pos;
 		vector3 normal;
 
+		/**
+		 * Copy source md3Vertex_t to this one.
+		 * This function also convert md3 vertex format to knowledge one.
+		 * @param[in] t source md3Vertex_t
+		 */
 		md3RealVertex operator = (const md3Vertex_t& t)
 		{
 			const float vertexMultiplier = 0.015625f;
@@ -294,7 +311,14 @@ class DLL_EXPORT md3Surface
 		bool mDrawNormals;
 
 	public:
+		/**
+		 * Constructor
+		 */
 		md3Surface();
+
+		/**
+		 * Destructor, free allocated data.
+		 */
 		~md3Surface();
 
 		/**
@@ -541,7 +565,22 @@ class DLL_EXPORT md3model : public drawable3D
 		const md3model* mShared;
 
 	public:
+		/**
+		 * Constructor. You can allocate md3model by passing
+		 * their full path (in relation to resourceManager root).
+		 *
+		 * @param[in] filename The full path of model to be loaded.
+		 * @param[in] adjustVertices If the engine should adjust vertexes vertically (make y-origin on 0)
+		 */
 		md3model(const std::string& filename, bool adjustVertices = false);
+
+		/**
+		 * Constructor. Make this model an instance of another 
+		 * md3model. Keep in mind that if the root model is deallocated,
+		 * this one wont work and will probably crash, so be careful with those!
+		 *
+		 * @param[in] shared The source model to instanciate from.
+		 */
 		md3model(const md3model* shared);
 
 		/**
@@ -711,9 +750,24 @@ class DLL_EXPORT md3model : public drawable3D
 		 */
 		void trace(ray& traceRay);
 
+		/**
+		 * Return false if the model or any of its submeshes is transparent.
+		 */
 		bool isOpaque() const;
+
+		/**
+		 * Draw the model.
+		 */
 		void draw();
+
+		/**
+		 * Return the model axis-aligned bounding box.
+		 */
 		boundingBox getAABoundingBox() const;
+		
+		/**
+		 * Return the model bounding box.
+		 */
 		boundingBox getBoundingBox() const;
 };
 

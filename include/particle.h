@@ -81,11 +81,18 @@ namespace particle
 			const location* mParent;
 
 		public:
+			/**
+			 * Constructor
+			 */
 			location()
 			{
 				mParent = NULL;
 			}
 
+			/**
+			 * Return world space position, if this location has a 
+			 * parent, it will return the parent + this location position.
+			 */
 			vector3 getAbsolutePosition() const
 			{
 				if (mParent)
@@ -94,16 +101,28 @@ namespace particle
 					return mPosition;
 			}
 
+			/**
+			 * Return only this location position, independent of parents.
+			 */
 			const vector3& getRelativePosition() const
 			{
 				return mPosition;
 			}
 
+			/**
+			 * Set location position.
+			 * @param[in] pos The new position.
+			 */
 			void setPosition(const vector3& pos)
 			{
 				mPosition = pos;
 			}
 
+			/**
+			 * Set location parent. This location position will be derived from
+			 * the parent if you use getAbsolutePosition().
+			 * @param[in] parent Thew new parent.
+			 */
 			void setParent(location* parent)
 			{
 				mParent = parent;
@@ -157,6 +176,9 @@ namespace particle
 			unsigned int mLifeTime;
 
 		public:
+			/**
+			 * Constructor
+			 */
 			particle();
 
 			/**
@@ -283,7 +305,14 @@ namespace particle
 			material* mMaterial;
 
 		public:
+			/**
+			 * Constructor.
+			 */
 			container();
+
+			/**
+			 * Destructor
+			 */
 			~container();
 			
 			/**
@@ -367,12 +396,40 @@ namespace particle
 			container* mContainer;
 
 		public:
+			/**
+			 * Constructor. Creates an emitter as a child of a container.
+			 *
+			 * @param[in] cont A valid pointer to parent container.
+			 */
 			emitter(container* cont);
+
+			/**
+			 * Destructor.
+			 */
 			virtual ~emitter();
 
+			/**
+			 * Set emitter particle radius.
+			 * @param[in] radi The new particle radius.
+			 */
 			void setRadius(vec_t radi);
+
+			/**
+			 * Set the amout of particles this emitter will emit per go.
+			 * @param[in] amount The number of particles to be emitted.
+			 */
 			void setSpawnQuantity(unsigned int amount);
+
+			/**
+			 * Set the time interval in which this emitter will emit particles.
+			 * @param[in] time Interval between particle emissions.
+			 */
 			void setSpawnTime(long time);
+
+			/**
+			 * Set the life time (in milliseconds) of the particles.
+			 * @param[in] time Life time of the emitted particles.
+			 */
 			void setLifeTime(long time);
 
 			/**
@@ -381,12 +438,29 @@ namespace particle
 			 * the minimum and the maximum values
 			 */
 			void setVelocity(const vector3& min, const vector3& max);
+
+			/**
+			 * Set this emitter particles minimum velocity.
+			 * @param[in] min Minimum particles velocity
+			 */
 			void setMinVelocity(const vector3& min);
-			void setMaxVelocity(const vector3& min);
+
+			/**
+			 * Set this emitter particles maximum velocity.
+			 * @param[in] max Maximum particles velocity
+			 */
+			void setMaxVelocity(const vector3& max);
 
 			void baseSpawn(particle* newP);
 
+			/**
+			 * Ask the emitter to spawn new particles.
+			 */
 			virtual void spawnParticles() = 0;
+
+			/**
+			 * Returns the axis-aligned bounding box of the emitter
+			 */
 			virtual const boundingBox getAABB() const = 0;
 	};
 	
@@ -402,12 +476,32 @@ namespace particle
 			vector3 mAcceleration;
 
 		public:
+			/**
+			 * Constructor. Creates an emitter as a child of a container.
+			 *
+			 * @param[in] cont A valid pointer to parent container.
+			 */
 			pointEmitter(container* cont);
+
+			/**
+			 * Destructor.
+			 */
 			~pointEmitter();
 
+			/**
+			 * Ask the emitter to spawn particles.
+			 */
 			void spawnParticles();
+
+			/**
+			 * Set particles acceleration.
+			 * @param accel New acceleration.
+			 */
 			void setAcceleration(const vector3& accel);
 
+			/**
+			 * Return this emitter axis-aligned bounding box.
+			 */
 			const boundingBox getAABB() const;
 	};
 
@@ -434,13 +528,40 @@ namespace particle
 			vector3 mVertices[2];
 
 		public:
+			/**
+			 * Constructor. Creates an emitter as a child of a container.
+			 *
+			 * @param[in] cont A valid pointer to parent container.
+			 */
 			planeEmitter(container* cont);
+
+			/**
+			 * Destructor.
+			 */
 			~planeEmitter();
 
+			/**
+			 * Ask the emitter to spawn particles.
+			 */
 			void spawnParticles();
+
+			/**
+			 * Set the physical limits of particles emission.
+			 *
+			 * @param[in] a The minimum point of the limit box.
+			 * @param[in] b The maximum point of the limit box.
+			 */
 			void setBounds(const vector3& a, const vector3& b);
+
+			/**
+			 * Set particles acceleration.
+			 * @param accel New acceleration.
+			 */
 			void setAcceleration(const vector3& accel);
 			
+			/**
+			 * Return this emitter axis-aligned bounding box.
+			 */
 			const boundingBox getAABB() const;
 	};
 
@@ -460,14 +581,35 @@ namespace particle
 
 		public:
 
+			/**
+			 * Set the affected parameter this affector will change. @see affectedTypes
+			 */
 			void setAffectedParameter(unsigned int param);
+
+			/**
+			 * Set the affected operation this affector will execute. @see affectedOperations
+			 */
 			void setAffectedOperation(unsigned int op);
 
+			/**
+			 * Set the factor for the affected operation.
+			 */
 			void setFactor(const vector3& factor);
+
+			/**
+			 * Set the factor for the affected operation.
+			 */
 			void setFactor(vec_t factor);
 
+			/**
+			 * Reset affector time counter
+			 */
 			void resetTimer();
 
+			/**
+			 * Ask the affector to interact with particle.
+			 * @param[in] p Particle to get interaction.
+			 */
 			virtual void interact(particle* p) = 0;
 	};
 
@@ -477,6 +619,10 @@ namespace particle
 	class DLL_EXPORT linearAffector : public affector
 	{
 		public:
+			/**
+			 * Ask the affector to interact with particle.
+			 * @param[in] p Particle to get interaction.
+			 */
 			void interact(particle* p);
 	};
 
@@ -512,7 +658,14 @@ namespace particle
 			bool mIsVisible;
 
 		public:
+			/**
+			 * Constructor.
+			 */
 			system();
+
+			/**
+			 * Destructor, free all allocated particles.
+			 */
 			~system();
 
 			/**
@@ -583,15 +736,43 @@ namespace particle
 			std::map<std::string, system*> mSystems;
 
 		public:
+			/**
+			 * Constructor.
+			 */
 			manager();
+
+			/**
+			 * Destructor, free all allocated particle systems.
+			 */
 			~manager();
 
+			/**
+			 * Get a particle system by name.
+			 * @param[in] name Particle system name.
+			 */
 			system* getSystem(const std::string& name);
+
+			/**
+			 * Allocate a particle system.
+			 * @param[in] name Particle system name.
+			 */
 			system* allocateSystem(const std::string& name);
 
+			/**
+			 * Return an particle::manager instance of this singleton
+			 */
 			static manager& getSingleton();
 
+			/**
+			 * Parse particle script by path.
+			 * @param[in] filename The full path of particle script (from resourceManager root).
+			 */
 			void parseScript(const std::string& filename);
+
+			/**
+			 * Parse particle script by parsingFile.
+			 * @param[in] file A valid pointer to the script parsingFile.
+			 */
 			void parseScript(parsingFile* file);
 
 			void parseSystem(parsingFile* file, const std::string& psName);
@@ -600,6 +781,10 @@ namespace particle
 			void parsePointEmitter(parsingFile* file, system* mSystem, const std::string& name);
 			void parseLinearAffector(parsingFile* file, system* system, const std::string& name);
 
+			/**
+			 * Ask the particle manager to draw all particle systems.
+			 * Note: Particle systems that are not visible to the camera will not be drawn.
+			 */
 			void drawParticles();
 	};
 

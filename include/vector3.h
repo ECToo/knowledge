@@ -47,6 +47,11 @@ namespace k
 				x = y = z = 0;
 			}
 
+			/**
+			 * Created a new vector as a copy of source vector.
+			 *
+			 * @param[in] in Source vector.
+			 */
 			vector3(const vector3& in)
 			{
 				x = in.x;
@@ -92,11 +97,17 @@ namespace k
 						z + dot * normal.z);
 			}
 
+			/**
+			 * Sum this vector with another one.
+			 */
 			inline vector3 operator + (const vector3& newVec) const
 			{
 				return vector3(newVec.x + x, newVec.y + y, newVec.z + z);
 			}
 
+			/**
+			 * Sum this vector with another one.
+			 */
 			inline vector3& operator += (const vector3& newVec)
 			{
 				x += newVec.x;
@@ -106,6 +117,10 @@ namespace k
 				return *this;
 			}
 			
+			/**
+			 * Copy the source vector to this one.
+			 * @param[in] newVec source vector.
+			 */
 			inline vector3& operator = (const vector3& newVec)
 			{
 				x = newVec.x;
@@ -115,6 +130,10 @@ namespace k
 				return *this;				
 			}
 			
+			/**
+			 * Subtract a vector from this one.
+			 * @param[in] newVec A vector to be subtracted from this one.
+			 */
 			inline vector3 operator - (const vector3& newVec) const
 			{
 				vector3 tempVec(x - newVec.x, 
@@ -124,6 +143,10 @@ namespace k
 				return tempVec;				
 			}
 
+			/**
+			 * Subtract a vector from this one.
+			 * @param[in] newVec A vector to be subtracted from this one.
+			 */
 			inline vector3& operator -= (const vector3& newVec)
 			{
 				x -= newVec.x;
@@ -133,6 +156,9 @@ namespace k
 				return *this;
 			}
 
+			/**
+			 * Multiply this vector by a scalar.
+			 */
 			inline vector3& operator *= (const vec_t newVec)
 			{
 				x *= newVec;
@@ -187,27 +213,42 @@ namespace k
 				return *this;				
 			}
 			
+			/**
+			 * Multiply this vector by a scalar.
+			 */
 			inline vector3 operator * (const vec_t scalar) const
 			{
 				return vector3(x * scalar, y * scalar, z * scalar);
 			}
 			
+			/**
+			 * Multiply this vector by another vector.
+			 */
 			inline vector3 operator * (const vector3& newVec) const
 			{
 				return vector3(x * newVec.x, y * newVec.y, z * newVec.z);
 			}
 			
+			/**
+			 * Divide this vector by a scalar.
+			 */
 			inline vector3 operator / (const vec_t scalar) const
 			{
 				assert(scalar);
 				return vector3(x/scalar, y/scalar, z/scalar);
 			}
 			
+			/**
+			 * Divide this vector by another vector.
+			 */
 			inline vector3 operator / (const vector3& newVec) const
 			{
 				return vector3(x / newVec.x, y / newVec.y, z / newVec.z);
 			}
 			
+			/**
+			 * Return true if both vectors are identical.
+			 */
 			inline bool operator == (const vector3& newVec) const
 			{
 				return (
@@ -217,6 +258,9 @@ namespace k
 						);
 			}
 
+			/**
+			 * Return true if both vectors are NOT identical.
+			 */
 			inline bool operator != (const vector3& newVec) const
 			{
 				return !(
@@ -226,11 +270,17 @@ namespace k
 						);
 			}
 
+			/**
+			 * Return a negated copy of this vector.
+			 */
 			inline vector3 negate() const
 			{
 				return vector3(-x, -y, -z);
 			}
 
+			/**
+			 * Negate this vector.
+			 */
 			inline vector3 negateItself()
 			{
 				x = -x;
@@ -240,6 +290,9 @@ namespace k
 				return *this;
 			}
 			
+			/**
+			 * Returns the length of this vector.
+			 */
 			inline const vec_t length() const
 			{
 				return sqrt(x*x + y*y + z*z);

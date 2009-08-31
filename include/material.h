@@ -25,6 +25,9 @@
 
 namespace k
 {
+	/**
+	 * Culling modes.
+	 */
 	enum CullMode
 	{
 		CULLMODE_NONE,
@@ -33,6 +36,9 @@ namespace k
 		CULLMODE_BOTH
 	};
 
+	/**
+	 * Texture environment functions.
+	 */
 	enum TexEnvFunctions
 	{
 		TEXENV_REPLACE,
@@ -243,7 +249,14 @@ namespace k
 			 */
 			const texture* getTexture(unsigned int index) const;
 
+			/**
+			 * Start drawing this stage.
+			 */
 			void draw();
+
+			/**
+			 * Finish drawing this stage.
+			 */
 			void finish();
 	};
 
@@ -281,7 +294,14 @@ namespace k
 			std::vector<materialStage*> mStages;
 
 		public:
+			/**
+			 * Constructor.
+			 */
 			material();
+
+			/**
+			 * Destructor.
+			 */
 			~material();
 
 			/**

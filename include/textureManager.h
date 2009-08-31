@@ -40,7 +40,14 @@ namespace k
 			textureHash mTextures;
 
 		public:
+			/**
+			 * Constructor.
+			 */
 			textureManager();
+
+			/**
+			 * Destructor. Free all allocated textures.
+			 */
 			~textureManager();
 
 			/**

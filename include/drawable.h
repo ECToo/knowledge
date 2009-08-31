@@ -52,7 +52,14 @@ namespace k
 			bool mDrawableVisible;
 
 		public:
+			/**
+			 * Constructor
+			 */
 			drawable2D();
+
+			/**
+			 * Destructor
+			 */
 			virtual ~drawable2D();
 
 			/**
@@ -144,6 +151,9 @@ namespace k
 			 */
 			const vec_t getZ() const;
 
+			/**
+			 * Draw
+			 */
 			virtual void draw() = 0;
 	};
 
@@ -170,10 +180,24 @@ namespace k
 			 */
 			boundingBox(const vector3& min, const vector3& max);
 
+			/**
+			 * Sum this bounding box with another one
+			 */
 			boundingBox operator + (const boundingBox& b);
+
+			/**
+			 * Sum this bounding box with another one
+			 */
 			boundingBox& operator += (const boundingBox& b);
 
+			/**
+			 * Subtract another bounding box from this one
+			 */
 			boundingBox operator - (const boundingBox& b);
+
+			/**
+			 * Subtract another bounding box from this one
+			 */
 			boundingBox& operator -= (const boundingBox& b);
 
 			/**
@@ -239,7 +263,14 @@ namespace k
 			bool mDrawableVisible;
 
 		public:
+			/**
+			 * Constructor
+			 */
 			drawable3D();
+
+			/**
+			 * Destructor
+			 */
 			virtual ~drawable3D();
 
 			/**

@@ -48,6 +48,11 @@ namespace k
 				x = y = 0;
 			}
 
+			/**
+			 * Created a new vector as a copy of source vector.
+			 *
+			 * @param[in] in Source vector.
+			 */
 			vector2(const vector2& in)
 			{
 				*this = in;
@@ -107,7 +112,11 @@ namespace k
 				return *this;				
 			}
 			
-
+			/**
+			 * Multiply this vector by a scalar.
+			 *
+			 * @param[in] newVec Scalar number.
+			 */
 			inline vector2& operator *= (const vec_t& newVec)
 			{
 				x *= newVec;
@@ -116,6 +125,11 @@ namespace k
 				return *this;				
 			}
 
+			/**
+			 * Divide this vector by a scalar.
+			 *
+			 * @param[in] newVec Scalar number.
+			 */
 			inline vector2& operator /= (const vec_t& newVec)
 			{
 				x /= newVec;
@@ -124,24 +138,37 @@ namespace k
 				return *this;				
 			}
 			
+			/**
+			 * Subtract another vector from this one.
+			 * @param[in] newVec The Vector to be subtracted.
+			 */
 			inline vector2 operator - (const vector2& newVec) const
 			{
 				vector2 tempVec(x - newVec.x , y - newVec.y);
 				return tempVec;				
 			}
 
+			/**
+			 * Multiply this vector by a scalar.
+			 */
 			inline vector2 operator * (const vec_t scalar) const
 			{
 				vector2 tempVec(x * scalar, y * scalar);
 				return tempVec;				
 			}
 			
+			/**
+			 * Multiply this vector by another one.
+			 */
 			inline vector2 operator * (const vector2 &newVec) const
 			{
 				vector2 tempVec(x * newVec.x, y * newVec.y);
 				return tempVec;				
 			}
 			
+			/**
+			 * Divide this vector by a scalar.
+			 */
 			inline vector2 operator / (const vec_t scalar) const
 			{
 				assert (scalar != 0.0);
@@ -150,17 +177,27 @@ namespace k
 				return tempVec;				
 			}
 			
+			/**
+			 * Divide this vector by another one. Each member will be divided by equivalent
+			 * member on the second vector.
+			 */
 			inline vector2 operator / (const vector2 &newVec) const
 			{
 				vector2 tempVec(x / newVec.x, y / newVec.y);
 				return tempVec;				
 			}
 			
+			/**
+			 * Return true if both vectors are identical
+			 */
 			inline bool operator == (const vector2 &newVec) const
 			{
 				return ((x == newVec.x) && (y == newVec.y));
 			}
 
+			/**
+			 * Return true if both vectors are NOT identical.
+			 */
 			inline bool operator != (const vector2 &newVec) const
 			{
 				return !((x == newVec.x) && (y == newVec.y));
@@ -185,6 +222,9 @@ namespace k
 				return *this;
 			}
 			
+			/**
+			 * Return the length of this vector.
+			 */
 			inline const vec_t length() const
 			{
 				return sqrt((x*x)+(y*y));
