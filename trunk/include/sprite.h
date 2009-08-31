@@ -72,29 +72,89 @@ namespace k
 			bool mSpriteVisible;
 
 		public:
+			/**
+			 * Constructor, empty sprite.
+			 */
 			sprite();
+
+			/**
+			 * Constructor, creates a sprite from a material and radius.
+			 *
+			 * @param[in] mat A valid pointer to sprite material.
+			 * @param[in] radi The sprite radius.
+			 */
 			sprite(material* mat, vec_t radi);
+
+			/**
+			 * Constructor, creates a sprite from a material and radius.
+			 *
+			 * @param[in] mat Sprite material name.
+			 * @param[in] radi The sprite radius.
+			 */
 			sprite(const std::string& mat, vec_t radi);
+
+			/**
+			 * Destructor.
+			 */
 			~sprite();
 
+			/**
+			 * Returns the sprite material.
+			 */
 			material* getMaterial() const;
+
+			/**
+			 * Returns the sprite radius.
+			 */
 			const vec_t getRadius() const;
 
+			/**
+			 * Set if the sprite is visible or not.
+			 */
 			void setVisible(bool vis)
 			{
 				mSpriteVisible = vis;
 			}
 
+			/**
+			 * Returns true if sprite is visible, false otherwise.
+			 */
 			bool isVisible() const
 			{
 				return mSpriteVisible;
 			}
 
+			/**
+			 * Set sprite material.
+			 *
+			 * @param[in] mat A valid pointer to the new sprite material.
+			 */
 			void setMaterial(material* mat);
+
+			/**
+			 * Set sprite material.
+			 *
+			 * @param[in] mat The new sprite material name.
+			 */
 			void setMaterial(const std::string& mat);
+
+			/**
+			 * Set sprite radius.
+			 *
+			 * @param[in] rad The new sprite radius.
+			 */
 			void setRadius(vec_t rad);
 
+			/**
+			 * Set sprite position.
+			 *
+			 * @param[in] pos The new position.
+			 */
 			void setPosition(const vector3& pos);
+
+			/**
+			 * Returns sprite position in world space.
+			 */
 			const vector3& getPosition() const;
 
 			/**

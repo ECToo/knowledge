@@ -42,8 +42,15 @@ namespace k
 			 * instantiated by the root
 			 */
 			guiManager();
+
+			/**
+			 * Destructor
+			 */
 			~guiManager();
 
+			/**
+			 * Return this guiManager singleton instance.
+			 */
 			static guiManager& getSingleton();
 
 			/**
@@ -53,7 +60,16 @@ namespace k
 			 * get the cursor sticker and draw it by yourself in your render loop.
 			 */
 			void setCursor(const std::string& mat, const vector2& scale);
+
+			/**
+			 * Set the position of cursor.
+			 * @param pos The new cursor position.
+			 */
 			void setCursorPos(const vector2& pos);
+
+			/**
+			 * Returns the cursor sticker, if the cursor wasnt created, returns NULL.
+			 */
 			sticker* getCursor();
 	};
 }

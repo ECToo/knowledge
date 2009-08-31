@@ -201,6 +201,10 @@ namespace k
 				x = y = z = 0;
 			}
 
+			/**
+			 * Copy source quaternion to this one.
+			 * @param[in] newQuat Source quaternion.
+			 */
 			inline quaternion& operator = (const quaternion& newQuat)
 			{
 				w = newQuat.w;
@@ -211,6 +215,9 @@ namespace k
 				return *this;				
 			}
 
+			/**
+			 * Check if two quaternions are equal.
+			 */
 			inline bool operator == (const quaternion& newQuat) const
 			{
 				return (
@@ -221,6 +228,9 @@ namespace k
 						);
 			}
 
+			/**
+			 * Check if two quaternions are different.
+			 */
 			inline bool operator != (const quaternion& newQuat) const
 			{
 				return !(
@@ -231,6 +241,10 @@ namespace k
 						);
 			}
 
+			/**
+			 * Multiply this quaternion by another one.
+			 * @param[in] newQuat The quaternion to multiply this one by.
+			 */
 			inline quaternion operator * (const quaternion& newQuat) const
 			{
 				quaternion output;
@@ -243,6 +257,10 @@ namespace k
 				return output;
 			}
 
+			/**
+			 * Multiply this quaternion by a 3D vector.
+			 * @param[in] newVec The 3D vector to multiply this one by.
+			 */
 			inline quaternion operator * (const vector3& newVec) const
 			{
 				quaternion output;

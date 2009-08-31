@@ -30,7 +30,15 @@ namespace k
 	class DLL_EXPORT loadScreen
 	{
 		public:
+			/**
+			 * Destructor to be overloaded.
+			 */
 			virtual ~loadScreen() {}
+
+			/**
+			 * Force the drawing of screen.
+			 * @param[in] filename Last file loaded by resource manager.
+			 */
 			virtual void update(const std::string& filename) = 0;
 	};
 
@@ -43,11 +51,17 @@ namespace k
 			material* mBackground;
 
 		public:
+			/**
+			 * Constructor
+			 */
 			bgLoadScreen()
 			{
 				mBackground = NULL;
 			}
 
+			/**
+			 * Destructor, deallocates background material.
+			 */
 			~bgLoadScreen()
 			{
 				delete mBackground;
@@ -78,10 +92,17 @@ namespace k
 			vector2 mDimension;
 
 		public:
+			/**
+			 * Constructor
+			 */
 			imgLoadScreen()
 			{
 				mImgMaterial = NULL;
 			}
+
+			/**
+			 * Destructor, deallocates image material
+			 */
 			~imgLoadScreen()
 			{
 				delete mImgMaterial;

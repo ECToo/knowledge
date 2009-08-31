@@ -46,6 +46,10 @@ namespace k
 			 * @param matName The sticker material.
 			 */
 			sticker(const std::string& matName);
+
+			/**
+			 * Destructor
+			 */
 			~sticker();
 
 			/**

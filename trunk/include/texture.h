@@ -24,6 +24,9 @@
 
 namespace k
 {
+	/**
+	 * Texture coordinate types.
+	 */
 	enum TextureCoordType 
 	{
 		TEXCOORD_NONE,
@@ -37,6 +40,9 @@ namespace k
 		TEXCOORD_TANGENT
 	};
 
+	/**
+	 * Ordering of cube textures.
+	 */
 	enum CubeTextureOrdering
 	{
 		CUBE_FRONT,
@@ -47,6 +53,9 @@ namespace k
 		CUBE_DOWN
 	};
 
+	/**
+	 * Texture flags
+	 */
 	enum TextureFlags
 	{
 		FLAG_REPEAT_S = 0,
@@ -60,6 +69,9 @@ namespace k
 		FLAG_CLAMP_R,
 	};
 
+	/**
+	 * Texture formats
+	 */
 	enum TextureFormats
 	{
 		TEX_NONE,

@@ -89,8 +89,15 @@ namespace k
 			 * instantiated by the root
 			 */
 			inputManager();
+			
+			/**
+			 * Destructor
+			 */
 			~inputManager();
 
+			/**
+			 * Return the inputManager singleton instance.
+			 */
 			static inputManager& getSingleton();
 
 			/**

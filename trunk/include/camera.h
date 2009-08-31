@@ -27,6 +27,9 @@
 
 namespace k
 {
+	/**
+	 * Frustum planes
+	 */
 	enum frustumPlanes
 	{
 		PLANE_NEAR = 0,

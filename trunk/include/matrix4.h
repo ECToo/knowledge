@@ -30,6 +30,8 @@ namespace k
 {
 	/**
 	 * \brief Handles 4x4 matrixes. Still WIP
+	 * You can access matrix data by calling matrixName.m[x][y] where x is the column
+	 * and y the row.
 	 */
 	class DLL_EXPORT matrix4
 	{
@@ -94,6 +96,10 @@ namespace k
 				return newM;
 			}
 
+			/**
+			 * Copy source matrix to this one.
+			 * @param[in] mat source matrix.
+			 */
 			matrix4& operator= (matrix4 mat)
 			{
 				for (unsigned int row = 0; row < 4; row++)
@@ -107,6 +113,10 @@ namespace k
 				return *this;
 			}
 
+			/**
+			 * Multiply this matrix by another one.
+			 * @param[in] mat Matrix to multiply this one by.
+			 */
 			matrix4& operator*= (matrix4 mat)
 			{
 				matrix4 temp;

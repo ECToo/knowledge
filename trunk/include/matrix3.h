@@ -24,7 +24,9 @@
 namespace k
 {
 	/**
-	 * \brief Handles 3x3 matrixes. Still WIP
+	 * \brief Handles 3x3 matrixes. Still WIP.
+	 * You can access matrix data by calling matrixName.m[x][y] where x is the column
+	 * and y the row.
 	 */
 	class DLL_EXPORT matrix3
 	{
@@ -78,6 +80,10 @@ namespace k
 				return newM;
 			}
 
+			/**
+			 * Copy Source matrix to this one.
+			 * @param[in] mat Source matrix.
+			 */
 			matrix3& operator= (matrix3 mat)
 			{
 				for (unsigned int row = 0; row < 3; row++)
