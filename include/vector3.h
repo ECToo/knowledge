@@ -23,8 +23,7 @@
 namespace k
 {
 	/**
-	 * vector3 Class
-	 * Used to hold 3d coordinates
+	 * \brief Hold 3d coordinates
 	 */
 	class DLL_EXPORT vector3 
 	{

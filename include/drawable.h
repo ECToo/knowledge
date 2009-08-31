@@ -26,7 +26,7 @@
 namespace k 
 {
 	/**
-	 * A virtual representation of a drawable 2D entity.
+	 * \brief A virtual representation of a drawable 2D entity.
 	 */
 	class DLL_EXPORT drawable2D
 	{
@@ -147,6 +147,10 @@ namespace k
 			virtual void draw() = 0;
 	};
 
+	/**
+	 * \brief Defines a rectangular region.
+	 * The bounding box defines a rectangular region in the space.
+	 */
 	class DLL_EXPORT boundingBox
 	{
 		private:
@@ -154,7 +158,16 @@ namespace k
 			vector3 mMaxs;
 
 		public:
+			/**
+			 * Creates a boundingBox with edges on zero.
+			 */
 			boundingBox();
+
+			/**
+			 * Creates a boundingBox with the edges set.
+			 * @param min The minimum point.
+			 * @param max The maximum point.
+			 */
 			boundingBox(const vector3& min, const vector3& max);
 
 			boundingBox operator + (const boundingBox& b);
@@ -163,21 +176,50 @@ namespace k
 			boundingBox operator - (const boundingBox& b);
 			boundingBox& operator -= (const boundingBox& b);
 
+			/**
+			 * Test if min is lower than the box minimum and set it if true.
+			 */
 			void setTestMins(const vector3& min);
+
+			/**
+			 * Test if max is greater than the box minimum and set it if true.
+			 */
 			void setTestMaxs(const vector3& max);
+
+			/**
+			 * Test if dist is lower than minimum and set minimum if true or if its
+			 * greater than maximum and set maximum if true.
+			 */
 			void setTest(const vector3& dist);
 
+			/**
+			 * Set box minimum.
+			 */
 			void setMins(const vector3& min);
+
+			/**
+			 * Set box maximum.
+			 */
 			void setMaxs(const vector3& max);
 
+			/**
+			 * Returns minimum
+			 */
 			const vector3& getMins() const;
+
+			/**
+			 * Returns maximum
+			 */
 			const vector3& getMaxs() const;
 
+			/**
+			 * Draw the bounding box edges.
+			 */
 			void draw() const;
 	};
 
 	/**
-	 * A virtual representation of a drawable 3D entity.
+	 * \brief A virtual representation of a drawable 3D entity.
 	 */
 	class DLL_EXPORT drawable3D
 	{

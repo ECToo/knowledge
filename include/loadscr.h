@@ -25,8 +25,7 @@
 namespace k
 {
 	/**
-	 * This class is only a interface for a load screen
-	 * implementation
+	 * \brief This class is only a interface for a load screen implementation
 	 */
 	class DLL_EXPORT loadScreen
 	{
@@ -36,7 +35,7 @@ namespace k
 	};
 
 	/**
-	 * A load screen with a background image
+	 * \brief A load screen with a background image.
 	 */
 	class DLL_EXPORT bgLoadScreen : public loadScreen
 	{
@@ -69,7 +68,7 @@ namespace k
 	};
 
 	/**
-	 * Load screen with a centered image.
+	 * \brief Load screen with a centered image.
 	 */
 	class DLL_EXPORT imgLoadScreen : public loadScreen
 	{

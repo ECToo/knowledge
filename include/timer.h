@@ -24,7 +24,7 @@
 namespace k
 {
 	/**
-	 * A high precision timer.
+	 * \brief A high precision timer.
 	 */
 	class DLL_EXPORT timer
 	{

@@ -89,9 +89,7 @@ namespace k
 		int version; // should read 0x2e in LE
 	} q3BspHeader;
 
-	/**
-	 * Describes a 'Lump' (member of map)
-	 */
+	// Describes a 'Lump' (member of map)
 	typedef struct
 	{
 		int offset;
@@ -220,9 +218,6 @@ namespace k
 		bool enclosedInSolid;
 	} q3BspTrace;
 
-	/**
-	 * This will be separated later
-	 */
 	class DLL_EXPORT bezierPatch
 	{
 		protected:

@@ -40,7 +40,8 @@ namespace k
 	};
 
 	/**
-	 * Camera class, controls the transformation and views
+	 * \brief Controls the rendering and transformations on the view.
+	 * Controls the transformation and views
 	 * of active renderer scenes. @see k::renderer
 	 */
 	class DLL_EXPORT camera

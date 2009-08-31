@@ -22,6 +22,11 @@
 
 namespace k
 {
+	/**
+	 * \brief Creates unique instances of other object types.
+	 * The singleton class is responsible for letting classes only
+	 * have one instance per-program-execution of them.
+	 */
 	template <typename T> class DLL_EXPORT singleton
 	{
 		protected:

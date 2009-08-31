@@ -24,7 +24,7 @@
 namespace k
 {
 	/**
-	 * Handles 3x3 matrixes. Still WIP
+	 * \brief Handles 3x3 matrixes. Still WIP
 	 */
 	class DLL_EXPORT matrix3
 	{

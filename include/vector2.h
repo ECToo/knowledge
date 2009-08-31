@@ -23,8 +23,7 @@
 namespace k
 {
 	/**
-	 * Vector2 Class
-	 * Used to hold 2d coordinates
+	 * \brief Hold 2d coordinates
 	 */
 	class DLL_EXPORT vector2 
 	{

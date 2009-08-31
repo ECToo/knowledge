@@ -25,7 +25,7 @@
 namespace k {
 
 /**
- * A class to parse script files.
+ * \brief A class to parse script files.
  * This class will parse a script (ascii text mode) file in wich
  * components are separated by white spaces, new line or tabs. The parser
  * will ignore // comments.

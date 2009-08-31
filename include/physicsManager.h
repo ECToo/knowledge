@@ -44,10 +44,6 @@ namespace k
 	typedef void(*mCallFunc_t)(void*, dGeomID,dGeomID);
 	void defaultCollision(void*, dGeomID, dGeomID);
 
-	/**
-	 * A physic representation of some object - base class.
-	 * @deprecated This will go out of the engine for something more complete.
-	 */
 	class DLL_EXPORT physicObject
 	{
 		protected:
@@ -141,9 +137,6 @@ namespace k
 			}
 	};
 
-	/**
-	 * @deprecated This will go out of the engine for something more complete.
-	 */
 	class DLL_EXPORT physicSphere : public physicObject
 	{
 		private:
@@ -154,9 +147,6 @@ namespace k
 			~physicSphere();
 	};
 
-	/**
-	 * @deprecated This will go out of the engine for something more complete.
-	 */
 	class DLL_EXPORT physicBox : public physicObject
 	{
 		private:
@@ -167,9 +157,6 @@ namespace k
 			~physicBox();
 	};
 
-	/**
-	 * @deprecated This will go out of the engine for something more complete.
-	 */
 	class DLL_EXPORT physicTriMesh : public physicObject
 	{
 		public:
@@ -192,9 +179,6 @@ namespace k
 		SPACETYPE_HASH
 	} spaceType_t;
 
-	/**
-	 * @deprecated This will go out of the engine for something more complete.
-	 */
 	class DLL_EXPORT physicsManager : public singleton<physicsManager>
 	{
 		private:

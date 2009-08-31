@@ -23,16 +23,6 @@
 
 namespace k {
 
-/*
-template<> fontManager* singleton<fontManager>::singleton_instance = 0;
-
-fontManager& fontManager::getSingleton()
-{  
-	kAssert(singleton_instance);
-	return (*singleton_instance);  
-}
-*/
-
 // Helper function
 int readEndianSafeInt(FILE* f)
 {

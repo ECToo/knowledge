@@ -25,9 +25,9 @@ namespace k
 {
 
 /**
- * A class to make game states. Shouldn't be used by itself, only derived.
+ * \brief A class to make game states. Shouldn't be used by itself, only derived.
  */
-class gameState 
+class DLL_EXPORT gameState 
 {
 	public:
 		virtual ~gameState() {}
@@ -58,7 +58,7 @@ class gameState
  * \brief The stateManager singleton.
  * This class is used to handle gameState 's.
  */
-class stateManager : public k::singleton<stateManager>
+class DLL_EXPORT stateManager : public k::singleton<stateManager>
 {
 	protected:
 		std::map<std::string, gameState*> mStates;

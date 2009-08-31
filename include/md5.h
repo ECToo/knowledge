@@ -141,6 +141,11 @@ typedef struct
 	index_t index[3];
 } triangle_t;
 
+/**
+ * \brief Handle submeshes (md5mesh) of md5model.
+ * This class is responsible for handling and controlling
+ * submeshes of the md5model class.
+ */
 class DLL_EXPORT md5mesh
 {
 	private:
@@ -229,6 +234,9 @@ class DLL_EXPORT md5mesh
 		void draw();
 };
 
+/**
+ * \brief Handle md5 models.
+ */
 class DLL_EXPORT md5model : public drawable3D
 {
 	private:
