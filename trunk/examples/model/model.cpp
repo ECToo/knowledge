@@ -208,7 +208,7 @@ int main(int argc, char** argv)
 	try
 	{
 		fpsText = new k::bitmapText("fonts/cube_14.dat", "cube_14");
-		fpsText->setPosition(k::vector2(4, 10));
+		fpsText->setPosition(k::vector2(10, 15));
 		mRenderer->push2D(fpsText);
 	}
 
@@ -451,7 +451,12 @@ int main(int argc, char** argv)
 			tempLight2->setPosition(k::vector3(-20, 0, 50) + modelPosition);
 
 		std::stringstream fpsT;
-		fpsT << "fps: " << mRenderer->getLastFps();
+		fpsT << "fps: " << mRenderer->getLastFps() << std::endl; 
+		fpsT << "press v to toggle vertex lighting" << std::endl;
+		fpsT << "press e to toggle vertex wireframe" << std::endl;
+		fpsT << "press a/z to zoom" << std::endl;
+		fpsT << "press i,j,k,l to rotate model" << std::endl;
+		fpsT << "press arrows to change animations" << std::endl;
 		fpsText->setText(fpsT.str());
 
 		mRenderer->draw();
