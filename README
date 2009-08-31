@@ -1,32 +1,48 @@
-Well, this isnt ready yet, but since mk2 pointed out, here are some 
-stuff you need to know.
+============================
+Knowledge, 0.1 release.
+============================
 
-1- This isnt complete, so you take your own risks for using it.
-2- You are going to need libpng, libjpeg, zlib, libfat, libogc and for the physics demo, libode for WII
-3- The code is subject to API breakage.
-4- Most of the stuff just work, if it doesnt tell me in romulo [at] castorgroup [dot] net
-or abra185 |at| yahoo |.| com
-5- Thanks for testing, i hope we all do a great job =]
+Overview:
+Knowledge is an engine i been creating in my spare time since August, 31 of 2008. The goal is to make a practical and fast engine where developers can feel comfortable and do things in a organized way. The engine features over 40.000 lines of C/C++/ASM code, its multi platform, contains abstraction to common objects (sprites, models, particles), hardware acceleration for 3D operations and dynamic data type loaders. The full source is organized and documented in both Doxygen and html manuals. Thanks for looking for knowledge and if possible, let me know about your bugs and general usage experience. 
 
-To compile for wii just do make -f Makefile.wii
-with the proper DEVKITPPC and DEVKITPRO environment variables 
-set. 
 
-== to build on MS Windows ==
+=====================
+Install Instructions
+=====================
 
-I only prepared projects for codeblocks since it is small and free. You
-should find all projects in knowledge_root/projects and it should be pretty easy to compile (hit build on cb). 
-What i am worried are the dependencies, here are the ones i used:
+The engine isnt complete yet, so if you have some bugs, please let me know
+on knowledge site -> http://code.google.com/p/knowledge
 
-pthreads-w32-2-8-0-release
-FreeImage
-SDL
-ODE
-GLEW
+------------------------------------------
+Instructions to compile knowledge on Wii:
+------------------------------------------
 
-I compiled every one of them using codeblocks and it just worked. If you are having any problems, feel free to contact me.
-Those dependencies are included now with knowledge latest code, check it out ;)
+- You are going to need libpng, libjpeg, zlib, libfat and libogc
+- Enter knowledge directory and execute make -f Makefile.wii with the proper DEVKITPPC and DEVKITPRO environment variables set. 
+
+------------------------------------------
+Instructions to compile knowledge on Windows:
+------------------------------------------
+
+I only prepared projects for codeblocks since it is small and free. You should find a knowledge workspace in 
+knowledge_root/projects/codeblocks_win32/ and you will just need to hit Build. Dependencies are already included.
+
+
+------------------------------------------
+Instructions to compile knowledge on GNU/Linux:
+------------------------------------------
+
+You just need to run ./autogen.sh and then ./configure && make on the knowledge root directory.
+Knowledge will look for dependencies using pkgconfig so make sure you have it. The following dependencies are needed:
+
+-FreeImage
+-SDL
+-ODE (for physics demo)
+-Glew
+
+
+Again, Thanks for using knowledge!
 
 Sincerely,
-Romulo Fernandes.
+Rômulo Fernandes, knowledge creator.
 
