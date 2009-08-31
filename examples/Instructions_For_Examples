@@ -1,0 +1,7 @@
+Here are some instructions to run knowledge demos.
+
+1) Make sure binaries are in their proper folders or in a folder called "examples/bin/"
+2) Drop all dlls (if you are on windows) on the binaries folder.
+3) On nintendo wii, create a folder on your SD card root called knowledge, drop the entire examples folder content there.
+
+
