@@ -27,6 +27,8 @@
 namespace k 
 {
 	/**
+	 * \brief Automatic oriented (always facing camera) finite planes with textures.
+	 *
 	 * The sprite is a special class because it is
 	 * directly connected to the scene camera to archieve
 	 * its orientation. Keep in mind that sprites

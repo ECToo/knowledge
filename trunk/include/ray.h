@@ -25,7 +25,11 @@
 
 namespace k
 {
-	class ray
+	/**
+	 * \brief Casting rays for collision tests.
+	 * Rays are used to execute collision tests against boxes, spheres, triangles, etc.
+	 */
+	class DLL_EXPORT ray
 	{
 		protected:
 			vector3 mOrigin;

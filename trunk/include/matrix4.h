@@ -29,7 +29,7 @@
 namespace k
 {
 	/**
-	 * This class handles 4x4 matrixes. Still WIP
+	 * \brief Handles 4x4 matrixes. Still WIP
 	 */
 	class DLL_EXPORT matrix4
 	{

@@ -26,8 +26,7 @@
 namespace k
 {
 	/**
-	 * quaternion Class
-	 * Used to hold 4d coordinates
+	 * \brief Quaternions are used to save and transform rotations on space.
 	 */
 	class DLL_EXPORT quaternion 
 	{

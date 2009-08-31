@@ -61,7 +61,10 @@ typedef struct
 	float axis[3][3];
 } md3Tag_t;
 
-class md3Tag
+/**
+ * \brief Handle md3 tags.
+ */
+class DLL_EXPORT md3Tag
 {
 	public:
 		std::string mName;
@@ -154,7 +157,10 @@ typedef struct
 	int indices[3];
 } md3Triangle_t;
 
-class md3Triangle
+/**
+ * \brief Handle md3 triangles.
+ */
+class DLL_EXPORT md3Triangle
 {
 	public:
 		index_t indices[3];
@@ -169,7 +175,10 @@ class md3Triangle
 		}
 };
 
-class md3TexCoord_t
+/**
+ * \brief Handles md3 texture coordinates.
+ */
+class DLL_EXPORT md3TexCoord_t
 {
 	public:
 		vector2 uv;
@@ -201,11 +210,12 @@ typedef struct
 } md3Vertex_t;
 
 /**
+ * \brief Handle real vertexes from md3 ones.
  * This should be the real vertex 
  * used by the engine, from md3Vertex
  * and md3TexCoord.
  */
-class md3RealVertex
+class DLL_EXPORT md3RealVertex
 {
 	public:
 		vector3 pos;
@@ -229,10 +239,6 @@ class md3RealVertex
 		}
 };
 
-/**
- * This structure hold an "animation"
- * definition for the md3 model. 
- */
 typedef struct
 {
 	std::string name;
@@ -242,6 +248,13 @@ typedef struct
 	unsigned int framesPerSecond;
 } md3Animation_t;
 
+/**
+ * \brief A submesh contained in md3model.
+ *
+ * This class handles the submesh (called md3Surface)
+ * in a md3model. It is responsible for transformations,
+ * drawing and operations on the mesh.
+ */
 class DLL_EXPORT md3Surface
 {
 	protected:
@@ -457,6 +470,11 @@ class DLL_EXPORT md3Surface
 		void trace(ray& traceRay, short frameNum) const;
 };
 
+/**
+ * \brief A md3 model representation.
+ * This class handles operations and drawing of
+ * md3 models.
+ */
 class DLL_EXPORT md3model : public drawable3D
 {
 	protected:

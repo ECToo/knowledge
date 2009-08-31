@@ -43,8 +43,7 @@ namespace k
 	} doom3Glyph;
 
 	/**
-	 * Base class for text drawing, where we 
-	 * derive the providers from.
+	 * \brief Base class for text drawing, where we derive the providers from.
 	 */
 	class DLL_EXPORT baseText
 	{
@@ -53,7 +52,7 @@ namespace k
 	};
 
 	/**
-	 * A 2D text drawer based on iD Software Doom 3 bitmap font format.
+	 * \brief A 2D text drawer based on iD Software Doom 3 bitmap font format.
 	 */
 	class DLL_EXPORT bitmapText : public baseText, public drawable2D
 	{
@@ -88,38 +87,6 @@ namespace k
 			 */
 			void draw();
 	};
-
-	/*
-	class bitmapProvider : public fontProvider
-	{
-		private:
-			std::map<doom3Font, int> mBitmaps;
-
-		public:
-			bitmapProvider(const char* file);
-			void drawText(int size, const std::string& text);
-	};
-
-	class fontManager : public singleton<fontManager>
-	{
-		protected:
-			std::map<fontProvider*, std::string> mProviders;
-
-		public:
-			fontManager()
-			{
-				mProviders.clear();
-			}
-
-			~fontManager();
-
-			// Return the singleton
-			static fontManager& getSingleton();
-
-			void loadFont(const std::string& filename);
-			void selectFont(const std::string& fontName);
-	};
-	*/
 }
 
 #endif

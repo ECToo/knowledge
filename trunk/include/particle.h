@@ -70,7 +70,7 @@ namespace particle
 	};
 
 	/**
-	 * Defines a particle or particle system location.
+	 * \brief Defines a particle or particle system location.
 	 * It also supports parenting, so affectors and emitters
 	 * can offset from original particle system position.
 	 */
@@ -111,7 +111,7 @@ namespace particle
 	};
 
 	/**
-	 * Particle class.
+	 * \brief Particle representation.
 	 */
 	class DLL_EXPORT particle : public location
 	{
@@ -236,6 +236,9 @@ namespace particle
 			void draw(sprite* spr);
 	};
 
+	/**
+	 * \brief Particle containers.
+	 */
 	class DLL_EXPORT container
 	{
 		protected:
@@ -320,6 +323,11 @@ namespace particle
 			void draw();
 	};
 
+	/**
+	 * \brief This class is responsible for emitting particles.
+	 * This class cant be used by itself, instead you should derivate
+	 * a emitter type of it.
+	 */
 	class DLL_EXPORT emitter : public location
 	{
 		protected:
@@ -382,6 +390,9 @@ namespace particle
 			virtual const boundingBox getAABB() const = 0;
 	};
 	
+	/**
+	 * \brief Emits particles from a space point.
+	 */
 	class DLL_EXPORT pointEmitter : public emitter
 	{
 		protected:
@@ -401,6 +412,7 @@ namespace particle
 	};
 
 	/**
+	 * \brief Emits particles from a space finite plane.
 	 * The plane emitter uses a finite plane
 	 * (defined by 4 vertexes) to generate particles.
 	 * Each particle is positioned somewhere randomly
@@ -432,6 +444,10 @@ namespace particle
 			const boundingBox getAABB() const;
 	};
 
+	/**
+	 * \brief Affects particles in many ways. 
+	 * This class dont work by itself, it should be derivated.
+	 */
 	class DLL_EXPORT affector : public location
 	{
 		protected:
@@ -456,7 +472,7 @@ namespace particle
 	};
 
 	/**
-	 * Affect particle parameter in a linear fashion.
+	 * \brief Affect particle parameter in a linear fashion.
 	 */
 	class DLL_EXPORT linearAffector : public affector
 	{
@@ -464,6 +480,9 @@ namespace particle
 			void interact(particle* p);
 	};
 
+	/**
+	 * \brief Base particle System.
+	 */
 	class DLL_EXPORT system : public location, public container
 	{
 		protected:
@@ -555,6 +574,9 @@ namespace particle
 			void drawBounds();
 	};
 
+	/**
+	 * \brief Controls the emission and life of particles.
+	 */
 	class DLL_EXPORT manager : public singleton<manager>
 	{
 		protected:

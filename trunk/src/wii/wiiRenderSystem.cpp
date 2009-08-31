@@ -820,7 +820,7 @@ void wiiRenderSystem::endVertices()
 
 		if (renderColors)
 		{
-			GX_Color3f32(mColors[index].x, mColors[index].y, mColors[index].z);
+			GX_Color3f32(mColors[index].r, mColors[index].g, mColors[index].b);
 		}
 
 		if (renderNormals)

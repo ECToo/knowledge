@@ -31,6 +31,11 @@
 
 namespace k
 {
+	/**
+	 * \brief The global renderer, father of all objects.
+	 * The renderer is responsible for drawing objects, the scenarios
+	 * and Skyplanes, Background, Boxes.
+	 */
 	class DLL_EXPORT renderer : public singleton<renderer>
 	{
 		private:

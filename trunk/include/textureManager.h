@@ -32,7 +32,7 @@ namespace k
 	typedef std::map<int, texture*> textureHash;
 
 	/**
-	 * The textureManager is responsible for handling texture loading and data allocation.
+	 * \brief Handling texture loading and data allocation.
 	 */
 	class DLL_EXPORT textureManager : public singleton<textureManager>
 	{

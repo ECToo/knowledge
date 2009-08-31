@@ -36,6 +36,9 @@ namespace k
 		LOAD_SCRIPTS
 	};
 
+	/**
+	 * \brief A group in resource manager, please check resource manager documentation.
+	 */
 	class DLL_EXPORT resourceGroup
 	{
 		private:
@@ -60,6 +63,10 @@ namespace k
 			void filterResource(const std::string& path, bool material);
 	};
 
+	/**
+	 * \brief Responsible for automatically load and unload resources from disk.
+	 * Please check the resource manager documentation.
+	 */
 	class DLL_EXPORT resourceManager : public singleton<resourceManager>
 	{
 		private:

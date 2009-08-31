@@ -41,6 +41,8 @@ enum lightSources
 };
 
 /**
+ * \brief A virtual light representation on knowledge.
+ *
  * Those represent vertex point lights. Keep in mind
  * that in future we will introduce pixel shaders
  * for OpenGL and DirectX render systems and those

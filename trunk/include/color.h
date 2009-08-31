@@ -23,7 +23,7 @@
 namespace k
 {
 	/**
-	 * Holds a 4 component (R,G,B,A) color.
+	 * \brief Holds a 4 component (R,G,B,A) color.
 	 */
 	class DLL_EXPORT color
 	{
