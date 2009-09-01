@@ -35,17 +35,17 @@ namespace k
 	/**
 	 * Helper function, returns if an string represents a number or not.
 	 */
-	extern bool isNumeric(const std::string& str);
+	extern bool DLL_EXPORT isNumeric(const std::string& str);
 	
 	/**
 	 * Helper function, returns a file extension.
 	 */
-	extern std::string getExtension(const std::string& file);
+	extern std::string DLL_EXPORT getExtension(const std::string& file);
 
 	/**
 	 * Helper function, returns the hash key for a filename
 	 */
-	extern unsigned int getHashKey(const std::string& filename);
+	extern unsigned int DLL_EXPORT getHashKey(const std::string& filename);
 
 	/**
 	 * \brief The root is the class responsible to look over other classes.
