@@ -55,6 +55,15 @@ distribution.
 #else
 	#define TIXML_EXPLICIT
 #endif
+		
+/**
+ * Looks like mingw require this
+ */
+#ifdef WIN32
+#define DLL_EXPORT __declspec(dllexport)
+#else
+#define DLL_EXPORT 
+#endif
 
 
 /*
@@ -64,7 +73,7 @@ distribution.
    The buffer allocation is made by a simplistic power of 2 like mechanism : if we increase
    a string and there's no more room, we allocate a buffer twice as big as we need.
 */
-class TiXmlString
+class DLL_EXPORT TiXmlString
 {
   public :
 	// The size type used
@@ -295,7 +304,7 @@ TiXmlString operator + (const char* a, const TiXmlString & b);
    TiXmlOutStream is an emulation of std::ostream. It is based on TiXmlString.
    Only the operators that we need for TinyXML have been developped.
 */
-class TiXmlOutStream : public TiXmlString
+class DLL_EXPORT TiXmlOutStream : public TiXmlString
 {
 public :
 
