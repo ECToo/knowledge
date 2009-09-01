@@ -760,6 +760,10 @@ void glRenderSystem::setLightAttenuation(unsigned int i, const vector3& att)
 			
 bool glRenderSystem::getPointSpriteSupport()
 {
+	// Detect ATI cards (broken POINT_SPRITE)
+	if (GL_ATI_vertex_array_object || GL_ATI_draw_buffers)
+		return false;
+
 	if (GLEW_ARB_point_sprite)
 		return true;
 	else
