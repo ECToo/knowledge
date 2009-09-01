@@ -34,7 +34,16 @@ sprite::sprite(material* mat, vec_t radi)
 {
 	kAssert(mat);
 
-	mRadius = radi;
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	if (rs->getPointSpriteSupport())
+	{
+		mRadius = radi;
+	}
+	else
+	{
+		mRadius = radi * (radi / rs->getScreenWidth());
+	}
+
 	mMaterial = mat;	
 	mInvalidTransPos = false;
 	mSpriteVisible = true;
@@ -45,7 +54,16 @@ sprite::sprite(material* mat, vec_t radi)
 
 sprite::sprite(const std::string& mat, vec_t radi)
 {
-	mRadius = radi;
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+	if (rs->getPointSpriteSupport())
+	{
+		mRadius = radi;
+	}
+	else
+	{
+		mRadius = radi * (radi / rs->getScreenWidth());
+	}
+
 	mMaterial = materialManager::getSingleton().getMaterial(mat);	
 	mInvalidTransPos = false;
 	mSpriteVisible = true;
@@ -76,19 +94,23 @@ void sprite::calculateTransPos()
 	vector3 sprZ = mCam->getPosition() - mPosition;
 	sprZ.normalize();
 
-	vector3 sprX = mCam->getRight().negate();
-	vector3 sprY = mCam->getUp();
+	k::vector3 tempUp = k::vector3::unit_y;
+	vector3 sprX = sprZ.crossProduct(tempUp);
+	sprX.normalize();
+
+	vector3 sprY = sprX.crossProduct(sprZ);
+	sprY.normalize();
 
 	mTransPos.m[0][0] = sprX.x;
-	mTransPos.m[1][0] = sprX.y;
-	mTransPos.m[2][0] = sprX.z;
+	mTransPos.m[0][1] = sprX.y;
+	mTransPos.m[0][2] = sprX.z;
 	
-	mTransPos.m[0][1] = sprY.x;
+	mTransPos.m[1][0] = sprY.x;
 	mTransPos.m[1][1] = sprY.y;
-	mTransPos.m[2][1] = sprY.z;
+	mTransPos.m[1][2] = sprY.z;
 	
-	mTransPos.m[0][2] = sprZ.x;
-	mTransPos.m[1][2] = sprZ.y;
+	mTransPos.m[2][0] = sprZ.x;
+	mTransPos.m[2][1] = sprZ.y;
 	mTransPos.m[2][2] = sprZ.z;
 
 	mTransPos.m[3][0] = mPosition.x;
@@ -139,9 +161,13 @@ void sprite::setRadius(vec_t rad)
 		if (rad > rs->getPointSpriteMaxSize())
 			S_LOG_INFO("Radius is greater than max supported sprite point size.");
 
+		mRadius = rad;
 	}
-
-	mRadius = rad;
+	else
+	{
+		// We need to convert screen coordinates to ranged sprite coordinates.
+		mRadius = rad * (rad / rs->getScreenWidth());
+	}
 }
 
 void sprite::invalidate()
@@ -193,28 +219,39 @@ void sprite::draw()
 
 	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 	rs->multMatrix(mTransPos);
-
-	// We dont need depth masking on this case
-	rs->setDepthMask(false);
+	rs->scaleScene(mRadius, mRadius, mRadius);
 
 	mMaterial->start();
+
+	// Culled sprites might not show, prevent it.
 	rs->setCulling(CULLMODE_NONE);
 
-	const vec_t uv[] ATTRIBUTE_ALIGN(32) = {0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0};
-	const vec_t vertex[] ATTRIBUTE_ALIGN(32) = {-mRadius, -mRadius, 0, mRadius, -mRadius, 0,
-		mRadius, mRadius, 0, mRadius, mRadius, 0, -mRadius, mRadius, 0,
-		-mRadius, -mRadius, 0 };
+	// Force depth test and disable depth mask.
+	rs->setDepthTest(true);
+	rs->setDepthMask(false);
 
-	const index_t index[] ATTRIBUTE_ALIGN(32) = {0, 1, 2, 3, 4, 5}; 
+	const vec_t uv[] ATTRIBUTE_ALIGN(32) = {
+		0, 1, 
+		0, 0, 
+		1, 0, 
+		1, 1 };
 
-	rs->clearArrayDesc();
+	const vec_t vertex[12] ATTRIBUTE_ALIGN(32) = {
+		1.0f, -1.0f, 0,
+		1.0f, 1.0f, 0,
+		-1.0f, 1.0f, 0,
+		-1.0f, -1.0f, 0 };
+
+	const index_t index[] ATTRIBUTE_ALIGN(32) = {0, 1, 2, 3}; 
+
+	rs->clearArrayDesc(VERTEXMODE_QUAD);
 	rs->setVertexArray(vertex);
-	rs->setVertexCount(6);
+	rs->setVertexCount(4);
 
 	rs->setTexCoordArray(uv);
 
 	rs->setVertexIndex(index);
-	rs->setIndexCount(6);
+	rs->setIndexCount(4);
 
 	rs->drawArrays();
 
