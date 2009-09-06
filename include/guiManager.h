@@ -35,6 +35,16 @@ namespace k
 		protected:
 			sticker* mCursor;
 
+			/**
+			 * Last cursor position.
+			 */
+			vector2 mCursorLastPos;
+
+			/**
+			 * Cursor Delta position.
+			 */
+			vector2 mCursorDeltaPos;
+
 		public:
 			/**
 			 * Controls the GUI System
@@ -62,15 +72,19 @@ namespace k
 			void setCursor(const std::string& mat, const vector2& scale);
 
 			/**
-			 * Set the position of cursor.
-			 * @param pos The new cursor position.
+			 * Returns the cursor position.
 			 */
-			void setCursorPos(const vector2& pos);
+			const vector2 getCursorPosition() const;
 
 			/**
-			 * Returns the cursor sticker, if the cursor wasnt created, returns NULL.
+			 * Returns the cursor movement since last frame.
 			 */
-			sticker* getCursor();
+			const vector2& getCursorDeltaPosition() const;
+
+			/**
+			 * Take care of events, handle elements and update cursor position.
+			 */
+			void update();
 	};
 }
 

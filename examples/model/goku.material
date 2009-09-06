@@ -1,5 +1,9 @@
 material gokuSkin
 {
+	ambient 0.5 0.5 0.5
+	diffuse 0.5 0.5 0.5
+	specular 0.5 0.5 0.5
+
 	texture
 	{
 		animname model/goku.png model/goku.png model/goku.png model/goku.png model/goku.png model/goku.png model/goku_blink.png 7

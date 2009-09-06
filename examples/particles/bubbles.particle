@@ -8,7 +8,7 @@ particleSystem "bubbles"
 	{
 		minVelocity 20 0 0
 		maxVelocity 20 0 0
-		radius 1.5
+		radius 30
 		spawnQuantity 30
 		spawnTime 100
 		lifeTime 2000
@@ -26,7 +26,7 @@ particleSystem "bubbles"
 	{
 		minVelocity -20 30 -20
 		maxVelocity 20 50 20
-		radius 8
+		radius 30.0
 		spawnQuantity 6
 		spawnTime 100
 		lifeTime 1000

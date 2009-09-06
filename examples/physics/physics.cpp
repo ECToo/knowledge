@@ -187,8 +187,6 @@ int main(int argc, char** argv)
 	delete newLoadingScreen;
 
 	mRenderer->setSkyPlane("skyPlane");
-
-	kAssert(mGuiManager);
 	mGuiManager->setCursor("wiiCursor3", k::vector2(32, 32));
 	
 	/**
@@ -267,9 +265,6 @@ int main(int argc, char** argv)
 			addRandomSphere();
 			rightHold = false;
 		}
-
-		k::vector2 mousePos = mInputManager->getWiiMotePosition(0);
-		mGuiManager->setCursorPos(mousePos);
 
 		// Physics Loop
 		mPhysicsManager->collideActiveSpace();

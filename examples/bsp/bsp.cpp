@@ -220,7 +220,6 @@ int main(int argc, char** argv)
 	}
 
 	mGuiManager->setCursor("wiiCursor3", k::vector2(32, 32));
-	mGuiManager->setCursorPos(k::vector2(mRenderSystem->getScreenWidth()/2, mRenderSystem->getScreenHeight()/2));	
 
 	bool L_Hold = false;
 	bool E_Hold = false;
@@ -234,9 +233,6 @@ int main(int argc, char** argv)
 		// User clicked on Close Window
 		if (mInputManager->getQuitEvent() || mInputManager->getKbdKeyDown(K_KBD_ESCAPE))
 			running = false;
-
-		// Feed Mouse
-		k::vector2 mousePos = mInputManager->getWiiMotePosition(0);
 
 		// Quit Application
 		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_HOME))
