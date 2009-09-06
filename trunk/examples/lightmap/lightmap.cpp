@@ -147,7 +147,6 @@ int main(int argc, char** argv)
 	bool leftHold = false;
 	bool lightmap = false;
 	vec_t camAngle = 0;
-	k::vector2 lastMousePos;
 
 	delete newLoadingScreen;
 
@@ -197,13 +196,11 @@ int main(int argc, char** argv)
 			leftHold = false;
 		}
 
-		k::vector2 mousePos = mInputManager->getWiiMotePosition(0);
+		k::vector2 cursorDelta = mGuiManager->getCursorDeltaPosition();
 		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_A))
 		{
-			k::vector2 mouseDiff = mousePos - lastMousePos;
-			
 			// relative mouse pos
-			camAngle += mouseDiff.x / 60.0f;
+			camAngle += cursorDelta.x / 60.0f;
 
 			k::vector3 camPos = newCamera->getPosition();
 			camPos.x = cos(camAngle) * CAM_DIST;
@@ -212,10 +209,7 @@ int main(int argc, char** argv)
 
 			newCamera->setPosition(camPos);
 			newCamera->lookAt(k::vector3(0, 0, 0));
-
-			lastMousePos = mInputManager->getWiiMotePosition(0);
 		}
-		mGuiManager->setCursorPos(mousePos);
 
 		// Set Demo FPS
 		std::stringstream fps;

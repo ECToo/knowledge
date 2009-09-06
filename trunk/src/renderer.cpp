@@ -18,6 +18,7 @@
 #include "renderer.h"
 #include "root.h"
 #include "logger.h"
+#include "guiManager.h"
 
 namespace k {
 
@@ -653,6 +654,9 @@ void renderer::draw()
 		rs->setViewPort(0, 0, rs->getScreenWidth(), rs->getScreenHeight());
 		mRenderToTexture = false;
 	}
+
+	// Update GUI Manager
+	guiManager::getSingleton().update();
 			
 	// Frames per Second 
 	if (mCalculateFps)

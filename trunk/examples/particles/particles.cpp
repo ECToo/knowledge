@@ -183,9 +183,6 @@ int main(int argc, char** argv)
 		fps << "FPS: " << mRenderer->getLastFps();
 		fpsText->setText(fps.str());
 
-		k::vector2 mousePos = mInputManager->getWiiMotePosition(0);
-		mGuiManager->setCursorPos(mousePos);
-
 		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_B))
 		{
 			leftHold = true;

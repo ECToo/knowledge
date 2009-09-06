@@ -16,6 +16,7 @@
 */
 
 #include "guiManager.h"
+#include "inputManager.h"
 #include "logger.h"
 #include "renderer.h"
 #include "root.h"
@@ -61,18 +62,30 @@ void guiManager::setCursor(const std::string& mat, const vector2& scale)
 		S_LOG_INFO("Failed to create cursor sticker.");
 	}
 }
+			
+const vector2 guiManager::getCursorPosition() const
+{
+	if (mCursor)
+		return mCursor->getAbsolutePosition();
+	else
+		return k::vector2(0,0);
+}
+			
+const vector2& guiManager::getCursorDeltaPosition() const
+{
+	return mCursorDeltaPos;
+}
 
-void guiManager::setCursorPos(const vector2& pos)
+void guiManager::update()
 {
 	if (mCursor)
 	{
-		mCursor->setPosition(pos);
-	}
-}
+		vector2 newPos = inputManager::getSingleton().getWiiMotePosition(0);
+		mCursorDeltaPos = newPos - mCursorLastPos;
+		mCursorLastPos = newPos;
 
-sticker* guiManager::getCursor()
-{
-	return mCursor;
+		mCursor->setPosition(mCursorLastPos);
+	}
 }
 
 }

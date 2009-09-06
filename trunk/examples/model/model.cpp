@@ -146,8 +146,8 @@ int main(int argc, char** argv)
 		newModel->attachAnimation("model/fly_f.md5anim", "runf");
 		newModel->attachAnimation("model/fly_b.md5anim", "runb");
 
-		newModel->setAnimation("runf");
-		newModel->setAnimationFrame(10);
+		newModel->setAnimation("idle");
+		newModel->setAnimationFrame(0);
 		mRenderer->push3D(newModel);
 
 		/*
@@ -223,10 +223,7 @@ int main(int argc, char** argv)
 	// Angles
 	int rX = 0;
 	int rY = 0;
-	int lastX = 0; 
-	int lastY = 0;
-	int dX = 0;
-	int dY = 0;
+	k::vector2 cursorDelta;
 
 	// Screenshot
 	bool oneHold = false;
@@ -385,25 +382,18 @@ int main(int argc, char** argv)
 		if (mInputManager->getKbdKeyDown(K_KBD_l) || mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_LEFT))
 			rX -= 1;
 
-		k::vector2 mousePos = mInputManager->getWiiMotePosition(0);
-		mGuiManager->setCursorPos(mousePos);
-
-		dX = mousePos.x - lastX;
-		dY = lastY - mousePos.y;
-
-		lastX = mousePos.x;
-		lastY = mousePos.y;
+		cursorDelta = mGuiManager->getCursorDeltaPosition();
 			
 		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_A))
 		{
-			rX += dX;
-			rY += dY;
+			rX += cursorDelta.x;
+			rY += cursorDelta.y;
 		}
 		else
 		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_B))
 		{
-			modelPosition.x += dX;
-			modelPosition.y += dY;
+			modelPosition.x += cursorDelta.x;
+			modelPosition.y += cursorDelta.y;
 		}
 
 		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_1) || mInputManager->getKbdKeyDown(K_KBD_F12))
