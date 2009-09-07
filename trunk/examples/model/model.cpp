@@ -219,6 +219,10 @@ int main(int argc, char** argv)
 	}
 
 	mGuiManager->setCursor("wiiCursor3", k::vector2(32, 32));
+	mGuiManager->setSkin("guiSkin", "guiDef.xml");
+
+	k::panel* newPanel = new k::panel(k::vector2(0, 0), k::vector2(370, 140));
+	mRenderer->push2D(newPanel);
 
 	// Angles
 	int rX = 0;

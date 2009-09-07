@@ -41,7 +41,24 @@ material* sticker::getMaterial()
 
 void sticker::draw()
 {
+	const vector2 mScale = mRectangle.getDimension();
+	const vector2 mPosition = mRectangle.getPosition();
+
+	if (mScale.x == 0 || mScale.y == 0)
+		return;
+
 	renderSystem* rs = root::getSingleton().getRenderSystem();
+
+	vector2 finalPos;
+	if (mPosition.x + mDrawRegionPos.x + mDrawRegionSize.x > mPosition.x + mScale.x)
+		finalPos.x = mPosition.x + mScale.x;
+	else
+		finalPos.x = mPosition.x + mDrawRegionPos.x + mDrawRegionSize.x;
+
+	if (mPosition.y + mDrawRegionPos.y + mDrawRegionSize.y > mPosition.y + mScale.y)
+		finalPos.y = mPosition.y + mScale.y;
+	else
+		finalPos.y = mPosition.y + mDrawRegionPos.y + mDrawRegionSize.y;
 
 	// Prepare the material
 	mMaterial->start();
@@ -50,17 +67,17 @@ void sticker::draw()
 	rs->setDepthMask(false);
 	rs->startVertices(VERTEXMODE_QUAD);
 
-	rs->texCoord(vector2(0.0f, 0.0f));
-	rs->vertex(vector3(mPosition.x, mPosition.y, -0.5));
+	rs->texCoord(vector2(mDrawRegionPos.x / mScale.x, mDrawRegionPos.y / mScale.y));
+	rs->vertex(vector3(mPosition.x + mDrawRegionPos.x, mPosition.y + mDrawRegionPos.y, -0.5));
 
-	rs->texCoord(vector2(1.0f, 0.0f));
-	rs->vertex(vector3(mPosition.x + mScale.x, mPosition.y, -0.5));
+	rs->texCoord(vector2((mDrawRegionPos.x + mDrawRegionSize.x) / mScale.x, mDrawRegionPos.y / mScale.y));
+	rs->vertex(vector3(finalPos.x, mPosition.y + mDrawRegionPos.y, -0.5));
 
-	rs->texCoord(vector2(1.0f, 1.0f));
-	rs->vertex(vector3(mPosition.x + mScale.x, mPosition.y + mScale.y, -0.5));
+	rs->texCoord(vector2((mDrawRegionPos.x + mDrawRegionSize.x) / mScale.x, (mDrawRegionPos.y + mDrawRegionSize.y) / mScale.y));
+	rs->vertex(vector3(finalPos.x, finalPos.y, -0.5));
 
-	rs->texCoord(vector2(0.0f, 1.0f));
-	rs->vertex(vector3(mPosition.x, mPosition.y + mScale.y, -0.5));
+	rs->texCoord(vector2(mDrawRegionPos.x / mScale.x, (mDrawRegionPos.y + mDrawRegionSize.y) / mScale.y));
+	rs->vertex(vector3(mPosition.x + mDrawRegionPos.x, finalPos.y, -0.5));
 
 	rs->endVertices();
 	rs->setDepthMask(true);

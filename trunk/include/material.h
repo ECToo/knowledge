@@ -182,9 +182,9 @@ namespace k
 
 			/**
 			 * Does this stage contains the texture?
-			 * @name The name of the texture we are checking against.
+			 * @tname The name of the texture we are checking against.
 			 */
-			bool containsTexture(const std::string& name) const;
+			bool containsTexture(const std::string& tname) const;
 
 			/**
 			 * Does this stage contains opaque textures?

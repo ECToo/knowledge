@@ -174,8 +174,6 @@ int main(int argc, char** argv)
 		
 	// Create a sticker ;)
 	texSticker = new k::sticker("rttMaterial");
-	kAssert(texSticker);
-
 	texSticker->setScale(k::vector2(128, 128));
 	
 	// Load textures

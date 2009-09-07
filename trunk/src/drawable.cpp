@@ -31,7 +31,7 @@ drawable2D::~drawable2D() {}
 
 void drawable2D::setPosition(const vector2& pos)
 {
-	mPosition = pos;
+	mRectangle.setPosition(pos);
 }
 
 void drawable2D::setRotation(const vec_t rot)
@@ -49,7 +49,15 @@ void drawable2D::setZ(vec_t z)
 
 void drawable2D::setScale(const vector2& size)
 {
-	mScale = size;
+	mRectangle.setDimension(size);
+	mDrawRegionSize = size;
+	mDrawRegionPos = vector2(0,0);
+}
+			
+void drawable2D::setVisibleArea(const vector2& position, const vector2& size)
+{
+	mDrawRegionPos = position;
+	mDrawRegionSize = size;
 }
 
 const vec_t drawable2D::getZ() const
@@ -71,9 +79,9 @@ const drawable2D* drawable2D::getRoot() const
 vector2 drawable2D::getAbsolutePosition() const
 {
 	if (mDrawableAttach)
-		return mDrawableAttach->getAbsolutePosition() + mPosition;
+		return mDrawableAttach->getAbsolutePosition() + mRectangle.getPosition();
 	else
-		return mPosition;
+		return mRectangle.getPosition();
 }
 
 vec_t drawable2D::getAbsoluteRotation() const
@@ -86,7 +94,7 @@ vec_t drawable2D::getAbsoluteRotation() const
 
 const vector2& drawable2D::getRelativePosition() const
 {
-	return mPosition;
+	return mRectangle.getPosition();
 }
 
 const vec_t drawable2D::getRelativeRotation() const
@@ -96,7 +104,7 @@ const vec_t drawable2D::getRelativeRotation() const
 
 const vector2& drawable2D::getDimension() const
 {
-	return mScale;
+	return mRectangle.getDimension();
 }
 
 boundingBox::boundingBox()

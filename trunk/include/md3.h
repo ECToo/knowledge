@@ -685,10 +685,10 @@ class DLL_EXPORT md3model : public drawable3D
 
 		/**
 		 * Get Model tag.
-		 * @name The Tag name.
+		 * @tname The Tag name.
 		 * @return A pair with the tag index and a pointer to the tag
 		 */
-		md3Tag* getTag(const std::string& name);
+		md3Tag* getTag(const std::string& tname);
 
 		/**
 		 * Set Drawing frame.
@@ -722,10 +722,10 @@ class DLL_EXPORT md3model : public drawable3D
 		 * Create an md3Animation_t. If the animation already
 		 * exists, it returns the current animation.
 		 *
-		 * @name The name of the new animation.
-		 * @return The animation with name @name or NULL on failure.
+		 * @aname The name of the new animation.
+		 * @return The animation with name @aname or NULL on failure.
 		 */
-		md3Animation_t* createAnimation(const std::string& name);
+		md3Animation_t* createAnimation(const std::string& aname);
 
 		/**
 		 * Insert a md3Animation into model animation list.
