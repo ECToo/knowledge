@@ -337,16 +337,16 @@ class DLL_EXPORT md5model : public drawable3D
 
 		/**
 		 * Loads an md5anim file and attach it to the list of model animations.
-		 * @name The animation name (how you call it from functions).
+		 * @mname The animation name (how you call it from functions).
 		 * @filename The md5anim file with FULL path.
 		 */
-		void attachAnimation(const std::string& filename, const std::string& name);
+		void attachAnimation(const std::string& filename, const std::string& mname);
 
 		/**
 		 * Set the model animation.
-		 * @name The previously attached animation name.
+		 * @aname The previously attached animation name.
 		 */
-		void setAnimation(const std::string& name);
+		void setAnimation(const std::string& aname);
 
 		/**
 		 * Define if the model animations

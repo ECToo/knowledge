@@ -26,18 +26,130 @@
 namespace k 
 {
 	/**
+	 * \brief A 2D Rectangle.
+	 */
+	class DLL_EXPORT rectangle
+	{
+		protected:
+			vector2 mPosition;
+			vector2 mDimension;
+
+		public:
+			/**
+			 * Create an empty dimensionless rectangle.
+			 */
+			rectangle() {}
+
+			/**
+			 * Create a rectangle.
+			 * @pos The rectangle position.
+			 * @size The rectangle dimensions.
+			 */
+			rectangle(const vector2& pos, const vector2& size)
+			{
+				mPosition = pos;
+				mDimension = size;
+			}
+
+			/**
+			 * Create a rectangle.
+			 */
+			rectangle(vec_t x, vec_t y, vec_t width, vec_t height)
+			{
+				mPosition.x = x;
+				mPosition.y = y;
+				mDimension.x = width;
+				mDimension.y = height;
+			}
+
+			/**
+			 * Set rectangle dimension.
+			 */
+			void setDimension(const vector2& dimension)
+			{
+				mDimension = dimension;
+			}
+
+			/**
+			 * Set rectangle position.
+			 */
+			void setPosition(const vector2& pos)
+			{
+				mPosition = pos;
+			}
+
+			/**
+			 * Returns rectangle position
+			 */
+			const vector2& getPosition() const
+			{
+				return mPosition;
+			}
+			
+			/**
+			 * Returns rectangle dimension
+			 */
+			const vector2& getDimension() const
+			{
+				return mDimension;
+			}
+
+			/**
+			 * Return rectangle position in x axis.
+			 */
+			vec_t x() const
+			{
+				return mPosition.x;
+			}
+
+			/**
+			 * Return rectangle position in y axis.
+			 */
+			vec_t y() const
+			{
+				return mPosition.y;
+			}
+
+			/**
+			 * Return rectangle width
+			 */
+			vec_t w() const
+			{
+				return mDimension.x;
+			}
+
+			/**
+			 * Return rectangle height
+			 */
+			vec_t h() const
+			{
+				return mDimension.y;
+			}
+
+			/**
+			 * Print rectangle information.
+			 */
+			void cout() const
+			{
+				printf("x: %f, y: %f\n", mPosition.x, mPosition.y);
+				printf("w: %f, h: %f\n", mDimension.x, mDimension.y);
+			}
+	};
+
+	/**
 	 * \brief A virtual representation of a drawable 2D entity.
 	 */
 	class DLL_EXPORT drawable2D
 	{
 		protected:
-			vector2 mPosition;
+			rectangle mRectangle;
 			vec_t mZ;
 
 			/**
-			 * Width x Height
+			 * Region to be drawn
 			 */
-			vector2 mScale;
+			vector2 mDrawRegionPos;
+			vector2 mDrawRegionSize;
 
 			/**
 			 * Rotation in degrees
@@ -77,11 +189,19 @@ namespace k
 			void setRotation(const vec_t rot);
 
 			/**
-			 * Set drawable scale.
+			 * Set drawable scale. Keep in mind that this will reset the draw
+			 * region to cover the full drawable area.
 			 *
 			 * @param size The new drawable dimensions in global coordinates (0, ScreenWidth/Height)
 			 */
 			void setScale(const vector2& size);
+
+			/**
+			 * Set the drawable draw area. The drawable material will not
+			 * be stretched to fit the area, instead it will be cut if the size
+			 * is smaller than the scale region.
+			 */
+			void setVisibleArea(const vector2& position, const vector2& size);
 
 			/**
 			 * Set drawable Z ordering factor.

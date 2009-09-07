@@ -42,4 +42,13 @@ material wiiCursor3
 	}
 }
 
+material guiSkin
+{
+	texture
+	{
+		filename guiSkin.png
+		texcoord uv
+		blendfunc srcalpha invsrcalpha
+	}
+}
 

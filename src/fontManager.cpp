@@ -158,15 +158,15 @@ void bitmapText::draw()
 
 	rs->startVertices(VERTEXMODE_QUAD);
 
-	vec_t x = mPosition.x;
-	vec_t y = mPosition.y;
+	vec_t x = mRectangle.getPosition().x;
+	vec_t y = mRectangle.getPosition().y;
 
 	for (unsigned int i = 0; i < mContents.length(); i++)
 	{
 		if (mContents[i] == '\n')
 		{
 			y += mMaxHeight;
-			x = mPosition.x;
+			x = mRectangle.getPosition().x;
 		}
 		else
 		{
