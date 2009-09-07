@@ -96,10 +96,14 @@ int main(int argc, char** argv)
 	k::resourceManager::getSingleton().loadGroup("model");
 	k::resourceManager::getSingleton().loadGroup("common");
 	k::resourceManager::getSingleton().loadGroup("skies");
+	
+	// Angles
+	int rX = 0;
+	int rY = 0;
 
 	// Load the Model
 	k::vector3 modelPosition;
-	modelPosition.z = -100;
+	modelPosition.z = -65;
 
 	// k::light::light* tempLight = NULL;
 	// k::light::light* tempLight2 = NULL;
@@ -145,6 +149,11 @@ int main(int argc, char** argv)
 		newModel->attachAnimation("model/idle.md5anim", "idle");
 		newModel->attachAnimation("model/fly_f.md5anim", "runf");
 		newModel->attachAnimation("model/fly_b.md5anim", "runb");
+
+		rY = -90;
+		rX = 20;
+
+		modelPosition.y -= 50;
 
 		newModel->setAnimation("idle");
 		newModel->setAnimationFrame(0);
@@ -209,6 +218,7 @@ int main(int argc, char** argv)
 	{
 		fpsText = new k::bitmapText("fonts/cube_14.dat", "cube_14");
 		fpsText->setPosition(k::vector2(10, 15));
+		fpsText->setZ(1);
 		mRenderer->push2D(fpsText);
 	}
 
@@ -221,12 +231,11 @@ int main(int argc, char** argv)
 	mGuiManager->setCursor("wiiCursor3", k::vector2(32, 32));
 	mGuiManager->setSkin("guiSkin", "guiDef.xml");
 
-	k::panel* newPanel = new k::panel(k::vector2(0, 0), k::vector2(370, 140));
+	k::panel* newPanel = new k::panel(k::vector2(0, 0), k::vector2(370, 130));
+	newPanel->setZ(0);
 	mRenderer->push2D(newPanel);
 
-	// Angles
-	int rX = 0;
-	int rY = 0;
+	//
 	k::vector2 cursorDelta;
 
 	// Screenshot

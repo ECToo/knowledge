@@ -116,6 +116,8 @@ namespace k
 			void callSignal(const std::string& sname, signalInfo_t info);
 	};
 
+	extern const char* DLL_EXPORT panelEdges[];	
+	
 	typedef enum
 	{
 		E_TOPLEFT,
@@ -138,14 +140,18 @@ namespace k
 	{
 		protected:
 			std::vector<drawable2D*> mChilds;
+
 			rectangle* mSkin[E_MAX_EDGES];
 			material* mSkinMaterial;
 			vector2 mSkinDimensions;
 
+			vector3* mVertices;
+			vector2* mUvs;
+
 			/**
 			 * Set panel skin data.
 			 */
-			void _setSkinData();
+			void _setSkinData(const char** skinNamesArray);
 
 		public:
 			/**
@@ -160,16 +166,7 @@ namespace k
 			 */
 			panel(const vector2& pos, const vector2& dimension);
 
-			virtual ~panel()
-			{
-				while (!mChilds.empty())
-				{
-					std::vector<drawable2D*>::iterator it = mChilds.begin();
-					delete (*it);
-					mChilds.erase(it);
-				}
-			}
-
+			virtual ~panel();
 			void draw();
 	};
 

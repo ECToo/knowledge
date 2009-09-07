@@ -25,6 +25,21 @@
 #include "tinyxml.h"
 
 namespace k {
+
+const char* panelEdges[] =
+{
+	"WindowTopLeft",
+	"WindowTopEdge",
+	"WindowTopRight",
+
+	"WindowLeftEdge",
+	"ClientBrush",
+	"WindowRightEdge",
+
+	"WindowBottomLeft",
+	"WindowBottomEdge",
+	"WindowBottomRight"
+};
 			
 void signalKeeper::connect(const std::string& sname, signalHandlerInfo_t* info)
 {
@@ -58,254 +73,285 @@ void signalKeeper::callSignal(const std::string& sname, signalInfo_t signalInfo)
 			
 panel::panel()
 {
-	_setSkinData();
+	mVertices = NULL;
+	mUvs = NULL;
+
+	_setSkinData(panelEdges);
 }
 
 panel::panel(const vector2& pos, const vector2& dimension)
 {
+	mVertices = NULL;
+	mUvs = NULL;
+
 	mRectangle = rectangle(pos, dimension);
-	_setSkinData();
+	_setSkinData(panelEdges);
+}
+
+panel::~panel()
+{
+	while (!mChilds.empty())
+	{
+		std::vector<drawable2D*>::iterator it = mChilds.begin();
+		delete (*it);
+		mChilds.erase(it);
+	}
+
+	if (mVertices)
+		free(mVertices);
+
+	if (mUvs)
+		free(mUvs);
 }
 			
-void panel::_setSkinData()
+void panel::_setSkinData(const char** skinNamesArray)
 {
 	guiManager* gui = &guiManager::getSingleton();
-	kAssert(gui);
 
 	mSkinMaterial = gui->getSkinMaterial();
 	mSkinDimensions = gui->getSkinDimensions();
 
-	mSkin[E_TOPLEFT] = gui->getSkinDefinition("WindowTopLeft");
-	mSkin[E_TOPRIGHT] = gui->getSkinDefinition("WindowTopRight");
-	mSkin[E_TOPMIDDLE] = gui->getSkinDefinition("WindowTopEdge");
+	bool missing = false;
+	for (int i = 0; i < E_MAX_EDGES; i++)
+	{
+		mSkin[i] = gui->getSkinDefinition(panelEdges[i]);
 
-	mSkin[E_LEFT] = gui->getSkinDefinition("WindowLeftEdge");
-	mSkin[E_RIGHT] = gui->getSkinDefinition("WindowRightEdge");
-	mSkin[E_MIDDLE] = gui->getSkinDefinition("ClientBrush");
+		if (!mSkin[i])
+		{
+			S_LOG_INFO("Missing skin component for panel skin " + std::string(panelEdges[i]));
+			missing = true;
+		}
+	}
+		
+	if (missing)
+		return;
 
-	mSkin[E_BOTTOMLEFT] = gui->getSkinDefinition("WindowBottomLeft");
-	mSkin[E_BOTTOMRIGHT] = gui->getSkinDefinition("WindowBottomRight");
-	mSkin[E_BOTTOMMIDDLE] = gui->getSkinDefinition("WindowBottomEdge");
+	if (!mVertices)
+		mVertices = (vector3*) memalign(32, sizeof(vector3) * 4 * 9);
+
+	if (!mUvs)
+		mUvs = (vector2*) memalign(32, sizeof(vector2) * 4 * 9);
+
+	if (!mVertices)
+	{
+		S_LOG_INFO("Failed to allocate widget vertices.");
+		return;
+	}
+
+	if (!mUvs)
+	{
+		S_LOG_INFO("Failed to allocate widget uvs.");
+		return;
+	}
+		
+	// Aux vars;
+	rectangle* rect = NULL;
+	rectangle* toprect = NULL;
+	rectangle* bottomrect = NULL;
+	rectangle* leftrect = NULL;
+	rectangle* rightrect = NULL;
+	vec_t x, y, w, h;
+
+	// Top Left
+	rect = mSkin[E_TOPLEFT];
+		
+	mUvs[0] = rect->getPosition();
+	mVertices[0] = vector3(0, 0, -0.5);
+
+	mUvs[1] = vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y);
+	mVertices[1] = vector3(rect->getDimension().x * mSkinDimensions.x, 0, -0.5);
+
+	mUvs[2] = vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y + rect->getDimension().y);
+	mVertices[2] = vector3(rect->getDimension().x * mSkinDimensions.x, rect->getDimension().y * mSkinDimensions.y, -0.5);
+
+	mUvs[3] = vector2(rect->getPosition().x, rect->getPosition().y + rect->getDimension().y);
+	mVertices[3] = vector3(0, rect->getDimension().y * mSkinDimensions.y, -0.5);
+
+	// Top Middle
+	leftrect = mSkin[E_TOPLEFT];
+	rightrect = mSkin[E_TOPRIGHT];
+	rect = mSkin[E_TOPMIDDLE];
+
+	x = leftrect->getDimension().x * mSkinDimensions.x;
+	w = mRectangle.getDimension().x - (rightrect->getDimension().x + leftrect->getDimension().x) * mSkinDimensions.x;
+
+	mUvs[4] = rect->getPosition();
+	mVertices[4] = vector3(x, 0, -0.5);
+
+	mUvs[5] = vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y);
+	mVertices[5] = vector3(x + w, 0, -0.5);
+
+	mUvs[6] = vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y + rect->getDimension().y);
+	mVertices[6] = vector3(x + w, rect->getDimension().y * mSkinDimensions.y, -0.5);
+
+	mUvs[7] = vector2(rect->getPosition().x, rect->getPosition().y + rect->getDimension().y);
+	mVertices[7] = vector3(x, rect->getDimension().y * mSkinDimensions.y, -0.5);
+
+	// Top Right
+	rect = mSkin[E_TOPRIGHT];
+	x = mRectangle.getDimension().x - rect->getDimension().x * mSkinDimensions.x;
+
+	mUvs[8] = rect->getPosition();
+	mVertices[8] = vector3(x, 0, -0.5);
+
+	mUvs[9] = vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y);
+	mVertices[9] = vector3(x + rect->getDimension().x * mSkinDimensions.x, 0, -0.5);
+
+	mUvs[10] = vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y + rect->getDimension().y);
+	mVertices[10] = vector3(x + rect->getDimension().x * mSkinDimensions.x, rect->getDimension().y * mSkinDimensions.y, -0.5);
+
+	mUvs[11] = vector2(rect->getPosition().x, rect->getPosition().y + rect->getDimension().y);
+	mVertices[11] = vector3(x, rect->getDimension().y * mSkinDimensions.y, -0.5);
+
+	// Bottom Left
+	rect = mSkin[E_BOTTOMLEFT];
+	y = mRectangle.getDimension().y - rect->getDimension().y * mSkinDimensions.y;
+
+	mUvs[12] = rect->getPosition();
+	mVertices[12] = vector3(0, y, -0.5);
+
+	mUvs[13] = vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y);
+	mVertices[13] = vector3(rect->getDimension().x * mSkinDimensions.x, y, -0.5);
+
+	mUvs[14] = vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y + rect->getDimension().y);
+	mVertices[14] = vector3(rect->getDimension().x * mSkinDimensions.x, y + rect->getDimension().y * mSkinDimensions.y, -0.5);
+
+	mUvs[15] = vector2(rect->getPosition().x, rect->getPosition().y + rect->getDimension().y);
+	mVertices[15] = vector3(0, y + rect->getDimension().y * mSkinDimensions.y, -0.5);
+
+	// Bottom Middle
+	leftrect = mSkin[E_BOTTOMLEFT];
+	rightrect = mSkin[E_BOTTOMRIGHT];
+	rect = mSkin[E_BOTTOMMIDDLE];
+
+	x = leftrect->getDimension().x * mSkinDimensions.x;
+	y = mRectangle.getDimension().y - rect->getDimension().y * mSkinDimensions.y;
+	w = mRectangle.getDimension().x - (rightrect->getDimension().x + leftrect->getDimension().x) * mSkinDimensions.x;
+
+	mUvs[16] = rect->getPosition();
+	mVertices[16] = vector3(x, y, -0.5);
+
+	mUvs[17] = vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y);
+	mVertices[17] = vector3(x + w, y, -0.5);
+
+	mUvs[18] = vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y + rect->getDimension().y);
+	mVertices[18] = vector3(x + w, y + rect->getDimension().y * mSkinDimensions.y, -0.5);
+
+	mUvs[19] = vector2(rect->getPosition().x, rect->getPosition().y + rect->getDimension().y);
+	mVertices[19] = vector3(x, y + rect->getDimension().y * mSkinDimensions.y, -0.5);
+
+	// Bottom Right
+	rect = mSkin[E_BOTTOMRIGHT];
+
+	x = mRectangle.getDimension().x - rect->getDimension().x * mSkinDimensions.x;
+	y = mRectangle.getDimension().y - rect->getDimension().y * mSkinDimensions.y;
+
+	mUvs[20] = rect->getPosition();
+	mVertices[20] = vector3(x, y, -0.5);
+
+	mUvs[21] = vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y);
+	mVertices[21] = vector3(x + rect->getDimension().x * mSkinDimensions.x, y, -0.5);
+
+	mUvs[22] = vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y + rect->getDimension().y);
+	mVertices[22] = vector3(x + rect->getDimension().x * mSkinDimensions.x, y + rect->getDimension().y * mSkinDimensions.y, -0.5);
+
+	mUvs[23] = vector2(rect->getPosition().x, rect->getPosition().y + rect->getDimension().y);
+	mVertices[23] = vector3(x, y + rect->getDimension().y * mSkinDimensions.y, -0.5);
+
+	// Middle Left
+	leftrect = mSkin[E_TOPLEFT];
+	rect = mSkin[E_LEFT];
+	bottomrect = mSkin[E_BOTTOMLEFT];
+
+	y = leftrect->getDimension().y * mSkinDimensions.y;
+	h = mRectangle.getDimension().y - y - (bottomrect->getDimension().y * mSkinDimensions.y);
+
+	mUvs[24] = rect->getPosition();
+	mVertices[24] = vector3(0, y, -0.5);
+
+	mUvs[25] = vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y);
+	mVertices[25] = vector3(rect->getDimension().x * mSkinDimensions.x, y, -0.5);
+
+	mUvs[26] = vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y + rect->getDimension().y);
+	mVertices[26] = vector3(rect->getDimension().x * mSkinDimensions.x, y + h, -0.5);
+
+	mUvs[27] = vector2(rect->getPosition().x, rect->getPosition().y + rect->getDimension().y);
+	mVertices[27] = vector3(0, y + h, -0.5);
+
+	// Middle
+	toprect = mSkin[E_TOPLEFT];
+	bottomrect = mSkin[E_BOTTOMMIDDLE];
+	leftrect = mSkin[E_LEFT];
+	rightrect = mSkin[E_RIGHT];
+	rect = mSkin[E_MIDDLE];
+
+	x = toprect->getDimension().x * mSkinDimensions.x;
+	y = toprect->getDimension().y * mSkinDimensions.y;
+
+	w = mRectangle.getDimension().x - (rightrect->getDimension().x + leftrect->getDimension().x) * mSkinDimensions.x;
+	h = mRectangle.getDimension().y - (bottomrect->getDimension().y + toprect->getDimension().y) * mSkinDimensions.y;
+
+	mUvs[28] = rect->getPosition();
+	mVertices[28] = vector3(x, y, -0.5);
+
+	mUvs[29] = vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y);
+	mVertices[29] = vector3(x + w, y, -0.5);
+
+	mUvs[30] = vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y + rect->getDimension().y);
+	mVertices[30] = vector3(x + w, y + h, -0.5);
+
+	mUvs[31] = vector2(rect->getPosition().x, rect->getPosition().y + rect->getDimension().y);
+	mVertices[31] = vector3(x, y + h, -0.5);
+
+	// Middle Right 
+	leftrect = mSkin[E_TOPRIGHT];
+	rect = mSkin[E_RIGHT];
+	bottomrect = mSkin[E_BOTTOMRIGHT];
+
+	x = mRectangle.getDimension().x - rect->getDimension().x * mSkinDimensions.x;
+	y = leftrect->getDimension().y * mSkinDimensions.y;
+	h = mRectangle.getDimension().y - y - (bottomrect->getDimension().y * mSkinDimensions.y);
+
+	mUvs[32] = rect->getPosition();
+	mVertices[32] = vector3(x, y, -0.5);
+
+	mUvs[33] = vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y);
+	mVertices[33] = vector3(x + rect->getDimension().x * mSkinDimensions.x, y, -0.5);
+
+	mUvs[34] = vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y + rect->getDimension().y);
+	mVertices[34] = vector3(x + rect->getDimension().x * mSkinDimensions.x, y + h, -0.5);
+
+	mUvs[35] = vector2(rect->getPosition().x, rect->getPosition().y + rect->getDimension().y);
+	mVertices[35] = vector3(x, y + h, -0.5);
 }
 
 void panel::draw()
 {
-	if (!mSkinMaterial)
+	if (!mSkinMaterial || !mUvs || !mVertices)
 		return;
 	
+	const index_t mIndices[] ATTRIBUTE_ALIGN(32) = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+		11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+		26, 27, 28, 29, 30, 31, 32, 33, 34, 35 };
+
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 
 	mSkinMaterial->start();
+
 	rs->setCulling(CULLMODE_NONE);
-
 	rs->setDepthMask(false);
-	rs->startVertices(VERTEXMODE_QUAD);
 
-	// Top Left
-	if (mSkin[E_TOPLEFT])
-	{
-		rectangle* rect = mSkin[E_TOPLEFT];
+	rs->clearArrayDesc(VERTEXMODE_QUAD);
+	rs->setVertexArray(mVertices[0].vec);
+	rs->setVertexCount(36);
 
-		rs->texCoord(rect->getPosition());
-		rs->vertex(vector3(0, 0, -0.5));
+	rs->setTexCoordArray(mUvs[0].vec);
+	rs->setVertexIndex(mIndices);
+	rs->setIndexCount(36);
 
-		rs->texCoord(vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y));
-		rs->vertex(vector3(rect->getDimension().x * mSkinDimensions.x, 0, -0.5));
+	rs->drawArrays();
 
-		rs->texCoord(vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y + rect->getDimension().y));
-		rs->vertex(vector3(rect->getDimension().x * mSkinDimensions.x, rect->getDimension().y * mSkinDimensions.y, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x, rect->getPosition().y + rect->getDimension().y));
-		rs->vertex(vector3(0, rect->getDimension().y * mSkinDimensions.y, -0.5));
-	}
-
-	// Top Middle
-	if (mSkin[E_TOPLEFT] && mSkin[E_TOPMIDDLE] && mSkin[E_TOPRIGHT])
-	{
-		rectangle* leftrect = mSkin[E_TOPLEFT];
-		rectangle* rightrect = mSkin[E_TOPRIGHT];
-		rectangle* rect = mSkin[E_TOPMIDDLE];
-
-		vec_t x = leftrect->getDimension().x * mSkinDimensions.x;
-		vec_t w = mRectangle.getDimension().x - (rightrect->getDimension().x + leftrect->getDimension().x) * mSkinDimensions.x;
-
-		rs->texCoord(rect->getPosition());
-		rs->vertex(vector3(x, 0, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y));
-		rs->vertex(vector3(x + w, 0, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y + rect->getDimension().y));
-		rs->vertex(vector3(x + w, rect->getDimension().y * mSkinDimensions.y, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x, rect->getPosition().y + rect->getDimension().y));
-		rs->vertex(vector3(x, rect->getDimension().y * mSkinDimensions.y, -0.5));
-	}
-
-	// Top Right
-	if (mSkin[E_TOPRIGHT])
-	{
-		rectangle* rect = mSkin[E_TOPRIGHT];
-
-		vec_t x = mRectangle.getDimension().x - rect->getDimension().x * mSkinDimensions.x;
-
-		rs->texCoord(rect->getPosition());
-		rs->vertex(vector3(x, 0, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y));
-		rs->vertex(vector3(x + rect->getDimension().x * mSkinDimensions.x, 0, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y + rect->getDimension().y));
-		rs->vertex(vector3(x + rect->getDimension().x * mSkinDimensions.x, rect->getDimension().y * mSkinDimensions.y, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x, rect->getPosition().y + rect->getDimension().y));
-		rs->vertex(vector3(x, rect->getDimension().y * mSkinDimensions.y, -0.5));
-	}
-
-	// Bottom Left
-	if (mSkin[E_BOTTOMLEFT])
-	{
-		rectangle* rect = mSkin[E_BOTTOMLEFT];
-		vec_t y = mRectangle.getDimension().y - rect->getDimension().y * mSkinDimensions.y;
-
-		rs->texCoord(rect->getPosition());
-		rs->vertex(vector3(0, y, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y));
-		rs->vertex(vector3(rect->getDimension().x * mSkinDimensions.x, y, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y + rect->getDimension().y));
-		rs->vertex(vector3(rect->getDimension().x * mSkinDimensions.x, y + rect->getDimension().y * mSkinDimensions.y, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x, rect->getPosition().y + rect->getDimension().y));
-		rs->vertex(vector3(0, y + rect->getDimension().y * mSkinDimensions.y, -0.5));
-	}
-
-	// Bottom Middle
-	if (mSkin[E_BOTTOMLEFT] && mSkin[E_BOTTOMMIDDLE] && mSkin[E_BOTTOMRIGHT])
-	{
-		rectangle* leftrect = mSkin[E_BOTTOMLEFT];
-		rectangle* rightrect = mSkin[E_BOTTOMRIGHT];
-		rectangle* rect = mSkin[E_BOTTOMMIDDLE];
-
-		vec_t x = leftrect->getDimension().x * mSkinDimensions.x;
-		vec_t y = mRectangle.getDimension().y - rect->getDimension().y * mSkinDimensions.y;
-		vec_t w = mRectangle.getDimension().x - (rightrect->getDimension().x + leftrect->getDimension().x) * mSkinDimensions.x;
-
-		rs->texCoord(rect->getPosition());
-		rs->vertex(vector3(x, y, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y));
-		rs->vertex(vector3(x + w, y, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y + rect->getDimension().y));
-		rs->vertex(vector3(x + w, y + rect->getDimension().y * mSkinDimensions.y, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x, rect->getPosition().y + rect->getDimension().y));
-		rs->vertex(vector3(x, y + rect->getDimension().y * mSkinDimensions.y, -0.5));
-	}
-
-	// Bottom Right
-	if (mSkin[E_BOTTOMRIGHT])
-	{
-		rectangle* rect = mSkin[E_BOTTOMRIGHT];
-
-		vec_t x = mRectangle.getDimension().x - rect->getDimension().x * mSkinDimensions.x;
-		vec_t y = mRectangle.getDimension().y - rect->getDimension().y * mSkinDimensions.y;
-
-		rs->texCoord(rect->getPosition());
-		rs->vertex(vector3(x, y, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y));
-		rs->vertex(vector3(x + rect->getDimension().x * mSkinDimensions.x, y, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y + rect->getDimension().y));
-		rs->vertex(vector3(x + rect->getDimension().x * mSkinDimensions.x, y + rect->getDimension().y * mSkinDimensions.y, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x, rect->getPosition().y + rect->getDimension().y));
-		rs->vertex(vector3(x, y + rect->getDimension().y * mSkinDimensions.y, -0.5));
-	}
-
-	// Middle Left
-	if (mSkin[E_LEFT] && mSkin[E_TOPLEFT] && mSkin[E_BOTTOMLEFT])
-	{
-		rectangle* leftrect = mSkin[E_TOPLEFT];
-		rectangle* rect = mSkin[E_LEFT];
-		rectangle* bottomrect = mSkin[E_BOTTOMLEFT];
-
-		vec_t y = leftrect->getDimension().y * mSkinDimensions.y;
-		vec_t h = mRectangle.getDimension().y - y - (bottomrect->getDimension().y * mSkinDimensions.y);
-
-		rs->texCoord(rect->getPosition());
-		rs->vertex(vector3(0, y, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y));
-		rs->vertex(vector3(rect->getDimension().x * mSkinDimensions.x, y, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y + rect->getDimension().y));
-		rs->vertex(vector3(rect->getDimension().x * mSkinDimensions.x, y + h, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x, rect->getPosition().y + rect->getDimension().y));
-		rs->vertex(vector3(0, y + h, -0.5));
-	}
-
-	// Middle
-	if (mSkin[E_TOPLEFT] && mSkin[E_BOTTOMMIDDLE] && mSkin[E_MIDDLE] &&
-		 mSkin[E_RIGHT] && mSkin[E_LEFT])
-	{
-		rectangle* toprect = mSkin[E_TOPLEFT];
-		rectangle* bottomrect = mSkin[E_BOTTOMMIDDLE];
-		rectangle* leftrect = mSkin[E_LEFT];
-		rectangle* rightrect = mSkin[E_RIGHT];
-		rectangle* rect = mSkin[E_MIDDLE];
-
-		vec_t x = toprect->getDimension().x * mSkinDimensions.x;
-		vec_t y = toprect->getDimension().y * mSkinDimensions.y;
-
-		vec_t w = mRectangle.getDimension().x - (rightrect->getDimension().x + leftrect->getDimension().x) * mSkinDimensions.x;
-		vec_t h = mRectangle.getDimension().y - (bottomrect->getDimension().y + toprect->getDimension().y) * mSkinDimensions.y;
-
-		rs->texCoord(rect->getPosition());
-		rs->vertex(vector3(x, y, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y));
-		rs->vertex(vector3(x + w, y, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y + rect->getDimension().y));
-		rs->vertex(vector3(x + w, y + h, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x, rect->getPosition().y + rect->getDimension().y));
-		rs->vertex(vector3(x, y + h, -0.5));
-	}
-
-	// Middle Right 
-	if (mSkin[E_RIGHT] && mSkin[E_TOPRIGHT] && mSkin[E_BOTTOMRIGHT])
-	{
-		rectangle* leftrect = mSkin[E_TOPRIGHT];
-		rectangle* rect = mSkin[E_RIGHT];
-		rectangle* bottomrect = mSkin[E_BOTTOMRIGHT];
-
-		vec_t x = mRectangle.getDimension().x - rect->getDimension().x * mSkinDimensions.x;
-		vec_t y = leftrect->getDimension().y * mSkinDimensions.y;
-		vec_t h = mRectangle.getDimension().y - y - (bottomrect->getDimension().y * mSkinDimensions.y);
-
-		rs->texCoord(rect->getPosition());
-		rs->vertex(vector3(x, y, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y));
-		rs->vertex(vector3(x + rect->getDimension().x * mSkinDimensions.x, y, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y + rect->getDimension().y));
-		rs->vertex(vector3(x + rect->getDimension().x * mSkinDimensions.x, y + h, -0.5));
-
-		rs->texCoord(vector2(rect->getPosition().x, rect->getPosition().y + rect->getDimension().y));
-		rs->vertex(vector3(x, y + h, -0.5));
-	}
-
-	rs->endVertices();
 	rs->setDepthMask(true);
-
-	// Finish
 	mSkinMaterial->finish();
 }
 
