@@ -30,3 +30,15 @@ material cube_14
 		blendfunc srcalpha invsrcalpha
 	}
 }
+
+material sansation_12
+{
+	cull none
+	texture
+	{
+		filename fonts/Sansation_0_12.png
+		texcoord uv
+		blendfunc srcalpha invsrcalpha
+	}
+}
+

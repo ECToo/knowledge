@@ -26,7 +26,7 @@
 
 namespace k {
 
-const char* panelEdges[] =
+const char* panelWidgetEdges[] =
 {
 	"WindowTopLeft",
 	"WindowTopEdge",
@@ -59,52 +59,51 @@ void signalKeeper::disconnect(const std::string& sname)
 	}
 }
 			
-void signalKeeper::callSignal(const std::string& sname, signalInfo_t signalInfo)
+bool signalKeeper::callSignal(const std::string& sname, signalInfo_t signalInfo)
 {
 	std::map<std::string, signalHandlerInfo_t*>::iterator sIt;
+	std::map<std::string, signalHandlerInfo_t*>::iterator lIt;
+
+	lIt = mInternalSignals.find(sname);
+	if (lIt != mInternalSignals.end())
+	{
+		signalHandlerInfo_t* info = lIt->second;
+
+		// Check if handler blocks the signal
+		if ((info->handler->*info->function)(signalInfo, info->userData))
+			return true;
+	}
 
 	sIt = mSignals.find(sname);
 	if (sIt != mSignals.end())
 	{
 		signalHandlerInfo_t* info = sIt->second;
-		(info->handler->*info->function)(signalInfo, info->userData);
+
+		// Check if handler blocks the signal
+		if ((info->handler->*info->function)(signalInfo, info->userData))
+			return true;
 	}
+
+	return false;
 }
 			
-panel::panel()
+bool widgetSkin::isPointerInside(const vector2& pos) const
 {
-	mVertices = NULL;
-	mUvs = NULL;
+	const vector2& rectPos = mRectangle.getPosition();
+	const vector2& rectDimension = mRectangle.getDimension();
 
-	_setSkinData(panelEdges);
-}
-
-panel::panel(const vector2& pos, const vector2& dimension)
-{
-	mVertices = NULL;
-	mUvs = NULL;
-
-	mRectangle = rectangle(pos, dimension);
-	_setSkinData(panelEdges);
-}
-
-panel::~panel()
-{
-	while (!mChilds.empty())
+	if (pos.x < rectPos.x || pos.x > (rectPos.x + rectDimension.x) ||
+		 pos.y < rectPos.y || pos.y > (rectPos.y + rectDimension.y))
 	{
-		std::vector<drawable2D*>::iterator it = mChilds.begin();
-		delete (*it);
-		mChilds.erase(it);
+		return false;
 	}
-
-	if (mVertices)
-		free(mVertices);
-
-	if (mUvs)
-		free(mUvs);
+	else
+	{
+		return true;
+	}
 }
-			
-void panel::_setSkinData(const char** skinNamesArray)
+
+void widgetSkin::setSkinData(const char** skinNamesArray)
 {
 	guiManager* gui = &guiManager::getSingleton();
 
@@ -114,11 +113,11 @@ void panel::_setSkinData(const char** skinNamesArray)
 	bool missing = false;
 	for (int i = 0; i < E_MAX_EDGES; i++)
 	{
-		mSkin[i] = gui->getSkinDefinition(panelEdges[i]);
+		mSkin[i] = gui->getSkinDefinition(panelWidgetEdges[i]);
 
 		if (!mSkin[i])
 		{
-			S_LOG_INFO("Missing skin component for panel skin " + std::string(panelEdges[i]));
+			S_LOG_INFO("Missing skin component for panelWidget skin " + std::string(panelWidgetEdges[i]));
 			missing = true;
 		}
 	}
@@ -325,7 +324,7 @@ void panel::_setSkinData(const char** skinNamesArray)
 	mVertices[35] = vector3(x, y + h, -0.5);
 }
 
-void panel::draw()
+void widgetSkin::drawWidgetSkin()
 {
 	if (!mSkinMaterial || !mUvs || !mVertices)
 		return;
@@ -353,6 +352,137 @@ void panel::draw()
 
 	rs->setDepthMask(true);
 	mSkinMaterial->finish();
+}
+
+bool widget::mousemove(signalInfo_t info, void* userData)
+{
+	signalInfo_t newInfo;
+	newInfo.mouseState.mPosition = info.mouseState.mPosition;
+	newInfo.mouseState.buttons = info.mouseState.buttons;
+	newInfo.key = info.key;
+
+	if (isPointerInside(info.mouseState.mPosition))
+	{
+		if (!mMouseIn)
+		{
+			newInfo.type = SIGNAL_MOUSEIN;
+
+			mMouseIn = true;
+			callSignal("mouseIn", newInfo);
+		}
+	}
+	else
+	{
+		if (mMouseIn)
+		{
+			newInfo.type = SIGNAL_MOUSEOUT;
+
+			mMouseIn = false;
+			callSignal("mouseOut", newInfo);
+		}
+	}
+
+	return false;
+}
+
+panelWidget::panelWidget() : widget()
+{
+	setSkinData(panelWidgetEdges);
+	_registerSignals();
+}
+
+panelWidget::panelWidget(const vector2& pos, const vector2& dimension) : widget()
+{
+	mRectangle = rectangle(pos, dimension);
+
+	setSkinData(panelWidgetEdges);
+	_registerSignals();
+}
+
+panelWidget::~panelWidget()
+{
+	while (!mChilds.empty())
+	{
+		std::vector<drawable2D*>::iterator it = mChilds.begin();
+		delete (*it);
+		mChilds.erase(it);
+	}
+}
+			
+void panelWidget::draw()
+{
+	// Only Draw panelWidget skin for now.
+	drawWidgetSkin();
+}
+
+void panelWidget::_registerSignals()
+{
+	// mouse move
+	try
+	{
+		signalHandlerInfo_t* info = new signalHandlerInfo_t;
+		info->handler = this;
+		info->function = (signalFunctionPtr)(&k::panelWidget::mousemove);
+		info->userData = NULL;
+
+		mInternalSignals["mouseMove"] = info;
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to register panel mousemove signal.");
+	}
+
+	// mouse in
+	try
+	{
+		signalHandlerInfo_t* info = new signalHandlerInfo_t;
+		info->handler = this;
+		info->function = (signalFunctionPtr)(&k::panelWidget::mousein);
+		info->userData = NULL;
+
+		mInternalSignals["mouseIn"] = info;
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to register panel mousein signal.");
+	}
+
+	// mouse out
+	try
+	{
+		signalHandlerInfo_t* info = new signalHandlerInfo_t;
+		info->handler = this;
+		info->function = (signalFunctionPtr)(&k::panelWidget::mouseout);
+		info->userData = NULL;
+
+		mInternalSignals["mouseOut"] = info;
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to register panel mousein signal.");
+	}
+}
+			
+bool panelWidget::mousein(signalInfo_t info, void* userData)
+{
+	printf("in\n");
+	return false;
+}
+
+bool panelWidget::mouseout(signalInfo_t info, void* userData)
+{
+	printf("out\n");
+	return false;
+}
+
+bool panelWidget::mousemove(signalInfo_t info, void* userData)
+{
+	widget::mousemove(info, userData);
+
+	return false;
 }
 
 template<> guiManager* singleton<guiManager>::singleton_instance = 0;
@@ -407,6 +537,12 @@ const vector2& guiManager::getCursorDeltaPosition() const
 {
 	return mCursorDeltaPos;
 }
+			
+void guiManager::pushWidget(widget* w)
+{
+	kAssert(w);
+	mWidgets.push_back(w);
+}
 
 void guiManager::update()
 {
@@ -417,6 +553,27 @@ void guiManager::update()
 		mCursorLastPos = newPos;
 
 		mCursor->setPosition(mCursorLastPos);
+	}
+		
+	// Send mouse moved event to all widgets where mouse is.
+	if (mCursorDeltaPos.x != 0 || mCursorDeltaPos.y != 0)
+	{
+		signalInfo_t newInfo;
+		newInfo.type = SIGNAL_MOUSEMOVE;
+		newInfo.mouseState.mPosition = mCursorLastPos;
+
+		// TODO: Get Buttons from inputManager
+		newInfo.mouseState.buttons = 0;
+
+		// TODO: Get Keys from inputManager
+		newInfo.key = 0;
+
+		std::vector<widget*>::iterator it;
+		for (it = mWidgets.begin(); it != mWidgets.end(); it++)
+		{
+			widget* w = (*it);
+			w->callSignal("mouseMove", newInfo);
+		}
 	}
 }
 			
