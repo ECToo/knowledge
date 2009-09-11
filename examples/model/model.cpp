@@ -236,6 +236,11 @@ int main(int argc, char** argv)
 	mGuiManager->pushWidget(newPanel);
 	mRenderer->push2D(newPanel);
 
+	k::buttonWidget* newButton = new k::buttonWidget(k::vector2(50, 50), k::vector2(120, 30));
+	newButton->setZ(1);
+	mGuiManager->pushWidget(newButton);
+	mRenderer->push2D(newButton);
+
 	//
 	k::vector2 cursorDelta;
 

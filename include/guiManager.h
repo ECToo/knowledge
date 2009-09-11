@@ -22,6 +22,7 @@
 #include "fileParser.h"
 #include "singleton.h"
 #include "sticker.h"
+#include "fontManager.h"
 
 namespace k
 {
@@ -36,6 +37,16 @@ namespace k
 		SIGNAL_KEYDOWN,
 		SIGNAL_KEYUP
 	} signalType_t;
+
+	/**
+	 * Widgets states
+	 */
+	typedef enum
+	{
+		STATE_NORMAL = 0,
+		STATE_HIGHLIGHTED,
+		STATE_PRESSED
+	} stateType_t;
 
 	/**
 	 * \brief Mouse/Pointer event params for gui signals.
@@ -128,6 +139,19 @@ namespace k
 			 */
 			bool callSignal(const std::string& sname, signalInfo_t info);
 	};
+
+	/**
+	 * \brief The type of the widget skin. Following types are accepted:
+	 * WIDGET_9 -> Use 9 images to make the skin, one for each corner and one for center.
+	 * WIDGET_3 -> Use 3 images to make the skin, left, middle and right.
+	 * WIDGET_1 -> Use a single image to make the skin, useful for checkboxes, etc.
+	 */
+	typedef enum
+	{
+		WIDGET_9,
+		WIDGET_3,
+		WIDGET_1,
+	} widgetSkinType;
 	
 	/**
 	 * \brief Shows the order of skin elements to be loaded
@@ -155,10 +179,9 @@ namespace k
 	 * the draw() method. Keep in mind that you need to define the position
 	 * and the drawing rectangle for each skin area.
 	 */
-	class DLL_EXPORT widgetSkin : public drawable2D
+	class DLL_EXPORT widgetSkin
 	{
 		protected:
-			rectangle* mSkin[E_MAX_EDGES];
 			material* mSkinMaterial;
 			vector2 mSkinDimensions;
 
@@ -168,7 +191,7 @@ namespace k
 		public:
 			/**
 			 * Create a new widget skin. Should be called
-			 * on derivated widgets constructors.
+			 * on derivated widgets constructors. 
 			 */
 			widgetSkin()
 			{
@@ -179,7 +202,7 @@ namespace k
 			/**
 			 * Free widget skin pointers.
 			 */
-			~widgetSkin()
+			virtual ~widgetSkin()
 			{
 				if (mVertices)
 					free(mVertices);
@@ -187,38 +210,25 @@ namespace k
 				if (mUvs)
 					free(mUvs);
 			}
-			
-			/**
-			 * Set skin data.
-			 * @param skinNamesArray An array of C-strings (char*) with each name of
-			 * the skin component in the skin xml. Keep in mind that you must use the
-			 * right order for the skin component names, you can check the correct order 
-			 * in @skinEdges
-			 */
-			void setSkinData(const char** skinNamesArray);
 
 			/**
-			 * Draw this skin.
+			 * Draw the skin, remember that you need to specify
+			 * the position and drawing area.
 			 */
-			void drawWidgetSkin();
+			virtual void drawWidgetSkin(const vector2& pos) = 0;
 
 			/**
-			 * Tells if the pointer is inside this widget area.
+			 * Allocate and setup skin vertices.
 			 */
-			bool isPointerInside(const vector2& pos) const;
+			virtual void setSkinData(const char** skinArray, rectangle* parentRect) = 0;
 	};
-
-	/**
-	 * \brief Panel skin names array.
-	 */
-	extern const char* DLL_EXPORT panelEdges[];	
 
 	/**
 	 * \brief Just a base class to derive widgets from.
 	 * Make sure you are calling widget constructor on your
 	 * class constructor.
 	 */
-	class DLL_EXPORT widget : public widgetSkin, public signalKeeper
+	class DLL_EXPORT widget : public signalKeeper, public drawable2D
 	{
 		protected:
 			/**
@@ -232,13 +242,42 @@ namespace k
 			unsigned int mMouseButtons;
 
 		public:
-			widget() : widgetSkin()
+			widget()
 			{
 				mMouseIn = false;
 				mMouseButtons = 0;
 			}
 			
+			/**
+			 * Tells if the pointer is inside this widget area.
+			 */
+			bool isPointerInside(const vector2& pos) const;
+			
+			/**
+			 * Virtual mousemove method. Because we already used it to implement
+			 * mouseIn and mouseOut.
+			 */
 			virtual bool mousemove(signalInfo_t info, void* userData);
+	};
+
+	/**
+	 * \brief Panel skin names array.
+	 */
+	extern const char* DLL_EXPORT panelWidgetEdges[];	
+
+	/**
+	 * \brief Panel Skin.
+	 */
+	class DLL_EXPORT panelSkin : public widgetSkin
+	{
+		protected:
+			rectangle* mSkin[E_MAX_EDGES];
+
+		public:
+			panelSkin() : widgetSkin() {}
+
+			void setSkinData(const char** skinArray, rectangle* parentRect);
+			void drawWidgetSkin(const vector2& pos);
 	};
 
 	/**
@@ -248,7 +287,7 @@ namespace k
 	 * panel will only be drawn if the panel is visible and will be free'd
 	 * upon panel's deletion.
 	 */
-	class DLL_EXPORT panelWidget : public widget, public signalHandler
+	class DLL_EXPORT panelWidget : public panelSkin, public widget, public signalHandler
 	{
 		protected:
 			std::vector<drawable2D*> mChilds;
@@ -277,6 +316,79 @@ namespace k
 
 			/**
 			 * Draw the panel (called internally by guiManager)
+			 */
+			void draw();
+
+			// handle mousemove
+			bool mousemove(signalInfo_t info, void* userData);
+			bool mousein(signalInfo_t info, void* userData);
+			bool mouseout(signalInfo_t info, void* userData);
+	};
+	
+	/**
+	 * \brief Button skin edges
+	 */
+	extern const char* DLL_EXPORT buttonWidgetEdges[];	
+
+	/**
+	 * \brief Button Highlight skin edges
+	 */
+	extern const char* DLL_EXPORT buttonHighlightWidgetEdges[];
+
+	/**
+	 * \brief Button Pushed skin edges
+	 */
+	extern const char* DLL_EXPORT buttonPushedWidgetEdges[];
+
+	/**
+	 * \brief Button Skin.
+	 */
+	class buttonSkin : public widgetSkin
+	{
+		protected:
+			rectangle* mSkin[3];
+
+		public:
+			buttonSkin() : widgetSkin() {}
+
+			void setSkinData(const char** skinArray, rectangle* parentRect);
+			void drawWidgetSkin(const vector2& pos);
+	};
+
+	/**
+	 * \brief Button widget.
+	 */
+	class DLL_EXPORT buttonWidget : public buttonSkin, public widget, public signalHandler
+	{
+		protected:
+			baseText* mText;
+			buttonSkin mHighlightSkin;
+			buttonSkin mPushedSkin;
+
+			stateType_t mState;
+			void _registerSignals();
+
+		public:
+			/**
+			 * Create a new button. Dimensionless.
+			 */
+			buttonWidget();
+
+			/**
+			 * Create a new button.
+			 * @param pos The button position.
+			 * @param dimension The button dimension.
+			 */
+			buttonWidget(const vector2& pos, const vector2& dimension);
+
+			/**
+			 * Button destructor. Destroying the button will destroy
+			 * allocated texts inside it too.
+			 */
+			virtual ~buttonWidget();
+
+			/**
+			 * Draw the button (called internally by guiManager)
 			 */
 			void draw();
 
