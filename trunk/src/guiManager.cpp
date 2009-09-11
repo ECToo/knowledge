@@ -38,7 +38,32 @@ const char* panelWidgetEdges[] =
 
 	"WindowBottomLeft",
 	"WindowBottomEdge",
-	"WindowBottomRight"
+	"WindowBottomRight",
+	NULL
+};
+
+const char* buttonWidgetEdges[] =
+{
+	"ButtonLeftNormal",
+	"ButtonMiddleNormal",
+	"ButtonRightNormal",
+	NULL
+};
+
+const char* buttonHighlightWidgetEdges[] =
+{
+	"ButtonLeftHighlight",
+	"ButtonMiddleHighlight",
+	"ButtonRightHighlight",
+	NULL
+};
+
+const char* buttonPushedWidgetEdges[] =
+{
+	"ButtonLeftPushed",
+	"ButtonMiddlePushed",
+	"ButtonRightPushed",
+	NULL
 };
 			
 void signalKeeper::connect(const std::string& sname, signalHandlerInfo_t* info)
@@ -87,7 +112,7 @@ bool signalKeeper::callSignal(const std::string& sname, signalInfo_t signalInfo)
 	return false;
 }
 			
-bool widgetSkin::isPointerInside(const vector2& pos) const
+bool widget::isPointerInside(const vector2& pos) const
 {
 	const vector2& rectPos = mRectangle.getPosition();
 	const vector2& rectDimension = mRectangle.getDimension();
@@ -103,7 +128,7 @@ bool widgetSkin::isPointerInside(const vector2& pos) const
 	}
 }
 
-void widgetSkin::setSkinData(const char** skinNamesArray)
+void panelSkin::setSkinData(const char** skinArray, rectangle* parentRect)
 {
 	guiManager* gui = &guiManager::getSingleton();
 
@@ -113,11 +138,11 @@ void widgetSkin::setSkinData(const char** skinNamesArray)
 	bool missing = false;
 	for (int i = 0; i < E_MAX_EDGES; i++)
 	{
-		mSkin[i] = gui->getSkinDefinition(panelWidgetEdges[i]);
+		mSkin[i] = gui->getSkinDefinition(skinArray[i]);
 
 		if (!mSkin[i])
 		{
-			S_LOG_INFO("Missing skin component for panelWidget skin " + std::string(panelWidgetEdges[i]));
+			S_LOG_INFO("Missing skin component for panelWidget skin " + std::string(skinArray[i]));
 			missing = true;
 		}
 	}
@@ -172,7 +197,7 @@ void widgetSkin::setSkinData(const char** skinNamesArray)
 	rect = mSkin[E_TOPMIDDLE];
 
 	x = leftrect->getDimension().x * mSkinDimensions.x;
-	w = mRectangle.getDimension().x - (rightrect->getDimension().x + leftrect->getDimension().x) * mSkinDimensions.x;
+	w = parentRect->getDimension().x - (rightrect->getDimension().x + leftrect->getDimension().x) * mSkinDimensions.x;
 
 	mUvs[4] = rect->getPosition();
 	mVertices[4] = vector3(x, 0, -0.5);
@@ -188,7 +213,7 @@ void widgetSkin::setSkinData(const char** skinNamesArray)
 
 	// Top Right
 	rect = mSkin[E_TOPRIGHT];
-	x = mRectangle.getDimension().x - rect->getDimension().x * mSkinDimensions.x;
+	x = parentRect->getDimension().x - rect->getDimension().x * mSkinDimensions.x;
 
 	mUvs[8] = rect->getPosition();
 	mVertices[8] = vector3(x, 0, -0.5);
@@ -204,7 +229,7 @@ void widgetSkin::setSkinData(const char** skinNamesArray)
 
 	// Bottom Left
 	rect = mSkin[E_BOTTOMLEFT];
-	y = mRectangle.getDimension().y - rect->getDimension().y * mSkinDimensions.y;
+	y = parentRect->getDimension().y - rect->getDimension().y * mSkinDimensions.y;
 
 	mUvs[12] = rect->getPosition();
 	mVertices[12] = vector3(0, y, -0.5);
@@ -224,8 +249,8 @@ void widgetSkin::setSkinData(const char** skinNamesArray)
 	rect = mSkin[E_BOTTOMMIDDLE];
 
 	x = leftrect->getDimension().x * mSkinDimensions.x;
-	y = mRectangle.getDimension().y - rect->getDimension().y * mSkinDimensions.y;
-	w = mRectangle.getDimension().x - (rightrect->getDimension().x + leftrect->getDimension().x) * mSkinDimensions.x;
+	y = parentRect->getDimension().y - rect->getDimension().y * mSkinDimensions.y;
+	w = parentRect->getDimension().x - (rightrect->getDimension().x + leftrect->getDimension().x) * mSkinDimensions.x;
 
 	mUvs[16] = rect->getPosition();
 	mVertices[16] = vector3(x, y, -0.5);
@@ -242,8 +267,8 @@ void widgetSkin::setSkinData(const char** skinNamesArray)
 	// Bottom Right
 	rect = mSkin[E_BOTTOMRIGHT];
 
-	x = mRectangle.getDimension().x - rect->getDimension().x * mSkinDimensions.x;
-	y = mRectangle.getDimension().y - rect->getDimension().y * mSkinDimensions.y;
+	x = parentRect->getDimension().x - rect->getDimension().x * mSkinDimensions.x;
+	y = parentRect->getDimension().y - rect->getDimension().y * mSkinDimensions.y;
 
 	mUvs[20] = rect->getPosition();
 	mVertices[20] = vector3(x, y, -0.5);
@@ -263,7 +288,7 @@ void widgetSkin::setSkinData(const char** skinNamesArray)
 	bottomrect = mSkin[E_BOTTOMLEFT];
 
 	y = leftrect->getDimension().y * mSkinDimensions.y;
-	h = mRectangle.getDimension().y - y - (bottomrect->getDimension().y * mSkinDimensions.y);
+	h = parentRect->getDimension().y - y - (bottomrect->getDimension().y * mSkinDimensions.y);
 
 	mUvs[24] = rect->getPosition();
 	mVertices[24] = vector3(0, y, -0.5);
@@ -287,8 +312,8 @@ void widgetSkin::setSkinData(const char** skinNamesArray)
 	x = toprect->getDimension().x * mSkinDimensions.x;
 	y = toprect->getDimension().y * mSkinDimensions.y;
 
-	w = mRectangle.getDimension().x - (rightrect->getDimension().x + leftrect->getDimension().x) * mSkinDimensions.x;
-	h = mRectangle.getDimension().y - (bottomrect->getDimension().y + toprect->getDimension().y) * mSkinDimensions.y;
+	w = parentRect->getDimension().x - (rightrect->getDimension().x + leftrect->getDimension().x) * mSkinDimensions.x;
+	h = parentRect->getDimension().y - (bottomrect->getDimension().y + toprect->getDimension().y) * mSkinDimensions.y;
 
 	mUvs[28] = rect->getPosition();
 	mVertices[28] = vector3(x, y, -0.5);
@@ -307,9 +332,9 @@ void widgetSkin::setSkinData(const char** skinNamesArray)
 	rect = mSkin[E_RIGHT];
 	bottomrect = mSkin[E_BOTTOMRIGHT];
 
-	x = mRectangle.getDimension().x - rect->getDimension().x * mSkinDimensions.x;
+	x = parentRect->getDimension().x - rect->getDimension().x * mSkinDimensions.x;
 	y = leftrect->getDimension().y * mSkinDimensions.y;
-	h = mRectangle.getDimension().y - y - (bottomrect->getDimension().y * mSkinDimensions.y);
+	h = parentRect->getDimension().y - y - (bottomrect->getDimension().y * mSkinDimensions.y);
 
 	mUvs[32] = rect->getPosition();
 	mVertices[32] = vector3(x, y, -0.5);
@@ -324,7 +349,7 @@ void widgetSkin::setSkinData(const char** skinNamesArray)
 	mVertices[35] = vector3(x, y + h, -0.5);
 }
 
-void widgetSkin::drawWidgetSkin()
+void panelSkin::drawWidgetSkin(const vector2& pos)
 {
 	if (!mSkinMaterial || !mUvs || !mVertices)
 		return;
@@ -334,6 +359,9 @@ void widgetSkin::drawWidgetSkin()
 		26, 27, 28, 29, 30, 31, 32, 33, 34, 35 };
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
+
+	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+	rs->translateScene(pos.x, pos.y, 0);
 
 	mSkinMaterial->start();
 
@@ -385,18 +413,18 @@ bool widget::mousemove(signalInfo_t info, void* userData)
 	return false;
 }
 
-panelWidget::panelWidget() : widget()
+panelWidget::panelWidget() : panelSkin()
 {
-	setSkinData(panelWidgetEdges);
 	_registerSignals();
+	setSkinData(panelWidgetEdges, &mRectangle);
 }
 
-panelWidget::panelWidget(const vector2& pos, const vector2& dimension) : widget()
+panelWidget::panelWidget(const vector2& pos, const vector2& dimension) : panelSkin()
 {
 	mRectangle = rectangle(pos, dimension);
-
-	setSkinData(panelWidgetEdges);
 	_registerSignals();
+
+	setSkinData(panelWidgetEdges, &mRectangle);
 }
 
 panelWidget::~panelWidget()
@@ -412,7 +440,7 @@ panelWidget::~panelWidget()
 void panelWidget::draw()
 {
 	// Only Draw panelWidget skin for now.
-	drawWidgetSkin();
+	drawWidgetSkin(mRectangle.getPosition());
 }
 
 void panelWidget::_registerSignals()
@@ -468,17 +496,253 @@ void panelWidget::_registerSignals()
 			
 bool panelWidget::mousein(signalInfo_t info, void* userData)
 {
-	printf("in\n");
 	return false;
 }
 
 bool panelWidget::mouseout(signalInfo_t info, void* userData)
 {
-	printf("out\n");
 	return false;
 }
 
 bool panelWidget::mousemove(signalInfo_t info, void* userData)
+{
+	widget::mousemove(info, userData);
+
+	return false;
+}
+
+void buttonSkin::setSkinData(const char** skinArray, rectangle* parentRect)
+{
+	guiManager* gui = &guiManager::getSingleton();
+
+	mSkinMaterial = gui->getSkinMaterial();
+	mSkinDimensions = gui->getSkinDimensions();
+
+	bool missing = false;
+	for (int i = 0; i < 3; i++)
+	{
+		mSkin[i] = gui->getSkinDefinition(skinArray[i]);
+
+		if (!mSkin[i])
+		{
+			S_LOG_INFO("Missing skin component for button skin " + std::string(skinArray[i]));
+			missing = true;
+		}
+	}
+		
+	if (missing)
+		return;
+
+	if (!mVertices)
+		mVertices = (vector3*) memalign(32, sizeof(vector3) * 4 * 3);
+
+	if (!mUvs)
+		mUvs = (vector2*) memalign(32, sizeof(vector2) * 4 * 3);
+
+	if (!mVertices)
+	{
+		S_LOG_INFO("Failed to allocate widget vertices.");
+		return;
+	}
+
+	if (!mUvs)
+	{
+		S_LOG_INFO("Failed to allocate widget uvs.");
+		return;
+	}
+		
+	// Aux vars;
+	rectangle* rect = mSkin[1];
+	rectangle* leftrect = mSkin[0];
+	rectangle* rightrect = mSkin[2];
+	vec_t x, w;
+
+	// Left
+	mUvs[0] = leftrect->getPosition();
+	mVertices[0] = vector3(0, 0, -0.5);
+
+	mUvs[1] = vector2(leftrect->getPosition().x + leftrect->getDimension().x, leftrect->getPosition().y);
+	mVertices[1] = vector3(leftrect->getDimension().x * mSkinDimensions.x, 0, -0.5);
+
+	mUvs[2] = vector2(leftrect->getPosition().x + leftrect->getDimension().x, leftrect->getPosition().y + leftrect->getDimension().y);
+	mVertices[2] = vector3(leftrect->getDimension().x * mSkinDimensions.x, leftrect->getDimension().y * mSkinDimensions.y, -0.5);
+
+	mUvs[3] = vector2(leftrect->getPosition().x, leftrect->getPosition().y + leftrect->getDimension().y);
+	mVertices[3] = vector3(0, leftrect->getDimension().y * mSkinDimensions.y, -0.5);
+
+	// Middle
+	x = leftrect->getDimension().x * mSkinDimensions.x;
+	w = parentRect->getDimension().x - ((leftrect->getDimension().x + rightrect->getDimension().x) * mSkinDimensions.x);
+
+	mUvs[4] = rect->getPosition();
+	mVertices[4] = vector3(x, 0, -0.5);
+
+	mUvs[5] = vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y);
+	mVertices[5] = vector3(x + w, 0, -0.5);
+
+	mUvs[6] = vector2(rect->getPosition().x + rect->getDimension().x, rect->getPosition().y + rect->getDimension().y);
+	mVertices[6] = vector3(x + w, rect->getDimension().y * mSkinDimensions.y, -0.5);
+
+	mUvs[7] = vector2(rect->getPosition().x, rect->getPosition().y + rect->getDimension().y);
+	mVertices[7] = vector3(x, rect->getDimension().y * mSkinDimensions.y, -0.5);
+
+	// Right
+	x = parentRect->getDimension().x - (rightrect->getDimension().x * mSkinDimensions.x);
+
+	mUvs[8] = rightrect->getPosition();
+	mVertices[8] = vector3(x, 0, -0.5);
+
+	mUvs[9] = vector2(rightrect->getPosition().x + rightrect->getDimension().x, rightrect->getPosition().y);
+	mVertices[9] = vector3(x + rightrect->getDimension().x * mSkinDimensions.x, 0, -0.5);
+
+	mUvs[10] = vector2(rightrect->getPosition().x + rightrect->getDimension().x, rightrect->getPosition().y + rightrect->getDimension().y);
+	mVertices[10] = vector3(x + rightrect->getDimension().x * mSkinDimensions.x, rightrect->getDimension().y * mSkinDimensions.y, -0.5);
+
+	mUvs[11] = vector2(rightrect->getPosition().x, rightrect->getPosition().y + rightrect->getDimension().y);
+	mVertices[11] = vector3(x, rightrect->getDimension().y * mSkinDimensions.y, -0.5);
+}
+
+void buttonSkin::drawWidgetSkin(const vector2& pos)
+{
+	if (!mSkinMaterial || !mUvs || !mVertices)
+		return;
+	
+	const index_t mIndices[] ATTRIBUTE_ALIGN(32) = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+
+	rs->setMatrixMode(MATRIXMODE_MODELVIEW);
+	rs->translateScene(pos.x, pos.y, 0);
+
+	mSkinMaterial->start();
+
+	rs->setCulling(CULLMODE_NONE);
+	rs->setDepthMask(false);
+
+	rs->clearArrayDesc(VERTEXMODE_QUAD);
+	rs->setVertexArray(mVertices[0].vec);
+	rs->setVertexCount(12);
+
+	rs->setTexCoordArray(mUvs[0].vec);
+	rs->setVertexIndex(mIndices);
+	rs->setIndexCount(12);
+
+	rs->drawArrays();
+
+	rs->setDepthMask(true);
+	mSkinMaterial->finish();
+}
+
+buttonWidget::buttonWidget() : buttonSkin()
+{
+	_registerSignals();
+
+	setSkinData(buttonWidgetEdges, &mRectangle);
+	mHighlightSkin.setSkinData(buttonHighlightWidgetEdges, &mRectangle);
+
+	mState = STATE_NORMAL;
+}
+
+buttonWidget::buttonWidget(const vector2& pos, const vector2& dimension) : buttonSkin()
+{
+	mRectangle = rectangle(pos, dimension);
+	_registerSignals();
+
+	setSkinData(buttonWidgetEdges, &mRectangle);
+	mHighlightSkin.setSkinData(buttonHighlightWidgetEdges, &mRectangle);
+
+	mState = STATE_NORMAL;
+}
+
+buttonWidget::~buttonWidget()
+{
+	if (mText)
+		delete mText;
+}
+			
+void buttonWidget::draw()
+{
+	// Draw Skin
+	switch (mState)
+	{
+		default:
+		case STATE_NORMAL:
+			drawWidgetSkin(mRectangle.getPosition());
+			break;
+		case STATE_HIGHLIGHTED:
+			mHighlightSkin.drawWidgetSkin(mRectangle.getPosition());
+			break;
+	};
+
+	// Limit and draw text
+}
+
+void buttonWidget::_registerSignals()
+{
+	// mouse move
+	try
+	{
+		signalHandlerInfo_t* info = new signalHandlerInfo_t;
+		info->handler = this;
+		info->function = (signalFunctionPtr)(&k::buttonWidget::mousemove);
+		info->userData = NULL;
+
+		mInternalSignals["mouseMove"] = info;
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to register panel mousemove signal.");
+	}
+
+	// mouse in
+	try
+	{
+		signalHandlerInfo_t* info = new signalHandlerInfo_t;
+		info->handler = this;
+		info->function = (signalFunctionPtr)(&k::buttonWidget::mousein);
+		info->userData = NULL;
+
+		mInternalSignals["mouseIn"] = info;
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to register panel mousein signal.");
+	}
+
+	// mouse out
+	try
+	{
+		signalHandlerInfo_t* info = new signalHandlerInfo_t;
+		info->handler = this;
+		info->function = (signalFunctionPtr)(&k::buttonWidget::mouseout);
+		info->userData = NULL;
+
+		mInternalSignals["mouseOut"] = info;
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to register panel mousein signal.");
+	}
+}
+			
+bool buttonWidget::mousein(signalInfo_t info, void* userData)
+{
+	mState = STATE_HIGHLIGHTED;
+
+	return false;
+}
+
+bool buttonWidget::mouseout(signalInfo_t info, void* userData)
+{
+	mState = STATE_NORMAL;
+
+	return false;
+}
+
+bool buttonWidget::mousemove(signalInfo_t info, void* userData)
 {
 	widget::mousemove(info, userData);
 
