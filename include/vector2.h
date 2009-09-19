@@ -111,6 +111,32 @@ namespace k
 
 				return *this;				
 			}
+
+			/**
+			 * Sum this vector with another one.
+			 *
+			 * @param[in] newVec The vector to sum.
+			 */
+			inline vector2& operator += (const vector2& newVec)
+			{
+				x += newVec.x;
+				y += newVec.y;
+
+				return *this;				
+			}
+
+			/**
+			 * Subtract another vector from this one.
+			 *
+			 * @param[in] newVec The vector to subtract.
+			 */
+			inline vector2& operator -= (const vector2& newVec)
+			{
+				x -= newVec.x;
+				y -= newVec.y;
+
+				return *this;				
+			}
 			
 			/**
 			 * Multiply this vector by a scalar.

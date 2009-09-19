@@ -18,6 +18,9 @@
 #include "texture.h"
 #include "root.h"
 #include "logger.h"
+	
+// FreeImage
+#include <FreeImage.h>
 
 namespace k {
 			

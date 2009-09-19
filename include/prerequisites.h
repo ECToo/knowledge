@@ -28,6 +28,7 @@
 #include <list>
 #include <vector>
 #include <map>
+#include <algorithm>
 
 // Standard C Libraries
 #include <cmath>
@@ -166,6 +167,14 @@ extern "C"
 
 #ifndef DLL_EXPORT
 	#define DLL_EXPORT
+#endif
+
+/**
+ * Windows for some reason dont respect aligned_malloc.
+ * OSX also dont see memalign.
+ */
+#ifndef memalign
+		#define memalign(X, Y) malloc(Y)
 #endif
 
 #endif

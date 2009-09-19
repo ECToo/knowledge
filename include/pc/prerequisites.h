@@ -26,25 +26,19 @@ extern "C"
 		#include <windows.h>
 		#define DLL_EXPORT __declspec(dllexport)
 
-		/**
-		 * Windows for some reason dont respect aligned_malloc.
-		 */
-		#define memalign(X, Y) malloc(Y)
-
 	#endif
 
 	// OpenGL
 	#include <GL/glew.h>
 	#include <GL/gl.h>
 	#include <GL/glu.h>
-	#include <dirent.h>
-	
-	// FreeImage
-	#include <FreeImage.h>
 
-	// SDL
+	// Temporary SDL
 	#include "SDL.h"
 
+	// Temporary FreeImage
+	#include "FreeImage.h"
+	
 	// posix threads
 	#include <pthread.h>
 }

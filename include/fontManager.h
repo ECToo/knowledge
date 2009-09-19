@@ -48,26 +48,40 @@ namespace k
 	/**
 	 * \brief Base class for text drawing, where we derive the providers from.
 	 */
-	class DLL_EXPORT baseText
+	class DLL_EXPORT baseText : public drawable2D
 	{
+		protected:
+			std::string mContents;
+
 		public:
 			/**
-			 * Set the text contents
+			 * Set the baseText contents.
+			 * @param text The new content of baseText.
 			 */
-			void setText(const std::string& text) {}
+			virtual void setText(const std::string& text) { mContents = text; }
+
+			/**
+			 * Get the contents of baseText.
+			 */
+			virtual const std::string& getText() { return mContents; }
+
+			/**
+			 * Draw the baseText. This wont do anything on this class, only on childs.
+			 */
+			void draw() {}
 	};
 
 	/**
 	 * \brief A 2D text drawer based on iD Software Doom 3 bitmap font format.
 	 */
-	class DLL_EXPORT bitmapText : public baseText, public drawable2D
+	class DLL_EXPORT bitmapText : public baseText
 	{
 		private:
 			doom3Glyph mGlyphs[255];
 			material* mMaterial;
 
-			std::string mContents;
 			vec_t mMaxHeight;
+			vec_t mLineHeight;
 
 			vec_t _drawChar(vec_t x, vec_t y, char c);
 
@@ -81,16 +95,14 @@ namespace k
 			bitmapText(const std::string& datName, const std::string& matName);
 			
 			/**
+			 * Set the bitmapText content and resize its boundingbox.
+			 */
+			void setText(const std::string& text);
+			
+			/**
 			 * Destructor
 			 */
 			~bitmapText();
-
-			/**
-			 * Set the bitmapText contents.
-			 *
-			 * @param text The new bitmapText content.
-			 */
-			void setText(const std::string& text);
 
 			/**
 			 * Draw the bitmapText

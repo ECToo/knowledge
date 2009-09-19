@@ -1,4 +1,6 @@
 <?xml version="1.0" ?>
+<!-- <font material="cube_14" dat="fonts/cube_14.dat"/> -->
+<font material="sansation_12" dat="fonts/sansation_12.dat"/>
 <Imageset Name="TaharezLook" Imagefile="TaharezLook.tga" NativeHorzRes="800" NativeVertRes="600" AutoScaled="true">
 	<Image Name="ClientBrush" XPos="220" YPos="228" Width="5" Height="5" />
 	<Image Name="WindowLeftEdge" XPos="204" YPos="224" Width="10" Height="10"/>
