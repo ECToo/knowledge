@@ -20,6 +20,9 @@
 #define _GL_RENDERSYSTEM_
 
 #include "rendersystem.h"
+	
+// SDL
+#include "SDL.h"
 
 namespace k 
 {

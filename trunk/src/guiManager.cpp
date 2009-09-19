@@ -635,10 +635,22 @@ void buttonSkin::drawWidgetSkin(const vector2& pos)
 
 buttonWidget::buttonWidget() : buttonSkin()
 {
+
 	_registerSignals();
 
 	setSkinData(buttonWidgetEdges, &mRectangle);
 	mHighlightSkin.setSkinData(buttonHighlightWidgetEdges, &mRectangle);
+
+	try
+	{
+		guiManager* gui = &guiManager::getSingleton();
+		mText = new bitmapText(gui->getFontDatFile(), gui->getFontMaterial());
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate button label.");
+	}
 
 	mState = STATE_NORMAL;
 }
@@ -651,13 +663,55 @@ buttonWidget::buttonWidget(const vector2& pos, const vector2& dimension) : butto
 	setSkinData(buttonWidgetEdges, &mRectangle);
 	mHighlightSkin.setSkinData(buttonHighlightWidgetEdges, &mRectangle);
 
+	try
+	{
+		guiManager* gui = &guiManager::getSingleton();
+		mText = new bitmapText(gui->getFontDatFile(), gui->getFontMaterial());
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate button label.");
+	}
+
 	mState = STATE_NORMAL;
+}
+			
+void buttonWidget::setDimension(const vector2& dimension)
+{
+	mRectangle.setDimension(dimension);
+	setSkinData(buttonWidgetEdges, &mRectangle);
+	mHighlightSkin.setSkinData(buttonHighlightWidgetEdges, &mRectangle);
 }
 
 buttonWidget::~buttonWidget()
 {
 	if (mText)
 		delete mText;
+}
+			
+void buttonWidget::setText(const std::string& text)
+{
+	kAssert(mText);
+	mText->setText(text);
+
+	// Position the text in the center of the button
+	vector2 size = mRectangle.getDimension();
+	vector2 textSize = mText->getDimension();
+	vector2 newPos;
+
+	size *= 0.5;
+	textSize *= 0.5;
+	newPos.x = size.x - textSize.x;
+	newPos.y = size.y;
+
+	mText->setPosition(newPos);
+}
+
+const std::string& buttonWidget::getText() const
+{
+	kAssert(mText);
+	return mText->getText();
 }
 			
 void buttonWidget::draw()
@@ -675,6 +729,8 @@ void buttonWidget::draw()
 	};
 
 	// Limit and draw text
+	kAssert(mText);
+	mText->draw();
 }
 
 void buttonWidget::_registerSignals()
@@ -760,6 +816,7 @@ guiManager& guiManager::getSingleton()
 guiManager::guiManager()
 {
 	mCursor = NULL;
+	mLastButtonDown = NULL;
 }
 
 guiManager::~guiManager()
@@ -900,27 +957,41 @@ void guiManager::setSkin(const std::string& matName, const std::string& guiFile)
 
 	// Parse Definitions
 	const TiXmlElement* rootElement = xmlDoc.RootElement();
-	const TiXmlElement* nextElement = rootElement->FirstChildElement();
-		
-	while (nextElement)
+
+	while (rootElement)
 	{
-		rectangle* elementRect;
-
-		try
+		if (!strncmp(rootElement->Value(), "Imageset", 8))
 		{
-			elementRect = new rectangle();
-			elementRect->setPosition(vector2(atoi(nextElement->Attribute("XPos")) / w, atoi(nextElement->Attribute("YPos")) / h));
-			elementRect->setDimension(vector2(atoi(nextElement->Attribute("Width")) / w, atoi(nextElement->Attribute("Height")) / h));
+			const TiXmlElement* nextElement = rootElement->FirstChildElement();
+			while (nextElement)
+			{
+				rectangle* elementRect;
 
-			mSkinDefinitions[nextElement->Attribute("Name")] = elementRect;
+				try
+				{
+					elementRect = new rectangle();
+					elementRect->setPosition(vector2(atoi(nextElement->Attribute("XPos")) / w, atoi(nextElement->Attribute("YPos")) / h));
+					elementRect->setDimension(vector2(atoi(nextElement->Attribute("Width")) / w, atoi(nextElement->Attribute("Height")) / h));
+	
+					mSkinDefinitions[nextElement->Attribute("Name")] = elementRect;
+				}
+
+				catch (...)
+				{
+					S_LOG_INFO("Failed to allocate rectangle for gui definition " + std::string(nextElement->Attribute("Name")));
+				}
+	
+				nextElement = nextElement->NextSiblingElement();
+			}
+		}
+		else
+		if (!strncmp(rootElement->Value(), "font", 4))
+		{
+			mFont.first = rootElement->Attribute("material");	
+			mFont.second = rootElement->Attribute("dat");	
 		}
 
-		catch (...)
-		{
-			S_LOG_INFO("Failed to allocate rectangle for gui definition " + std::string(nextElement->Attribute("Name")));
-		}
-
-		nextElement = nextElement->NextSiblingElement();
+		rootElement = rootElement->NextSiblingElement();
 	}
 }
 

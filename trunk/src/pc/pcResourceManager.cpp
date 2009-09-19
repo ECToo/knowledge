@@ -21,6 +21,8 @@
 #include "logger.h"
 #include "root.h"
 #include "loadscr.h"
+	
+#include <dirent.h>
 
 namespace k {
 

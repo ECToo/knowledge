@@ -100,6 +100,9 @@ bitmapText::bitmapText(const std::string& datName, const std::string& matName)
 		fseek(datFile, 36, SEEK_CUR);
 	}
 
+	// Line Height
+	mLineHeight = mMaxHeight;
+
 	// A good line diff
 	mMaxHeight += mMaxHeight * 0.5f;
 
@@ -136,10 +139,28 @@ vec_t bitmapText::_drawChar(vec_t posX, vec_t y, char c)
 
 	return activeGlyph->xSkip;
 }
-
+			
 void bitmapText::setText(const std::string& text)
 {
 	mContents = text;
+
+	vec_t width = 0;
+	vec_t height = 0;
+	int baseHeight = 0;
+
+	for (unsigned int i = 0; i < mContents.length(); i++)
+	{
+		if (mContents[i] == '\n')
+			height += mMaxHeight;
+		else
+		{
+			width += mGlyphs[(int)mContents[i]].xSkip;
+			baseHeight = std::max(baseHeight, mGlyphs[(int)mContents[i]].imgHeight);
+		}
+	}
+
+	mRectangle.setDimension(vector2(width, baseHeight + height));
+	mDrawRegionSize = vector2(width, baseHeight + height);
 }
 
 void bitmapText::draw()

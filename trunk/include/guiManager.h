@@ -382,6 +382,21 @@ namespace k
 			buttonWidget(const vector2& pos, const vector2& dimension);
 
 			/**
+			 * Set button text.
+			 */
+			void setText(const std::string& text);
+
+			/**
+			 * Return button text.
+			 */
+			const std::string& getText() const;
+
+			/**
+			 * Resize the button widget, setting skin.
+			 */
+			void setDimension(const vector2& dimension);
+
+			/**
 			 * Button destructor. Destroying the button will destroy
 			 * allocated texts inside it too.
 			 */
@@ -422,6 +437,11 @@ namespace k
 			material* mGuiSkin;
 
 			/**
+			 * Default GUI font material and *.dat
+			 */
+			std::pair<std::string, std::string> mFont;
+
+			/**
 			 * GUI material dimensions.
 			 */
 			vector2 mSkinDimensions;
@@ -435,6 +455,13 @@ namespace k
 			 * All registered widgets.
 			 */
 			std::vector<widget*> mWidgets;
+
+			/**
+			 * The last element we got button down, in case
+			 * we see button up in the same element, generate
+			 * the "clicked" signal.
+			 */
+			widget* mLastButtonDown;
 
 		public:
 			/**
@@ -469,6 +496,22 @@ namespace k
 			const vector2& getSkinDimensions() const
 			{
 				return mSkinDimensions;
+			}
+
+			/**
+			 * Return skin default font material.
+			 */
+			const std::string& getFontMaterial() const
+			{
+				return mFont.first;
+			}
+
+			/**
+			 * Return skin default dat file.
+			 */
+			const std::string& getFontDatFile() const
+			{
+				return mFont.second;
 			}
 
 			/**
