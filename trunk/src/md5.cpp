@@ -496,6 +496,14 @@ md5model::md5model(const std::string& filename) : drawable3D()
 	
 					token = file.getNextToken(); // Second weight
 					weight.y = atoi(token.c_str());
+
+					// Check for 0 weighted vertices
+					if ((int)weight.y == 0)
+					{
+						S_LOG_INFO("Model cant have 0 weighted vertices, aborting.");
+						delete thisMesh;
+						return;
+					}
 	
 					// Push data
 					thisMesh->pushVertex(uv, weight);
