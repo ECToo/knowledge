@@ -1,18 +1,23 @@
 /*
-    Copyright (C) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
+Copyright (c) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 */
 
 #ifndef _MATRIX3_H_
@@ -43,10 +48,14 @@ namespace k
 			}
 
 			/**
-			 * Initialise our matrix. Keep in mind
-			 * that we are using right hand coordinate
-			 * system and therefore our matrix is column
-			 * major.
+			 * Construct our matrix from vectors. The final 
+			 * matrix will be a row major (different than the standard column major)
+			 * matrix from the vectors contents. The matrix will look like:
+			 *
+			 * | x.x x.y x.z |
+			 * | y.x y.y y.z |
+			 * | z.x z.y z.z |
+			 *
 			 */
 			matrix3(vector3 x, vector3 y, vector3 z)
 			{
@@ -81,10 +90,97 @@ namespace k
 			}
 
 			/**
+			 * Sum this matrix with another one
+			 * and return the sum.
+			 */
+			matrix3 operator + (const matrix3& mat) const
+			{
+				matrix3 result;
+				for (unsigned int row = 0; row < 3; row++)
+				{
+					for (unsigned int col = 0; col < 3; col++)
+					{
+						result.m[row][col] = mat.m[row][col] + m[row][col];
+					}
+				}
+
+				return result;
+			}
+
+			/**
+			 * Sum this matrix with another one and keep the result
+			 * in this matrix.
+			 */
+			matrix3& operator += (const matrix3& mat)
+			{
+				for (unsigned int row = 0; row < 3; row++)
+				{
+					for (unsigned int col = 0; col < 3; col++)
+					{
+						m[row][col] += mat.m[row][col];
+					}
+				}
+
+				return *this;
+			}
+
+			/**
+			 * Subtract another matrix from this one
+			 * and returna the resultant matrix.
+			 */
+			matrix3 operator - (const matrix3& mat) const
+			{
+				matrix3 result;
+				for (unsigned int row = 0; row < 3; row++)
+				{
+					for (unsigned int col = 0; col < 3; col++)
+					{
+						result.m[row][col] = m[row][col] - mat.m[row][col];
+					}
+				}
+
+				return result;
+			}
+
+			/**
+			 * Multiply this matrix by a vector3
+			 */
+			vector3 operator * (const vector3& vec)
+			{
+				vector3 result;
+				vector3 row1 = vector3(m[0][0], m[1][0], m[2][0]);
+				vector3 row2 = vector3(m[0][1], m[1][1], m[2][1]);
+				vector3 row3 = vector3(m[0][2], m[1][2], m[2][2]);
+
+				result.x = row1.dotProduct(vec);
+				result.y = row2.dotProduct(vec);
+				result.z = row3.dotProduct(vec);
+
+				return result;
+			}
+
+			/**
+			 * Subtract another matrix from this one and keep the
+			 * results on it.
+			 */
+			matrix3& operator -= (const matrix3& mat)
+			{
+				for (unsigned int row = 0; row < 3; row++)
+				{
+					for (unsigned int col = 0; col < 3; col++)
+					{
+						m[row][col] -= mat.m[row][col];
+					}
+				}
+
+				return *this;
+			}
+
+			/**
 			 * Copy Source matrix to this one.
 			 * @param[in] mat Source matrix.
 			 */
-			matrix3& operator= (matrix3 mat)
+			matrix3& operator = (const matrix3& mat)
 			{
 				for (unsigned int row = 0; row < 3; row++)
 				{
@@ -101,7 +197,7 @@ namespace k
 			 * Multiply this matrix by another and save the
 			 * results on it.
 			 */
-			matrix3& operator*= (matrix3 mat)
+			matrix3& operator *= (const matrix3& mat)
 			{
 				matrix3 temp;
 				temp = *this * mat;
@@ -114,7 +210,7 @@ namespace k
 			 * Multiply this matrix by another and return a result
 			 * matrix.
 			 */
-			matrix3 operator* (matrix3 mat)
+			matrix3 operator * (const matrix3& mat) const
 			{
 				matrix3 result;
 				for (unsigned int row = 0; row < 3; row++)
@@ -135,7 +231,7 @@ namespace k
 			 * Thanks to martin baker site for the formula and pseudo java code
 			 * wich this one is a port of.
 			 */
-			void toAxisAngle(vec_t& angle, vector3& axis)
+			void toAxisAngle(vec_t& angle, vector3& axis) const
 			{
 				double epsilon = 0.01; 
 				double epsilon2 = 0.1;
@@ -225,7 +321,7 @@ namespace k
 			/**
 			 * Get the determinant of this matrix.
 			 */
-			vec_t determinant()
+			vec_t determinant() const
 			{
 				vec_t fCofactor00 = m[1][1]*m[2][2] - m[1][2]*m[2][1];
 				vec_t fCofactor10 = m[1][2]*m[2][0] - m[1][0]*m[2][2];

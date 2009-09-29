@@ -35,6 +35,7 @@ libknowledge_la_SOURCES = drawable.cpp\
 								  pc/glMaterialStage.cpp\
 								  pc/pcTimer.cpp\
 								  pc/pcRoot.cpp\
+								  pc/sdlInputManager.cpp\
 								  pc/pcResourceManager.cpp
 
 INCLUDES = -I@top_srcdir@/include -I@top_srcdir@/include/pc -I@top_srcdir@/include/wii $(CXXFLAGS)

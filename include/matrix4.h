@@ -1,23 +1,23 @@
 /*
-    Copyright (C) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
+Copyright (c) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
 
-	 =========================================================================
-	 Some Functions came from Ogre3D math library, wich is LGPL. Credits
-	 go to Ogre3D authors. http://www.ogre3d.org
-	 =========================================================================
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 */
 
 #ifndef _MATRIX4_H_
@@ -80,9 +80,21 @@ namespace k
 			}
 
 			/**
+			 * Reset this matrix to identity
+			 */
+			void setIdentity()
+			{
+				memset(m, 0, sizeof(vec_t) * 16);
+				m[0][0] = 1.0f;
+				m[1][1] = 1.0f;
+				m[2][2] = 1.0f;
+				m[3][3] = 1.0f;
+			}
+
+			/**
 			 * Get the transpose of this matrix.
 			 */
-			matrix4 transpose()
+			matrix4 transpose() const
 			{
 				matrix4 newM;
 				for (unsigned int row = 0; row < 4; row++)
@@ -246,6 +258,48 @@ namespace k
 				return m.m[r0][c0] * (m.m[r1][c1] * m.m[r2][c2] - m.m[r2][c1] * m.m[r1][c2]) -
 					m.m[r0][c1] * (m.m[r1][c0] * m.m[r2][c2] - m.m[r2][c0] * m.m[r1][c2]) +
 					m.m[r0][c2] * (m.m[r1][c0] * m.m[r2][c1] - m.m[r2][c0] * m.m[r1][c1]);
+			}
+
+			/**
+			 * Test if this matrix is the identity matrix
+			 */
+			bool isIdentity() const
+			{
+				for (unsigned int i = 0; i < 4; i++)
+				{
+					for (unsigned int j = 0; j < 4; j++)
+					{
+						if (i == j && m[i][j] != 1.0)
+							return false;
+						else 
+							continue;
+
+						if (m[i][j] != 0)
+							return false;
+					}
+				}
+
+				return true;
+			}
+
+			/**
+			 * Return the inverse matrix as a transformation matrix,
+			 * with the translation components.
+			 */
+			matrix4 getInverseTranslation(const vector3& position) const
+			{
+				matrix4 mFinal = transpose().inverse();
+				
+				vector3 dir(-mFinal.m[0][2], -mFinal.m[1][2], -mFinal.m[2][2]);
+				vector3 up(-mFinal.m[0][1], -mFinal.m[1][1], -mFinal.m[2][1]);
+				vector3 right(-mFinal.m[0][0], -mFinal.m[1][0], -mFinal.m[2][0]);
+
+				mFinal.m[3][0] = -right.dotProduct(position);
+				mFinal.m[3][1] = -up.dotProduct(position);
+				mFinal.m[3][2] = dir.dotProduct(position);
+				mFinal.m[3][3] = 1.0f;
+
+				return mFinal;
 			}
 
 			/**

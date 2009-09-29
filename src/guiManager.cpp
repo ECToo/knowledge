@@ -1,18 +1,23 @@
 /*
-    Copyright (C) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
+Copyright (c) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 */
 
 #include "guiManager.h"
@@ -635,6 +640,7 @@ void buttonSkin::drawWidgetSkin(const vector2& pos)
 
 buttonWidget::buttonWidget() : buttonSkin()
 {
+	mMouseWasDown = false;
 
 	_registerSignals();
 
@@ -657,6 +663,8 @@ buttonWidget::buttonWidget() : buttonSkin()
 
 buttonWidget::buttonWidget(const vector2& pos, const vector2& dimension) : buttonSkin()
 {
+	mMouseWasDown = false;
+
 	mRectangle = rectangle(pos, dimension);
 	_registerSignals();
 
@@ -782,6 +790,38 @@ void buttonWidget::_registerSignals()
 	{
 		S_LOG_INFO("Failed to register panel mousein signal.");
 	}
+
+	// mouse down 
+	try
+	{
+		signalHandlerInfo_t* info = new signalHandlerInfo_t;
+		info->handler = this;
+		info->function = (signalFunctionPtr)(&k::buttonWidget::mousedown);
+		info->userData = NULL;
+
+		mInternalSignals["mouseDown"] = info;
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to register panel mousedown signal.");
+	}
+
+	// mouse up
+	try
+	{
+		signalHandlerInfo_t* info = new signalHandlerInfo_t;
+		info->handler = this;
+		info->function = (signalFunctionPtr)(&k::buttonWidget::mouseup);
+		info->userData = NULL;
+
+		mInternalSignals["mouseUp"] = info;
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to register panel mouseup signal.");
+	}
 }
 			
 bool buttonWidget::mousein(signalInfo_t info, void* userData)
@@ -805,6 +845,24 @@ bool buttonWidget::mousemove(signalInfo_t info, void* userData)
 	return false;
 }
 
+bool buttonWidget::mousedown(signalInfo_t info, void* userData)
+{
+	mMouseWasDown = true;
+	return true;
+}
+
+bool buttonWidget::mouseup(signalInfo_t info, void* userData)
+{
+	if (mMouseWasDown)
+	{
+		// generate clicked event
+		callSignal("clicked", info);
+	}
+	
+	mMouseWasDown = false;
+	return true;
+}
+
 template<> guiManager* singleton<guiManager>::singleton_instance = 0;
 
 guiManager& guiManager::getSingleton()
@@ -816,7 +874,7 @@ guiManager& guiManager::getSingleton()
 guiManager::guiManager()
 {
 	mCursor = NULL;
-	mLastButtonDown = NULL;
+	mLastButton = 0;
 }
 
 guiManager::~guiManager()
@@ -867,13 +925,14 @@ void guiManager::pushWidget(widget* w)
 
 void guiManager::update()
 {
-	if (mCursor)
+	if (mCursor && inputManager::getSingleton().isPeripheralActive(INPUT_MOUSE))
 	{
-		vector2 newPos = inputManager::getSingleton().getWiiMotePosition(0);
-		mCursorDeltaPos = newPos - mCursorLastPos;
-		mCursorLastPos = newPos;
+		inputPeripheral* mouse = inputManager::getSingleton().getDevice(INPUT_MOUSE);
 
-		mCursor->setPosition(mCursorLastPos);
+		mCursorDeltaPos = mouse->getDeltaPosition();
+		mCursorLastPos = mouse->getPosition();
+
+		mCursor->setPosition(mouse->getPosition());
 	}
 		
 	// Send mouse moved event to all widgets where mouse is.
@@ -893,9 +952,71 @@ void guiManager::update()
 		for (it = mWidgets.begin(); it != mWidgets.end(); it++)
 		{
 			widget* w = (*it);
-			w->callSignal("mouseMove", newInfo);
+
+			if (w->callSignal("mouseMove", newInfo))
+				break;
 		}
 	}
+
+	// Send mouse down OR mouse up
+	unsigned int newButton = 0;
+	
+	/*
+	newButton |= (inputManager::getSingleton().getWiiMoteDown(0, WIIMOTE_BUTTON_A) ? 0x1 : 0x0);
+	newButton |= (inputManager::getSingleton().getWiiMoteDown(0, WIIMOTE_BUTTON_B) ? 0x2 : 0x0);
+	*/
+
+	if (newButton & 0x1)
+	{
+		signalInfo_t newInfo;
+		newInfo.type = SIGNAL_MOUSEDOWN;
+		
+		newInfo.mouseState.mPosition = mCursorLastPos;
+		newInfo.mouseState.buttons = BUTTON_LEFT;
+
+		// TODO: Get Keys from inputManager
+		newInfo.key = 0;
+
+		// Button is Down
+		std::vector<widget*>::iterator it;
+		for (it = mWidgets.begin(); it != mWidgets.end(); it++)
+		{
+			widget* w = (*it);
+			
+			if (!w->isPointerInside(mCursorLastPos))
+				continue;
+
+			if (w->callSignal("mouseDown", newInfo))
+				break;
+		}
+	}
+	else
+	if (mLastButton & 0x1)
+	{
+		signalInfo_t newInfo;
+		newInfo.type = SIGNAL_MOUSEUP;
+		
+		newInfo.mouseState.mPosition = mCursorLastPos;
+		newInfo.mouseState.buttons = BUTTON_LEFT;
+
+		// TODO: Get Keys from inputManager
+		newInfo.key = 0;
+
+		// Button up
+		std::vector<widget*>::iterator it;
+		for (it = mWidgets.begin(); it != mWidgets.end(); it++)
+		{
+			widget* w = (*it);
+			
+			if (!w->isPointerInside(mCursorLastPos))
+				continue;
+
+			if (w->callSignal("mouseUp", newInfo))
+				break;
+		}
+	}
+
+	mLastButton = newButton;
 }
 			
 rectangle* guiManager::getSkinDefinition(const std::string& wname) const

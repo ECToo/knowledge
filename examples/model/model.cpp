@@ -45,12 +45,16 @@ int main(int argc, char** argv)
 	mRenderSystem->createWindow(800, 600);
 	mRenderSystem->setWindowTitle("knowledge, the power of mind");
 
-	// Input Manager
+	// Input Manager - mouse and keyboard devices
+	k::inputPeripheral* mouse = mInputManager->getDevice(k::INPUT_MOUSE);
+
+	/*
 	mInputManager->initWii(false);
 	mInputManager->setupWiiMotes(1);
 	mInputManager->setWiiMoteTimeout(60);
 	mInputManager->setWiiMoteEmulation(true);
 	mInputManager->setPointerLock(false);
+	*/
 
 	#ifdef __WII__
 	chdir("sd:/knowledge/model/");
@@ -236,12 +240,6 @@ int main(int argc, char** argv)
 	mGuiManager->pushWidget(newPanel);
 	mRenderer->push2D(newPanel);
 
-	k::buttonWidget* newButton = new k::buttonWidget(k::vector2(50, 50), k::vector2(120, 30));
-	newButton->setZ(1);
-	newButton->setText("TESTE");
-	mGuiManager->pushWidget(newButton);
-	mRenderer->push2D(newButton);
-
 	//
 	k::vector2 cursorDelta;
 
@@ -271,9 +269,10 @@ int main(int argc, char** argv)
 		mInputManager->feed();
 
 		// User clicked on Close Window
-		if (mInputManager->getQuitEvent() || mInputManager->getKbdKeyDown(K_KBD_ESCAPE))
+		if (mInputManager->getQuitEvent() /* || mInputManager->getKbdKeyDown(K_KBD_ESCAPE)*/)
 			running = false;
 
+		/*
 		if (mInputManager->getKbdKeyDown(K_KBD_LEFT))
 			modelPosition.x++;
 		else
@@ -401,21 +400,26 @@ int main(int argc, char** argv)
 		else
 		if (mInputManager->getKbdKeyDown(K_KBD_l) || mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_LEFT))
 			rX -= 1;
+		*/
 
-		cursorDelta = mGuiManager->getCursorDeltaPosition();
-			
-		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_A))
+		if (mouse)
+		{
+			cursorDelta = mouse->getDeltaPosition();
+		}
+
+		if (mouse && mouse->isButtonDown(k::MOUSE_LEFT))
 		{
 			rX += cursorDelta.x;
 			rY += cursorDelta.y;
 		}
 		else
-		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_B))
+		if (mouse && mouse->isButtonDown(k::MOUSE_RIGHT))
 		{
 			modelPosition.x += cursorDelta.x;
 			modelPosition.y += cursorDelta.y;
 		}
 
+		/*
 		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_1) || mInputManager->getKbdKeyDown(K_KBD_F12))
 		{
 			oneHold = true;
@@ -437,6 +441,7 @@ int main(int argc, char** argv)
 		{
 			running = false;
 		}
+		*/
 
 		// Model Rotation
 		k::quaternion yQuat = k::quaternion(rY, k::vector3(1, 0, 0));
