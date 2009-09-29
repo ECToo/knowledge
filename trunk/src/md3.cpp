@@ -1,18 +1,23 @@
 /*
-    Copyright (C) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
+Copyright (c) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 */
 
 #include "md3.h"
@@ -92,17 +97,21 @@ void md3Surface::draw(short frameNum)
 	}
 }
 		
-void md3Surface::trace(ray& traceRay, short frameNum) const
+bool md3Surface::trace(ray& traceRay, short frameNum) const
 {
+	// TODO: Test against surface bounding box.
+
 	for (unsigned int i = 0; i < mIndicesCount; i += 3)
 	{
 		if (traceRay.intersect(mVertices[i + (frameNum * mVerticesCount)].pos, 
 					mVertices[i + 1 + (frameNum * mVerticesCount)].pos, 
 					mVertices[i + 2 + (frameNum * mVerticesCount)].pos))
 		{
-			return;
+			return true;
 		}
 	}
+
+	return false;
 }
 
 bool md3Surface::isOpaque() const
@@ -916,23 +925,18 @@ void md3model::setDrawNormals(bool draw)
 		getSurface(i)->setDrawNormals(draw);
 }
 		
-void md3model::trace(ray& traceRay)
+bool md3model::trace(ray& traceRay)
 {
-	traceRay.setOrientation(mOrientation);
+	matrix4 mFinal = mOrientation.toMatrix().getInverseTranslation(mPosition);
+	traceRay.setTransformation(mFinal);
 
 	for (unsigned int i = 0; i < getSurfacesCount(); i++)
 	{
-		getSurface(i)->trace(traceRay, (uint32_t)mCurrentAnimFrame);
-		if (traceRay.getFraction() != 0)
-			break;
+		if (getSurface(i)->trace(traceRay, (uint32_t)mCurrentAnimFrame))
+			return true;
 	}
 
-	if (traceRay.getFraction() != 0)
-	{
-		// We got something, re-orient the ray to world space
-		traceRay.setOrigin(traceRay.getOrigin() + getAbsolutePosition());
-		traceRay.setOrientation(quaternion::identity);
-	}
+	return false;
 }
 
 }

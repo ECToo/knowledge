@@ -1,21 +1,23 @@
 /*
-    Copyright (C) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
+Copyright (c) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-	 Lots of information about the md3 format came from the wikipedia site:
-	 http://en.wikipedia.org/wiki/MD3
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 */
 
 #ifndef _MD3_H_
@@ -491,7 +493,7 @@ class DLL_EXPORT md3Surface
 		/**
 		 * Trace against this meshe triangles.
 		 */
-		void trace(ray& traceRay, short frameNum) const;
+		bool trace(ray& traceRay, short frameNum) const;
 };
 
 /**
@@ -746,9 +748,9 @@ class DLL_EXPORT md3model : public drawable3D
 		/**
 		 * Trace against this model. If this ray collides
 		 * with some triangle the ray mFraction (getFraction()) 
-		 * will be different than 0
+		 * will be different than 0 and this function returns true.
 		 */
-		void trace(ray& traceRay);
+		bool trace(ray& traceRay);
 
 		/**
 		 * Return false if the model or any of its submeshes is transparent.

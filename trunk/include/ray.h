@@ -1,18 +1,23 @@
 /*
-    Copyright (C) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
+Copyright (c) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 */
 
 #ifndef _RAY_H_
@@ -20,7 +25,7 @@
 
 #include "prerequisites.h"
 #include "vector3.h"
-#include "quaternion.h"
+#include "matrix4.h"
 #include "drawable.h"
 
 namespace k
@@ -49,7 +54,7 @@ namespace k
 			 * another way oriented, you must give the ray the same
 			 * orientation (put them in the same space)
 			 */
-			quaternion mOrientation;
+			matrix4 mInverseTransformation;
 
 		public:
 			ray() {}
@@ -74,7 +79,7 @@ namespace k
 				mOrigin = oldRay.getOrigin();
 				mDirection = oldRay.getDirection();
 				mFraction = oldRay.getFraction();
-				mOrientation = oldRay.getOrientation();
+				mInverseTransformation = oldRay.getTransformation();
 			}
 
 			/**
@@ -96,15 +101,12 @@ namespace k
 			}
 
 			/**
-			 * Set ray orientation. In case we want to check the ray
-			 * against some oriented surface, we need to orient it with the 
-			 * surfaces orientation.
-			 *
-			 * @param quat The new ray orientation.
+			 * Set the new ray space, multiplying its coords
+			 * by the transformation matrix.
 			 */
-			void setOrientation(const quaternion& quat)
+			void setTransformation(const matrix4& mat)
 			{
-				mOrientation = quat;
+				mInverseTransformation = mat;
 			}
 
 			/**
@@ -112,8 +114,7 @@ namespace k
 			 */
 			void resetOrientation()
 			{
-				mOrientation.w = 1;
-				mOrientation.x = mOrientation.y = mOrientation.z = 0;
+				mInverseTransformation.setIdentity();
 			}
 
 			/**
@@ -133,11 +134,11 @@ namespace k
 			}
 
 			/**
-			 * Returns ray orientation.
+			 * Returns ray transformation (to change ray coord space into another one).
 			 */
-			const quaternion& getOrientation() const
+			const matrix4& getTransformation() const
 			{
-				return mOrientation;
+				return mInverseTransformation;
 			}
 
 			/**

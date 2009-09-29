@@ -1,18 +1,23 @@
 /*
-    Copyright (C) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
+Copyright (c) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 */
 
 #include "inputManager.h"
@@ -29,29 +34,7 @@ inputManager& inputManager::getSingleton()
 	return (*singleton_instance);  
 }
 
-inputManager::inputManager()
-{
-	#ifdef __WII__
-	mUseCube = false;
-	mConnnectedMotes = 0;
-	mWiiData[0] = mWiiData[1] = mWiiData[2] = mWiiData[3] = NULL;
-	#else
-	mSDLKbdSnapshot = NULL;
-	memset(&mSDLMouseSnapshot, 0, sizeof(Uint8));
-	mQuitEvent = false;
-	#endif
-
-	mEmulationEnabled = false;
-}
-
-inputManager::~inputManager()
-{
-	#ifndef __WII__
-	SDL_WM_GrabInput(SDL_GRAB_OFF);
-	SDL_ShowCursor(1);
-	#endif
-}
-
+/*
 void inputManager::initWii(bool cube)
 {
 	#ifdef __WII__
@@ -65,22 +48,6 @@ void inputManager::initWii(bool cube)
 	#endif
 }
 			
-void inputManager::setPointerLock(bool lock)
-{
-	#ifndef __WII__
-	if (lock)
-	{
-		SDL_WM_GrabInput(SDL_GRAB_ON);
-		SDL_ShowCursor(0);
-	}
-	else
-	{
-		SDL_WM_GrabInput(SDL_GRAB_OFF);
-		SDL_ShowCursor(1);
-	}	
-	#endif
-}
-
 unsigned char inputManager::setupWiiMotes(unsigned char num)
 {
 	#ifdef __WII__
@@ -255,6 +222,30 @@ bool inputManager::getWiiMoteDown(unsigned char num, unsigned int id)
 	#endif
 
 	return false;
+}
+*/
+
+void inputManager::setMouseEmulation(bool state)
+{
+	// TODO
+	mEmulatingMouse = state;
+}
+
+bool inputManager::getQuitEvent() const
+{
+	return mReceivedQuitEvent;
+}
+			
+void inputPeripheral::callEvent(eventHandlers type, unsigned int id)
+{
+	std::map<eventHandlers, inputFunctionPtr>::iterator it = mHandlers.find(type);
+	if (it != mHandlers.end())
+	{
+		inputFunctionPtr funcPtr = mHandlers[type];
+		inputEventHandler* handler = funcPtr.first;
+		inputFunction function = funcPtr.second;
+		(handler->*function)(id, this);
+	}
 }
 
 }

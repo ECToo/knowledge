@@ -1,18 +1,23 @@
 /*
-    Copyright (C) 2008-2009 Rômulo Fernandes Machado <romulo@param castorgroup.net>
+Copyright (c) 2008-2009 Rômulo Fernandes Machado <romulo@castorgroup.net>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 */
 
 #ifndef _GUI_MANAGER_H
@@ -34,6 +39,8 @@ namespace k
 		SIGNAL_MOUSEIN,
 		SIGNAL_MOUSEOUT,
 		SIGNAL_MOUSEMOVE,
+		SIGNAL_MOUSEDOWN,
+		SIGNAL_MOUSEUP,
 		SIGNAL_KEYDOWN,
 		SIGNAL_KEYUP
 	} signalType_t;
@@ -121,8 +128,7 @@ namespace k
 			 * User can also specify some data to be passed to the handle when the signal is called.
 			 *
 			 * @param sname The name of the signal to connect the handle function.
-			 * @param handle The handle function.
-			 * @param userData Custom user data, can be NULL.
+			 * @param info The signal handler information, @see signalHandlerInfo_t (this will be deallocated by the keeper).
 			 */
 			void connect(const std::string& sname, signalHandlerInfo_t* info);
 
@@ -368,6 +374,10 @@ namespace k
 			stateType_t mState;
 			void _registerSignals();
 
+			// if mouse was down here, and is up here, emit clicked
+			bool mMouseWasDown;
+
+
 		public:
 			/**
 			 * Create a new button. Dimensionless.
@@ -411,6 +421,8 @@ namespace k
 			bool mousemove(signalInfo_t info, void* userData);
 			bool mousein(signalInfo_t info, void* userData);
 			bool mouseout(signalInfo_t info, void* userData);
+			bool mousedown(signalInfo_t info, void* userData);
+			bool mouseup(signalInfo_t info, void* userData);
 	};
 
 	/**
@@ -461,7 +473,7 @@ namespace k
 			 * we see button up in the same element, generate
 			 * the "clicked" signal.
 			 */
-			widget* mLastButtonDown;
+			unsigned int mLastButton;
 
 		public:
 			/**

@@ -20,55 +20,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "bsp46.h"
-#include "camera.h"
-#include "color.h"
-#include "config.h"
-#include "drawable.h"
-#include "fileParser.h"
-#include "fontManager.h"
-#include "gameState.h"
-#include "guiManager.h"
+#ifndef _SDL_INPUT_MANAGER_
+#define _SDL_INPUT_MANAGER_
+
 #include "inputManager.h"
-#include "keysyms.h"
-#include "light.h"
-#include "loadscr.h"
-#include "logger.h"
-#include "material.h"
-#include "materialManager.h"
-#include "matrix3.h"
-#include "matrix4.h"
-#include "md3.h"
-#include "md5.h"
-#include "particle.h"
-#include "physicsManager.h"
-#include "prerequisites.h"
-#include "quaternion.h"
-#include "ray.h"
-#include "renderer.h"
-#include "rendersystem.h"
-#include "resourceManager.h"
-#include "root.h"
-#include "singleton.h"
-#include "sprite.h"
-#include "sticker.h"
-#include "texture.h"
-#include "textureManager.h"
-#include "thread.h"
-#include "timer.h"
-#include "tinystr.h"
-#include "tinyxml.h"
-#include "vector2.h"
-#include "vector3.h"
-#include "world.h"
 
-// Platform Files
-#ifndef __WII__
-	#include "pc/prerequisites.h"
-	#include "pc/glRenderSystem.h"
-#else
-	#include "wii/prerequisites.h"
-	#include "wii/wiiRenderSystem.h"
-	#include "wii/tev.h"
+namespace k
+{
+	class DLL_EXPORT inputMouse : public inputPeripheral
+	{
+		public:
+			inputMouse();
+			~inputMouse();
+
+			void feed();
+	};
+}
+
 #endif
-
