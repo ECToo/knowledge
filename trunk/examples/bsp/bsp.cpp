@@ -71,14 +71,6 @@ int main(int argc, char** argv)
 	mRenderSystem->createWindow(800, 600);
 	mRenderSystem->setWindowTitle("knowledge, the power of mind");
 
-	// Input Manager
-	assert(mInputManager != NULL);
-	mInputManager->initWii(false);
-	mInputManager->setupWiiMotes(1);
-	mInputManager->setWiiMoteTimeout(60);
-	mInputManager->setWiiMoteEmulation(true);
-	mInputManager->setPointerLock(true);
-
 	// Initialize resources
 	#ifdef __WII__
 	chdir("sd:/knowledge/bsp/");
@@ -231,9 +223,10 @@ int main(int argc, char** argv)
 		mInputManager->feed();
 
 		// User clicked on Close Window
-		if (mInputManager->getQuitEvent() || mInputManager->getKbdKeyDown(K_KBD_ESCAPE))
+		if (mInputManager->getQuitEvent() /*|| mInputManager->getKbdKeyDown(K_KBD_ESCAPE)*/)
 			running = false;
 
+		/*
 		// Quit Application
 		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_HOME))
 		{
@@ -371,6 +364,7 @@ int main(int argc, char** argv)
 
 			newCamera->setOrientation(dirQuat * ori);
 		}
+		*/
 
 		// Gravity
 		sphere->setSpeed(sphere->getSpeed() + k::vector3(0, -0.05, 0));

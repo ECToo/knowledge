@@ -46,13 +46,6 @@ int main(int argc, char** argv)
 	mRenderSystem->createWindow(800, 600);
 	mRenderSystem->setWindowTitle("knowledge, the power of mind");
 
-	// Input Manager
-	mInputManager->initWii(false);
-	mInputManager->setupWiiMotes(1);
-	mInputManager->setWiiMoteTimeout(60);
-	mInputManager->setWiiMoteEmulation(true);
-	mInputManager->setPointerLock(false);
-
 	#ifdef __WII__
 	chdir("sd:/knowledge/model/");
 	#endif
@@ -128,6 +121,9 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
+	// Keyboard peripheral
+	k::inputKeyboard* kb = (k::inputKeyboard*)mInputManager->getDevice(k::INPUT_KEYBOARD);
+
 	// Fps Counter
 	k::bitmapText* fpsText;
 	try
@@ -155,10 +151,11 @@ int main(int argc, char** argv)
 		mInputManager->feed();
 
 		// User clicked on Close Window
-		if (mInputManager->getQuitEvent() || mInputManager->getKbdKeyDown(K_KBD_ESCAPE))
+		if (mInputManager->getQuitEvent() || kb && kb->isKeyDown(k::KB_escape))
 			running = false;
 
 		// Quit Application
+		/*
 		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_HOME))
 		{
 			running = false;
@@ -210,6 +207,7 @@ int main(int argc, char** argv)
 			newCamera->setPosition(camPos);
 			newCamera->lookAt(k::vector3(0, 0, 0));
 		}
+		*/
 
 		// Set Demo FPS
 		std::stringstream fps;

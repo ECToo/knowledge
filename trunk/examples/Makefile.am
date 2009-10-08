@@ -1,1 +1,1 @@
-SUBDIRS = model texture physics lightmap particles bsp
+SUBDIRS = model texture lightmap particles bsp
