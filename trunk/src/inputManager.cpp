@@ -34,6 +34,130 @@ inputManager& inputManager::getSingleton()
 	return (*singleton_instance);  
 }
 
+inputManager::~inputManager()
+{
+	for (unsigned int i = 0; i < INPUT_MAX_PERIPHERALS; i++)
+		delete mDevices[i];
+}
+			
+const bool* inputKeyboard::getKeySnapshot(bool lastFrame) const
+{
+	if (lastFrame)
+	{
+		return mKeySnapshot;
+	}
+	else
+	{
+		return mLastKeySnapshot;
+	}
+}
+
+bool inputKeyboard::isKeyDown(keyboardKeys key) const
+{
+	return mKeySnapshot[key];
+}
+	
+const char* keyboardKeysStrings[KB_MAX_KEYS] =
+{
+	"0",
+	"1",
+	"2",
+	"3",
+	"4",
+	"5",
+	"6",
+	"7",
+	"8",
+	"9",
+
+	"num_0",
+	"num_1",
+	"num_2",
+	"num_3",
+	"num_4",
+	"num_5",
+	"num_6",
+	"num_7",
+	"num_8",
+	"num_9",
+
+	"a",
+	"b",
+	"c",
+	"d",
+	"e",
+	"f",
+	"g",
+	"h",
+	"i",
+	"j",
+	"k",
+	"l",
+	"m",
+	"n",
+	"o",
+	"p",
+	"q",
+	"r",
+	"s",
+	"t",
+	"u",
+	"v",
+	"w",
+	"x",
+	"y",
+	"z",
+
+	"f1",
+	"f2",
+	"f3",
+	"f4",
+	"f5",
+	"f6",
+	"f7",
+	"f8",
+	"f9",
+	"f10",
+	"f11",
+	"f12",
+
+	"left_ctrl",
+	"left_shift",
+	"left_alt",
+
+	"right_ctrl",
+	"right_shift",
+	"right_alt",
+
+	"return",
+	"backspace",
+
+	"up",
+	"down",
+	"left",
+	"right",
+
+	"home",
+	"end",
+	"pgup",
+	"pgdown",
+
+	"caps_lock",
+	"tab",
+
+	"(",
+	")",
+
+	"[",
+	"]",
+
+	"escape",
+	"/",
+	"\\",
+	"@",
+	"_"	
+};
+
 /*
 void inputManager::initWii(bool cube)
 {

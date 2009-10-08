@@ -39,7 +39,7 @@ namespace k
 	 */
 	typedef enum
 	{
-		KB_0 = 48,
+		KB_0 = 0,
 		KB_1,
 		KB_2,
 		KB_3,
@@ -50,7 +50,7 @@ namespace k
 		KB_8,
 		KB_9,
 
-		KB_num_0 = 256,
+		KB_num_0,
 		KB_num_1,
 		KB_num_2,
 		KB_num_3,
@@ -61,7 +61,7 @@ namespace k
 		KB_num_8,
 		KB_num_9,
 
-		KB_a = 97,
+		KB_a,
 		KB_b,
 		KB_c,
 		KB_d,
@@ -88,7 +88,7 @@ namespace k
 		KB_y,
 		KB_z,
 
-		KB_f1 = 282,
+		KB_f1,
 		KB_f2,
 		KB_f3,
 		KB_f4,
@@ -111,6 +111,7 @@ namespace k
 
 		KB_return,
 		KB_backspace,
+		KB_space,
 
 		KB_up,
 		KB_down,
@@ -129,9 +130,22 @@ namespace k
 		KB_right_parenthesis,
 
 		KB_left_bracket,
-		KB_right_bracket
+		KB_right_bracket,
+
+		KB_escape,
+		KB_slash,
+		KB_backslash,
+		KB_at, // @
+		KB_underscore,
+
+		KB_MAX_KEYS
 
 	} keyboardKeys;
+
+	/**
+	 * List of ascii strings for each keyboard keys
+	 */
+	extern const char* DLL_EXPORT keyboardKeysStrings[KB_MAX_KEYS];
 
 	/**
 	 * This is the list of all peripherals available
@@ -370,7 +384,15 @@ namespace k
 
 			/**
 			 * Push an event handler for a certain event of
-			 * this peripheral.
+			 * this peripheral. 
+			 *
+			 * Suppose you have a class named myEventHandler 
+			 * derivated from k::eventHandler and you
+			 * have a function called keyUp inside it. To push an event
+			 * using your myEventHandler class you do:
+			 *
+			 * k::inputFunctionPtr upPtr(&myEventHandler, (k::inputFunction)&myEventHandler::keyUp);
+			 * destElement->pushEvent(k::HANDLER_UP, upPtr);
 			 *
 			 * @param type The event handler type.
 			 * @param handler The handler function and class instance.
@@ -404,6 +426,57 @@ namespace k
 			 * Called by inputManager at each feed()
 			 */
 			virtual void feed() = 0;
+	};
+
+	/**
+	 * Represents a keyboard peripheral.
+	 * The array of key is feed by each system separated.
+	 */
+	class DLL_EXPORT inputKeyboard : public inputPeripheral
+	{
+		protected:
+			/**
+			 * Snapshot containing all pressed keys in this frame.
+			 */
+			bool mKeySnapshot[KB_MAX_KEYS];
+
+			/**
+			 * Snapshot containing all pressed keys in last frame.
+			 */
+			bool mLastKeySnapshot[KB_MAX_KEYS];
+
+		public:
+			/**
+			 * Constructor, initialize and fill key data.
+			 */
+			inputKeyboard();
+			
+			/**
+			 * Destructor, free used data.
+			 */
+			~inputKeyboard();
+
+			/**
+			 * Get this frame keys snapshot as an array of booleans.
+			 * Each member of the array represents a key (@see keyboardKeys). If the
+			 * member is true, the key i pressed, otherwise it is not.
+			 *
+			 * @param lastFrame Returns last frame snapshot, false by default.
+			 */
+			const bool* getKeySnapshot(bool lastFrame = false) const;
+
+			/**
+			 * Returns true if the key in question is down.
+			 * @param key The key you want to know its state.
+			 */
+			bool isKeyDown(keyboardKeys key) const;
+
+			/**
+			 * Feeds the mKeySnapshot and mLastKeySnapshot
+			 * with key data and take care of the events. Called
+			 * internally by the inputManager.
+			 */
+			void feed();
 	};
 
 	/**
