@@ -13,7 +13,6 @@ libknowledge_la_SOURCES = drawable.cpp\
 								  fontManager.cpp\
 								  inputManager.cpp\
 								  gameState.cpp\
-								  physicsManager.cpp\
 								  resourceManager.cpp\
 								  renderer.cpp\
 								  bsp46.cpp\
@@ -67,7 +66,6 @@ pkginclude_HEADERS = @top_srcdir@/include/bsp46.h \
 @top_srcdir@/include/md3.h \
 @top_srcdir@/include/md5.h \
 @top_srcdir@/include/particle.h \
-@top_srcdir@/include/physicsManager.h \
 @top_srcdir@/include/pngu.h \
 @top_srcdir@/include/prerequisites.h \
 @top_srcdir@/include/quaternion.h \
@@ -91,6 +89,7 @@ pkginclude_HEADERS = @top_srcdir@/include/bsp46.h \
 
 pcdir = $(pkgincludedir)/pc
 pc_HEADERS = @top_srcdir@/include/pc/glRenderSystem.h \
+@top_srcdir@/include/pc/sdlInputManager.h \
 @top_srcdir@/include/pc/prerequisites.h 
 
 wiidir = $(pkgincludedir)/wii

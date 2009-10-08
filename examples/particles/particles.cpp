@@ -65,15 +65,6 @@ int main(int argc, char** argv)
 	assert(mGuiManager != NULL);
 	mGuiManager->setCursor("wiiCursor3", k::vector2(48, 48));
 
-	/**
-	 * Setup the input Manager
-	 */
-	assert(mInputManager != NULL);
-	mInputManager->initWii(false);
-	mInputManager->setupWiiMotes(1);
-	mInputManager->setWiiMoteTimeout(60);
-	mInputManager->setWiiMoteEmulation(true);
-
 	// Setup Camera
 	k::camera* newCamera = new k::camera();
 	newCamera->setPosition(k::vector3(0, 0, 0));
@@ -93,9 +84,10 @@ int main(int argc, char** argv)
 		mInputManager->feed();
 
 		// User clicked on Close Window
-		if (mInputManager->getQuitEvent() || mInputManager->getKbdKeyDown(K_KBD_ESCAPE))
+		if (mInputManager->getQuitEvent() /*|| mInputManager->getKbdKeyDown(K_KBD_ESCAPE)*/)
 			running = false;
 
+		/*
 		if ((mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_LEFT)) ||
 			 mInputManager->getKbdKeyDown(K_KBD_LEFT))
 		{
@@ -193,6 +185,7 @@ int main(int argc, char** argv)
 			// Do Something
 			leftHold = false;
 		}
+		*/
 
 		// Physics Loop
 		mRenderer->draw();

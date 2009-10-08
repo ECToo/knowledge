@@ -171,6 +171,9 @@ int main(int argc, char** argv)
 		K_LOG_INFO("Failed to create texture material.");
 		return 0;
 	}
+
+	// Keyboard peripheral
+	k::inputKeyboard* kb = (k::inputKeyboard*)mInputManager->getDevice(k::INPUT_KEYBOARD);
 		
 	// Create a sticker ;)
 	texSticker = new k::sticker("rttMaterial");
@@ -182,15 +185,6 @@ int main(int argc, char** argv)
 
 	delete newLoadingScreen;
 
-	/**
-	 * Setup the input Manager
-	 */
-	kAssert(mInputManager);
-	mInputManager->initWii(false);
-	mInputManager->setupWiiMotes(1);
-	mInputManager->setWiiMoteTimeout(60);
-	mInputManager->setWiiMoteEmulation(true);
-
 	// Get material
 	crateMaterial = mMaterialManager->getMaterial("crate");
 	kAssert(crateMaterial);
@@ -201,12 +195,14 @@ int main(int argc, char** argv)
 		mInputManager->feed();
 
 		// User clicked on Close Window
-		if (mInputManager->getQuitEvent() || mInputManager->getKbdKeyDown(K_KBD_ESCAPE))
+		if (mInputManager->getQuitEvent() || kb && kb->isKeyDown(k::KB_escape))
 			running = false;
 
-		// Quit Application
+		// Quit Application on wii
+		/*
 		if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_HOME))
 			running = false;
+		*/
 
 		// Draw
 		mRenderSystem->setViewPort(0, 0, 128, 128);

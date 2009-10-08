@@ -158,201 +158,30 @@ const char* keyboardKeysStrings[KB_MAX_KEYS] =
 	"_"	
 };
 
-/*
-void inputManager::initWii(bool cube)
-{
-	#ifdef __WII__
-	WPAD_Init();
-
-	if (cube)
-	{
-		PAD_Init();
-		mUseCube = true;
-	}
-	#endif
-}
-			
-unsigned char inputManager::setupWiiMotes(unsigned char num)
-{
-	#ifdef __WII__
-	if (mUseCube)
-		PAD_ScanPads();
-
-	WPAD_ScanPads();
-	
-	// u32 wDev;
-	u32 wResX, wResY;
-
-	renderSystem* rs = root::getSingleton().getRenderSystem();
-	wResX = rs->getScreenWidth();
-	wResY = rs->getScreenHeight();
-
-	for (unsigned int i = 0; i < num; i++)
-	{
-		WPAD_SetVRes(i, wResX, wResY);
-		WPAD_SetDataFormat(i, WPAD_FMT_BTNS_ACC_IR);
-	}
-
-	// No Errors reported =]
-	mConnnectedMotes = num;
-
-	return mConnnectedMotes;
-	#else
-	return 0;
-	#endif
-}
-
-void inputManager::setWiiMoteTimeout(unsigned short time)
-{
-	#ifdef __WII__
-	WPAD_SetIdleTimeout(time);
-	#endif
-}
-			
-void inputManager::setWiiMoteEmulation(bool state)
-{
-	mEmulationEnabled = state;
-}
-
-vector2 inputManager::getWiiMotePosition(unsigned char num)
-{
-	#ifdef __WII__
-	if (num > 3)
-	{
-		S_LOG_INFO("Failed to retrieve controller data. Wiimote index is too big");
-		return vector2(0, 0);
-	}
-	return vector2(mWiiData[num]->ir.ax, mWiiData[num]->ir.ay);
-	#else
-	if (mEmulationEnabled)
-	{
-		return mLastMousePos;
-	}
-	#endif
-
-	return vector2(0, 0);
-}
-
-void inputManager::feed()
-{
-	#ifdef __WII__
-
-	// Reset Mouse Motion
-	for (int i = 0; i < 4; i++)
-		mLastMouseMotion[i].x = mLastMouseMotion[i].y = 0;
-
-	if (mUseCube)
-		PAD_ScanPads();
-
-	WPAD_ScanPads();
-	memset(mWiiMoteHeld, 0, sizeof(u32)*4);
-	switch (mConnnectedMotes)
-	{
-		default:
-		case 0:
-			break;
-		case 4:
-			mWiiMoteHeld[3] = WPAD_ButtonsHeld(3);
-			mWiiData[3] = WPAD_Data(WPAD_CHAN_3);
-		case 3:
-			mWiiMoteHeld[2] = WPAD_ButtonsHeld(2);
-			mWiiData[2] = WPAD_Data(WPAD_CHAN_2);
-		case 2:
-			mWiiMoteHeld[1] = WPAD_ButtonsHeld(1);
-			mWiiData[1] = WPAD_Data(WPAD_CHAN_1);
-		case 1:
-			mWiiMoteHeld[0] = WPAD_ButtonsHeld(0);
-			mWiiData[0] = WPAD_Data(WPAD_CHAN_0);
-			break;
-	};
-
-	#else
-
-	// Reset Mouse Motion
-	mLastMouseMotion.x = mLastMouseMotion.y = 0;
-
-	SDL_Event ev, *events = &ev;
-	while (SDL_PollEvent (events))
-	{	
-		switch (events->type)
-		{
-			case SDL_QUIT:
-				mQuitEvent = true;
-				break;
-			case SDL_MOUSEMOTION:
-				mLastMouseMotion.x = events->motion.xrel;
-				mLastMouseMotion.y = events->motion.yrel;
-				break;
-		}
-	}
-
-	int mx, my;
-	mSDLMouseSnapshot = SDL_GetMouseState(&mx, &my);
-	mSDLKbdSnapshot = SDL_GetKeyState(NULL);
-
-	mLastMousePos.x = mx;
-	mLastMousePos.y = my;
-	#endif
-}
-			
-vector2 inputManager::getWiiMoteMotion(unsigned char num)
-{
-	#ifdef __WII__
-	return mLastMouseMotion[num];
-	#else
-	return mLastMouseMotion;
-	#endif
-}
-			
-bool inputManager::getQuitEvent()
-{
-	#ifdef __WII__
-	return false;
-	#else
-	return mQuitEvent;
-	#endif
-}
-
-bool inputManager::getKbdKeyDown(unsigned int id)
-{
-	#ifdef __WII__
-	return false;
-	#else
-	return mSDLKbdSnapshot[id];
-	#endif
-}
-			
-bool inputManager::getWiiMoteDown(unsigned char num, unsigned int id)
-{
-	#ifdef __WII__
-	if (num > 3)
-	{
-		S_LOG_INFO("Error: Invalid wiimote index!");
-		return false;
-	}
-	else 
-	{
-		return (mWiiMoteHeld[num] & id);
-	}
-	#else
-	if (mEmulationEnabled)
-	{
-		if (id == WIIMOTE_BUTTON_A)
-			return (mSDLMouseSnapshot & SDL_BUTTON(SDL_BUTTON_LEFT));
-		else
-		if (id == WIIMOTE_BUTTON_B)
-			return (mSDLMouseSnapshot & SDL_BUTTON(SDL_BUTTON_RIGHT));
-	}
-	#endif
-
-	return false;
-}
-*/
-
 void inputManager::setMouseEmulation(bool state)
 {
-	// TODO
 	mEmulatingMouse = state;
+
+	if (mEmulatingMouse && !mDevices[INPUT_MOUSE])
+	{
+		mInputPeripherals |= (1 << INPUT_MOUSE);
+		try 
+		{
+			mDevices[INPUT_MOUSE] = new inputMouse();
+		}
+
+		catch (...)
+		{
+			S_LOG_INFO("Failed to create mouse device.");
+			mInputPeripherals &= ~(1 << INPUT_MOUSE);
+		}
+	}
+	else
+	if (!mEmulatingMouse && mDevices[INPUT_MOUSE])
+	{
+		delete mDevices[INPUT_MOUSE];
+		mDevices[INPUT_MOUSE] = NULL;
+	}
 }
 
 bool inputManager::getQuitEvent() const
@@ -362,10 +191,12 @@ bool inputManager::getQuitEvent() const
 			
 void inputPeripheral::callEvent(eventHandlers type, unsigned int id)
 {
-	std::map<eventHandlers, inputFunctionPtr>::iterator it = mHandlers.find(type);
-	if (it != mHandlers.end())
+	kAssert(type < HANDLER_MAX_HANDLERS);
+	
+	std::vector<inputFunctionPtr>::iterator it;
+	for (it = mHandlers[type].begin(); it != mHandlers[type].end(); it++)
 	{
-		inputFunctionPtr funcPtr = mHandlers[type];
+		inputFunctionPtr funcPtr = (*it);
 		inputEventHandler* handler = funcPtr.first;
 		inputFunction function = funcPtr.second;
 		(handler->*function)(id, this);

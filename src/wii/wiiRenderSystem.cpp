@@ -28,6 +28,7 @@ extern "C"
 	#include <stdio.h>
 	#include <jpeglib.h>
 	#include <jerror.h>
+	#include "pngu.h"
 }
 
 #include "wiiRenderSystem.h"
@@ -1022,101 +1023,11 @@ void wiiRenderSystem::drawArrays()
 void wiiRenderSystem::screenshot(const char* filename)
 {
 	kAssert(filename);
-
-	FILE* texFile = fopen(filename, "wb");
-	if (!texFile)
-	{
-		S_LOG_INFO("Failed to create screenshot file " + std::string(filename));
-		return;
-	}
-
-	int w = mVideoMode->fbWidth;
-	int h = mVideoMode->efbHeight;
-
-	char* textureData = (char*) memalign(32, w * h * 4);
-	if (!textureData)
-	{
-		S_LOG_INFO("Failed to allocate screenshot memory");
-		fclose(texFile);
-
-		return;
-	}
-
-	GX_SetTexCopySrc(0, 0, w, h);
-	GX_SetTexCopyDst(w, h, GX_TF_RGBA8, false);
-	GX_CopyTex(textureData, false);
-	GX_PixModeSync();
-
-	// Write to file
-	char* rgbTex;
-	try
-	{
-		rgbTex = new char[w * h * 3];
-	}
-
-	catch (...)
-	{
-		free(textureData);
-		fclose(texFile);
-
-		S_LOG_INFO("Failed to allocate screenshot memory");
-		return;
-	}
-
-	int x0, y0, ix0, iy0;
-	int pitch = w<<1;
-	short *d = (short*)textureData;
-
-	for (y0 = 0; y0 < h; y0 += 4) 
-	{
-		for (x0 = 0; x0 < w; x0 += 4) 
-		{
-			for (iy0 = 0; iy0 < 4; iy0++) 
-			{
-				for (ix0 = 0; ix0 < 4; ix0++) 
-				{
-					int i = (y0*pitch)+(iy0<<2)+(x0<<3)+ix0;
-					u32 k = (d[i]<<16)|d[i+16];
-		
-					rgbTex[(y0+iy0)*(w*3)+((x0+ix0)*3) + 0] = (k >> 16) & 0xff;
-					rgbTex[(y0+iy0)*(w*3)+((x0+ix0)*3) + 1] = (k >> 8) & 0xff;
-					rgbTex[(y0+iy0)*(w*3)+((x0+ix0)*3) + 2] = k & 0xff;
-				}
-			}
-		}
-	}
-
-	// Compress the texture
-	struct jpeg_compress_struct jInfo;
-	struct jpeg_error_mgr jError;
-
-	jInfo.err = jpeg_std_error(&jError);
-	jpeg_create_compress(&jInfo);
-	jpeg_stdio_dest(&jInfo, texFile);
-
-	jInfo.image_width = w;
-	jInfo.image_height = h;
-	jInfo.input_components = 3;
-	jInfo.in_color_space = JCS_RGB;
-	jpeg_set_defaults(&jInfo);
-	jpeg_set_quality(&jInfo, 100, true);
-	jpeg_start_compress(&jInfo, true);
-
-	while (jInfo.next_scanline < jInfo.image_height)
-	{
-		char* data = &rgbTex[w * 3 * jInfo.next_scanline];
-		jpeg_write_scanlines(&jInfo, (JSAMPLE**)&data, 1);
-	}
-
-	jpeg_finish_compress(&jInfo);
-	fclose(texFile);
-
-	// Free Texture
-	jpeg_destroy_compress(&jInfo);
-	delete [] rgbTex;
-
-	// memalign'ed
-	free(textureData);
+	    
+	IMGCTX textureCtx;
+	textureCtx = PNGU_SelectImageFromDevice(filename);
+	PNGU_EncodeFromYCbYCr(textureCtx, getScreenWidth(), getScreenHeight(), mFrameBuffers[mBufferIndex], 0);
+	PNGU_ReleaseImageContext(textureCtx);
 }
 
 const u8 getWiiLight(unsigned int i)

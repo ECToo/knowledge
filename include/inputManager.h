@@ -161,8 +161,7 @@ namespace k
 	 */
 	typedef enum
 	{
-		INPUT_MOUSE = 0,
-		INPUT_KEYBOARD,
+		INPUT_KEYBOARD = 0,
 
 		/**
 		 * Wiimotes.
@@ -187,6 +186,8 @@ namespace k
 		INPUT_CLASSIC_2,
 		INPUT_CLASSIC_3,
 		INPUT_CLASSIC_4,
+
+		INPUT_MOUSE,
 
 		INPUT_MAX_PERIPHERALS
 
@@ -234,7 +235,12 @@ namespace k
 	{
 		HANDLER_DOWN,
 		HANDLER_UP,
-		HANDLER_PRESS
+		HANDLER_CONNECT,
+		HANDLER_DISCONNECT,
+		HANDLER_PRESS,
+
+		HANDLER_MAX_HANDLERS
+
 	} eventHandlers;
 
 	/**
@@ -303,7 +309,7 @@ namespace k
 			/**
 			 * Event handlers.
 			 */
-			std::map<eventHandlers, inputFunctionPtr> mHandlers;
+			std::vector<inputFunctionPtr> mHandlers[HANDLER_MAX_HANDLERS];
 		
 			// Make input manager friend of this class
 			// in the chance of input manager wants to change stuff
@@ -399,19 +405,39 @@ namespace k
 			 */
 			void pushEvent(eventHandlers type, inputFunctionPtr function)
 			{
+				kAssert(type < HANDLER_MAX_HANDLERS);
 				kAssert(function.first);
-				mHandlers[type] = function;
+
+				mHandlers[type].push_back(function);
 			}
 
 			/**
-			 * Remove an event hanlder for a certain event type.
-			 * @param type The event handler type. If no event is assigned, nothing happens.
+			 * Remove all event handlers for a certain event type.
+			 * @param type The event handler type. If no events are assigned, nothing happens.
 			 */
 			void popEvent(eventHandlers type)
 			{
-				std::map<eventHandlers, inputFunctionPtr>::iterator it = mHandlers.find(type);
-				if (it != mHandlers.end())
-					mHandlers.erase(it);
+				kAssert(type < HANDLER_MAX_HANDLERS);
+				mHandlers[type].clear();
+			}
+
+			/**
+			 * Remove event handlers for a certain event type and function.
+			 * @param type The event handler type. If no events are assigned, nothing happens.
+			 * @param function The function to remove from the event handler
+			 */
+			void popEvent(eventHandlers type, inputFunctionPtr function)
+			{
+				kAssert(type < HANDLER_MAX_HANDLERS);
+				std::vector<inputFunctionPtr>::iterator it;
+				for (it = mHandlers[type].begin(); it != mHandlers[type].end(); it++)
+				{
+					if ((*it) == function)
+					{
+						mHandlers[type].erase(it);
+						break;
+					}
+				}
 			}
 
 			/**
@@ -426,6 +452,39 @@ namespace k
 			 * Called by inputManager at each feed()
 			 */
 			virtual void feed() = 0;
+	};
+
+	/**
+	 * Represents a mouse peripheral.
+	 * If you are emulating mouse (from wiimotes)
+	 * this is the class that will be allocated.
+	 */
+	class DLL_EXPORT inputMouse : public inputPeripheral
+	{
+		public:
+			inputMouse();
+			~inputMouse();
+
+			void feed();
+	};
+
+	/**
+	 * Represents a wiimote peripheral.
+	 */
+	class DLL_EXPORT inputWiimote : public inputPeripheral
+	{
+		protected:
+			unsigned int mChan;
+
+		public:
+			/**
+			 * Allocates a new wiimote.
+			 * @param chan The channel this wiimote is in (range from 0 to 3)
+			 */
+			inputWiimote(unsigned int chan);
+			~inputWiimote();
+
+			void feed();
 	};
 
 	/**

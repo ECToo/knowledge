@@ -28,6 +28,7 @@ class modelExample : public k::inputEventHandler
 			
 		k::inputPeripheral* mouse;
 		k::inputKeyboard* kb;
+		k::inputWiimote* wiimote;
 			
 		k::resourceManager* resourceMgr;
 			
@@ -53,6 +54,9 @@ class modelExample : public k::inputEventHandler
 
 		// is our app running?
 		bool running;
+
+		// number of screenshots
+		unsigned int scrCont;
 			
 		// GUI
 		k::panelWidget* newPanel;
@@ -101,16 +105,29 @@ class modelExample : public k::inputEventHandler
 			q3ModelHead = NULL;
 			tempLight = NULL;
 			tempLight2 = NULL;
-		
+			scrCont = 0;
+
 			// Input Manager - mouse and keyboard devices
 			mouse = mInputManager->getDevice(k::INPUT_MOUSE);
 			kb = (k::inputKeyboard*)mInputManager->getDevice(k::INPUT_KEYBOARD);
+			if (kb)
+			{
+				k::inputFunctionPtr downPtr(this, (k::inputFunction)&modelExample::keyDown);
+				k::inputFunctionPtr upPtr(this, (k::inputFunction)&modelExample::keyUp);
 		
-			k::inputFunctionPtr downPtr(this, (k::inputFunction)&modelExample::keyDown);
-			k::inputFunctionPtr upPtr(this, (k::inputFunction)&modelExample::keyUp);
+				kb->pushEvent(k::HANDLER_DOWN, downPtr);
+				kb->pushEvent(k::HANDLER_UP, upPtr);
+			}
+
+			wiimote = (k::inputWiimote*)mInputManager->getDevice(k::INPUT_WIIMOTE_1);
+			if (wiimote)
+			{
+				k::inputFunctionPtr downPtr(this, (k::inputFunction)&modelExample::keyDown);
+				k::inputFunctionPtr upPtr(this, (k::inputFunction)&modelExample::keyUp);
 		
-			kb->pushEvent(k::HANDLER_DOWN, downPtr);
-			kb->pushEvent(k::HANDLER_UP, upPtr);
+				wiimote->pushEvent(k::HANDLER_DOWN, downPtr);
+				wiimote->pushEvent(k::HANDLER_UP, upPtr);
+			}
 
 			#ifdef __WII__
 			chdir("sd:/knowledge/model/");
@@ -317,7 +334,7 @@ class modelExample : public k::inputEventHandler
 				mInputManager->feed();
 
 				// Set Anim to idle
-				if (!kb->isKeyDown(k::KB_up) && !kb->isKeyDown(k::KB_down))
+				if (kb && !kb->isKeyDown(k::KB_up) && !kb->isKeyDown(k::KB_down))
 				{
 					if (!idle)
 					{
@@ -475,8 +492,10 @@ class modelExample : public k::inputEventHandler
 			{
 				// Quit
 				case k::KB_escape:
+				case k::WIIMOTE_HOME:
 					running = false;
 					break;
+
 				// Wireframe
 				case k::KB_e:
 					wireframe ^= 1;
@@ -495,6 +514,17 @@ class modelExample : public k::inputEventHandler
 						q3Model->setDrawBoundingBox(bounding);
 						q3ModelUpper->setDrawBoundingBox(bounding);
 						q3ModelHead->setDrawBoundingBox(bounding);
+					}
+					break;
+
+				// Screenshot
+				case k::WIIMOTE_1:
+					{
+						std::stringstream shot;
+						shot << k::resourceManager::getSingleton().getRoot();
+						shot << "screenshot_" << scrCont++ << ".png";
+
+						mRenderSystem->screenshot(shot.str().c_str());
 					}
 					break;
 

@@ -58,7 +58,6 @@ AC_OUTPUT(Makefile src/Makefile \
 			 examples/bsp/Makefile \
 			 examples/model/Makefile \
 			 examples/texture/Makefile \
-			 examples/physics/Makefile \
 			 examples/lightmap/Makefile \
 			 examples/particles/Makefile \
           knowledge.pc)

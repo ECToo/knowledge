@@ -27,14 +27,7 @@ THE SOFTWARE.
 
 namespace k
 {
-	class DLL_EXPORT inputMouse : public inputPeripheral
-	{
-		public:
-			inputMouse();
-			~inputMouse();
-
-			void feed();
-	};
+	// Platform specific input comes here.
 }
 
 #endif
