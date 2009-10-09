@@ -434,12 +434,14 @@ panelWidget::panelWidget(const vector2& pos, const vector2& dimension) : panelSk
 
 panelWidget::~panelWidget()
 {
-	while (!mChilds.empty())
+	std::vector<drawable2D*>::iterator it;
+	for (it = mChilds.begin(); it != mChilds.end(); it++)
 	{
-		std::vector<drawable2D*>::iterator it = mChilds.begin();
-		delete (*it);
-		mChilds.erase(it);
+		drawable2D* draw = (*it);
+		delete draw;
 	}
+
+	mChilds.clear();
 }
 			
 void panelWidget::draw()

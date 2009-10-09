@@ -227,17 +227,18 @@ md3model::~md3model()
 	delete [] mTags;
 	delete [] mSurfaces;
 
-	while (!mAttach.empty())
-		mAttach.erase(mAttach.begin());
-
 	std::map<int, md3Animation_t*>::iterator it;
 	while (!mAnimations.empty())
 	{
 		it = mAnimations.begin();
-		delete it->second;
+
+		md3Animation_t* anim = it->second;
+		delete anim;
+
 		mAnimations.erase(it);
 	}
 
+	mAttach.clear();
 	mAnimations.clear();
 }
 
