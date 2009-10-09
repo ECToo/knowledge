@@ -365,30 +365,6 @@ class modelExample : public k::inputEventHandler
 					modelPosition.y += cursorDelta.y;
 				}
 
-				/*
-				if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_1) || kb->isKeyDown(k::KB_F12))
-				{
-					oneHold = true;
-				}
-				else
-				if (oneHold)
-				{
-					oneHold = false;
-
-					std::stringstream shot;
-					shot << k::resourceManager::getSingleton().getRoot();
-					shot << "screenshot_" << scrCont++ << ".jpg";
-
-					mRenderSystem->screenshot(shot.str().c_str());
-				}
-
-				// Quit Application
-				if (mInputManager->getWiiMoteDown(0, WIIMOTE_BUTTON_HOME))
-				{
-					running = false;
-				}
-				*/
-
 				// Model Rotation
 				k::quaternion yQuat = k::quaternion(rY, k::vector3(1, 0, 0));
 				k::quaternion xQuat = k::quaternion(rX, k::vector3(0, 1, 0));
@@ -519,6 +495,7 @@ class modelExample : public k::inputEventHandler
 
 				// Screenshot
 				case k::WIIMOTE_1:
+				case k::KB_f12:
 					{
 						std::stringstream shot;
 						shot << k::resourceManager::getSingleton().getRoot();

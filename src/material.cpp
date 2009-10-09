@@ -92,12 +92,13 @@ material::material(const std::string& filename)
 material::~material()
 {
 	std::vector<materialStage*>::iterator it;
-	while (!mStages.empty())
+	for (it = mStages.begin(); it != mStages.end(); it++)
 	{
-		it = mStages.begin();
-		delete (*it);
-		mStages.erase(it);
+		materialStage* tmpStage = (*it);
+		delete tmpStage;
 	}
+
+	mStages.clear();
 }
 
 void material::start()

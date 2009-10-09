@@ -50,11 +50,10 @@ textureManager::textureManager()
 textureManager::~textureManager()
 {
 	std::map<int, texture*>::iterator it;
-	while (!mTextures.empty())
+	for (it = mTextures.begin(); it != mTextures.end(); ++it)
 	{
-		it = mTextures.begin();
-		delete it->second;
-		mTextures.erase(it);
+		texture* tmpTexture = it->second;
+		delete tmpTexture;
 	}
 
 	mTextures.clear();
