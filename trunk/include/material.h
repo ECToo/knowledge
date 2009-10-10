@@ -55,8 +55,6 @@ namespace k
 		TEXENV_MAX_ENV
 	};
 
-	#define K_MAX_STAGE_TEXTURES 16
-
 	/**
 	 * \brief The material (texture) stage.
 	 * Each material has a number of sub-texture stages, wich
@@ -102,9 +100,14 @@ namespace k
 			unsigned int mTexEnv;
 
 			/**
+			 * Number of textures allocated for this stage
+			 */
+			unsigned int mTexturesCount;
+
+			/**
 			 * All textures within this stage.
 			 */
-			texture* mTextures[K_MAX_STAGE_TEXTURES];
+			texture** mTextures;
 
 			/**
 			 * Last time this was called
@@ -139,6 +142,11 @@ namespace k
 			 * Destroys the material stage, freeing used memory.
 			 */
 			virtual ~materialStage();
+
+			/**
+			 * Set the number of textures on this stage.
+			 */
+			void setTexturesCount(unsigned int count);
 
 			/**
 			 * Set texture environment function, @see TexEnvFunctions.

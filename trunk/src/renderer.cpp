@@ -59,6 +59,16 @@ renderer::~renderer()
 	m3DObjects.clear();
 	m2DObjects.clear();
 	mSprites.clear();
+
+	// Deallocate lights
+	std::list<light::light*>::iterator it;
+	for (it = mLights.begin(); it != mLights.end(); ++it)
+	{
+		light::light* tempLight = (*it);
+		delete tempLight;
+	}
+
+	mLights.clear();
 }
 			
 void renderer::setWorld(world* w)

@@ -70,6 +70,26 @@ const char* buttonPushedWidgetEdges[] =
 	"ButtonRightPushed",
 	NULL
 };
+
+signalKeeper::~signalKeeper()
+{
+	std::map<std::string, signalHandlerInfo_t*>::iterator internalIt;
+	for (internalIt = mInternalSignals.begin(); internalIt != mInternalSignals.end(); ++internalIt)
+	{
+		signalHandlerInfo_t* tmpSignal = internalIt->second;
+		delete tmpSignal;
+	}
+
+	std::map<std::string, signalHandlerInfo_t*>::iterator it;
+	for (it = mSignals.begin(); it != mSignals.end(); ++it)
+	{
+		signalHandlerInfo_t* tmpSignal = it->second;
+		delete tmpSignal;
+	}
+
+	mInternalSignals.clear();
+	mSignals.clear();
+}
 			
 void signalKeeper::connect(const std::string& sname, signalHandlerInfo_t* info)
 {
@@ -432,7 +452,7 @@ panelWidget::panelWidget(const vector2& pos, const vector2& dimension) : panelSk
 	setSkinData(panelWidgetEdges, &mRectangle);
 }
 
-panelWidget::~panelWidget()
+panelWidget::~panelWidget() 
 {
 	std::vector<drawable2D*>::iterator it;
 	for (it = mChilds.begin(); it != mChilds.end(); it++)
@@ -886,6 +906,15 @@ guiManager::~guiManager()
 		renderer::getSingleton().pop2D(mCursor);
 		delete mCursor;
 	}
+			
+	std::map<std::string, rectangle*>::iterator it; 
+	for (it = mSkinDefinitions.begin(); it != mSkinDefinitions.end(); ++it)
+	{
+		rectangle* tempRect = it->second;
+		delete tempRect;
+	}
+
+	mSkinDefinitions.clear();
 }
 
 void guiManager::setCursor(const std::string& mat, const vector2& scale)
