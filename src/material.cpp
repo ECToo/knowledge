@@ -43,6 +43,7 @@ material::material(texture* tex)
 	try 
 	{
 		materialStage* newStage = new materialStage(0);
+		newStage->setTexturesCount(1);
 		newStage->setTexture(tex, 0);
 		pushStage(newStage);
 	}
@@ -72,6 +73,7 @@ material::material(const std::string& filename)
 	try 
 	{
 		materialStage* newStage = new materialStage(0);
+		newStage->setTexturesCount(1);
 		newStage->setTexture(newTexture, 0);
 		pushStage(newStage);
 	}
@@ -188,12 +190,14 @@ materialStage::materialStage(unsigned short index)
 	mTexEnv = TEXENV_REPLACE;
 	mCoordType = TEXCOORD_UV;
 	
-	for (int i = 0; i < K_MAX_STAGE_TEXTURES; i++)
-		mTextures[i] = NULL;
+	mTextures = NULL;
+	mTexturesCount = 0;
 }
 
 materialStage::~materialStage()
-{}
+{
+	delete [] mTextures;
+}
 
 void materialStage::setEnv(unsigned int tev)
 {
@@ -204,6 +208,24 @@ void materialStage::setBlendMode(unsigned short src, unsigned short dst)
 {
 	mBlendSrc = src;
 	mBlendDst = dst;
+}
+			
+void materialStage::setTexturesCount(unsigned int count)
+{
+	mTexturesCount = count;
+
+	try
+	{
+		mTextures = new texture*[mTexturesCount];
+
+		for (unsigned int i = 0; i < mTexturesCount; i++)
+			mTextures[i] = NULL;
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate texture array for material stage.");
+	}
 }
 
 void materialStage::feedAnims()
@@ -233,24 +255,18 @@ const texture* materialStage::getTexture(unsigned int i) const
 
 unsigned int materialStage::getWidth() const
 {
-	for (int i = 0; i < K_MAX_STAGE_TEXTURES; i++)
-	{
-		if (mTextures[i])
-			return mTextures[i]->getWidth();
-	}
-		
-	return 0;
+	if (mTextures[0])
+		return mTextures[0]->getWidth();
+	else
+		return 0;
 }
 
 unsigned int materialStage::getHeight() const
 {
-	for (int i = 0; i < K_MAX_STAGE_TEXTURES; i++)
-	{
-		if (mTextures[i])
-			return mTextures[i]->getHeight();
-	}
-		
-	return 0;
+	if (mTextures[0])
+		return mTextures[0]->getHeight();
+	else
+		return 0;
 }
 
 bool materialStage::isOpaque() const
@@ -273,12 +289,7 @@ void materialStage::setScroll(vector2 scroll)
 			
 unsigned int materialStage::getImagesCount() const
 {
-	int i = 0;
-	for (i = 0; i < K_MAX_STAGE_TEXTURES; i++)
-		if (!mTextures[i])
-			break;
-
-	return i;
+	return mTexturesCount;
 }
 			
 void materialStage::setScale(vector2 scale)
@@ -293,7 +304,7 @@ void materialStage::setRotate(vec_t angle)
 			
 bool materialStage::containsTexture(const std::string& name) const
 {
-	for (int i = 0; i < K_MAX_STAGE_TEXTURES; i++)
+	for (unsigned int i = 0; i < mTexturesCount; i++)
 	{
 		if (!mTextures[i])
 			break;

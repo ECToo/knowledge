@@ -1,0 +1,13 @@
+====================================================================================================================
+Knowledge Changelog: 0.1 to 0.2
+====================================================================================================================
+
+- Changed license to MIT
+- New GUI manager, with skin support (panel, mouse events, button).
+- New input manager which is event oriented and have platform independent API.
+- Support to infinite (up to memory) texture frames per material stage.
+- Fixed crahses on deallocation of various elements.
+- Fixed memory leak and bugs on md3 and md5 models.
+- Fixed md5 model to prevent models using vertices with 0 weights.
+- Removed physics support and demo (API was old, not maintained and not platform independent).
+

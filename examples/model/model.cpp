@@ -325,6 +325,7 @@ class modelExample : public k::inputEventHandler
 			delete fpsText;
 			delete resourceMgr;
 			delete appRoot;
+			delete newPanel;
 		}
 
 		void loop()

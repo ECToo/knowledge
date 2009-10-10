@@ -31,7 +31,7 @@ namespace k {
 void materialStage::draw()
 {
 	bool notFound = true;
-	for (int i = 0; i < K_MAX_STAGE_TEXTURES; i++)
+	for (int i = 0; i < mTexturesCount; i++)
 	{
 		if (mTextures[i])
 		{

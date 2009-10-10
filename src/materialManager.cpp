@@ -357,7 +357,10 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 			texture* newTexture = textureManager::getSingleton().allocateTexture(token);
 
 			if (newTexture)
+			{
+				activeStage->setTexturesCount(1);
 				activeStage->setTexture(newTexture, stageTextures++);
+			}
 		}
 		else
 		if (token == "animname")
@@ -366,16 +369,16 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 			unsigned int numberOfImages = 0;
 			vec_t frameRate = 0;
 
+			// When describing only image names (instead of count)
+			std::list<std::string> animTexturesList;
+
 			std::string filename = file->getNextToken();
 			token = file->getNextToken();
 
 			if (!isNumeric(token))
 			{
 				// Register first filename
-				texture* tempTex = textureManager::getSingleton().allocateTexture(filename);
-				if (tempTex) activeStage->setTexture(tempTex, 0);
-
-				numberOfImages++;
+				animTexturesList.push_back(filename);
 				readingWords = true;
 			}
 
@@ -384,13 +387,14 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 				// We got the number of frames
 				numberOfImages = atoi(token.c_str());
 				frameRate = atof(file->getNextToken().c_str());
-
-				if (numberOfImages > K_MAX_STAGE_TEXTURES)
-					numberOfImages = K_MAX_STAGE_TEXTURES;
 			
 				std::string extension = getExtension(filename);
 				filename.erase(filename.length() - extension.length(), extension.length());
 
+				// Set the number of textures we are parsing
+				activeStage->setTexturesCount(numberOfImages);
+
+				// Parse them
 				for (unsigned int i = 0; i < numberOfImages; i++)
 				{
 					texture* tempTex = NULL;
@@ -414,21 +418,26 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 					continue;
 				}
 
-				if (numberOfImages < K_MAX_STAGE_TEXTURES)
-				{
-					// We havent got the number of frames, so we are getting file names =]
-					texture* tempTex = textureManager::getSingleton().allocateTexture(token);
-					if (tempTex) activeStage->setTexture(tempTex, numberOfImages);
-				
-					numberOfImages++;
-				}
-
+				animTexturesList.push_back(token);
 				token = file->getNextToken();
 			}	
 
 			// We got the frameRate last =]
 			if (readingWords)
+			{
+				numberOfImages = 0;
+				activeStage->setTexturesCount(animTexturesList.size());
+
+				for (std::list<std::string>::iterator it = animTexturesList.begin(); it != animTexturesList.end(); it++)
+				{
+					// We havent got the number of frames, so we are getting file names =]
+					texture* tempTex = textureManager::getSingleton().allocateTexture(*it);
+					if (tempTex) activeStage->setTexture(tempTex, numberOfImages++);
+				}
+
+				numberOfImages = animTexturesList.size();
 				frameRate = atoi(token.c_str());
+			}
 
 			activeStage->setFrameRate(frameRate);
 			activeStage->setNumberOfFrames(numberOfImages);
@@ -442,6 +451,9 @@ void materialManager::parseTextureSection(material* mat, parsingFile* file, unsi
 			token.erase(token.length() - extension.length(), extension.length());
 
 			int flags = FLAG_CLAMP_EDGE_S | FLAG_CLAMP_EDGE_T;
+
+			// Cube stage - 6 textures
+			activeStage->setTexturesCount(6);
 
 			// Temporary
 			std::string tempName;
