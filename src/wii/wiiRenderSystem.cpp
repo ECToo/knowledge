@@ -548,7 +548,7 @@ void wiiRenderSystem::translateScene(vec_t x, vec_t y, vec_t z)
 void wiiRenderSystem::rotateScene(vec_t angle, vec_t x, vec_t y, vec_t z)
 {
 	Mtx temp;
-	Vector axis;
+	guVector axis;
 
 	if (angle == 0 || angle == M_PI*2)
 		return;

@@ -270,62 +270,10 @@ namespace k
 			{
 				quaternion output;
 
-				#ifdef __WII__ // TODO: Remove this from here
-
-				Vector tmp;
-				tmp.x = newVec.x;
-				tmp.y = newVec.y;
-				tmp.z = newVec.z;
-			
-				register f32 vXY,vZZ,qXY,qZW;
-				register f32 tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
-				register char* a = (char*)&tmp;
-				register char* b = (char*)quat;
-				register char* ab = (char*)output.quat;
-
-				__asm__ __volatile__ (
-				"psq_l		%0,0(%12),0,0\n"		// [vx][vy]
-				"lfs			%1,8(%12)\n"			// [vz][vz]
-				"psq_l		%2,0(%13),0,0\n"		// [qx][qy]
-				"ps_neg		%4,%0\n"					// [-vx][-vy]
-				"psq_l		%3,8(%13),0,0\n"		// [qz][qw]
-				"ps_neg		%5,%1\n"					// [-vz][-vz]
-				"ps_merge01	%6,%5,%1\n"				// [-vz][vz]
-				"ps_mul		%8,%3,%6\n"				// [qz*-vz][qw*vz]
-				"ps_muls1	%9,%4,%2\n"				// [-vx*qy][-vy*qy]
-				"ps_merge01	%11,%4,%0\n"			// [-vx][vy]
-				"ps_madds0	%7,%11,%2,%8\n"		// [-vx*qx+qz*-vz][vy*qx+qw*vz]
-				"ps_sum0	%10,%7,%7,%9\n"			// [-vx*qx+qz*-vz+-vy*qy][vy*qx+qw*vz]
-				"ps_sum1	%10,%9,%10,%7\n"			// [-vx*qx+qz*-vz+-vy*qy][-vx*qy+vy*qx+qw*vz]
-				"ps_merge10	%10,%10,%10\n"			// [-vx*qy+vy*qx+qw*vz][-vx*qx+qz*-vz+-vy*qy]
-				"psq_st		%10,8(%14),0,0\n"		// Z = [-vx*qy+vy*qx+qw*vz], W = [-vx*qx+qz*-vz+-vy*qy]
-				"ps_merge10	%8,%2,%2\n"				// [qy][qx]
-				"ps_muls0	%9,%8,%5\n"				// [qy*-vz][qx*-vz]
-				"ps_muls0	%7,%0,%3\n"				// [vx*qz][vy*qz]
-				"ps_merge10	%7,%7,%7\n"				// [vy*qz][vx*qz]
-				"ps_madds1	%10,%0,%3,%7\n"		// [vx*qw+vy*qz][vy*qw+vx*qz]
-				"ps_sum0	%8,%10,%10,%9\n"			// [vx*qw+vy*qz+qy*-vz][vy*qw+vx*qz]
-				"ps_sum1	%8,%9,%8,%10\n"			// [vx*qw+vy*qz+qy*-vz][qx*-vz+vy*qw+vx*qz]
-				"psq_st		%8,0(%14),0,0"			// X = [vx*qw+vy*qz+qy*-vz], Y = [qx*-vz+vy*qw+vx*qz]
-
-				// Output
-				: "=&f"(vXY),"=&f"(vZZ),"=&f"(qXY),
-				"=&f"(qZW),"=&f"(tmp0),"=&f"(tmp1),
-				"=&f"(tmp2),"=&f"(tmp3),"=&f"(tmp4),
-				"=&f"(tmp5),"=&f"(tmp6),"=&f"(tmp7)
-
-				// Input
-				: "r"(a),"r"(b),"r"(ab)
-				);
-
-				#else
-
 				output.w = -x*newVec.x - y*newVec.y - z*newVec.z;
 				output.x =  w*newVec.x + y*newVec.z - z*newVec.y;
 				output.y =  w*newVec.y + z*newVec.y - x*newVec.z;
 				output.z =  w*newVec.z + x*newVec.y - y*newVec.x;
-
-				#endif
 
 				return output;
 			}
