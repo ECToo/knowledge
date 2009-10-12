@@ -649,8 +649,25 @@ void renderer::draw()
 			drawable2D* obj = (*dit);
 			kAssert(obj);
 		
+			// Dont draw if object is invisible
 			if (!obj->isVisible())
 				continue;
+
+			vector2 objPos = obj->getAbsolutePosition();
+			vector2 objDimension = obj->getDimension();
+
+			vector2 screenDim;
+			screenDim.x = rs->getScreenWidth(); 
+			screenDim.y = rs->getScreenHeight(); 
+
+			// cull object from screen
+			if (objPos.x > screenDim.x ||
+				 objPos.y > screenDim.y ||
+				 objDimension.x + objPos.x < 0 ||
+				 objDimension.y + objPos.y < 0)
+			{
+				return;
+			}
 
 			rs->setMatrixMode(MATRIXMODE_MODELVIEW);
 			rs->identityMatrix();
