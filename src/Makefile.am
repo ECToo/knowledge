@@ -41,7 +41,7 @@ INCLUDES = -I@top_srcdir@/include -I@top_srcdir@/include/pc -I@top_srcdir@/inclu
 
 libknowledge_la_CFLAGS = -I$(INCLUDES) -g
 libknowledge_la_CXXFLAGS = -I$(INCLUDES)
-libknowledge_la_LIBADD = -lode -lm -lGL -lGLU -lGLEW -lfreeimage
+libknowledge_la_LIBADD = -lm -lGL -lGLU -lGLEW -lfreeimage
 libknowledge_la_LDFLAGS = -pthread
 
 pkginclude_HEADERS = @top_srcdir@/include/bsp46.h \

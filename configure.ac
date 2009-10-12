@@ -17,12 +17,7 @@ if test -n "$SDL_CONFIG"; then
 		  AC_MSG_ERROR([ *** Unable to find SDL library (http://www.libsdl.org/)]))
 		  AC_CHECK_HEADERS([SDL.h], ,
 		  AC_MSG_ERROR([ *** SDL library found but cannot find headers (http://www.libsdl.org/)]))
-AC_PATH_PROG(ODE_CONFIG, ode-config)
-if test -n "$ODE_CONFIG"; then
-    LIBS="$LIBS `$ODE_CONFIG --libs`"
-	 CXXFLAGS="$CXXFLAGS `$ODE_CONFIG --cflags`"
-fi
-		  
+
 AC_CHECK_LIB([GLEW], [glewInit], ,
 AC_MSG_ERROR([ *** Unable to find GLEW library (http://glew.sourceforge.net)]))
 AC_CHECK_LIB([freeimage], [FreeImage_DeInitialise], ,
