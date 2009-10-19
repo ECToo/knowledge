@@ -36,6 +36,7 @@ inputManager::inputManager()
 	for (unsigned int i = 0; i < INPUT_MAX_PERIPHERALS; i++)
 		mDevices[i] = NULL;
 
+	mReceivedQuitEvent = false;
 	mInputPeripherals = 0;
 
 	// Setup resolution
@@ -53,8 +54,8 @@ inputManager::inputManager()
 		WPAD_SetDataFormat(i, WPAD_FMT_BTNS_ACC_IR);
 
 		// Get Data
-		WPADData* wiimoteData = WPAD_Data(i);
-		if (!wiimoteData->data_present)
+		s32 res = WPAD_Probe(i, NULL);
+		if (res == WPAD_ERR_NO_CONTROLLER)
 			break;
 
 		try	 
@@ -84,8 +85,8 @@ void inputManager::feed()
 	for (int i = 0; i < 4; i++)
 	{
 		// Get Data
-		WPADData* wiimoteData = WPAD_Data(i);
-		if (!wiimoteData->data_present)
+		s32 res = WPAD_Probe(i, NULL);
+		if (res == WPAD_ERR_NO_CONTROLLER)
 			break;
 
 		if (mDevices[INPUT_WIIMOTE_1 + i])
@@ -126,9 +127,10 @@ inputWiimote::~inputWiimote()
 void inputWiimote::feed()
 {
 	WPADData* wiimoteData = WPAD_Data(mChan);
+	s32 res = WPAD_Probe(mChan, NULL);
 
 	// Wiimote is connected now =]
-	if (wiimoteData->data_present)
+	if (res != WPAD_ERR_NO_CONTROLLER)
 	{
 		if (!mIsConnected)
 			callEvent(HANDLER_CONNECT, mChan);

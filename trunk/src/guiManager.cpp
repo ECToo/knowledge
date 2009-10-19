@@ -1082,7 +1082,7 @@ void guiManager::setSkin(const std::string& matName, const std::string& guiFile)
 	TiXmlDocument xmlDoc(fullPath.c_str());
 	if (!xmlDoc.LoadFile())
 	{
-		S_LOG_INFO("Failed to load skin definitions " + guiFile + ".");
+		S_LOG_INFO("Failed to load skin definitions " + fullPath);
 		return;
 	}
 
