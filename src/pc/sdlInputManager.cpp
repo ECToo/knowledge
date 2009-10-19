@@ -120,6 +120,7 @@ inputManager::inputManager()
 	for (unsigned int i = 0; i < INPUT_MAX_PERIPHERALS; i++)
 		mDevices[i] = NULL;
 
+	mReceivedQuitEvent = false;
 	mInputPeripherals = 0;
 	mInputPeripherals |= (1 << INPUT_MOUSE);
 	mInputPeripherals |= (1 << INPUT_KEYBOARD);

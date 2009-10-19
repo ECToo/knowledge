@@ -1,14 +1,3 @@
-// Library Logo
-material knowledgeLogo
-{
-	texture
-	{
-		filename knowledge.png
-		texcoord uv
-		blendfunc srcalpha invsrcalpha
-	}
-}
-
 // Common Cursor
 material wiiCursor
 {

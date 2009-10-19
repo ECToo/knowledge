@@ -31,7 +31,6 @@
 		94D3B7B5105ED48800D200FF /* md3.h in Headers */ = {isa = PBXBuildFile; fileRef = 94D3B785105ED48800D200FF /* md3.h */; };
 		94D3B7B6105ED48800D200FF /* md5.h in Headers */ = {isa = PBXBuildFile; fileRef = 94D3B786105ED48800D200FF /* md5.h */; };
 		94D3B7B7105ED48800D200FF /* particle.h in Headers */ = {isa = PBXBuildFile; fileRef = 94D3B787105ED48800D200FF /* particle.h */; };
-		94D3B7B8105ED48800D200FF /* physicsManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 94D3B78C105ED48800D200FF /* physicsManager.h */; };
 		94D3B7B9105ED48800D200FF /* pngu.h in Headers */ = {isa = PBXBuildFile; fileRef = 94D3B78D105ED48800D200FF /* pngu.h */; };
 		94D3B7BA105ED48800D200FF /* prerequisites.h in Headers */ = {isa = PBXBuildFile; fileRef = 94D3B78E105ED48800D200FF /* prerequisites.h */; };
 		94D3B7BB105ED48800D200FF /* quaternion.h in Headers */ = {isa = PBXBuildFile; fileRef = 94D3B78F105ED48800D200FF /* quaternion.h */; };
@@ -67,7 +66,6 @@
 		94D3B801105ED4A000D200FF /* md3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94D3B7DA105ED4A000D200FF /* md3.cpp */; };
 		94D3B802105ED4A000D200FF /* md5.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94D3B7DB105ED4A000D200FF /* md5.cpp */; };
 		94D3B803105ED4A000D200FF /* particle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94D3B7DC105ED4A000D200FF /* particle.cpp */; };
-		94D3B804105ED4A000D200FF /* physicsManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94D3B7E5105ED4A000D200FF /* physicsManager.cpp */; };
 		94D3B805105ED4A000D200FF /* pngu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94D3B7E6105ED4A000D200FF /* pngu.cpp */; };
 		94D3B806105ED4A000D200FF /* pthread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94D3B7E7105ED4A000D200FF /* pthread.cpp */; };
 		94D3B807105ED4A000D200FF /* quaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94D3B7E8105ED4A000D200FF /* quaternion.cpp */; };
@@ -126,7 +124,6 @@
 		94D3B785105ED48800D200FF /* md3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = md3.h; path = ../../include/md3.h; sourceTree = SOURCE_ROOT; };
 		94D3B786105ED48800D200FF /* md5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = md5.h; path = ../../include/md5.h; sourceTree = SOURCE_ROOT; };
 		94D3B787105ED48800D200FF /* particle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = particle.h; path = ../../include/particle.h; sourceTree = SOURCE_ROOT; };
-		94D3B78C105ED48800D200FF /* physicsManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = physicsManager.h; path = ../../include/physicsManager.h; sourceTree = SOURCE_ROOT; };
 		94D3B78D105ED48800D200FF /* pngu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pngu.h; path = ../../include/pngu.h; sourceTree = SOURCE_ROOT; };
 		94D3B78E105ED48800D200FF /* prerequisites.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = prerequisites.h; path = ../../include/prerequisites.h; sourceTree = SOURCE_ROOT; };
 		94D3B78F105ED48800D200FF /* quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = quaternion.h; path = ../../include/quaternion.h; sourceTree = SOURCE_ROOT; };
@@ -162,7 +159,6 @@
 		94D3B7DA105ED4A000D200FF /* md3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = md3.cpp; path = ../../src/md3.cpp; sourceTree = SOURCE_ROOT; };
 		94D3B7DB105ED4A000D200FF /* md5.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = md5.cpp; path = ../../src/md5.cpp; sourceTree = SOURCE_ROOT; };
 		94D3B7DC105ED4A000D200FF /* particle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = particle.cpp; path = ../../src/particle.cpp; sourceTree = SOURCE_ROOT; };
-		94D3B7E5105ED4A000D200FF /* physicsManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = physicsManager.cpp; path = ../../src/physicsManager.cpp; sourceTree = SOURCE_ROOT; };
 		94D3B7E6105ED4A000D200FF /* pngu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pngu.cpp; path = ../../src/pngu.cpp; sourceTree = SOURCE_ROOT; };
 		94D3B7E7105ED4A000D200FF /* pthread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pthread.cpp; path = ../../src/pthread.cpp; sourceTree = SOURCE_ROOT; };
 		94D3B7E8105ED4A000D200FF /* quaternion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = quaternion.cpp; path = ../../src/quaternion.cpp; sourceTree = SOURCE_ROOT; };
@@ -260,7 +256,6 @@
 				94D3B7DA105ED4A000D200FF /* md3.cpp */,
 				94D3B7DB105ED4A000D200FF /* md5.cpp */,
 				94D3B7DC105ED4A000D200FF /* particle.cpp */,
-				94D3B7E5105ED4A000D200FF /* physicsManager.cpp */,
 				94D3B7E6105ED4A000D200FF /* pngu.cpp */,
 				94D3B7E7105ED4A000D200FF /* pthread.cpp */,
 				94D3B7E8105ED4A000D200FF /* quaternion.cpp */,
@@ -298,7 +293,6 @@
 				94D3B785105ED48800D200FF /* md3.h */,
 				94D3B786105ED48800D200FF /* md5.h */,
 				94D3B787105ED48800D200FF /* particle.h */,
-				94D3B78C105ED48800D200FF /* physicsManager.h */,
 				94D3B78D105ED48800D200FF /* pngu.h */,
 				94D3B78E105ED48800D200FF /* prerequisites.h */,
 				94D3B78F105ED48800D200FF /* quaternion.h */,
@@ -366,7 +360,6 @@
 				94D3B7B5105ED48800D200FF /* md3.h in Headers */,
 				94D3B7B6105ED48800D200FF /* md5.h in Headers */,
 				94D3B7B7105ED48800D200FF /* particle.h in Headers */,
-				94D3B7B8105ED48800D200FF /* physicsManager.h in Headers */,
 				94D3B7B9105ED48800D200FF /* pngu.h in Headers */,
 				94D3B7BA105ED48800D200FF /* prerequisites.h in Headers */,
 				94D3B7BB105ED48800D200FF /* quaternion.h in Headers */,
@@ -451,7 +444,6 @@
 				94D3B801105ED4A000D200FF /* md3.cpp in Sources */,
 				94D3B802105ED4A000D200FF /* md5.cpp in Sources */,
 				94D3B803105ED4A000D200FF /* particle.cpp in Sources */,
-				94D3B804105ED4A000D200FF /* physicsManager.cpp in Sources */,
 				94D3B805105ED4A000D200FF /* pngu.cpp in Sources */,
 				94D3B806105ED4A000D200FF /* pthread.cpp in Sources */,
 				94D3B807105ED4A000D200FF /* quaternion.cpp in Sources */,

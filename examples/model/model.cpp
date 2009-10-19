@@ -77,6 +77,26 @@ class modelExample : public k::inputEventHandler
 	public:
 		modelExample()
 		{
+			// Zero pointers
+			appRoot = NULL;
+			mRenderSystem = NULL;
+			mRenderer = NULL;
+			mGuiManager = NULL;
+			mInputManager = NULL;
+			mouse = NULL;
+			kb = NULL;
+			wiimote = NULL;
+			resourceMgr = NULL;
+			newPanel = NULL;
+			fpsText = NULL;
+			newModel = NULL;
+			q3Model = NULL;
+			q3ModelUpper = NULL;
+			q3ModelHead = NULL;
+			tempLight = NULL;
+			tempLight2 = NULL;
+			scrCont = 0;
+
 			// Initialize knowledge
 			try
 			{
@@ -97,15 +117,6 @@ class modelExample : public k::inputEventHandler
 			// Doesnt matter on wii
 			mRenderSystem->createWindow(800, 600);
 			mRenderSystem->setWindowTitle("knowledge, the power of mind");
-
-			// Zero pointers
-			newModel = NULL;
-			q3Model = NULL;
-			q3ModelUpper = NULL;
-			q3ModelHead = NULL;
-			tempLight = NULL;
-			tempLight2 = NULL;
-			scrCont = 0;
 
 			// Input Manager - mouse and keyboard devices
 			mouse = mInputManager->getDevice(k::INPUT_MOUSE);
