@@ -294,6 +294,9 @@ class DLL_EXPORT md3Surface
 		// Vertex Arrays
 		md3RealVertex* mVertices;
 
+		// Normal Drawing Arrays
+		vector3* mDrawingNormals;
+
 		// Number of Indices
 		unsigned int mIndicesCount;
 
@@ -348,10 +351,7 @@ class DLL_EXPORT md3Surface
 		/**
 		 * Set if normals are drawn or not.
 		 */
-		void setDrawNormals(bool draw)
-		{
-			mDrawNormals = draw;
-		}
+		void setDrawNormals(bool draw);
 
 		/**
 		 * Are we drawing normals?

@@ -247,18 +247,12 @@ void sprite::draw()
 		-1.0f, 1.0f, 0,
 		-1.0f, -1.0f, 0 };
 
-	const index_t index[] ATTRIBUTE_ALIGN(32) = {0, 1, 2, 3}; 
-
 	rs->clearArrayDesc(VERTEXMODE_QUAD);
 	rs->setVertexArray(vertex);
 	rs->setVertexCount(4);
 
 	rs->setTexCoordArray(uv);
-
-	rs->setVertexIndex(index);
-	rs->setIndexCount(4);
-
-	rs->drawArrays();
+	rs->drawArrays(true);
 
 	rs->setDepthMask(true);
 	mMaterial->finish();
@@ -295,18 +289,12 @@ void sprite::rawDraw()
 		mRadius, mRadius, 0, mRadius, mRadius, 0, -mRadius, mRadius, 0,
 		-mRadius, -mRadius, 0 };
 
-	const index_t index[] ATTRIBUTE_ALIGN(32) = {0, 1, 2, 3, 4, 5}; 
-
 	rs->clearArrayDesc();
 	rs->setVertexArray(vertex);
 	rs->setVertexCount(6);
 
 	rs->setTexCoordArray(uv);
-
-	rs->setVertexIndex(index);
-	rs->setIndexCount(6);
-
-	rs->drawArrays();
+	rs->drawArrays(true);
 }
 
 }

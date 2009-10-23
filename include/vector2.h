@@ -118,6 +118,14 @@ namespace k
 			}
 
 			/**
+			 * Compare all values on this vector with a single value.
+			 */
+			inline bool operator == (const vec_t real)
+			{
+				return (x == real && y == real);
+			}
+
+			/**
 			 * Sum this vector with another one.
 			 *
 			 * @param[in] newVec The vector to sum.

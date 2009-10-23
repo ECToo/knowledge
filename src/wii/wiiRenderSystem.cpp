@@ -876,7 +876,7 @@ void wiiRenderSystem::unBindTexture(int chan)
 	mActiveTextures[chan] = NULL;
 }
 
-void wiiRenderSystem::drawArrays()
+void wiiRenderSystem::drawArrays(bool dontUseIndex)
 {
 	if (mActiveMaterial && mActiveMaterial->getNoDraw())
 		return;
@@ -973,49 +973,45 @@ void wiiRenderSystem::drawArrays()
 	else
 	if (mIndexDrawMode == VERTEXMODE_TRI_STRIP)
 		drawMode = GX_TRIANGLESTRIP;
+	else
+	if (mIndexDrawMode == VERTEXMODE_POINTS)
+		drawMode = GX_POINTS;
+	else
+	if (mIndexDrawMode == VERTEXMODE_LINE)
+		drawMode = GX_LINES;
 
 	GX_Begin(drawMode, GX_VTXFMT0, mIndexCount);
-	// for (unsigned int i = 0; i < mIndexCount; i += 3)
-	for (unsigned int i = 0; i < mIndexCount; i++)
+	if (dontUseIndex)
 	{
-		// GX_Begin(drawMode, GX_VTXFMT0, 3);
-
-		GX_Position1x16(mIndexArray[i]);
-		if (mTexCoordArray)
+		for (unsigned int i = 0; i < mIndexCount; i++)
 		{
-			GX_TexCoord1x16(mIndexArray[i]);
-			for (unsigned int ki = 1; ki < materialTextureUnits; ki++)
+			GX_Position1x16(i);
+			if (mTexCoordArray)
+			{
+				GX_TexCoord1x16(i);
+				for (unsigned int ki = 1; ki < materialTextureUnits; ki++)
+					GX_TexCoord1x16(i);
+			}
+	
+			if (mNormalArray)
+				GX_Normal1x16(i);
+		}
+	}
+	else
+	{
+		for (unsigned int i = 0; i < mIndexCount; i++)
+		{
+			GX_Position1x16(mIndexArray[i]);
+			if (mTexCoordArray)
+			{
 				GX_TexCoord1x16(mIndexArray[i]);
+				for (unsigned int ki = 1; ki < materialTextureUnits; ki++)
+					GX_TexCoord1x16(mIndexArray[i]);
+			}
+	
+			if (mNormalArray)
+				GX_Normal1x16(mIndexArray[i]);
 		}
-
-		if (mNormalArray)
-			GX_Normal1x16(mIndexArray[i]);
-
-		/*
-		GX_Position1x16(mIndexArray[i+1]);
-		if (mTexCoordArray)
-		{
-			GX_TexCoord1x16(mIndexArray[i+1]);
-			for (unsigned int ki = 1; ki < materialTextureUnits; ki++)
-				GX_TexCoord1x16(mIndexArray[i+1]);
-		}
-
-		if (mNormalArray)
-			GX_Normal1x16(mIndexArray[i+1]);
-
-		GX_Position1x16(mIndexArray[i+2]);
-		if (mTexCoordArray)
-		{
-			GX_TexCoord1x16(mIndexArray[i+2]);
-			for (unsigned int ki = 1; ki < materialTextureUnits; ki++)
-				GX_TexCoord1x16(mIndexArray[i+2]);
-		}
-
-		if (mNormalArray)
-			GX_Normal1x16(mIndexArray[i+2]);
-		*/
-
-		// GX_End();
 	}
 	GX_End();
 }

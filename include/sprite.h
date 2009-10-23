@@ -176,7 +176,8 @@ namespace k
 
 			/**
 			 * Draws the sprite ignoring material
-			 * settings.
+			 * settings (preventing them to lag when drawing
+			 * multiple sprites that share a material).
 			 */
 			void rawDraw();
 	};

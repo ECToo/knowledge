@@ -956,10 +956,13 @@ void guiManager::pushWidget(widget* w)
 
 void guiManager::update()
 {
+	long tmpMouseButtons = 0;
+
 	if (mCursor && inputManager::getSingleton().isPeripheralActive(INPUT_MOUSE))
 	{
 		inputPeripheral* mouse = inputManager::getSingleton().getDevice(INPUT_MOUSE);
 
+		tmpMouseButtons = mouse->getButtons();
 		mCursorDeltaPos = mouse->getDeltaPosition();
 		mCursorLastPos = mouse->getPosition();
 
@@ -972,9 +975,7 @@ void guiManager::update()
 		signalInfo_t newInfo;
 		newInfo.type = SIGNAL_MOUSEMOVE;
 		newInfo.mouseState.mPosition = mCursorLastPos;
-
-		// TODO: Get Buttons from inputManager
-		newInfo.mouseState.buttons = 0;
+		newInfo.mouseState.buttons = tmpMouseButtons;
 
 		// TODO: Get Keys from inputManager
 		newInfo.key = 0;

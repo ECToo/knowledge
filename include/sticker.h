@@ -43,6 +43,12 @@ namespace k
 			 */
 			vec_t mZ;
 
+			/**
+			 * Final arrays for drawing
+			 */
+			vec_t* mUvs;
+			vec_t* mVertices;
+
 		public:
 			/**
 			 * Create the sticker with a material. Keep in mind that after creating

@@ -802,15 +802,18 @@ namespace k
 			}
 
 			/**
-			 * Draw previously set arrays.
+			 * Draw previously set arrays. 
 			 * @see clearArrayDesc 
 			 * @see setVertexArray
 			 * @see setVertexCount
 			 * @see setVertexIndex
 			 * @see setNormalArray
 			 * @see setTexCoordArray
+			 *
+			 * @param dontUseIndex If true, you dont need to specify an index array and access is going to be sequential
+			 * in vertex array (defaults to false).
 			 */
-			virtual void drawArrays() = 0;
+			virtual void drawArrays(bool dontUseIndex = false) = 0;
 
 			/**
 			 * Takes a screenshot and saves on a file.
