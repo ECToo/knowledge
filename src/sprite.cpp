@@ -207,9 +207,10 @@ void sprite::draw()
 		rs->setPointSprite(true);
 		rs->setPointSpriteSize(mRadius);
 
-		rs->startVertices(VERTEXMODE_POINTS);
-		rs->vertex(mPosition);
-		rs->endVertices();
+		rs->clearArrayDesc(VERTEXMODE_POINTS);
+		rs->setVertexArray(mPosition.vec);
+		rs->setVertexCount(1);
+		rs->drawArrays(true);
 
 		rs->setPointSprite(false);
 
@@ -269,9 +270,10 @@ void sprite::rawDraw()
 		rs->setPointSprite(true);
 		rs->setPointSpriteSize(mRadius);
 
-		rs->startVertices(VERTEXMODE_POINTS);
-		rs->vertex(mPosition);
-		rs->endVertices();
+		rs->clearArrayDesc(VERTEXMODE_POINTS);
+		rs->setVertexArray(mPosition.vec);
+		rs->setVertexCount(1);
+		rs->drawArrays(true);
 
 		rs->setPointSprite(false);
 
