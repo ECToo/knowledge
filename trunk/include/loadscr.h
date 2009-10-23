@@ -96,6 +96,9 @@ namespace k
 			color mBgColor;
 			vector2 mDimension;
 
+			// for drawing arrays
+			vec_t* mVertices;
+
 		public:
 			/**
 			 * Constructor
@@ -103,6 +106,16 @@ namespace k
 			imgLoadScreen()
 			{
 				mImgMaterial = NULL;
+
+				mVertices = (vec_t*) memalign(32, sizeof(vec_t) * 12);
+				if (!mVertices)
+				{
+					S_LOG_INFO("Failed to allocate vertex array for load screen.");
+					return;
+				}
+
+				mVertices[0] = mVertices[1] = mVertices[4] = mVertices[9] = 0.0f;
+				mVertices[2] = mVertices[5] = mVertices[8] = mVertices[11] = -0.5f;
 			}
 
 			/**
@@ -111,6 +124,10 @@ namespace k
 			~imgLoadScreen()
 			{
 				delete mImgMaterial;
+
+				// deallocate memalign'ed data.
+				if (mVertices)
+					free(mVertices);
 			}
 
 			/**

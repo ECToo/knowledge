@@ -114,7 +114,7 @@ namespace k
 
 			void setBlendMode(unsigned short src, unsigned short dst);
 			void setBlend(bool state);
-			void drawArrays();
+			void drawArrays(bool dontUseIndex = false);
 			void screenshot(const char* filename);
 
 			bool isLightOn();

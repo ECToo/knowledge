@@ -33,10 +33,32 @@ sticker::sticker(const std::string& matName)
 		S_LOG_INFO("Failed to create sticker material.");
 
 	mZ = 0;
+
+	// Allocate memory for drawing data - wii needs memaligned memory
+	mUvs = (vec_t*) memalign(32, sizeof(vec_t) * 8);
+	if (!mUvs)
+	{
+		S_LOG_INFO("Failed to allocate memory for sticker uvw arrays.");
+		return;
+	}
+
+	mVertices = (vec_t*) memalign(32, sizeof(vec_t) * 12);
+	if (!mVertices)
+	{
+		S_LOG_INFO("Failed to allocate memory for sticker vertex arrays.");
+		return;
+	}
+
+	mVertices[2] = mVertices[5] = mVertices[8] = mVertices[11] = -0.5;
 }
 
 sticker::~sticker()
 {
+	if (mUvs)
+		free(mUvs);
+
+	if (mVertices)
+		free(mVertices);
 }
 
 material* sticker::getMaterial()
@@ -46,14 +68,19 @@ material* sticker::getMaterial()
 
 void sticker::draw()
 {
+	if (!mVertices || !mUvs)
+	{
+		S_LOG_INFO("Invalid pointer to vertex or uv array.");
+		return;
+	}
+
 	const vector2 mScale = mRectangle.getDimension();
 	const vector2 mPosition = mRectangle.getPosition();
 
 	if (mScale.x == 0 || mScale.y == 0)
 		return;
 
-	renderSystem* rs = root::getSingleton().getRenderSystem();
-
+	// Final position for vertices
 	vector2 finalPos;
 	if (mPosition.x + mDrawRegionPos.x + mDrawRegionSize.x > mPosition.x + mScale.x)
 		finalPos.x = mPosition.x + mScale.x;
@@ -65,29 +92,49 @@ void sticker::draw()
 	else
 		finalPos.y = mPosition.y + mDrawRegionPos.y + mDrawRegionSize.y;
 
-	// Prepare the material
+	// Setup draw arrays
+	mUvs[0] = mDrawRegionPos.x / mScale.x; 
+	mUvs[1] = mDrawRegionPos.y / mScale.y;
+
+	mUvs[2] = (mDrawRegionPos.x + mDrawRegionSize.x) / mScale.x;
+	mUvs[3] = mDrawRegionPos.y / mScale.y;
+
+	mUvs[4] = (mDrawRegionPos.x + mDrawRegionSize.x) / mScale.x;
+	mUvs[5] = (mDrawRegionPos.y + mDrawRegionSize.y) / mScale.y;
+
+	mUvs[6] = mDrawRegionPos.x / mScale.x;
+	mUvs[7] = (mDrawRegionPos.y + mDrawRegionSize.y) / mScale.y;
+
+	mVertices[0] = mPosition.x + mDrawRegionPos.x; 
+	mVertices[1] = mPosition.y + mDrawRegionPos.y;
+
+	mVertices[3] = finalPos.x; 
+	mVertices[4] = mPosition.y + mDrawRegionPos.y;
+		
+	mVertices[6] = finalPos.x;
+	mVertices[7] = finalPos.y;
+		
+	mVertices[9] = mPosition.x + mDrawRegionPos.x;
+	mVertices[10] = finalPos.y;
+
+	// Get rendersystem
+	renderSystem* rs = root::getSingleton().getRenderSystem();
+
+	// Prepare the material and draw
 	mMaterial->start();
 	rs->setCulling(CULLMODE_NONE);
-
 	rs->setDepthMask(false);
-	rs->startVertices(VERTEXMODE_QUAD);
 
-	rs->texCoord(vector2(mDrawRegionPos.x / mScale.x, mDrawRegionPos.y / mScale.y));
-	rs->vertex(vector3(mPosition.x + mDrawRegionPos.x, mPosition.y + mDrawRegionPos.y, -0.5));
+	rs->clearArrayDesc(VERTEXMODE_QUAD);
+	rs->setVertexArray(mVertices);
+	rs->setVertexCount(4);
 
-	rs->texCoord(vector2((mDrawRegionPos.x + mDrawRegionSize.x) / mScale.x, mDrawRegionPos.y / mScale.y));
-	rs->vertex(vector3(finalPos.x, mPosition.y + mDrawRegionPos.y, -0.5));
+	rs->setTexCoordArray(mUvs);
 
-	rs->texCoord(vector2((mDrawRegionPos.x + mDrawRegionSize.x) / mScale.x, (mDrawRegionPos.y + mDrawRegionSize.y) / mScale.y));
-	rs->vertex(vector3(finalPos.x, finalPos.y, -0.5));
-
-	rs->texCoord(vector2(mDrawRegionPos.x / mScale.x, (mDrawRegionPos.y + mDrawRegionSize.y) / mScale.y));
-	rs->vertex(vector3(mPosition.x + mDrawRegionPos.x, finalPos.y, -0.5));
-
-	rs->endVertices();
-	rs->setDepthMask(true);
+	rs->drawArrays(true);
 
 	// Finish
+	rs->setDepthMask(true);
 	mMaterial->finish();
 }
 

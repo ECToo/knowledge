@@ -525,7 +525,7 @@ void glRenderSystem::unBindTexture(int chan)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void glRenderSystem::drawArrays()
+void glRenderSystem::drawArrays(bool dontUseIndex)
 {
 	if (mActiveMaterial && mActiveMaterial->getNoDraw())
 		return;
@@ -547,49 +547,53 @@ void glRenderSystem::drawArrays()
 		glDisableClientState(GL_NORMAL_ARRAY);
 	}
 
-	unsigned int texUnits = mActiveMaterial->getStagesCount();
-	for (unsigned int i = texUnits; i < MAX_TEXCOORD; i++)
+	// If we have at least coord 0, we can check for textures
+	if (mTexCoordArray[0])
 	{
-		// In case we specified an array
-		if (mTexCoordArray[i])
+		unsigned int texUnits = mActiveMaterial->getStagesCount();
+		for (unsigned int i = texUnits; i < MAX_TEXCOORD; i++)
 		{
-			texUnits = i + 1;
-			continue;
-		}
-
-		glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
-		glActiveTextureARB(GL_TEXTURE0_ARB + i);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisable(GL_TEXTURE_2D);
-	}
-			
-	if (texUnits)
-	{
-		for (unsigned int i = 0; i < texUnits; i++)
-		{
-			glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
-			glActiveTextureARB(GL_TEXTURE0_ARB + i);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glEnable(GL_TEXTURE_2D);
-				
-			int found = 0;
-			for (found = i; found > 0; found--)
+			// In case we specified an array
+			if (mTexCoordArray[i])
 			{
-				if (mTexCoordArray[i])
-					break;
+				texUnits = i + 1;
+				continue;
 			}
 
-			if (mUsingVBO)
-				glTexCoordPointer(2, GL_FLOAT, mTexCoordStride[found], (char*)NULL + mTexCoordOffset[found]);
-			else
-				glTexCoordPointer(2, GL_FLOAT, mTexCoordStride[found], mTexCoordArray[found]);
+			glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
+			glActiveTextureARB(GL_TEXTURE0_ARB + i);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			glDisable(GL_TEXTURE_2D);
+		}
+			
+		if (texUnits)
+		{
+			for (unsigned int i = 0; i < texUnits; i++)
+			{
+				glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
+				glActiveTextureARB(GL_TEXTURE0_ARB + i);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glEnable(GL_TEXTURE_2D);
+					
+				int found = 0;
+				for (found = i; found > 0; found--)
+				{
+					if (mTexCoordArray[i])
+						break;
+				}
+	
+				if (mUsingVBO)
+					glTexCoordPointer(2, GL_FLOAT, mTexCoordStride[found], (char*)NULL + mTexCoordOffset[found]);
+				else
+					glTexCoordPointer(2, GL_FLOAT, mTexCoordStride[found], mTexCoordArray[found]);
+			}
+		}
+		else
+		{
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
 	}
-	else
-	{
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	}
-		
+			
 	if (mVertexArray || (mUsingVBO && mVertexOffset != -1))
 	{
 		glEnableClientState(GL_VERTEX_ARRAY);
@@ -599,8 +603,11 @@ void glRenderSystem::drawArrays()
 		else
 		{
 			kAssert(mVertexCount);
-			kAssert(mIndexCount);
 			kAssert(mVertexArray);
+
+			if (!dontUseIndex)
+				kAssert(mIndexCount);
+
 			glVertexPointer(3, GL_FLOAT, mVertexStride, mVertexArray);
 		}
 	}
@@ -614,11 +621,21 @@ void glRenderSystem::drawArrays()
 	else
 	if (mIndexDrawMode == VERTEXMODE_POINTS)
 		drawMode = GL_POINTS;
-
-	if (mUsingVBO)
-		glDrawRangeElements(drawMode, 0, mVertexCount - 1, mIndexCount, GL_UNSIGNED_INT, (char*)NULL + mIndexOffset);
 	else
-		glDrawRangeElements(drawMode, 0, mVertexCount - 1, mIndexCount, GL_UNSIGNED_INT, mIndexArray);
+	if (mIndexDrawMode == VERTEXMODE_LINE)
+		drawMode = GL_LINES;
+
+	if (dontUseIndex)
+	{
+		glDrawArrays(drawMode, 0, mVertexCount);
+	}
+	else
+	{
+		if (mUsingVBO)
+			glDrawRangeElements(drawMode, 0, mVertexCount - 1, mIndexCount, GL_UNSIGNED_INT, (char*)NULL + mIndexOffset);
+		else
+			glDrawRangeElements(drawMode, 0, mVertexCount - 1, mIndexCount, GL_UNSIGNED_INT, mIndexArray);
+	}
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);

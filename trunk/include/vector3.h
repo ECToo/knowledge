@@ -134,6 +134,14 @@ namespace k
 
 				return *this;				
 			}
+
+			/**
+			 * Compare all values on this vector with a single value.
+			 */
+			inline bool operator == (const vec_t real)
+			{
+				return (x == real && y == real && z == real);
+			}
 			
 			/**
 			 * Subtract a vector from this one.

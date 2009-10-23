@@ -44,8 +44,6 @@ const vec_t uvs[] ATTRIBUTE_ALIGN(32) =
 	0.0, 0.0
 };
 
-const index_t indices[] ATTRIBUTE_ALIGN(32) = { 0, 1, 2, 3 };
-
 void bgLoadScreen::loadBg(const std::string& filename)
 {
 	k::textureManager* texMgr = &k::textureManager::getSingleton();
@@ -92,11 +90,10 @@ void bgLoadScreen::update(const std::string& filename)
 	rs->clearArrayDesc(VERTEXMODE_QUAD);
 	rs->setVertexArray(vertices);
 	rs->setTexCoordArray(uvs);
-	rs->setVertexIndex(indices);
 
 	rs->setVertexCount(4);
 	rs->setIndexCount(4);
-	rs->drawArrays();
+	rs->drawArrays(true);
 
 	mBackground->finish();
 
@@ -180,26 +177,25 @@ void imgLoadScreen::update(const std::string& filename)
 	mImgMaterial->start();
 	rs->setDepthMask(false);
 
-	rs->startVertices(VERTEXMODE_QUAD);
+	mVertices[3] = mRealDimX;
+	mVertices[6] = mRealDimX;
+	mVertices[7] = mRealDimY;
+	mVertices[10] = mRealDimY;
 
-	rs->texCoord(vector2(0.0, 1.0));
-	rs->vertex(vector3(0, 0, -0.5));
+	// Draw data
+	rs->clearArrayDesc(VERTEXMODE_QUAD);
+	rs->setVertexArray(mVertices);
+	rs->setVertexCount(4);
 
-	rs->texCoord(vector2(1.0, 1.0));
-	rs->vertex(vector3(mRealDimX, 0, -0.5));
+	rs->setTexCoordArray(uvs);
+	rs->setIndexCount(4);
 
-	rs->texCoord(vector2(1.0, 0.0));
-	rs->vertex(vector3(mRealDimX, mRealDimY, -0.5));
-
-	rs->texCoord(vector2(0.0, 0.0));
-	rs->vertex(vector3(0, mRealDimY, -0.5));
-
-	rs->endVertices();
+	rs->drawArrays(true);
 
 	mImgMaterial->finish();
 	rs->setDepthMask(true);
-	// 
 
+	// End frame
 	rs->frameEnd();
 }
 

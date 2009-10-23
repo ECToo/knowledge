@@ -35,6 +35,7 @@ md3Surface::md3Surface()
 
 	mFrameCount = mVerticesCount = mIndicesCount = mUVCount = 0;
 	mVertices = NULL;
+	mDrawingNormals = NULL;
 	mIndices = NULL;
 	mUVs = NULL;
 
@@ -51,6 +52,31 @@ md3Surface::~md3Surface()
 
 	if (mUVs) 
 		free(mUVs);
+
+	if (mDrawingNormals)
+		free(mDrawingNormals);
+}
+		
+void md3Surface::setDrawNormals(bool draw)
+{
+	if (!draw && mDrawNormals)
+	{
+		// Remove our array
+		if (mDrawingNormals)
+			free(mDrawingNormals);
+	}
+	else
+	if (draw && !mDrawNormals)
+	{
+		// Construct the array
+		mDrawingNormals = (vector3*) memalign(32, mVerticesCount * 2 * sizeof(vector3));
+		if (!mDrawingNormals)
+		{
+			S_LOG_INFO("Failed to allocate normal array for drawing normals.");
+		}
+	}
+
+	mDrawNormals = draw;
 }
 
 void md3Surface::draw(short frameNum)
@@ -77,21 +103,23 @@ void md3Surface::draw(short frameNum)
 	
 	if (mDrawNormals)
 	{
+		// Copy Normals
+		for (unsigned int i = 0; i < mVerticesCount; i++)
+		{
+			mDrawingNormals[i * 2] = mVertices[i + (frameNum * mVerticesCount)].pos;
+			mDrawingNormals[(i * 2) + 1] = (mVertices[i + (frameNum * mVerticesCount)].pos + (mVertices[i + (frameNum * mVerticesCount)].normal * 2));
+		}
+
 		material* normalMaterial =  materialManager::getSingleton().getMaterial("k_base_white");
 		kAssert(normalMaterial);
 
 		normalMaterial->start();
 
-		// Draw Normals
-		for (unsigned int i = 0; i < mVerticesCount; i++)
-		{
-			rs->startVertices(VERTEXMODE_LINE);
-				rs->vertex(mVertices[i + (frameNum * mVerticesCount)].pos);
-				rs->vertex(mVertices[i + (frameNum * mVerticesCount)].pos + 
-						(mVertices[i + (frameNum * mVerticesCount)].normal * 2));
+		rs->clearArrayDesc(VERTEXMODE_LINE);
+		rs->setVertexArray(mDrawingNormals[0].vec);
+		rs->setVertexCount(mVerticesCount * 2);
 
-			rs->endVertices();
-		}
+		rs->drawArrays(true);
 
 		normalMaterial->finish();
 	}

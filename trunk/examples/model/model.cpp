@@ -170,12 +170,7 @@ class modelExample : public k::inputEventHandler
 			}
 
 			resourceMgr->setLoadingScreen(newLoadingScreen);
-	
-			#ifdef __WII__
-			newLoadingScreen->loadBg("loading.tpl");
-			#else
 			newLoadingScreen->loadBg("loading.jpg");
-			#endif
 
 			newLoadingScreen->setImgDimension(k::vector2(256, 256));
 			newLoadingScreen->update("");
@@ -191,8 +186,6 @@ class modelExample : public k::inputEventHandler
 			// Load the Model
 			modelPosition.z = -65;
 		
-			// k::light::light* tempLight = NULL;
-			// k::light::light* tempLight2 = NULL;
 			tempLight = mRenderer->createPointLight();
 			tempLight2 = mRenderer->createPointLight();
 			if (tempLight && tempLight2)
@@ -444,18 +437,10 @@ class modelExample : public k::inputEventHandler
 					}
 					break;
 				case k::KB_a:
-					#ifdef __WII__
-					modelPosition.z += 0.5;
-					#else
-					modelPosition.z += 0.1;
-					#endif
+					modelPosition.z += 5;
 					break;
 				case k::KB_z:
-					#ifdef __WII__
-					modelPosition.z -= 0.5;
-					#else
-					modelPosition.z -= 0.1;
-					#endif
+					modelPosition.z -= 5;
 					break;
 				case k::KB_i:
 					rY += 1;
