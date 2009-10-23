@@ -195,7 +195,7 @@ int main(int argc, char** argv)
 		mInputManager->feed();
 
 		// User clicked on Close Window
-		if (mInputManager->getQuitEvent() || kb && kb->isKeyDown(k::KB_escape))
+		if (mInputManager->getQuitEvent() || (kb && kb->isKeyDown(k::KB_escape)))
 			running = false;
 
 		// Quit Application on wii

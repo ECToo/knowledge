@@ -5,8 +5,6 @@ AC_PROG_CXX
 AC_PROG_LIBTOOL
 AC_CONFIG_MACRO_DIR([m4])
 AM_SANITY_CHECK
-CFLAGS=""
-CXXFLAGS="-Wall -O2 -g -std=c++0x"
 AC_PATH_PROG(SDL_CONFIG, sdl-config)
 if test -n "$SDL_CONFIG"; then
     LIBS="$LIBS `$SDL_CONFIG --libs`"
@@ -47,7 +45,11 @@ echo "#undef __HAVE_SSE3__" >> include/config.h
 echo "#endif" >> include/config.h
 )
 
+CFLAGS="$CFLAGS"
+CXXFLAGS="$CXXFLAGS -Wall -Werror -O2 -g -std=c++0x"
+
 AC_OUTPUT(Makefile src/Makefile \
+
 			 include/Makefile \
 			 examples/Makefile \
 			 examples/bsp/Makefile \

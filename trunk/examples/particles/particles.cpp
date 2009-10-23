@@ -77,7 +77,7 @@ int main(int argc, char** argv)
 	mRenderer->push2D(fpsText);
 
 	bool running = true;
-	bool leftHold = false;
+	// bool leftHold = false;
 			
 	while (running)
 	{

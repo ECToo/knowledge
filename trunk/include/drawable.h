@@ -292,6 +292,9 @@ namespace k
 			vector3 mMins;
 			vector3 mMaxs;
 
+			// To draw edges
+			vector3 mBoundingLines[24] ATTRIBUTE_ALIGN(32);
+
 		public:
 			/**
 			 * Creates a boundingBox with edges on zero.
@@ -364,7 +367,7 @@ namespace k
 			/**
 			 * Draw the bounding box edges.
 			 */
-			void draw() const;
+			void draw();
 	};
 
 	/**

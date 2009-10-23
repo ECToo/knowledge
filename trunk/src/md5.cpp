@@ -39,6 +39,7 @@ md5mesh::md5mesh()
 	mVIndex = 0;
 	mVCount = 0;
 	mVertices = NULL;
+	mDrawingNormals = NULL;
 
 	mWIndex = 0;
 	mWCount = 0;
@@ -71,6 +72,28 @@ md5mesh::~md5mesh()
 	
 	if (mTriangles)
 		free(mTriangles);
+}
+		
+void md5mesh::setDrawNormals(bool draw)
+{
+	if (!draw && mDrawNormals)
+	{
+		// Remove our array
+		if (mDrawingNormals)
+			free(mDrawingNormals);
+	}
+	else
+	if (draw && !mDrawNormals)
+	{
+		// Construct the array
+		mDrawingNormals = (vector3*) memalign(32, mVCount * 2 * sizeof(vector3));
+		if (!mDrawingNormals)
+		{
+			S_LOG_INFO("Failed to allocate normal array for drawing normals.");
+		}
+	}
+
+	mDrawNormals = draw;
 }
 		
 bool md5mesh::isOpaque() const
@@ -404,19 +427,23 @@ void md5mesh::draw()
 
 	if (mDrawNormals)
 	{
+		// Copy Normals
+		for (unsigned int i = 0; i < mVCount; i++)
+		{
+			mDrawingNormals[i * 2] = mVertices[i].renderPos;
+			mDrawingNormals[(i * 2) + 1] = (mVertices[i].renderPos + (mVertices[i].renderNormal * 2));
+		}
+
 		material* normalMaterial =  materialManager::getSingleton().getMaterial("k_base_white");
 		kAssert(normalMaterial);
 
 		normalMaterial->start();
 
-		// Draw Normals
-		for (unsigned int i = 0; i < mVCount; i++)
-		{
-			rs->startVertices(VERTEXMODE_LINE);
-				rs->vertex(mVertices[i].renderPos);
-				rs->vertex(mVertices[i].renderPos + (mVertices[i].renderNormal * 2));
-			rs->endVertices();
-		}
+		rs->clearArrayDesc(VERTEXMODE_LINE);
+		rs->setVertexArray(mDrawingNormals[0].vec);
+		rs->setVertexCount(mVCount * 2);
+
+		rs->drawArrays(true);
 
 		normalMaterial->finish();
 	}

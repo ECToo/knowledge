@@ -40,7 +40,7 @@ int main(int argc, char** argv)
 	k::renderer* mRenderer = appRoot->getRenderer();
 	k::guiManager* mGuiManager = appRoot->getGuiManager();
 	k::inputManager* mInputManager = appRoot->getInputManager();
-	k::materialManager* mMaterialManager = appRoot->getMaterialManager();
+	// k::materialManager* mMaterialManager = appRoot->getMaterialManager();
 
 	// Doesnt matter on wii
 	mRenderSystem->createWindow(800, 600);
@@ -140,9 +140,10 @@ int main(int argc, char** argv)
 	}
 
 	bool running = true;
-	bool leftHold = false;
+	/*
 	bool lightmap = false;
 	vec_t camAngle = 0;
+	*/
 
 	delete newLoadingScreen;
 
@@ -151,7 +152,7 @@ int main(int argc, char** argv)
 		mInputManager->feed();
 
 		// User clicked on Close Window
-		if (mInputManager->getQuitEvent() || kb && kb->isKeyDown(k::KB_escape))
+		if (mInputManager->getQuitEvent() || (kb && kb->isKeyDown(k::KB_escape)))
 			running = false;
 
 		// Quit Application

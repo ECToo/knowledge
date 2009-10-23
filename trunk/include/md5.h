@@ -175,6 +175,9 @@ class DLL_EXPORT md5mesh
 		// Are we drawing the normals?
 		bool mDrawNormals;
 
+		// Drawing Normal array
+		vector3* mDrawingNormals;
+
 		// Used to glDrawelements
 		vec_t* mVertexList;
 		vec_t* mUvList;
@@ -245,10 +248,7 @@ class DLL_EXPORT md5mesh
 		/**
 		 * Set normal drawing
 		 */
-		void setDrawNormals(bool draw)
-		{
-			mDrawNormals = draw;
-		}
+		void setDrawNormals(bool draw);
 
 		/**
 		 * Are we drawing normals?
