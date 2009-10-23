@@ -203,7 +203,7 @@ const vector3& boundingBox::getMaxs() const
 	return mMaxs;
 }
 			
-void boundingBox::draw() const
+void boundingBox::draw()
 {
 	const vector3 v1 = mMins;
 	const vector3 v2 = vector3(mMaxs.x, mMins.y, mMins.z);
@@ -215,51 +215,42 @@ void boundingBox::draw() const
 	const vector3 v7 = mMaxs;
 	const vector3 v8 = vector3(mMins.x, mMaxs.y, mMaxs.z);
 
+	// Please romulo, do something better than that!
+	mBoundingLines[0] = v1;
+	mBoundingLines[1] = v2;
+	mBoundingLines[2] = v2;
+	mBoundingLines[3] = v3;
+	mBoundingLines[4] = v3;
+	mBoundingLines[5] = v4;
+	mBoundingLines[6] = v4;
+	mBoundingLines[7] = v1;
+	mBoundingLines[8] = v5;
+	mBoundingLines[9] = v6;
+	mBoundingLines[10] = v6;
+	mBoundingLines[11] = v7;
+	mBoundingLines[12] = v7;
+	mBoundingLines[13] = v8;
+	mBoundingLines[14] = v8;
+	mBoundingLines[15] = v5;
+	mBoundingLines[16] = v1;
+	mBoundingLines[17] = v5;
+	mBoundingLines[18] = v2;
+	mBoundingLines[19] = v6;
+	mBoundingLines[20] = v3;
+	mBoundingLines[21] = v7;
+	mBoundingLines[22] = v4;
+	mBoundingLines[23] = v8;
+
 	material* boundMaterial = materialManager::getSingleton().getMaterial("k_base_white");
 	if (boundMaterial) boundMaterial->start();
 
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 	rs->translateScene(0, mMaxs.y, 0);
-	rs->startVertices(VERTEXMODE_LINE);
-		// Base
-		rs->vertex(v1);
-		rs->vertex(v2);
 
-		rs->vertex(v2);
-		rs->vertex(v3);
-
-		rs->vertex(v3);
-		rs->vertex(v4);
-
-		rs->vertex(v4);
-		rs->vertex(v1);
-
-		// Top
-		rs->vertex(v5);
-		rs->vertex(v6);
-
-		rs->vertex(v6);
-		rs->vertex(v7);
-
-		rs->vertex(v7);
-		rs->vertex(v8);
-
-		rs->vertex(v8);
-		rs->vertex(v5);
-
-		// Vertical Edges
-		rs->vertex(v1);
-		rs->vertex(v5);
-
-		rs->vertex(v2);
-		rs->vertex(v6);
-
-		rs->vertex(v3);
-		rs->vertex(v7);
-
-		rs->vertex(v4);
-		rs->vertex(v8);
-	rs->endVertices();
+	rs->clearArrayDesc(VERTEXMODE_LINE);
+	rs->setVertexArray(mBoundingLines[0].vec);
+	rs->setVertexCount(24);
+	rs->drawArrays(true);
 
 	if (boundMaterial) boundMaterial->finish();
 }

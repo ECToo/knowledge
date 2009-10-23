@@ -64,13 +64,13 @@ AUTOMAKE = ${SHELL} /home/nightz/Projects/devkitPPC/knowledge/missing --run auto
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = 
+CFLAGS = -g -O2
 CPP = gcc -E
-CPPFLAGS = -Wall -O2 -g -std=c++0x -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
+CPPFLAGS = -g -O2 -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -Wall -O2 -g -std=c++0x -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -msse -msse2 -msse3 -ffast-math
+CXXFLAGS = -g -O2 -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -msse -msse2 -msse3 -ffast-math -Wall -Werror -O2 -g -std=c++0x
 CYGPATH_W = echo
 DEFS = -DPACKAGE_NAME=\"\" -DPACKAGE_TARNAME=\"\" -DPACKAGE_VERSION=\"\" -DPACKAGE_STRING=\"\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE=\"knowledge\" -DVERSION=\"0.1\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DLT_OBJDIR=\".libs/\" -DHAVE_LIBSDL=1 -DHAVE_SDL_H=1 -DHAVE_LIBGLEW=1 -DHAVE_LIBFREEIMAGE=1
 DEPDIR = .deps

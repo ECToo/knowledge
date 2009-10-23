@@ -31,7 +31,7 @@ namespace k {
 void materialStage::draw()
 {
 	bool notFound = true;
-	for (int i = 0; i < mTexturesCount; i++)
+	for (unsigned int i = 0; i < mTexturesCount; i++)
 	{
 		if (mTextures[i])
 		{
@@ -127,7 +127,7 @@ void materialStage::draw()
 void materialStage::finish()
 {
 	bool notFound = true;
-	for (int i = 0; i < mTexturesCount; i++)
+	for (unsigned int i = 0; i < mTexturesCount; i++)
 	{
 		if (mTextures[i])
 		{

@@ -213,9 +213,12 @@ int main(int argc, char** argv)
 
 	mGuiManager->setCursor("wiiCursor3", k::vector2(32, 32));
 
+	/*
 	bool L_Hold = false;
 	bool E_Hold = false;
 	bool wireframe = false;
+	*/
+
 	bool running = true;
 
 	while (running)

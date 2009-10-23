@@ -298,8 +298,6 @@ void renderer::_drawSkyPlane()
 		0.0, 0.0
 	};
 
-	const index_t indices[] ATTRIBUTE_ALIGN(32) = { 0, 1, 2, 3 };
-
 	// Rendersystem
 	renderSystem* rs = root::getSingleton().getRenderSystem();
 
@@ -321,30 +319,9 @@ void renderer::_drawSkyPlane()
 	rs->clearArrayDesc(VERTEXMODE_QUAD);
 	rs->setVertexArray(vertices);
 	rs->setTexCoordArray(uvs);
-	rs->setVertexIndex(indices);
 
 	rs->setVertexCount(4);
-	rs->setIndexCount(4);
-	rs->drawArrays();
-
-	/*
- 	rs->startVertices(VERTEXMODE_QUAD);
-		rs->texCoord(vector2(0, 2)); rs->vertex(vector3( 1.0f, -1.0f, -1.0f));
-		rs->texCoord(vector2(2, 2)); rs->vertex(vector3(-1.0f, -1.0f, -1.0f));
-		rs->texCoord(vector2(2, 0)); rs->vertex(vector3(-1.0f,  1.0f, -1.0f));
-		rs->texCoord(vector2(0, 0)); rs->vertex(vector3( 1.0f,  1.0f, -1.0f));
-
-		rs->texCoord(vector2(0, 2)); rs->vertex(vector3( 1.0f, -1.0f,  1.0f));
-		rs->texCoord(vector2(2, 2)); rs->vertex(vector3( 1.0f, -1.0f, -1.0f));
-		rs->texCoord(vector2(2, 0)); rs->vertex(vector3( 1.0f,  1.0f, -1.0f));
-		rs->texCoord(vector2(0, 0)); rs->vertex(vector3( 1.0f,  1.0f,  1.0f));
-
-		rs->texCoord(vector2(0, 2)); rs->vertex(vector3(-1.0f, -1.0f, -1.0f));
-		rs->texCoord(vector2(2, 2)); rs->vertex(vector3(-1.0f, -1.0f,  1.0f));
-		rs->texCoord(vector2(2, 0)); rs->vertex(vector3(-1.0f,  1.0f,  1.0f));
-		rs->texCoord(vector2(0, 0)); rs->vertex(vector3(-1.0f,  1.0f, -1.0f));
-	rs->endVertices();
-	*/
+	rs->drawArrays(true);
 
 	mSkyPlane->finish();
 	rs->setDepthMask(true);
