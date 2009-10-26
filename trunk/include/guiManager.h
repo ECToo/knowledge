@@ -28,6 +28,7 @@ THE SOFTWARE.
 #include "singleton.h"
 #include "sticker.h"
 #include "fontManager.h"
+#include "inputManager.h"
 
 namespace k
 {
@@ -380,8 +381,7 @@ namespace k
 			void _registerSignals();
 
 			// if mouse was down here, and is up here, emit clicked
-			bool mMouseWasDown;
-
+			unsigned int mMouseWasDown;
 
 		public:
 			/**
@@ -433,7 +433,7 @@ namespace k
 	/**
 	 * \brief Handle basic GUI operations.
 	 */
-	class DLL_EXPORT guiManager : public singleton<guiManager>
+	class DLL_EXPORT guiManager : public singleton<guiManager>, public inputEventHandler
 	{
 		protected:
 			sticker* mCursor;
@@ -565,6 +565,18 @@ namespace k
 			 * Returns the cursor movement since last frame.
 			 */
 			const vector2& getCursorDeltaPosition() const;
+
+			/**
+			 * Handle mouse down. Should only
+			 * be called if you want to force a button down on the GUI.
+			 */
+			bool mouseButtonDown(unsigned int button, inputPeripheral* mouse);
+			
+			/**
+			 * Handle mouse up. Should only
+			 * be called if you want to force a button up on the GUI.
+			 */
+			bool mouseButtonUp(unsigned int button, inputPeripheral* mouse);
 
 			/**
 			 * Take care of events, handle elements and update cursor position.

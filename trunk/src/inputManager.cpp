@@ -192,6 +192,8 @@ bool inputManager::getQuitEvent() const
 void inputPeripheral::callEvent(eventHandlers type, unsigned int id)
 {
 	kAssert(type < HANDLER_MAX_HANDLERS);
+	if (mHandlers[type].size() <= 0)
+		return;
 	
 	std::vector<inputFunctionPtr>::iterator it;
 	for (it = mHandlers[type].begin(); it != mHandlers[type].end(); it++)

@@ -17,7 +17,7 @@
 
 #include "knowledge.h"
 
-class modelExample : public k::inputEventHandler
+class modelExample : public k::inputEventHandler, public k::signalHandler
 {
 	private:
 		k::root* appRoot;
@@ -306,6 +306,22 @@ class modelExample : public k::inputEventHandler
 			mGuiManager->pushWidget(newPanel);
 			mRenderer->push2D(newPanel);
 
+			/**
+			 * Used to test GUI buttons, uncomment if you wanna see a nice button =D
+			 *
+			k::buttonWidget* newTestBtn = new k::buttonWidget(k::vector2(180, 180), k::vector2(150, 20));
+			newTestBtn->setText("TEST");
+			mGuiManager->pushWidget(newTestBtn);	
+			mRenderer->push2D(newTestBtn);
+
+			// Clicked Signal
+			k::signalHandlerInfo_t* clickedInfo = new k::signalHandlerInfo_t;
+			clickedInfo->handler = this;
+			clickedInfo->function = (k::signalFunctionPtr)(&modelExample::buttonClicked);
+			clickedInfo->userData = NULL;
+			newTestBtn->connect("clicked", clickedInfo);
+			*/
+
 			// Wire
 			wireframe = false;
 			bounding = false;
@@ -405,6 +421,14 @@ class modelExample : public k::inputEventHandler
 				mRenderer->draw();
 			}
 		}
+
+		/* Used to test GUI buttons
+		bool buttonClicked(k::signalInfo_t info, void* userData)
+		{
+			printf("Clicked button %d\n", info.mouseState.buttons);
+			return false;
+		}
+		*/
 
 		bool keyDown(unsigned int key, k::inputPeripheral* kbd)
 		{
