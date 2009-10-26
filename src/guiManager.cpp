@@ -662,7 +662,7 @@ void buttonSkin::drawWidgetSkin(const vector2& pos)
 
 buttonWidget::buttonWidget() : buttonSkin()
 {
-	mMouseWasDown = false;
+	mMouseWasDown = 0;
 
 	_registerSignals();
 
@@ -685,7 +685,7 @@ buttonWidget::buttonWidget() : buttonSkin()
 
 buttonWidget::buttonWidget(const vector2& pos, const vector2& dimension) : buttonSkin()
 {
-	mMouseWasDown = false;
+	mMouseWasDown = 0;
 
 	mRectangle = rectangle(pos, dimension);
 	_registerSignals();
@@ -869,19 +869,21 @@ bool buttonWidget::mousemove(signalInfo_t info, void* userData)
 
 bool buttonWidget::mousedown(signalInfo_t info, void* userData)
 {
-	mMouseWasDown = true;
+	mMouseWasDown |= (1 << info.mouseState.buttons);
+
 	return true;
 }
 
 bool buttonWidget::mouseup(signalInfo_t info, void* userData)
 {
-	if (mMouseWasDown)
+	if ((1 << info.mouseState.buttons) & mMouseWasDown)
 	{
 		// generate clicked event
 		callSignal("clicked", info);
 	}
-	
-	mMouseWasDown = false;
+
+	mMouseWasDown &= ~(1 << info.mouseState.buttons);
+
 	return true;
 }
 
@@ -897,6 +899,26 @@ guiManager::guiManager()
 {
 	mCursor = NULL;
 	mLastButton = 0;
+
+	// Mouse handlers
+	inputManager* tmpInput = &inputManager::getSingleton();
+	if (tmpInput && tmpInput->isPeripheralActive(INPUT_MOUSE))
+	{
+		// Get mouse
+		inputPeripheral* mouse = tmpInput->getDevice(INPUT_MOUSE);
+		if (!mouse)
+		{
+			S_LOG_INFO("Failed to retrieve mouse peripheral from input manager.");
+			return;
+		}
+
+		// Register up and down
+		k::inputFunctionPtr downPtr(this, (k::inputFunction)&guiManager::mouseButtonDown);
+		k::inputFunctionPtr upPtr(this, (k::inputFunction)&guiManager::mouseButtonUp);
+		
+		mouse->pushEvent(k::HANDLER_DOWN, downPtr);
+		mouse->pushEvent(k::HANDLER_UP, upPtr);
+	}
 }
 
 guiManager::~guiManager()
@@ -953,6 +975,64 @@ void guiManager::pushWidget(widget* w)
 	kAssert(w);
 	mWidgets.push_back(w);
 }
+			
+bool guiManager::mouseButtonDown(unsigned int button, inputPeripheral* mouse)
+{
+	kAssert(mouse);
+
+	signalInfo_t newInfo;
+	newInfo.type = SIGNAL_MOUSEDOWN;
+		
+	newInfo.mouseState.mPosition = mouse->getPosition();
+	newInfo.mouseState.buttons = button;
+
+	// TODO: Get Keys from inputManager
+	newInfo.key = 0;
+
+	std::vector<widget*>::iterator it;
+	for (it = mWidgets.begin(); it != mWidgets.end(); it++)
+	{
+		widget* w = (*it);
+			
+		if (!w->isPointerInside(mCursorLastPos))
+			continue;
+
+		if (w->callSignal("mouseDown", newInfo))
+			break;
+	}
+
+	// never blocks
+	return false;
+}
+
+bool guiManager::mouseButtonUp(unsigned int button, inputPeripheral* mouse)
+{
+	kAssert(mouse);
+
+	signalInfo_t newInfo;
+	newInfo.type = SIGNAL_MOUSEUP;
+		
+	newInfo.mouseState.mPosition = mouse->getPosition();
+	newInfo.mouseState.buttons = button;
+
+	// TODO: Get Keys from inputManager
+	newInfo.key = 0;
+
+	std::vector<widget*>::iterator it;
+	for (it = mWidgets.begin(); it != mWidgets.end(); it++)
+	{
+		widget* w = (*it);
+			
+		if (!w->isPointerInside(mCursorLastPos))
+			continue;
+
+		if (w->callSignal("mouseUp", newInfo))
+			break;
+	}
+
+	// never blocks
+	return false;
+}
 
 void guiManager::update()
 {
@@ -989,66 +1069,6 @@ void guiManager::update()
 				break;
 		}
 	}
-
-	// Send mouse down OR mouse up
-	unsigned int newButton = 0;
-	
-	/*
-	newButton |= (inputManager::getSingleton().getWiiMoteDown(0, WIIMOTE_BUTTON_A) ? 0x1 : 0x0);
-	newButton |= (inputManager::getSingleton().getWiiMoteDown(0, WIIMOTE_BUTTON_B) ? 0x2 : 0x0);
-	*/
-
-	if (newButton & 0x1)
-	{
-		signalInfo_t newInfo;
-		newInfo.type = SIGNAL_MOUSEDOWN;
-		
-		newInfo.mouseState.mPosition = mCursorLastPos;
-		newInfo.mouseState.buttons = BUTTON_LEFT;
-
-		// TODO: Get Keys from inputManager
-		newInfo.key = 0;
-
-		// Button is Down
-		std::vector<widget*>::iterator it;
-		for (it = mWidgets.begin(); it != mWidgets.end(); it++)
-		{
-			widget* w = (*it);
-			
-			if (!w->isPointerInside(mCursorLastPos))
-				continue;
-
-			if (w->callSignal("mouseDown", newInfo))
-				break;
-		}
-	}
-	else
-	if (mLastButton & 0x1)
-	{
-		signalInfo_t newInfo;
-		newInfo.type = SIGNAL_MOUSEUP;
-		
-		newInfo.mouseState.mPosition = mCursorLastPos;
-		newInfo.mouseState.buttons = BUTTON_LEFT;
-
-		// TODO: Get Keys from inputManager
-		newInfo.key = 0;
-
-		// Button up
-		std::vector<widget*>::iterator it;
-		for (it = mWidgets.begin(); it != mWidgets.end(); it++)
-		{
-			widget* w = (*it);
-			
-			if (!w->isPointerInside(mCursorLastPos))
-				continue;
-
-			if (w->callSignal("mouseUp", newInfo))
-				break;
-		}
-	}
-
-	mLastButton = newButton;
 }
 			
 rectangle* guiManager::getSkinDefinition(const std::string& wname) const

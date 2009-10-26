@@ -107,18 +107,6 @@ root::root(const std::string& filename)
 
 	try
 	{
-		// Create The Gui manager
-		mGuiManager = new guiManager();
-	}
-
-	catch (...)
-	{
-		S_LOG_INFO("Failed to allocate guiManager.");
-		return;
-	}
-
-	try
-	{
 		// Create The Input Manager
 		mInputManager = new inputManager();
 	}
@@ -126,6 +114,18 @@ root::root(const std::string& filename)
 	catch (...)
 	{
 		S_LOG_INFO("Failed to allocate inputManager.");
+		return;
+	}
+
+	try
+	{
+		// Create The Gui manager
+		mGuiManager = new guiManager();
+	}
+
+	catch (...)
+	{
+		S_LOG_INFO("Failed to allocate guiManager.");
 		return;
 	}
 
