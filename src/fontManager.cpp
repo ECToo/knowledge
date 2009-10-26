@@ -113,6 +113,9 @@ bitmapText::bitmapText(const std::string& datName, const std::string& matName)
 
 	// Clear Contents
 	mContents.clear();
+
+	// Close File
+	fclose(datFile);
 }
 			
 bitmapText::~bitmapText()
