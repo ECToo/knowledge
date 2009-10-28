@@ -980,6 +980,9 @@ void wiiRenderSystem::drawArrays(bool dontUseIndex)
 	if (mIndexDrawMode == VERTEXMODE_LINE)
 		drawMode = GX_LINES;
 
+	if (dontUseIndex)
+		mIndexCount = mVertexCount;
+
 	GX_Begin(drawMode, GX_VTXFMT0, mIndexCount);
 	if (dontUseIndex)
 	{
