@@ -111,7 +111,7 @@ void textureManager::createSystemTextures()
 {
 	// Register some basic textures (k_base_white, k_base_black, k_base_null)
 	// RGBA: 4x4
-	const char whiteTextureData[64] = {
+	const unsigned char whiteTextureData[64] = {
 		255, 255, 255, 255,
 		255, 255, 255, 255,
 		255, 255, 255, 255,

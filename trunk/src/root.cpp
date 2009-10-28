@@ -79,7 +79,7 @@ inputManager* root::getInputManager()
 	
 std::string getExtension(const std::string& file)
 {
-	char* dot = strstr(file.c_str(), ".");
+	char* dot = const_cast<char*>(strstr(file.c_str(), "."));
 
 	if (!dot)
 	{

@@ -750,7 +750,7 @@ void glRenderSystem::setLightPosition(unsigned int i, const vector3& p, bool dir
 	setMatrixMode(MATRIXMODE_MODELVIEW);
 	identityMatrix();
 
-	GLfloat position[4] = {p.x, p.y, p.z, directional ? 0 : 1 };
+	GLfloat position[4] = {p.x, p.y, p.z, (GLfloat)(directional ? 0 : 1)};
 	glLightfv(GL_LIGHT0 + i, GL_POSITION, position);
 }
 
